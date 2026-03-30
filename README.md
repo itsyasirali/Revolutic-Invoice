@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# Revolutic Invoice System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive, full-stack web application designed for generating, managing, and sending professional invoices. Built with a modern React frontend and a powerful NestJS backend, this system streamlines the entire invoicing workflow including customer management, item tracking, payment recording, and template customization.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Authentication & Security:** Secure user sessions using express-session and connect-pg-simple.
+- **Dashboard:** Interactive dashboard with data visualization using Recharts.
+- **Customer & Item Management:** Easily maintain records of customers and products/services.
+- **Invoicing System:** Create, edit, preview, and manage professional invoices.
+- **PDF Generation:** Generate PDF invoices directly on both the frontend (`html2pdf.js`) and backend (`PDFKit`).
+- **Email Integration:** Compose and send invoices and payment receipts via email using Nodemailer.
+- **Payments:** Record and track payments against generated invoices.
+- **Customizable Templates:** Create and manage distinct templates for customized invoice generation.
 
-## React Compiler
+## Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
+| Concern | Technology |
+| :--- | :--- |
+| Framework | React (Vite) |
+| Language | TypeScript |
+| Routing | React Router DOM |
+| Styling | Tailwind CSS |
+| Icons | Lucide React |
+| HTTP Client | Axios |
+| PDF Generation | html2pdf.js |
+| Data Visualization| Recharts |
+| Rich Text Editor | React Quill |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Backend
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Concern | Technology |
+| :--- | :--- |
+| Runtime | Node.js |
+| Framework | NestJS |
+| Language | TypeScript |
+| Database | PostgreSQL (TypeORM) |
+| Authentication | Express Session + connect-pg-simple |
+| Security | bcrypt |
+| File Uploads | Multer |
+| Email System | Nodemailer |
+| PDF Generation | PDFKit |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Prerequisites
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- [Node.js](https://nodejs.org/) (v16.x or newer)
+- [PostgreSQL](https://www.postgresql.org/) database server running
+- npm or yarn
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Installation & Setup
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. **Clone the repository** (or download the source):
+   ```bash
+   git clone <repository-url>
+   cd Revolutic-Invoice
+   ```
+
+2. **Frontend Setup**:
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Start the development server
+   npm run dev
+   ```
+
+3. **Backend Setup**:
+   Open a new terminal window:
+   ```bash
+   cd api
+   
+   # Install dependencies
+   npm install
+   ```
+
+4. **Environment Variables**:
+   Create a `.env` file in the `api` root directory. Provide the necessary credentials for PostgreSQL, Session secret, and SMTP configuration for Nodemailer.
+   ```env
+   # Example .env format for the Backend
+   PORT=3000
+   DATABASE_URL=postgres://username:password@localhost:5432/revolutic_db
+   SESSION_SECRET=your_super_secret_session_key
+   SMTP_HOST=smtp.example.com
+   SMTP_PORT=587
+   SMTP_USER=your_email@example.com
+   SMTP_PASS=your_email_password
+   ```
+
+5. **Start the Backend Development Server**:
+   ```bash
+   npm run start:dev
+   ```
+
+## License
+
+This project is licensed under the UNLICENSED model and is proprietary to the author.
