@@ -93,28 +93,15 @@ const InvoicePreview: React.FC = () => {
                 <div className="relative mx-auto max-w-[210mm]">
                     {/* Status Ribbon */}
                     {invoice?.status && (
-                        <div className="absolute top-0 left-0 w-32 h-32 overflow-hidden pointer-events-none z-10 -mt-[6px] -ml-[6px]">
-                            <div className={`absolute top-7 -left-10 w-40 py-1 text-center text-[10px] font-bold uppercase tracking-wider text-white transform -rotate-45 shadow-md z-10 ${invoice.status.toLowerCase() === 'draft' ? 'bg-gray-400' :
-                                invoice.status.toLowerCase() === 'sent' ? 'bg-blue-500' :
-                                    invoice.status.toLowerCase() === 'paid' ? 'bg-green-500' :
-                                        invoice.status.toLowerCase() === 'overdue' ? 'bg-red-500' :
-                                            'bg-gray-400'
+                        <div className="absolute top-0 left-0 w-28 h-28 overflow-hidden pointer-events-none z-10">
+                            <div className={`absolute top-[18px] -left-[38px] w-[140px] py-1 text-center text-[10px] font-bold uppercase tracking-wider text-white transform -rotate-45 shadow-sm z-10 ${invoice.status.toLowerCase() === 'draft' ? 'bg-slate-500' :
+                                invoice.status.toLowerCase() === 'sent' ? 'bg-blue-600' :
+                                    invoice.status.toLowerCase() === 'paid' ? 'bg-emerald-600' :
+                                        invoice.status.toLowerCase() === 'overdue' ? 'bg-rose-600' :
+                                            'bg-slate-500'
                                 }`}>
                                 {invoice.status}
                             </div>
-                            {/* Folds to create wrap-around effect */}
-                            <div className={`absolute top-[48px] left-0 border-r-[6px] border-b-[6px] border-r-transparent brightness-75 ${invoice.status.toLowerCase() === 'draft' ? 'border-b-gray-600' :
-                                invoice.status.toLowerCase() === 'sent' ? 'border-b-blue-700' :
-                                    invoice.status.toLowerCase() === 'paid' ? 'border-b-green-700' :
-                                        invoice.status.toLowerCase() === 'overdue' ? 'border-b-red-700' :
-                                            'border-b-gray-600'
-                                }`} />
-                            <div className={`absolute top-0 left-[48px] border-l-[6px] border-b-[6px] border-b-transparent brightness-75 ${invoice.status.toLowerCase() === 'draft' ? 'border-l-gray-600' :
-                                invoice.status.toLowerCase() === 'sent' ? 'border-l-blue-700' :
-                                    invoice.status.toLowerCase() === 'paid' ? 'border-l-green-700' :
-                                        invoice.status.toLowerCase() === 'overdue' ? 'border-l-red-700' :
-                                            'border-l-gray-600'
-                                }`} />
                         </div>
                     )}
 

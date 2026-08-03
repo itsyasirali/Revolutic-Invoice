@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import useItemsData from './useItems';
 import useUpdateItemStatus from './useItemUpdateStatus';
 import useDeleteItems from './useItemsDelete';
@@ -22,6 +23,9 @@ export const useItemList = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [, setOpenDropdownId] = useState<string | number | null>(null);
 
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search') || '';
+
     // Alert from hooks (Success/Error)
     const alert = statusAlert.show ? statusAlert : deleteAlert.show ? deleteAlert : { show: false, type: 'info' as const, message: '' };
 
@@ -42,9 +46,17 @@ export const useItemList = () => {
 
     const busy = loading || statusLoading || deleteLoading;
 
-    const filteredItems = statusFilter === 'All'
-        ? items
-        : items.filter((i) => (i.status || '').toLowerCase() === statusFilter.toLowerCase());
+    const filteredItems = useMemo(() => {
+        const query = searchQuery.toLowerCase().trim();
+        return items.filter((i) => {
+            const matchesStatus = statusFilter === 'All' || (i.status || '').toLowerCase() === statusFilter.toLowerCase();
+            const matchesSearch = !query ||
+                (i.name || '').toLowerCase().includes(query) ||
+                (i.description || '').toLowerCase().includes(query) ||
+                (i.unit || '').toLowerCase().includes(query);
+            return matchesStatus && matchesSearch;
+        });
+    }, [items, statusFilter, searchQuery]);
 
     const onSelectAll = useCallback((checked: boolean) => {
         setSelectedIds(checked ? filteredItems.map((i) => i.id) : []);

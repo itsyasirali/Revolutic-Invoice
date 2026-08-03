@@ -5,7 +5,7 @@ import useTemplatesList from '../../hooks/templates/useTemplatesList';
 import useTemplateActions from '../../hooks/templates/useTemplateActions';
 import useTemplatePreview from '../../hooks/templates/useTemplatePreview';
 import useCloneTemplate from '../../hooks/templates/useCloneTemplate';
-import { Button, ConfirmDialog, LoadingSpinner, EmptyState, PageHeader } from '../ui';
+import { Button, ConfirmDialog, EmptyState, PageHeader } from '../ui';
 import TemplateCard from './TemplateCard';
 import TemplatePreviewModal from './TemplatePreviewModal';
 
@@ -50,13 +50,7 @@ const TemplateList: React.FC = () => {
     navigate('/templates/new');
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white min-h-[70vh] flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+
 
   if (error) {
     return (

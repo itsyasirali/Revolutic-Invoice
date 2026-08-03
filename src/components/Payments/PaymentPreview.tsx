@@ -93,12 +93,12 @@ const PaymentPreview: React.FC = () => {
                 <div className="relative mx-auto max-w-[210mm]">
                     {/* Status Ribbon */}
                     {payment?.status && (
-                        <div className="absolute top-0 left-0 w-32 h-32 overflow-hidden pointer-events-none z-10 -mt-[6px] -ml-[6px]">
-                            <div className={`absolute top-7 -left-10 w-36 py-1 text-center text-[10px] font-bold uppercase tracking-wider text-white transform -rotate-45 shadow-md z-10 ${payment.status.toLowerCase() === 'draft' ? 'bg-gray-400' :
-                                payment.status.toLowerCase() === 'sent' ? 'bg-blue-500' :
-                                    payment.status.toLowerCase() === 'paid' ? 'bg-green-500' :
-                                        payment.status.toLowerCase() === 'partial' ? 'bg-yellow-500' :
-                                            'bg-gray-400'
+                        <div className="absolute top-0 left-0 w-28 h-28 overflow-hidden pointer-events-none z-10">
+                            <div className={`absolute top-[18px] -left-[38px] w-[140px] py-1 text-center text-[10px] font-bold uppercase tracking-wider text-white transform -rotate-45 shadow-sm z-10 ${payment.status.toLowerCase() === 'draft' ? 'bg-slate-500' :
+                                payment.status.toLowerCase() === 'sent' ? 'bg-blue-600' :
+                                    payment.status.toLowerCase() === 'paid' ? 'bg-emerald-600' :
+                                        payment.status.toLowerCase() === 'partial' ? 'bg-amber-500' :
+                                            'bg-slate-500'
                                 }`}>
                                 {payment.status}
                             </div>

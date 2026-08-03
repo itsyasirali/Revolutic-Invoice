@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useInvoicesData, { type UIInvoiceListItem } from './useInvoicesData';
 import useDeleteInvoices from './useDeleteInvoices';
 import useInvoiceActions from './useInvoiceActions';
@@ -21,6 +21,9 @@ const useInvoiceList = () => {
     const [statusFilter, setStatusFilter] = useState<string>('All');
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search') || '';
+
     // Unified alert state
     const [alert, setAlert] = useState<{ show: boolean; type: 'success' | 'error' | 'warning' | 'info'; message: string }>({
         show: false,
@@ -41,12 +44,17 @@ const useInvoiceList = () => {
     });
 
     const filteredInvoices = useMemo(() => {
-        if (statusFilter === 'All') return items;
+        const query = searchQuery.toLowerCase().trim();
         return items.filter((invoice: UIInvoiceListItem) => {
             const statusValue = invoice.status?.tooltip?.toLowerCase() || '';
-            return statusValue === statusFilter.toLowerCase();
+            const matchesStatus = statusFilter === 'All' || statusValue === statusFilter.toLowerCase();
+            const matchesSearch = !query ||
+                (invoice.invoice || '').toLowerCase().includes(query) ||
+                (invoice.name || '').toLowerCase().includes(query) ||
+                (invoice.email || '').toLowerCase().includes(query);
+            return matchesStatus && matchesSearch;
         });
-    }, [items, statusFilter]);
+    }, [items, statusFilter, searchQuery]);
 
     const onSelectAll = useCallback((checked: boolean) => {
         setSelectedIds(checked ? filteredInvoices.map((i: UIInvoiceListItem) => String(i.id)) : []);

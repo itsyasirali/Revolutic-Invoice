@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from '../../Service/axios';
 import type { Customer } from '../../types/customer';
 
@@ -8,6 +9,9 @@ const useCustomerData = (options: { fetchOnMount?: boolean } = { fetchOnMount: t
   const [statusFilter, setStatusFilter] = useState('All');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -28,12 +32,21 @@ const useCustomerData = (options: { fetchOnMount?: boolean } = { fetchOnMount: t
     }
   }, [fetchCustomers, options.fetchOnMount]);
 
-  const filteredCustomers =
-    statusFilter === 'All'
-      ? customers
-      : customers.filter(
-        (c: Customer) => c.status?.toLowerCase() === statusFilter.toLowerCase()
-      );
+  const filteredCustomers = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    return customers.filter((c: Customer) => {
+      const matchesStatus =
+        statusFilter === 'All' || c.status?.toLowerCase() === statusFilter.toLowerCase();
+      const matchesSearch =
+        !query ||
+        (c.displayName || '').toLowerCase().includes(query) ||
+        (c.companyName || '').toLowerCase().includes(query) ||
+        (c.contacts?.[0]?.email || '').toLowerCase().includes(query) ||
+        (c.contacts?.[0]?.contact || '').toLowerCase().includes(query);
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [customers, statusFilter, searchQuery]);
 
   return {
     customers,

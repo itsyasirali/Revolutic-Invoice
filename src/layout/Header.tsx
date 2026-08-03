@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Search, Plus, X } from 'lucide-react';
 import { useProfile } from '../hooks/auth/useProfile';
 import { useLogout } from '../hooks/auth/useLogout';
@@ -6,14 +7,44 @@ import { Button, Input } from '../components/ui';
 
 export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
+
+  // Get current search value from URL
+  const searchQuery = searchParams.get('search') || '';
 
   // Get user name and email from profile data
   const userName = user?.name || user?.firstName || 'User';
   const userEmail = user?.email || '';
   const userInitial = userName.charAt(0).toUpperCase();
+
+  // Determine dynamic placeholder based on current route
+  const getSearchPlaceholder = () => {
+    const path = location.pathname;
+    if (path.startsWith('/customers')) return 'Search Customers...';
+    if (path.startsWith('/items')) return 'Search Items...';
+    if (path.startsWith('/invoices')) return 'Search Invoices...';
+    if (path.startsWith('/templates')) return 'Search Templates...';
+    if (path.startsWith('/payments')) return 'Search Payments...';
+    if (path.startsWith('/expenses')) return 'Search Expenses...';
+    if (path.startsWith('/reports')) return 'Search Reports...';
+    if (path.startsWith('/time-tracking')) return 'Search Time Tracking...';
+    return 'Search in Revolutic...';
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const newParams = new URLSearchParams(searchParams);
+    if (val) {
+      newParams.set('search', val);
+    } else {
+      newParams.delete('search');
+    }
+    setSearchParams(newParams, { replace: true });
+  };
 
   const handleSignOut = async () => {
     await logout();
@@ -28,10 +59,12 @@ export const Header: React.FC = () => {
     <header className="bg-gray-50 border-b border-gray-200 sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2">
         {/* Search Bar */}
-        <div className="flex items-center flex-1 min-w-0 max-w-xs ml-0 md:ml-0">
+        <div className="flex items-center flex-1 min-w-0 max-w-md ml-0 md:ml-0">
           <Input
             type="text"
-            placeholder="Search in Payments Received ( / )"
+            placeholder={getSearchPlaceholder()}
+            value={searchQuery}
+            onChange={handleSearchChange}
             leftIcon={Search}
             inputSize="sm"
             variant="default"
