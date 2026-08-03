@@ -188,7 +188,7 @@ const InvoiceList = () => {
                 e.stopPropagation();
                 handleEdit(inv);
               }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg"
+              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg cursor-pointer"
               title="Edit Invoice"
             >
               <Edit className="w-4 h-4" />
@@ -199,7 +199,7 @@ const InvoiceList = () => {
                 setSelectedIds([String(inv.id)]);
                 handleDelete();
               }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg"
+              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer"
               title="Delete Invoice"
             >
               <Trash2 className="w-4 h-4" />

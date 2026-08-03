@@ -771,7 +771,7 @@ const TemplateForm: React.FC = () => {
                                             />
                                             <span className="text-xs text-gray-600 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{col.key}</span>
                                             {!['index', 'itemName', 'description', 'quantity', 'rate', 'amount'].includes(col.key) && (
-                                                <button onClick={() => removeColumn(idx)} className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded">
+                                                <button onClick={() => removeColumn(idx)} className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded cursor-pointer">
                                                     <Trash2 size={12} />
                                                 </button>
                                             )}

@@ -4,25 +4,25 @@ import Checkbox from './Checkbox';
 
 const variantTableClasses: Record<TableVariant, { table: string; th: string; td: string; tr: string }> = {
     default: {
-        table: 'w-full bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden',
+        table: 'w-full bg-white border border-slate-200/80 rounded-t-xl rounded-b-none shadow-sm overflow-hidden',
         th: 'bg-slate-50 border-b border-slate-200/80 text-slate-700 font-semibold text-xs uppercase tracking-wider',
         td: 'border-b border-slate-100 text-sm text-slate-700',
         tr: 'hover:bg-slate-50/60 transition-colors',
     },
     striped: {
-        table: 'w-full bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden',
+        table: 'w-full bg-white border border-slate-200/80 rounded-t-xl rounded-b-none shadow-sm overflow-hidden',
         th: 'bg-slate-100 border-b border-slate-200 text-slate-800 font-semibold text-xs uppercase tracking-wider',
         td: 'border-b border-slate-100 text-sm text-slate-700',
         tr: 'odd:bg-white even:bg-slate-50/80 hover:bg-slate-100/60 transition-colors',
     },
     bordered: {
-        table: 'w-full bg-white border-2 border-slate-300 rounded-xl shadow-sm overflow-hidden',
+        table: 'w-full bg-white border-2 border-slate-300 rounded-t-xl rounded-b-none shadow-sm overflow-hidden',
         th: 'bg-slate-100 border-b-2 border-r border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider last:border-r-0',
         td: 'border-b border-r border-slate-200 text-sm text-slate-700 last:border-r-0',
         tr: 'hover:bg-slate-50 transition-colors',
     },
     compact: {
-        table: 'w-full bg-white border border-slate-200 rounded-lg shadow-none overflow-hidden',
+        table: 'w-full bg-white border border-slate-200 rounded-t-lg rounded-b-none shadow-none overflow-hidden',
         th: 'bg-slate-50 border-b border-slate-200 text-slate-600 font-medium text-[11px] uppercase tracking-wider',
         td: 'border-b border-slate-100 text-xs text-slate-700 py-2.5',
         tr: 'hover:bg-slate-50/50 transition-colors',

@@ -32,18 +32,19 @@ const ItemDetails: React.FC = () => {
         <div className="bg-white">
             <PageHeader
                 title={item.name || ''}
+                showBackButton
                 onBack={handleBackClick}
                 subtitle={
-                    <>
-                        <span className="flex items-center gap-1.5">
-                            <Package className="w-4 h-4" />
+                    <div className="flex items-center gap-3.5">
+                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                            <Package className="w-3.5 h-3.5 text-slate-400" />
                             {item.type || 'Goods'}
                         </span>
                         <StatusBadge status={item.status || 'Active'} />
-                    </>
+                    </div>
                 }
                 actions={
-                    <>
+                    <div className="flex items-center gap-2.5">
                         <Button
                             variant="ghost"
                             onClick={handleEdit}
@@ -59,7 +60,7 @@ const ItemDetails: React.FC = () => {
                         >
                             Delete
                         </Button>
-                    </>
+                    </div>
                 }
             />
 

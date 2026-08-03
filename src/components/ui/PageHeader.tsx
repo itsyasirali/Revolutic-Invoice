@@ -51,7 +51,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                                 <ArrowLeft className="w-5 h-5" />
                             </button>
                         )}
-                        <div>
+                        <div className="flex flex-wrap items-center gap-3.5">
                             {dropdown ? (
                                 <div className="relative">
                                     <button
@@ -94,7 +94,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h1>
                             )}
 
-                            {subtitle && <div className="text-xs text-slate-500 mt-0.5">{subtitle}</div>}
+                            {subtitle && <div className="flex items-center gap-3 text-xs text-slate-500">{subtitle}</div>}
                         </div>
                     </div>
 

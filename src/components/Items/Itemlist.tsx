@@ -180,7 +180,7 @@ const ItemList: React.FC = () => {
                 e.stopPropagation();
                 handleEdit(i);
               }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg"
+              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg cursor-pointer"
               title="Edit Item"
             >
               <Edit className="w-4 h-4" />
@@ -194,7 +194,7 @@ const ItemList: React.FC = () => {
                 setSelectedIds([i.id]);
                 handleDelete();
               }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg"
+              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer"
               title="Delete Item"
             >
               <Trash2 className="w-4 h-4" />
