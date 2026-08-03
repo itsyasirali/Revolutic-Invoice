@@ -54,7 +54,8 @@ export const Header: React.FC = () => {
   };
 
   const handleMyAccount = () => {
-    console.log('My Account clicked');
+    setIsProfileOpen(false);
+    navigate('/profile');
   };
 
   const handleQuickCreateClick = (path: string) => {

@@ -16,8 +16,21 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
+  async findById(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
   async create(signupDto: SignupDto): Promise<User> {
     const newUser = this.usersRepository.create(signupDto);
     return this.usersRepository.save(newUser);
+  }
+
+  async update(id: number, updateData: Partial<User>): Promise<User> {
+    await this.usersRepository.update(id, updateData);
+    const updated = await this.usersRepository.findOne({ where: { id } });
+    if (!updated) {
+      throw new Error('User not found after update');
+    }
+    return updated;
   }
 }

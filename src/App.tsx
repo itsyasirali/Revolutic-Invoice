@@ -36,6 +36,7 @@ const PaymentEmailCompose = lazy(
 );
 const TemplateList = lazy(() => import("./components/Templates/TemplateList"));
 const TemplateForm = lazy(() => import("./components/Templates/TemplateForm"));
+const ProfilePage = lazy(() => import("./components/profile/Profile"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -98,6 +99,8 @@ const App: React.FC = () => {
               <Route path="/templates" element={<TemplateList />} />
               <Route path="/templates/new" element={<TemplateForm />} />
               <Route path="/templates/edit/:id" element={<TemplateForm />} />
+
+              <Route path="/profile" element={<ProfilePage />} />
 
               <Route
                 path="/expenses"

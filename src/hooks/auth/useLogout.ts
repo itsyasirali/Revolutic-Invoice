@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import axios from '../../Service/axios';
-import { useNavigate } from 'react-router-dom';
 
 interface UseLogoutReturn {
     logout: () => Promise<void>;
@@ -11,7 +10,6 @@ interface UseLogoutReturn {
 export const useLogout = (): UseLogoutReturn => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
     const logout = async () => {
         try {
@@ -19,13 +17,14 @@ export const useLogout = (): UseLogoutReturn => {
             setError(null);
 
             await axios.post(`/auth/logout`, {});
-            localStorage.clear();
-            navigate('/login');
         } catch (err: any) {
             console.error('Logout failed:', err);
             setError(err.response?.data?.message || 'Logout failed');
         } finally {
+            localStorage.clear();
+            sessionStorage.clear();
             setLoading(false);
+            window.location.href = '/login';
         }
     };
 
