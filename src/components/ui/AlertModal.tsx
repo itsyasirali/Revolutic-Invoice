@@ -1,7 +1,6 @@
-import React from 'react';
 import ConfirmDialog from './ConfirmDialog';
 
-interface AlertModalProps {
+export interface AlertModalProps {
     isOpen: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
     message: string;
@@ -9,7 +8,7 @@ interface AlertModalProps {
     title?: string;
 }
 
-const AlertModal: React.FC<AlertModalProps> = ({
+export const AlertModal: React.FC<AlertModalProps> = ({
     isOpen,
     type,
     message,

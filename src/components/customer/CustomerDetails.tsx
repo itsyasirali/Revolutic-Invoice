@@ -1,15 +1,8 @@
 import React from 'react';
 import { Mail, Phone, Building2, Edit, Trash2, FileText, MapPin, MessageSquare, User, DollarSign, Globe, Clock, CreditCard } from 'lucide-react';
-import Table from '../common/Table';
-import StatusBadge from '../common/StatusBadge';
-import Tabs from '../common/Tabs';
-import EmptyState from '../common/EmptyState';
-import CurrencyDisplay from '../common/CurrencyDisplay';
-import Button from '../common/Button';
-import Card from '../common/Card';
+import { Table, StatusBadge, Tabs, EmptyState, CurrencyDisplay, Button, Card, PageHeader } from '../ui';
 import type { UIInvoiceListItem, PaymentTransaction } from '../../types/customer.d';
 import type { TableColumn } from '../../types/common';
-import PageHeader from '../common/PageHeader';
 import useCustomerDetailsView, { type CustomerTab } from '../../hooks/customers/useCustomerDetailsView';
 
 const CustomerDetails: React.FC = () => {

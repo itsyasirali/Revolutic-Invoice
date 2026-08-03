@@ -8,9 +8,7 @@ import {
     FileText,
 } from 'lucide-react';
 import { usePaymentEmail } from '../../hooks/payments/usePaymentEmail';
-import Button from '../common/Button';
-import LoadingSpinner from '../common/LoadingSpinner';
-import PageHeader from '../common/PageHeader';
+import { Button, LoadingSpinner, PageHeader } from '../ui';
 
 const PaymentEmailCompose: React.FC = () => {
     const { id } = useParams<{ id: string }>();

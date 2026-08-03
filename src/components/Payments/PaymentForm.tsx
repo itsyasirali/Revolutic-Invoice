@@ -1,12 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Input from '../common/Input';
-import Select from '../common/Select';
-import Button from '../common/Button';
+import { Input, Select, Button, PageHeader } from '../ui';
 
 // Hooks
 import usePaymentForm from '../../hooks/payments/usePaymentForm';
-import PageHeader from '../common/PageHeader';
 import { Search, Mail } from 'lucide-react';
 
 const PaymentForm: React.FC = () => {

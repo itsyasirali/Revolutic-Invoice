@@ -1,10 +1,6 @@
 import React from 'react';
 import { Info } from 'lucide-react';
-import Input from '../common/Input';
-import Textarea from '../common/Textarea';
-import Button from '../common/Button';
-import AlertModal from '../common/AlertModal';
-import PageHeader from '../common/PageHeader';
+import { Input, Textarea, Button, AlertModal, PageHeader } from '../ui';
 import useItemFormView from '../../hooks/items/useItemFormView';
 
 const ItemForm: React.FC = () => {

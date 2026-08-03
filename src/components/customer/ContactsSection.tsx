@@ -2,8 +2,7 @@ import React from 'react';
 import { Mail, Phone, Info, Plus, X } from 'lucide-react';
 import type { ContactsSectionProps, Contact } from '../../types/customer.d';
 import { useContacts } from '../../hooks/customers/useContacts';
-import Input from '../common/Input';
-import Button from '../common/Button';
+import { Input, Button } from '../ui';
 
 export const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
     const { contacts, addContact, removeContact, updateContact } = useContacts(initial);

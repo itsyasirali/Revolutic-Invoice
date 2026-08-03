@@ -1,11 +1,9 @@
 import React from 'react';
 import { Send, Edit, Download, Settings } from 'lucide-react';
-import Button from '../common/Button';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { Button, LoadingSpinner, PageHeader } from '../ui';
 import PaymentTemplateSelector from './PaymentTemplateSelector';
 import TemplatePreview from '../Templates/TemplatePreview';
 import usePaymentPreview from '../../hooks/payments/usePaymentPreview';
-import PageHeader from '../common/PageHeader';
 
 
 

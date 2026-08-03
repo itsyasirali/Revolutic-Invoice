@@ -2,12 +2,7 @@ import React from 'react';
 import { Info, X } from 'lucide-react';
 import currenciesData from '../../data/CurrencyData';
 import type { MaybeFile } from '../../types/customer.d';
-import Input from '../common/Input';
-import Select from '../common/Select';
-import Textarea from '../common/Textarea';
-import Button from '../common/Button';
-import AlertModal from '../common/AlertModal';
-import PageHeader from '../common/PageHeader';
+import { Input, Select, Textarea, Button, AlertModal, PageHeader } from '../ui';
 import ContactsSection from './ContactsSection';
 import useCustomerFormView from '../../hooks/customers/useCustomerFormView';
 

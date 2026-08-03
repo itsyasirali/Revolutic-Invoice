@@ -106,8 +106,8 @@ export class PaymentsCreateService {
             let invoicesToUpdate: { invoiceId: number; amount: number }[] = [];
 
             if (appliedInvoices && appliedInvoices.length > 0) {
-                // Validate sequential payment rule
-                await this.validateSequentialPayment(queryRunner, userId, customerId, appliedInvoices);
+                // Validate sequential payment rule (Disabled to allow flexible payments)
+                // await this.validateSequentialPayment(queryRunner, userId, customerId, appliedInvoices);
                 // Validate provided invoices
                 invoicesToUpdate = appliedInvoices;
             } else {

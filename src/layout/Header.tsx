@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Search, Plus, ChevronDown, X, Bell, Settings as SettingsIcon } from 'lucide-react';
-import { SettingsDrawer } from '../components/common/SettingsDrawer';
 import { useProfile } from '../hooks/auth/useProfile';
 import { useLogout } from '../hooks/auth/useLogout';
-
+import { Button, Input, SettingsDrawer } from '../components/ui';
 
 export const Header: React.FC = () => {
   const [isOrgOpen, setIsOrgOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
-
 
   // Get user name and email from profile data
   const userName = user?.name || user?.firstName || 'User';
@@ -26,27 +23,21 @@ export const Header: React.FC = () => {
   };
 
   const handleMyAccount = () => {
-    // Add my account navigation logic here
     console.log('My Account clicked');
   };
 
-
-
   return (
     <header className="bg-gray-50 border-b border-gray-200 sticky top-0 z-30">
-      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2.5">
-        <div className="flex items-center flex-1 min-w-0 max-w-xs  ml-0 md:ml-0">
-          <div className={`flex items-center bg-gray-50 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 w-full transition-all ${isSearchFocused ? 'ring-2 ring-primary/50 bg-white' : ''
-            }`}>
-            <Search size={16} className="text-gray-400 flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Search in Payments Received ( / )"
-              className="flex-1 ml-2 outline-none text-xs sm:text-sm text-gray-700 placeholder-gray-400 bg-transparent"
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-            />
-          </div>
+      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2">
+        <div className="flex items-center flex-1 min-w-0 max-w-xs ml-0 md:ml-0">
+          <Input
+            type="text"
+            placeholder="Search in Payments Received ( / )"
+            leftIcon={Search}
+            inputSize="sm"
+            variant="default"
+            showLabel={false}
+          />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 ml-2">
@@ -54,7 +45,7 @@ export const Header: React.FC = () => {
           <div className="relative hidden sm:block">
             <button
               onClick={() => setIsOrgOpen(!isOrgOpen)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
             >
               <span className="hidden sm:inline">Personal</span>
               <ChevronDown size={14} />
@@ -66,10 +57,10 @@ export const Header: React.FC = () => {
                   onClick={() => setIsOrgOpen(false)}
                 />
                 <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
+                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer">
                     Personal
                   </button>
-                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
+                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer">
                     Business
                   </button>
                 </div>
@@ -78,9 +69,12 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Plus Button */}
-          <button className="p-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-sm">
-            <Plus size={18} />
-          </button>
+          <Button
+            variant="primary"
+            size="xs"
+            className="!p-2"
+            icon={<Plus size={18} />}
+          />
 
           {/* Notification Bell */}
           <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors relative">

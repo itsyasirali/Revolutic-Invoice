@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     ChevronRight,
@@ -8,7 +8,7 @@ import {
     Trash2
 } from 'lucide-react';
 import useTemplateForm from '../../hooks/templates/useTemplateForm';
-import Button from '../common/Button';
+import { Button } from '../ui';
 import TemplatePreview from './TemplatePreview';
 import { useTemplateFormContext, type TemplateNavItem } from '../../context/TemplateFormContext';
 

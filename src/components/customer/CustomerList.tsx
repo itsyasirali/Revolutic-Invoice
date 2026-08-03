@@ -1,12 +1,6 @@
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-import Table from '../common/Table';
-import StatusBadge from '../common/StatusBadge';
-import CurrencyDisplay from '../common/CurrencyDisplay';
-import Button from '../common/Button';
-import PageHeader from '../common/PageHeader';
-import ConfirmDialog from '../common/ConfirmDialog';
-import AlertModal from '../common/AlertModal';
+import { Table, StatusBadge, CurrencyDisplay, Button, PageHeader, ConfirmDialog, AlertModal } from '../ui';
 import useCustomerList from '../../hooks/customers/useCustomerList';
 import type { Customer } from '../../types/customer.d';
 

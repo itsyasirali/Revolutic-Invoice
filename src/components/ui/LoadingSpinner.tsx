@@ -1,8 +1,6 @@
-import React from 'react';
 import type { LoadingSpinnerProps } from '../../types/common';
 
-
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     size = 'md',
     color = 'primary',
     className = '',
@@ -14,9 +12,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     };
 
     const colorStyles = {
-        primary: 'border-blue-600 border-t-transparent',
+        primary: 'border-primary border-t-transparent',
         white: 'border-white border-t-transparent',
-        gray: 'border-gray-600 border-t-transparent',
+        gray: 'border-slate-500 border-t-transparent',
     };
 
     return (

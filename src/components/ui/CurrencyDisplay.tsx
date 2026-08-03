@@ -1,8 +1,6 @@
-import React from 'react';
 import type { CurrencyDisplayProps } from '../../types/common';
 
-
-const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
+export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
     amount,
     currency = 'PKR',
     className = '',
@@ -19,14 +17,14 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
     };
 
     const sizeClasses = {
-        sm: 'text-sm',
-        md: 'text-base',
-        lg: 'text-2xl font-bold',
+        sm: 'text-xs font-medium',
+        md: 'text-sm font-semibold',
+        lg: 'text-xl font-bold',
     };
 
     return (
-        <span className={`${sizeClasses[size]} ${className}`}>
-            {formatCurrency(amount)} {currency}
+        <span className={`${sizeClasses[size]} tracking-tight font-sans ${className}`}>
+            {formatCurrency(amount)} <span className="text-xs font-normal text-slate-400 ml-0.5">{currency}</span>
         </span>
     );
 };

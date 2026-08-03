@@ -1,9 +1,6 @@
 import React from 'react';
 import { Package, Edit, Trash2, FileText, Type, Tag, DollarSign } from 'lucide-react';
-import StatusBadge from '../common/StatusBadge';
-import EmptyState from '../common/EmptyState';
-import Button from '../common/Button';
-import PageHeader from '../common/PageHeader';
+import { StatusBadge, EmptyState, Button, PageHeader } from '../ui';
 import useItemDetailsView from '../../hooks/items/useItemDetailsView';
 
 const ItemDetails: React.FC = () => {

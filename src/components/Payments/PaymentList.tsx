@@ -2,11 +2,7 @@ import React, { useMemo } from "react";
 import type { Payment } from "../../types/Payment.d";
 import usePaymentsList, { PAYMENT_MODE_FILTERS } from "../../hooks/payments/usePaymentsList";
 import usePaymentActions from "../../hooks/payments/usePaymentActions";
-import PageHeader from "../common/PageHeader";
-import Table from "../common/Table";
-import Button from "../common/Button";
-import StatusBadge from "../common/StatusBadge";
-import ConfirmDialog from "../common/ConfirmDialog";
+import { PageHeader, Table, Button, StatusBadge, ConfirmDialog } from "../ui";
 
 const PaymentPage: React.FC = () => {
   const { handlePreview } = usePaymentActions();

@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import usePaymentTemplateSelector from '../../hooks/payments/usePaymentTemplateSelector';
 
 import TemplateCard from '../Templates/TemplateCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { LoadingSpinner } from '../ui';
 
 
 interface PaymentTemplateSelectorProps {

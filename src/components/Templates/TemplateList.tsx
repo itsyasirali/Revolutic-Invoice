@@ -5,9 +5,7 @@ import useTemplatesList from '../../hooks/templates/useTemplatesList';
 import useTemplateActions from '../../hooks/templates/useTemplateActions';
 import useTemplatePreview from '../../hooks/templates/useTemplatePreview';
 import useCloneTemplate from '../../hooks/templates/useCloneTemplate';
-import Input from '../common/Input';
-import ConfirmDialog from '../common/ConfirmDialog';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { Input, ConfirmDialog, LoadingSpinner } from '../ui';
 import TemplateCard from './TemplateCard';
 import TemplatePreviewModal from './TemplatePreviewModal';
 

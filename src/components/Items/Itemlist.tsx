@@ -1,11 +1,6 @@
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-import Table from '../common/Table';
-import StatusBadge from '../common/StatusBadge';
-import Button from '../common/Button';
-import PageHeader from '../common/PageHeader';
-import ConfirmDialog from '../common/ConfirmDialog';
-import AlertModal from '../common/AlertModal';
+import { Table, StatusBadge, Button, PageHeader, ConfirmDialog, AlertModal } from '../ui';
 import useItemList from '../../hooks/items/useItemList';
 import type { Item } from '../../types/items.d';
 

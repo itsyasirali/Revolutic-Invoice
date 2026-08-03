@@ -1,10 +1,7 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { ChevronDown } from 'lucide-react';
-
-interface PageHeaderProps {
+export interface PageHeaderProps {
     title: string;
     subtitle?: React.ReactNode;
     showBackButton?: boolean;
@@ -20,7 +17,7 @@ interface PageHeaderProps {
     };
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({
+export const PageHeader: React.FC<PageHeaderProps> = ({
     title,
     subtitle,
     showBackButton = false,
@@ -40,14 +37,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     };
 
     return (
-        <div className={`bg-gray-50 border-b border-gray-100 ${className}`}>
-            <div className="px-8 py-5 mx-auto">
+        <div className={`bg-white border-b border-slate-200/80 shadow-xs ${className}`}>
+            <div className="px-6 py-4 mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3.5">
                         {showBackButton && (
                             <button
+                                type="button"
                                 onClick={handleBack}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
+                                className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500 hover:text-slate-900 cursor-pointer"
                                 aria-label="Go back"
                             >
                                 <ArrowLeft className="w-5 h-5" />
@@ -57,37 +55,35 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                             {dropdown ? (
                                 <div className="relative">
                                     <button
+                                        type="button"
                                         onClick={dropdown.onToggle}
-                                        className="flex items-center gap-2 py-1 group"
+                                        className="flex items-center gap-2 text-xl font-bold text-slate-900 hover:text-primary transition-colors cursor-pointer"
                                     >
-                                        <h1 className="text-2xl font-bold text-gray-900 leading-tight group-hover:text-primary transition-colors">
-                                            {dropdown.options.find(opt => opt.value === dropdown.value)?.label || title}
-                                        </h1>
-                                        <ChevronDown
-                                            strokeWidth={3}
-                                            className={`w-6 h-6 mt-1 text-primary transition-transform duration-200 ${dropdown.isOpen ? 'rotate-180' : ''}`}
-                                        />
+                                        <span>{title}</span>
+                                        <ChevronDown className="w-5 h-5 text-slate-400" />
                                     </button>
+
                                     {dropdown.isOpen && (
                                         <>
                                             <div
                                                 className="fixed inset-0 z-10"
                                                 onClick={dropdown.onToggle}
                                             />
-                                            <div className="absolute mt-2 left-0 w-64 bg-white border border-gray-100 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                                {dropdown.options.map((option) => (
+                                            <div className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-20 animate-reveal">
+                                                {dropdown.options.map((opt) => (
                                                     <button
-                                                        key={option.value}
+                                                        key={opt.value}
+                                                        type="button"
                                                         onClick={() => {
-                                                            dropdown.onChange(option.value);
+                                                            dropdown.onChange(opt.value);
                                                             dropdown.onToggle();
                                                         }}
-                                                        className={`block w-full text-left px-5 py-3 text-sm transition-colors ${dropdown.value === option.value
-                                                            ? 'bg-primary/5 text-primary font-semibold'
-                                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                        className={`w-full text-left px-4 py-2 text-xs font-medium cursor-pointer transition-colors ${dropdown.value === opt.value
+                                                                ? 'bg-primary/10 text-primary font-semibold'
+                                                                : 'text-slate-700 hover:bg-slate-50'
                                                             }`}
                                                     >
-                                                        {option.label}
+                                                        {opt.label}
                                                     </button>
                                                 ))}
                                             </div>
@@ -95,20 +91,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                                     )}
                                 </div>
                             ) : (
-                                <h1 className="text-2xl font-bold text-gray-900 leading-tight">{title}</h1>
+                                <h1 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h1>
                             )}
-                            {subtitle && (
-                                <div className="mt-1 flex items-center gap-4 text-sm text-gray-500 font-medium">
-                                    {subtitle}
-                                </div>
-                            )}
+
+                            {subtitle && <div className="text-xs text-slate-500 mt-0.5">{subtitle}</div>}
                         </div>
                     </div>
-                    {actions && (
-                        <div className="flex items-center gap-3">
-                            {actions}
-                        </div>
-                    )}
+
+                    {actions && <div className="flex items-center gap-2.5 shrink-0">{actions}</div>}
                 </div>
             </div>
         </div>

@@ -1,10 +1,7 @@
 import { Search, Settings, ChevronDown, X, Eye, Plus, Info } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import Button from '../common/Button';
-import PageHeader from '../common/PageHeader';
-import Input from '../common/Input';
-import Select from '../common/Select';
+import { Button, PageHeader, Input, Select } from '../ui';
 import useInvoiceForm from '../../hooks/invoices/useInvoiceForm';
 import InvoiceTemplateSelector from './InvoiceTemplateSelector';
 import { useState } from 'react';

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import useTemplatesList from '../../hooks/templates/useTemplatesList';
 import TemplateCard from '../Templates/TemplateCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { LoadingSpinner } from '../ui';
 
 interface InvoiceTemplateSelectorProps {
     isOpen: boolean;

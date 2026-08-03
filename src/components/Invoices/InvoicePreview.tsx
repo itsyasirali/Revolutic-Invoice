@@ -1,10 +1,7 @@
 import React from 'react';
 import { Send, Edit, FileText, Download, Settings } from 'lucide-react';
-import Button from '../common/Button';
-import EmptyState from '../common/EmptyState';
-import PageHeader from '../common/PageHeader';
+import { Button, EmptyState, PageHeader, LoadingSpinner } from '../ui';
 import TemplatePreviewComponent from '../Templates/TemplatePreview';
-import LoadingSpinner from '../common/LoadingSpinner';
 import InvoiceTemplateSelector from './InvoiceTemplateSelector';
 import { useInvoicePreview } from '../../hooks/invoices/useInvoicePreview';
 

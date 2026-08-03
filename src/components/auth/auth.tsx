@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuthForm } from '../../hooks/auth/useAuthForm';
-import Input from '../common/Input';
-import Button from '../common/Button';
+import { Input, Button } from '../ui';
 import {
   User,
   Mail,

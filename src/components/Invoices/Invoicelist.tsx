@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-import Table from '../common/Table';
-import Button from '../common/Button';
-import StatusBadge from '../common/StatusBadge';
-import ConfirmDialog from '../common/ConfirmDialog';
-import PageHeader from '../common/PageHeader';
+import { Table, Button, StatusBadge, ConfirmDialog, PageHeader } from '../ui';
 import useInvoiceList from '../../hooks/invoices/useInvoiceList';
 import type { UIInvoiceListItem } from '../../hooks/invoices/useInvoicesData';
 

@@ -3,7 +3,7 @@ import { Pencil, Settings, Eye, Copy, Trash2, CheckCircle } from 'lucide-react';
 import type { TemplateListItem } from '../../types/template.d';
 import type { DropdownMenuItem } from '../../types/common';
 import TemplatePreview from './TemplatePreview';
-import DropdownMenu from '../common/DropdownMenu';
+import { DropdownMenu } from '../ui';
 
 interface TemplateCardProps {
     template: TemplateListItem;
