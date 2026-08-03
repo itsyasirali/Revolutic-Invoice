@@ -47,23 +47,6 @@ export class InvoicesUpdateService {
         }
 
         // Calculate totals using existing item data if new items not provided, or new items if provided
-        // We need to form the complete object for calculation
-        // If items are provided, use them. If not, use existing invoice items (mapped to DTO shape if needed, but calc util might handle entities)
-        // actually calculateInvoiceTotals expects DTO-like items.
-        // For simplicity, if we are updating items, we pass them.
-
-        const invoiceDataForCalc = {
-            ...updateData,
-            customerId: customerId || invoice.customerId, // Ensure we have customerId for calc if needed (though calc usually just needs items)
-            items: items || [], // If items not updated, we might need to handle this carefully. 
-            // However, usually updates often send the whole list. 
-            // If items is undefined/null, we presume separate calc or no change to totals based on items.
-            // But wait, updateData might contain subTotal/total override?
-        };
-
-        // If items are NOT provided, we shouldn't re-calculate totals based on empty array if likely we want to keep existing.
-        // But the previous code did: { ...updateData, items } passing items as undefined if not there.
-        // Let's stick closer to previous logic but safer.
 
         let calculatedData = {};
         if (items || Object.keys(updateData).length > 0) {

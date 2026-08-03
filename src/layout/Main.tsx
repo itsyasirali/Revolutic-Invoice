@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { TemplateFormProvider } from '../context/TemplateFormContext';
+import { ToastContainer } from '../components/ui';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <TemplateFormProvider>
+      <ToastContainer />
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar
           activeItem={activeItem}

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsObject, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsNumber, ValidateNested } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
 class MarginsDto {
@@ -321,7 +321,7 @@ export class CreateTemplateDto {
         if (typeof value === 'string') {
             try {
                 return JSON.parse(value);
-            } catch (e) {
+            } catch {
                 return [];
             }
         }

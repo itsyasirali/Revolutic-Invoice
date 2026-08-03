@@ -1,10 +1,11 @@
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import * as path from 'path';
-import { Payment } from '../payment.entity';
+import * as fs from 'fs';
 
 export const generatePaymentPDF = async (payment: any): Promise<Buffer> => {
-    return new Promise(async (resolve, reject) => {
-        try {
+    return new Promise((resolve, reject) => {
+        (async () => {
+            try {
             const template = payment.template;
 
             // Extract template colors or use defaults
@@ -70,7 +71,6 @@ export const generatePaymentPDF = async (payment: any): Promise<Buffer> => {
                         const relativePath = template.logoUrl.startsWith('/') ? template.logoUrl.slice(1) : template.logoUrl;
                         // Use process.cwd() to resolve from project root (where 'uploads' folder is)
                         const localPath = path.join(process.cwd(), relativePath);
-                        const fs = require('fs');
                         if (fs.existsSync(localPath)) {
                             logoBuffer = fs.readFileSync(localPath);
                         } else {
@@ -287,5 +287,6 @@ export const generatePaymentPDF = async (payment: any): Promise<Buffer> => {
         } catch (error) {
             reject(error);
         }
+        })();
     });
 };

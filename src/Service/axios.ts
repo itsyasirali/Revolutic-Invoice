@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from '../components/ui/Toast';
 
 // Configure axios defaults
 axios.defaults.baseURL = '/api';
@@ -33,9 +34,9 @@ axios.interceptors.response.use(
             console.error('Internal Server Error (500)');
         }
 
-        // Show error to user (you might want to use a toast here instead of alert in a real app)
-        if (error.response?.status !== 401) { // Optionally skip alert for 401 if it triggers a redirect
-            alert(errorMessage);
+        // Show non-blocking toast notification to user instead of alert()
+        if (error.response?.status !== 401) {
+            toast.error(errorMessage, 'API Error');
         }
 
         return Promise.reject(error);

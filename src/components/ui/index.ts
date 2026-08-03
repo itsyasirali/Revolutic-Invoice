@@ -22,3 +22,5 @@ export { PageHeader, default as PageHeaderComponent } from './PageHeader';
 export { SettingsDrawer, default as SettingsDrawerComponent } from './SettingsDrawer';
 export { Tabs, default as TabsComponent } from './Tabs';
 export { ComingSoon, default as ComingSoonComponent } from './ComingSoon';
+export { ToastContainer, toast, default as ToastComponent } from './Toast';
+

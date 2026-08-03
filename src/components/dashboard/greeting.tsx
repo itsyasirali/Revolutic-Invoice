@@ -10,10 +10,10 @@ export const GreetingSection: React.FC = () => {
     return (
         <div className="flex mb-2 gap-2 px-3 w-[97%] pt-5 mx-auto">
             <div className="min-w-0 flex-1 flex flex-row gap-3">
-                <div className='w-10 h-10 bg-white border border-gray-00 rounded-sm mb-2 flex items-center justify-center'>
+                <div className='w-10 h-10 bg-white border border-gray-200 rounded-sm mb-2 flex items-center justify-center'>
                     <button
-                        className="p-1 sm:p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
-                        aria-label="Mobile"
+                        className="p-1 sm:p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                        aria-label="Mobile application overview"
                     >
                         <Smartphone size={24} className="sm:w-5 sm:h-5" />
                     </button>

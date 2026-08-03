@@ -1,72 +1,117 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./layout/Main";
-import { AuthWrapper } from "./components/auth/Authwrapper";
-import { DashboardMain } from "./components/dashboard/dashboard";
-import CustomersForm from "./components/customer/CustomerForm";
-import CustomerList from "./components/customer/CustomerList";
-import CustomerDetails from "./components/customer/CustomerDetails";
-import ItemForm from "./components/Items/ItemForm";
-import ItemList from "./components/Items/Itemlist";
-import ItemDetails from "./components/Items/ItemDetails";
-import InvoiceForm from "./components/Invoices/Invoice-Form";
-import InvoiceList from "./components/Invoices/Invoicelist";
-import InvoicePreview from "./components/Invoices/InvoicePreview";
-import InvoiceEmailCompose from "./components/Invoices/InvoiceEmailCompose";
-import PaymentList from "./components/Payments/PaymentList";
-import AddPaymentPage from "./components/Payments/PaymentForm";
-import PaymentPreview from "./components/Payments/PaymentPreview";
-import PaymentEmailCompose from "./components/Payments/PaymentEmailCompose";
-import TemplateList from "./components/Templates/TemplateList";
-import TemplateForm from "./components/Templates/TemplateForm";
-import { ComingSoon } from "./components/ui";
+import { AuthWrapper } from "./components/auth/AuthWrapper";
+import { LoadingSpinner, ComingSoon } from "./components/ui";
+
+// Lazy load route components for code splitting & faster initial load
+const DashboardMain = lazy(() =>
+  import("./components/dashboard/dashboard").then((m) => ({
+    default: m.DashboardMain,
+  })),
+);
+const CustomerList = lazy(() => import("./components/customer/CustomerList"));
+const CustomersForm = lazy(() => import("./components/customer/CustomerForm"));
+const CustomerDetails = lazy(
+  () => import("./components/customer/CustomerDetails"),
+);
+const ItemList = lazy(() => import("./components/Items/ItemList"));
+const ItemForm = lazy(() => import("./components/Items/ItemForm"));
+const ItemDetails = lazy(() => import("./components/Items/ItemDetails"));
+const InvoiceList = lazy(() => import("./components/Invoices/InvoiceList"));
+const InvoiceForm = lazy(() => import("./components/Invoices/InvoiceForm"));
+const InvoicePreview = lazy(
+  () => import("./components/Invoices/InvoicePreview"),
+);
+const InvoiceEmailCompose = lazy(
+  () => import("./components/Invoices/InvoiceEmailCompose"),
+);
+const PaymentList = lazy(() => import("./components/Payments/PaymentList"));
+const AddPaymentPage = lazy(() => import("./components/Payments/PaymentForm"));
+const PaymentPreview = lazy(
+  () => import("./components/Payments/PaymentPreview"),
+);
+const PaymentEmailCompose = lazy(
+  () => import("./components/Payments/PaymentEmailCompose"),
+);
+const TemplateList = lazy(() => import("./components/Templates/TemplateList"));
+const TemplateForm = lazy(() => import("./components/Templates/TemplateForm"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <LoadingSpinner size="lg" />
+  </div>
+);
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthWrapper>
         <Layout>
-          <Routes>
-            <Route
-              path="/"
-              element={<DashboardMain activeTab="0" onTabChange={() => { }} />}
-            />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route
+                path="/"
+                element={<DashboardMain activeTab="0" onTabChange={() => {}} />}
+              />
 
-            <Route path="/customers" element={<CustomerList />} />
-            <Route path="/customers/new" element={<CustomersForm />} />
-            <Route path="/customers/edit/:id" element={<CustomersForm />} />
-            <Route path="/customers/:id" element={<CustomerDetails />} />
+              <Route path="/customers" element={<CustomerList />} />
+              <Route path="/customers/new" element={<CustomersForm />} />
+              <Route path="/customers/edit/:id" element={<CustomersForm />} />
+              <Route path="/customers/:id" element={<CustomerDetails />} />
 
-            <Route path="/items" element={<ItemList />} />
-            <Route path="/items/new" element={<ItemForm />} />
-            <Route path="/items/:id" element={<ItemDetails />} />
-            <Route path="/items/edit/:id" element={<ItemForm />} />
+              <Route path="/items" element={<ItemList />} />
+              <Route path="/items/new" element={<ItemForm />} />
+              <Route path="/items/:id" element={<ItemDetails />} />
+              <Route path="/items/edit/:id" element={<ItemForm />} />
 
-            <Route path="/invoices" element={<InvoiceList />} />
-            <Route path="/invoices/new" element={<InvoiceForm />} />
-            <Route path="/invoices/preview/:id" element={<InvoicePreview />} />
-            <Route path="/invoices/edit/:id" element={<InvoiceForm />} />
-            <Route path="/invoices/:id/email" element={<InvoiceEmailCompose />} />
+              <Route path="/invoices" element={<InvoiceList />} />
+              <Route path="/invoices/new" element={<InvoiceForm />} />
+              <Route
+                path="/invoices/preview/:id"
+                element={<InvoicePreview />}
+              />
+              <Route path="/invoices/edit/:id" element={<InvoiceForm />} />
+              <Route
+                path="/invoices/:id/email"
+                element={<InvoiceEmailCompose />}
+              />
 
-            <Route path="/quotes" element={<ComingSoon title="Quotes" />} />
-            <Route path="/sales-receipts" element={<ComingSoon title="Sales Receipts" />} />
+              <Route path="/quotes" element={<ComingSoon title="Quotes" />} />
+              <Route
+                path="/sales-receipts"
+                element={<ComingSoon title="Sales Receipts" />}
+              />
 
-            <Route path="/payments" element={<PaymentList />} />
-            <Route path="/payments/new" element={<AddPaymentPage />} />
-            <Route path="/payments/preview/:id" element={<PaymentPreview />} />
-            <Route path="/payments/edit/:id" element={<AddPaymentPage />} />
-            <Route path="/payments/:id/email" element={<PaymentEmailCompose />} />
+              <Route path="/payments" element={<PaymentList />} />
+              <Route path="/payments/new" element={<AddPaymentPage />} />
+              <Route
+                path="/payments/preview/:id"
+                element={<PaymentPreview />}
+              />
+              <Route path="/payments/edit/:id" element={<AddPaymentPage />} />
+              <Route
+                path="/payments/:id/email"
+                element={<PaymentEmailCompose />}
+              />
 
-            <Route path="/templates" element={<TemplateList />} />
-            <Route path="/templates/new" element={<TemplateForm />} />
-            <Route path="/templates/edit/:id" element={<TemplateForm />} />
+              <Route path="/templates" element={<TemplateList />} />
+              <Route path="/templates/new" element={<TemplateForm />} />
+              <Route path="/templates/edit/:id" element={<TemplateForm />} />
 
-            <Route path="/expenses" element={<ComingSoon title="Expenses" />} />
-            <Route path="/time-tracking" element={<ComingSoon title="Time Tracking" />} />
-            <Route path="/reports" element={<ComingSoon title="Reports" />} />
+              <Route
+                path="/expenses"
+                element={<ComingSoon title="Expenses" />}
+              />
+              <Route
+                path="/time-tracking"
+                element={<ComingSoon title="Time Tracking" />}
+              />
+              <Route path="/reports" element={<ComingSoon title="Reports" />} />
 
-            <Route path="*" element={<ComingSoon title="404" />} />
-          </Routes>
+              <Route path="*" element={<ComingSoon title="404" />} />
+            </Routes>
+          </Suspense>
         </Layout>
       </AuthWrapper>
     </BrowserRouter>

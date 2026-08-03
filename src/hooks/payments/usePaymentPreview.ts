@@ -134,7 +134,7 @@ const usePaymentPreview = (): UsePaymentPreviewReturn => {
         if (!payment) return null;
 
         return {
-            invoiceNumber: `#${payment.paymentNumber}` || 'N/A', // #1 format
+            invoiceNumber: payment.paymentNumber ? `#${payment.paymentNumber}` : 'N/A',
             invoiceDate: payment.paymentDate,
             formattedDueDate: payment.referenceNo || 'N/A', // Mapped to Reference#
             terms: payment.paymentMode || 'N/A', // Mapped to Payment Mode

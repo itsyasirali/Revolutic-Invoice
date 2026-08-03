@@ -50,7 +50,7 @@ export class CustomersUpdateService {
             } else if (typeof rawExisting === 'string') {
                 try {
                     existingFilesFromClient = JSON.parse(rawExisting);
-                } catch (err) {
+                } catch {
                     existingFilesFromClient = [];
                 }
             }

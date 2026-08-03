@@ -178,7 +178,7 @@ export const generateInvoicePDF = (invoice: ExtendedInvoice): Promise<Buffer> =>
         let columns = template?.tableColumnSettings;
 
         if (typeof columns === 'string') {
-          try { columns = JSON.parse(columns); } catch (e) {
+          try { columns = JSON.parse(columns); } catch {
             // Invalid JSON, will fallback to default columns
           }
         }
