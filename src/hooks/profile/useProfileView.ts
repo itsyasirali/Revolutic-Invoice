@@ -128,17 +128,7 @@ export const useProfileView = () => {
         payload.newPassword = formData.newPassword;
       }
 
-      let response;
-      try {
-        response = await axios.put('/auth/profile', payload);
-      } catch (reqErr: any) {
-        const errContent = String(reqErr.response?.data?.message || reqErr.response?.data || reqErr.message || '');
-        if (reqErr.response?.status === 404 || errContent.includes('Cannot PUT') || errContent.includes('Cannot POST')) {
-          response = { data: { message: isUpdatingPassword ? 'Password updated successfully!' : 'Profile updated successfully!' } };
-        } else {
-          throw reqErr;
-        }
-      }
+      const response = await axios.put('/auth/profile', payload);
 
       await refetch();
 
@@ -149,7 +139,7 @@ export const useProfileView = () => {
       setAlert({
         show: true,
         type: 'success',
-        message: response?.data?.message || successText,
+        message: response.data?.message || successText,
       });
 
       setFormData((prev) => ({
@@ -160,20 +150,12 @@ export const useProfileView = () => {
       }));
     } catch (err: any) {
       console.error('Failed to update profile:', err);
-      const errorMsg = String(err.response?.data?.message || err.response?.data || err.message || '');
-      if (errorMsg.includes('Cannot PUT') || errorMsg.includes('Cannot POST') || err.response?.status === 404) {
-        setAlert({
-          show: true,
-          type: 'success',
-          message: isUpdatingPassword ? 'Password updated successfully!' : 'Profile updated successfully!',
-        });
-      } else {
-        setAlert({
-          show: true,
-          type: 'error',
-          message: errorMsg || 'Failed to update profile. Please try again.',
-        });
-      }
+      const errorMsg = err.response?.data?.message || 'Failed to update profile. Please try again.';
+      setAlert({
+        show: true,
+        type: 'error',
+        message: String(errorMsg),
+      });
     } finally {
       setSaving(false);
     }
