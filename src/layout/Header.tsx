@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
-import { Search, Plus, X } from 'lucide-react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Search, Plus, X, LayoutGrid, ShoppingCart, ShoppingBag, PlusCircle } from 'lucide-react';
 import { useProfile } from '../hooks/auth/useProfile';
 import { useLogout } from '../hooks/auth/useLogout';
 import { Button, Input } from '../components/ui';
 
 export const Header: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { user, loading: profileLoading } = useProfile();
@@ -55,6 +57,39 @@ export const Header: React.FC = () => {
     console.log('My Account clicked');
   };
 
+  const handleQuickCreateClick = (path: string) => {
+    setIsQuickCreateOpen(false);
+    navigate(path);
+  };
+
+  const quickCreateSections = [
+    {
+      category: 'GENERAL',
+      icon: LayoutGrid,
+      items: [
+        { label: 'Item', path: '/items/new' },
+        { label: 'Invoice Template', path: '/templates/new' },
+        { label: 'Log Time', path: '/time-tracking' },
+      ],
+    },
+    {
+      category: 'SALES',
+      icon: ShoppingCart,
+      items: [
+        { label: 'Customer', path: '/customers/new' },
+        { label: 'Invoices', path: '/invoices/new' },
+        { label: 'Customer Payment', path: '/payments/new' },
+      ],
+    },
+    {
+      category: 'PURCHASES',
+      icon: ShoppingBag,
+      items: [
+        { label: 'Expenses', path: '/expenses/new' },
+      ],
+    },
+  ];
+
   return (
     <header className="bg-gray-50 border-b border-gray-200 sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2">
@@ -74,13 +109,56 @@ export const Header: React.FC = () => {
 
         {/* Action Controls: Plus Button & Profile Avatar */}
         <div className="flex items-center gap-2 sm:gap-3 ml-2">
-          {/* Plus Button */}
-          <Button
-            variant="primary"
-            size="xs"
-            className="!p-2 shadow-xs"
-            icon={<Plus size={18} />}
-          />
+          {/* Plus Button & Quick Create Popover */}
+          <div className="relative">
+            <Button
+              variant="primary"
+              size="xs"
+              className="!p-2 shadow-xs cursor-pointer"
+              icon={<Plus size={18} />}
+              onClick={() => {
+                setIsQuickCreateOpen(!isQuickCreateOpen);
+                setIsProfileOpen(false);
+              }}
+            />
+
+            {isQuickCreateOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsQuickCreateOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-2.5 w-[92vw] sm:w-[620px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-5 sm:p-6 z-20 animate-reveal">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {quickCreateSections.map((sec) => {
+                      const CategoryIcon = sec.icon;
+                      return (
+                        <div key={sec.category} className="flex flex-col gap-2.5">
+                          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-100">
+                            <CategoryIcon size={14} className="text-slate-400 shrink-0" />
+                            <span>{sec.category}</span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            {sec.items.map((item) => (
+                              <button
+                                key={item.label}
+                                type="button"
+                                onClick={() => handleQuickCreateClick(item.path)}
+                                className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-primary hover:bg-slate-50 rounded-lg transition-colors cursor-pointer text-left group"
+                              >
+                                <PlusCircle size={14} className="text-slate-400 group-hover:text-primary transition-colors shrink-0" />
+                                <span className="truncate">{item.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Profile Avatar & Dropdown */}
           <div className="relative">

@@ -27,9 +27,10 @@ const CustomerForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
         title={customer ? 'Update Customer' : 'New Customer'}
+        showBackButton
         onBack={handleCancel}
       />
 
@@ -40,11 +41,12 @@ const CustomerForm: React.FC = () => {
         onClose={dismissAlert}
       />
 
-      <form onSubmit={handleFormSubmit}>
-        <div className="py-8 px-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
+      <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
+        <div className="flex-1 py-8 px-8 max-w-3xl">
+          <div className="flex flex-col gap-y-6">
+            {/* Customer Type */}
+            <div>
+              <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Customer Type
                 <Info className="w-4 h-4 text-gray-400" />
               </label>
@@ -56,9 +58,11 @@ const CustomerForm: React.FC = () => {
                     value="Business"
                     checked={customerType === 'Business'}
                     onChange={() => setCustomerType('Business')}
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary/20"
+                    className="w-5 h-5 text-primary border-gray-300 focus:ring-primary/20"
                   />
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Business</span>
+                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">
+                    Business
+                  </span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                   <input
@@ -67,29 +71,31 @@ const CustomerForm: React.FC = () => {
                     value="Individual"
                     checked={customerType === 'Individual'}
                     onChange={() => setCustomerType('Individual')}
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary/20"
+                    className="w-5 h-5 text-primary border-gray-300 focus:ring-primary/20"
                   />
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Individual</span>
+                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">
+                    Individual
+                  </span>
                 </label>
               </div>
             </div>
 
             <Input
               type="text"
-              name="companyName"
-              label="Company Name"
-              placeholder='Enter company name'
-              defaultValue={customer?.companyName || ''}
+              name="displayName"
+              label="Display Name"
+              placeholder="Enter display name"
+              defaultValue={customer?.displayName || ''}
+              required
               fullWidth
             />
 
             <Input
               type="text"
-              name="displayName"
-              label="Display Name"
-              placeholder='Enter display name'
-              defaultValue={customer?.displayName || ''}
-              required
+              name="companyName"
+              label="Company Name"
+              placeholder="Enter company name"
+              defaultValue={customer?.companyName || ''}
               fullWidth
             />
 
@@ -104,27 +110,27 @@ const CustomerForm: React.FC = () => {
               }))}
             />
 
-            <div className='md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-8'>
-              <Textarea
-                name="address"
-                label="Address"
-                rows={5}
-                defaultValue={customer?.address || ''}
-                placeholder="Enter complete billing address"
-                fullWidth
-              />
-              <Textarea
-                name="remarks"
-                label="Remarks (Internal)"
-                rows={5}
-                defaultValue={customer?.remarks || ''}
-                placeholder="Enter internal notes about this customer"
-                fullWidth
-              />
-            </div>
+            <Textarea
+              name="address"
+              label="Address"
+              rows={4}
+              defaultValue={customer?.address || ''}
+              placeholder="Enter complete billing address"
+              fullWidth
+            />
 
-            <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1 mb-2">
+            <Textarea
+              name="remarks"
+              label="Remarks (Internal)"
+              rows={4}
+              defaultValue={customer?.remarks || ''}
+              placeholder="Enter internal notes about this customer"
+              fullWidth
+            />
+
+            {/* Documents Section */}
+            <div>
+              <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Documents
                 <Info className="w-4 h-4 text-gray-400" />
               </label>
@@ -153,7 +159,7 @@ const CustomerForm: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveExistingFile(index)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2"
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -172,13 +178,15 @@ const CustomerForm: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* Contacts Section */}
+            <div className="pt-4 border-t border-gray-100">
+              <ContactsSection initial={customer?.contacts} />
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-100 px-8 py-8 max-w-7xl mx-auto">
-          <ContactsSection initial={customer?.contacts} />
-        </div>
-
+        {/* Sticky Action Footer */}
         <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 px-8 py-4 flex justify-start gap-3 z-10">
           <Button
             type="button"
