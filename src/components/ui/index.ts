@@ -21,3 +21,4 @@ export { LoadingSpinner, default as LoadingSpinnerComponent } from './LoadingSpi
 export { PageHeader, default as PageHeaderComponent } from './PageHeader';
 export { SettingsDrawer, default as SettingsDrawerComponent } from './SettingsDrawer';
 export { Tabs, default as TabsComponent } from './Tabs';
+export { ComingSoon, default as ComingSoonComponent } from './ComingSoon';

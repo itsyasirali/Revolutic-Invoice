@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Plus, ChevronDown, X, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { Search, Plus, X } from 'lucide-react';
 import { useProfile } from '../hooks/auth/useProfile';
 import { useLogout } from '../hooks/auth/useLogout';
-import { Button, Input, SettingsDrawer } from '../components/ui';
+import { Button, Input } from '../components/ui';
 
 export const Header: React.FC = () => {
-  const [isOrgOpen, setIsOrgOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
@@ -29,6 +27,7 @@ export const Header: React.FC = () => {
   return (
     <header className="bg-gray-50 border-b border-gray-200 sticky top-0 z-30">
       <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2">
+        {/* Search Bar */}
         <div className="flex items-center flex-1 min-w-0 max-w-xs ml-0 md:ml-0">
           <Input
             type="text"
@@ -40,64 +39,17 @@ export const Header: React.FC = () => {
           />
         </div>
 
+        {/* Action Controls: Plus Button & Profile Avatar */}
         <div className="flex items-center gap-2 sm:gap-3 ml-2">
-          {/* Personal Dropdown */}
-          <div className="relative hidden sm:block">
-            <button
-              onClick={() => setIsOrgOpen(!isOrgOpen)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
-            >
-              <span className="hidden sm:inline">Personal</span>
-              <ChevronDown size={14} />
-            </button>
-            {isOrgOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setIsOrgOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer">
-                    Personal
-                  </button>
-                  <button className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer">
-                    Business
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Plus Button */}
           <Button
             variant="primary"
             size="xs"
-            className="!p-2"
+            className="!p-2 shadow-xs"
             icon={<Plus size={18} />}
           />
 
-          {/* Notification Bell */}
-          <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors relative">
-            <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
-
-          {/* Settings Icon with Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <SettingsIcon size={20} />
-            </button>
-            {/* Settings Drawer */}
-            <SettingsDrawer
-              isOpen={isSettingsOpen}
-              onClose={() => setIsSettingsOpen(false)}
-            />
-          </div>
-
-          {/* Profile */}
+          {/* Profile Avatar & Dropdown */}
           <div className="relative">
             <div
               onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -130,8 +82,9 @@ export const Header: React.FC = () => {
                         </div>
                       </div>
                       <button
+                        type="button"
                         onClick={() => setIsProfileOpen(false)}
-                        className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                        className="text-gray-400 hover:text-gray-600 flex-shrink-0 cursor-pointer"
                       >
                         <X size={20} />
                       </button>
@@ -141,15 +94,17 @@ export const Header: React.FC = () => {
                   {/* Profile Actions */}
                   <div className="py-2">
                     <button
+                      type="button"
                       onClick={handleMyAccount}
-                      className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors cursor-pointer"
                     >
                       My Account
                     </button>
                     <button
+                      type="button"
                       onClick={handleSignOut}
                       disabled={logoutLoading}
-                      className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                      className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -168,3 +123,5 @@ export const Header: React.FC = () => {
     </header>
   );
 };
+
+export default Header;

@@ -19,7 +19,7 @@ import PaymentPreview from "./components/Payments/PaymentPreview";
 import PaymentEmailCompose from "./components/Payments/PaymentEmailCompose";
 import TemplateList from "./components/Templates/TemplateList";
 import TemplateForm from "./components/Templates/TemplateForm";
-
+import { ComingSoon } from "./components/ui";
 
 const App: React.FC = () => {
   return (
@@ -37,7 +37,6 @@ const App: React.FC = () => {
             <Route path="/customers/edit/:id" element={<CustomersForm />} />
             <Route path="/customers/:id" element={<CustomerDetails />} />
 
-
             <Route path="/items" element={<ItemList />} />
             <Route path="/items/new" element={<ItemForm />} />
             <Route path="/items/:id" element={<ItemDetails />} />
@@ -49,8 +48,8 @@ const App: React.FC = () => {
             <Route path="/invoices/edit/:id" element={<InvoiceForm />} />
             <Route path="/invoices/:id/email" element={<InvoiceEmailCompose />} />
 
-            <Route path="/quotes" element={<div>Quotes Page</div>} />
-            <Route path="/sales-receipts" element={<div>Sales Receipts Page</div>} />
+            <Route path="/quotes" element={<ComingSoon title="Quotes" />} />
+            <Route path="/sales-receipts" element={<ComingSoon title="Sales Receipts" />} />
 
             <Route path="/payments" element={<PaymentList />} />
             <Route path="/payments/new" element={<AddPaymentPage />} />
@@ -62,11 +61,11 @@ const App: React.FC = () => {
             <Route path="/templates/new" element={<TemplateForm />} />
             <Route path="/templates/edit/:id" element={<TemplateForm />} />
 
-            <Route path="/expenses" element={<div>Expenses Page</div>} />
-            <Route path="/time-tracking" element={<div>Time Tracking Page</div>} />
-            <Route path="/reports" element={<div>Reports Page</div>} />
+            <Route path="/expenses" element={<ComingSoon title="Expenses" />} />
+            <Route path="/time-tracking" element={<ComingSoon title="Time Tracking" />} />
+            <Route path="/reports" element={<ComingSoon title="Reports" />} />
 
-            <Route path="*" element={<div>404 - Not Found</div>} />
+            <Route path="*" element={<ComingSoon title="404" />} />
           </Routes>
         </Layout>
       </AuthWrapper>

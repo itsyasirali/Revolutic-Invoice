@@ -32,6 +32,7 @@ const MENU_ITEMS = [
   { icon: Users, label: 'Customers', path: '/customers' },
   { icon: Package, label: 'Items', path: '/items' },
   { icon: FileText, label: 'Invoices', path: '/invoices' },
+  { icon: Layout, label: 'Invoice Templates', path: '/templates' },
   { icon: DollarSign, label: 'Payments', path: '/payments' },
   { icon: Receipt, label: 'Expenses', path: '/expenses' },
   { icon: Clock, label: 'Time Tracking', path: '/time-tracking' },
