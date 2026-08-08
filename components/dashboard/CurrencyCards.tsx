@@ -3,18 +3,13 @@
 import React from "react";
 import useInvoicesList from "@/hooks/invoices/useInvoicesData";
 
-const CurrencyCards: React.FC = () => {
-  const { currencyStats, loading } = useInvoicesList();
+export type CurrencyStat = {
+  currency: string;
+  received: number;
+  remaining: number;
+};
 
-  if (loading) {
-    return (
-      <div className="flex gap-4 mt-8 overflow-x-auto pb-2">
-        {[1, 2].map((i) => (
-          <div key={i} className="bg-white rounded-md shadow-sm p-4 w-48 h-20 animate-pulse"></div>
-        ))}
-      </div>
-    );
-  }
+const CurrencyCards = ({ currencyStats }: { currencyStats: CurrencyStat[] }) => {
 
   if (!currencyStats || currencyStats.length === 0) {
     return null;

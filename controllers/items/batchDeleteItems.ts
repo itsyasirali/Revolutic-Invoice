@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import { BatchDeleteItemPayload } from "@/types/item";
 
 const batchDeleteItems = async (req: NextRequest) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
 
   try {

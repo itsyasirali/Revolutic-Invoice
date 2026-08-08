@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { FindOptionsWhere } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 
 const getAllPayments = async (req: NextRequest) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
 
   try {

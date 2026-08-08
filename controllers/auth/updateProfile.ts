@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { UpdateProfilePayload } from "@/types/auth";
-import { readSession, writeSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 
 const updateProfile = async (req: NextRequest) => {
-  const { sid, data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const sessionUser = data.user;
 
   if (!sessionUser || !sessionUser.id) {
@@ -22,8 +23,9 @@ const updateProfile = async (req: NextRequest) => {
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
 
+    const userId = parseInt(sessionUser.id as string, 10);
     const user = await usersRepository.findOne({
-      where: { id: sessionUser.id },
+      where: { id: userId },
     });
     if (!user) {
       return NextResponse.json(
@@ -71,9 +73,9 @@ const updateProfile = async (req: NextRequest) => {
       updateData.password = await bcrypt.hash(body.newPassword, 10);
     }
 
-    await usersRepository.update(sessionUser.id, updateData);
+    await usersRepository.update(userId, updateData);
     const updatedUser = await usersRepository.findOne({
-      where: { id: sessionUser.id },
+      where: { id: userId },
     });
     if (!updatedUser) {
       throw new Error("User not found after update");
@@ -93,7 +95,7 @@ const updateProfile = async (req: NextRequest) => {
       { message: successMessage, user: newSessionUser },
       { status: 200 },
     );
-    await writeSession(response, sid, { user: newSessionUser });
+    
 
     return response;
   } catch (error) {

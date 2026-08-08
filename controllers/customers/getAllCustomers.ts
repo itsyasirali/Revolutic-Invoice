@@ -3,10 +3,11 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 
 const getAllCustomers = async (req: NextRequest) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
 
   try {

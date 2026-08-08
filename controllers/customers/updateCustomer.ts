@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,

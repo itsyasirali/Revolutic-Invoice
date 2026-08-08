@@ -9,9 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.3.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "@auth/typeorm-adapter": "^2.11.3",
     "@fontsource/inter": "^5.2.8",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
@@ -20,13 +18,17 @@
     "cookie-signature": "^1.2.2",
     "html2pdf.js": "^0.12.1",
     "lucide-react": "^0.545.0",
+    "next": "16.3.0",
+    "next-auth": "^5.0.0-beta.32",
     "nodemailer": "^7.0.9",
     "pdfkit": "^0.15.2",
     "pg": "^8.13.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-quill-new": "^3.6.0",
     "recharts": "^3.2.1",
-    "typeorm": "^0.3.28",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

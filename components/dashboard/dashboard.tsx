@@ -4,20 +4,22 @@ import { TabNavigation } from "./TabNavigation";
 import { ReceivablesCard } from "./ReceiveableCard";
 import SalesExpensesChart from "./SalesExpenseChart";
 import CurrencyCards from "./CurrencyCards";
+import { getDashboardData } from "@/lib/services/dashboardService";
+import { auth } from "@/auth";
 
-interface DashboardMainProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
+export const DashboardMain = async () => {
+  const session = await auth();
+  if (!session?.user?.id) return null;
 
-export const DashboardMain: React.FC<DashboardMainProps> = () => {
+  const { receivables, salesExpensesData, currencyStats } = await getDashboardData(Number(session.user.id));
+
   return (
     <div className="w-full bg-white pb-10">
       <GreetingSection />
       <TabNavigation />
-      <ReceivablesCard />
-      <SalesExpensesChart />
-      <CurrencyCards />
+      <ReceivablesCard receivables={receivables} />
+      <SalesExpensesChart initialData={salesExpensesData} />
+      <CurrencyCards currencyStats={currencyStats} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { DashboardMain } from "@/components/dashboard/dashboard";
 
-const HomePage = () => <DashboardMain activeTab="0" onTabChange={() => {}} />;
+const HomePage = () => <DashboardMain />;
 
 export default HomePage;

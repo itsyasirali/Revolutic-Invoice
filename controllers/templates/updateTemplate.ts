@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -47,7 +47,8 @@ const updateTemplate = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
   const { id } = await params;
 

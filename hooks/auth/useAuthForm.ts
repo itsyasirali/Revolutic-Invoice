@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import axios from "@/lib/axios";
+import { signIn } from "next-auth/react";
 
 interface UseAuthFormOptions {
   onLoginSuccess?: () => void;
@@ -34,14 +35,20 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`/auth/login`, { email, password });
+      const response = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-      if (response.data?.user) {
+      if (response?.error) {
+        setError("Invalid credentials. Try again.");
+      } else if (response?.ok) {
         resetForm();
         onLoginSuccess?.(); // ✅ trigger auth
       }
     } catch (err: unknown) {
-      setError(axios.isAxiosError(err) ? err.response?.data?.message || "Login failed. Try again." : "Login failed. Try again.");
+      setError("Login failed. Try again.");
     } finally {
       setLoading(false);
     }

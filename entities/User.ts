@@ -12,14 +12,29 @@ export class User {
   @PrimaryGeneratedColumn("increment")
   id!: number;
 
-  @Column()
+  @Column({ nullable: true })
   name!: string;
+
+  @Column({ nullable: true })
+  firstName!: string;
+
+  @Column({ nullable: true })
+  lastName!: string;
+
+  @Column({ nullable: true })
+  companyName!: string;
 
   @Column({ unique: true })
   email!: string;
 
-  @Column()
-  password!: string; // Hashed password
+  @Column({ nullable: true })
+  password!: string;
+
+  @Column({ type: "timestamp", nullable: true })
+  emailVerified!: Date | null;
+
+  @Column({ nullable: true })
+  image!: string | null;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import axios from "@/lib/axios";
+import { signOut } from "next-auth/react";
 
 interface UseLogoutReturn {
   logout: () => Promise<void>;
@@ -17,16 +17,14 @@ export const useLogout = (): UseLogoutReturn => {
     try {
       setLoading(true);
       setError(null);
-
-      await axios.post(`/auth/logout`, {});
-    } catch (err: unknown) {
-      console.error("Logout failed:", err);
-      setError(axios.isAxiosError(err) ? err.response?.data?.message || "Logout failed" : "Logout failed");
-    } finally {
       localStorage.clear();
       sessionStorage.clear();
+      await signOut({ callbackUrl: "/login" });
+    } catch (err: unknown) {
+      console.error("Logout failed:", err);
+      setError("Logout failed");
+    } finally {
       setLoading(false);
-      window.location.href = "/login";
     }
   };
 

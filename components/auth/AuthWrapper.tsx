@@ -1,51 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "@/lib/axios";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { useSession, SessionProvider } from "next-auth/react";
 import LoginSignupForm from "./auth";
 
 interface AuthWrapperProps {
   children: React.ReactNode;
 }
 
-export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const router = useRouter();
+const AuthContent: React.FC<AuthWrapperProps> = ({ children }) => {
+  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    let isMounted = true;
-    const verifyAuth = async () => {
-      try {
-        const response = await axios.get(`/auth/me`);
-        if (isMounted) {
-          setIsAuthenticated(Boolean(response.data?.user));
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        if (isMounted) {
-          setIsAuthenticated(false);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    verifyAuth();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-    router.replace("/");
-  };
-
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -56,11 +22,19 @@ export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <LoginSignupForm onLoginSuccess={handleLoginSuccess} />;
+  if (status === "unauthenticated" || !session) {
+    return <LoginSignupForm onLoginSuccess={() => window.location.reload()} />;
   }
 
   return <>{children}</>;
+};
+
+export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
+  return (
+    <SessionProvider>
+      <AuthContent>{children}</AuthContent>
+    </SessionProvider>
+  );
 };
 
 export default AuthWrapper;

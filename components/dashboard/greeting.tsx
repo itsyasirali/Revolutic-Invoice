@@ -1,13 +1,10 @@
-"use client";
-
 import React from "react";
 import { Smartphone } from "lucide-react";
-import { useProfile } from "@/hooks/auth/useProfile";
+import { auth } from "@/auth";
 
-export const GreetingSection: React.FC = () => {
-  const { user, loading } = useProfile();
-
-  const userName = user?.name || "User";
+export const GreetingSection = async () => {
+  const session = await auth();
+  const userName = session?.user?.name || "User";
 
   return (
     <div className="flex mb-2 gap-2 px-3 w-[97%] pt-5 mx-auto">
@@ -22,7 +19,7 @@ export const GreetingSection: React.FC = () => {
         </div>
         <div>
           <h1 className="text-md font-semibold text-gray-900 mb-1 truncate">
-            {loading ? "Loading..." : `Hello, ${userName}`}
+            {`Hello, ${userName}`}
             <p className="text-xs text-gray-500">Personal</p>
           </h1>
         </div>

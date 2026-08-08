@@ -35,9 +35,14 @@ const CustomXAxisTick = ({ x = 0, y = 0, payload }: TickProps) => (
   </g>
 );
 
-const SalesExpensesChart = () => {
+export type SalesExpensesData = {
+  data: { month: string; sales: number; expenses: number; receipts: number }[];
+  totals: { sales: number; receipts: number; expenses: number };
+};
+
+const SalesExpensesChart = ({ initialData }: { initialData: SalesExpensesData }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodPreset>("This Fiscal Year");
-  const { data, totals, loading, refetch } = useSalesExpenses();
+  const { data, totals } = initialData;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 mx-auto w-[97%]">
@@ -62,14 +67,6 @@ const SalesExpensesChart = () => {
           >
             <span>{selectedPeriod}</span>
             <ChevronDown className="w-4 h-4 text-primary" />
-          </button>
-
-          <button
-            disabled={loading}
-            onClick={refetch}
-            className="p-2 rounded-full hover:bg-white text-gray-500 hover:text-gray-700 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>
@@ -106,21 +103,21 @@ const SalesExpensesChart = () => {
           <div className="text-center">
             <div className="text-sm text-primary mb-1 font-normal">Total Sales</div>
             <div className="text-xl sm:text-2xl font-normal text-gray-900">
-              {loading ? "…" : formatCurrency(totals.sales)}
+              {formatCurrency(totals.sales)}
             </div>
           </div>
 
           <div className="text-center sm:text-right">
             <div className="text-sm text-green-600 mb-1 font-normal">Total Receipts</div>
             <div className="text-xl sm:text-2xl font-normal text-gray-900">
-              {loading ? "…" : formatCurrency(totals.receipts)}
+              {formatCurrency(totals.receipts)}
             </div>
           </div>
 
           <div className="text-center sm:text-right">
             <div className="text-sm text-red-600 mb-1 font-normal">Total Expenses</div>
             <div className="text-xl sm:text-2xl font-normal text-gray-900">
-              {loading ? "…" : formatCurrency(totals.expenses)}
+              {formatCurrency(totals.expenses)}
             </div>
           </div>
         </div>

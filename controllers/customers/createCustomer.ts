@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
@@ -9,7 +9,8 @@ import {
 } from "@/utils/customers/customersHelper";
 
 const createCustomer = async (req: NextRequest) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
 
   try {

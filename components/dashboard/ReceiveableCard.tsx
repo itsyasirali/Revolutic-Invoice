@@ -1,9 +1,7 @@
-"use client";
-
 import React from "react";
 import { Plus } from "lucide-react";
-import { useReceivables } from "@/hooks/invoices/useReceivables";
-import type { BucketKey } from "@/hooks/invoices/useReceivables";
+
+type BucketKey = "current" | "1-15" | "16-30" | "31-45";
 
 const formatPKR = (value: number) =>
   new Intl.NumberFormat("en-PK", {
@@ -45,9 +43,14 @@ const uiBuckets = [
   },
 ] as const;
 
-export const ReceivablesCard: React.FC = () => {
-  const { buckets, totalReceivables, isLoading } = useReceivables();
+type ReceivablesData = {
+  buckets: Record<string, number>;
+  totalReceivables: number;
+  paidTotal: number;
+};
 
+export const ReceivablesCard = ({ receivables }: { receivables: ReceivablesData }) => {
+  const { buckets, totalReceivables } = receivables;
   const overdueTotal = buckets["16-30"] + buckets["31-45"];
 
   return (
@@ -71,7 +74,7 @@ export const ReceivablesCard: React.FC = () => {
         <p className="text-sm text-gray-600 mb-2">
           Total Receivables{" "}
           <span className="font-semibold">
-            {isLoading ? "Calculating…" : formatPKR(totalReceivables)}
+            {formatPKR(totalReceivables)}
           </span>
         </p>
         <div className="w-full h-2 bg-primary/40 rounded-full" />
@@ -92,7 +95,7 @@ export const ReceivablesCard: React.FC = () => {
               </p>
 
               <p className="text-lg font-semibold text-gray-700 truncate">
-                {isLoading ? "…" : formatPKR(value)}
+                {formatPKR(value)}
               </p>
 
               <p className="text-xs text-gray-500">{bucket.period}</p>

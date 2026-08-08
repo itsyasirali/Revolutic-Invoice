@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import {
   createMailTransporter,
   getMailFromName,
@@ -13,7 +13,8 @@ const sendPayment = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
   const { id } = await params;
 

@@ -3,7 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { InvoiceItem } from "@/entities/InvoiceItem";
 import { Customer } from "@/entities/Customer";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 import { calculateInvoiceTotals } from "@/utils/invoices/invoiceCalculations";
 import type { UpdateInvoicePayload } from "@/types/invoice";
 
@@ -11,7 +11,8 @@ const updateInvoice = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
   const { id } = await params;
 

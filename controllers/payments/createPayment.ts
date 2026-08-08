@@ -4,10 +4,11 @@ import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Invoice } from "@/entities/Invoice";
 import { Customer } from "@/entities/Customer";
-import { readSession } from "@/lib/session";
+import { getToken } from "next-auth/jwt";
 
 const createPayment = async (req: NextRequest) => {
-  const { data } = await readSession(req);
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const data = { user: token };
   const userId = data.user?.id;
 
   try {

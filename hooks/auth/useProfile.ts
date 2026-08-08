@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "@/lib/axios";
+import { useSession } from "next-auth/react";
 
 interface User {
   id: string;
@@ -20,38 +19,13 @@ interface UseProfileReturn {
 }
 
 export const useProfile = (): UseProfileReturn => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axios.get(`/auth/me`);
-
-      if (response.data?.user) {
-        setUser(response.data.user);
-      }
-    } catch (err: unknown) {
-      console.error("Failed to fetch user profile:", err);
-      setError(axios.isAxiosError(err) ? err.response?.data?.message || "Failed to fetch user profile" : "Failed to fetch user profile");
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const { data: session, status, update } = useSession();
 
   return {
-    user,
-    loading,
-    error,
-    refetch: fetchProfile,
+    user: session?.user as User | null,
+    loading: status === "loading",
+    error: null,
+    refetch: update as unknown as () => Promise<void>,
   };
 };
 
