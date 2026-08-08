@@ -123,7 +123,7 @@ export const ReceivablesCard = ({
         >
           <div className="flex justify-between items-start">
             <span
-              className={`w-12 h-12 rounded-full flex items-center justify-center ${card.iconBg}`}
+              className={`w-12 h-12 rounded-md flex items-center justify-center ${card.iconBg}`}
             >
               <card.icon className="w-6 h-6 text-white" />
             </span>

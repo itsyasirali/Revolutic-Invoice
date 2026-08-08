@@ -17,6 +17,8 @@ export const useCustomerList = () => {
     selectedIds,
     setSelectedIds,
     filteredCustomers,
+    searchQuery,
+    setSearchQuery,
   } = useCustomerData();
 
   const {
@@ -103,6 +105,8 @@ export const useCustomerList = () => {
     handleRowClick,
     onSelectAll,
     onSelectRow,
+    searchQuery,
+    setSearchQuery,
   };
 };
 

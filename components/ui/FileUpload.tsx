@@ -130,7 +130,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             htmlFor={`file-upload-${label.replace(/\s+/g, "-")}`}
             className="cursor-pointer flex flex-col items-center gap-2"
           >
-            <div className="p-3 bg-white shadow-sm border border-slate-200/80 rounded-full text-slate-500">
+            <div className="p-3 bg-white shadow-sm border border-slate-200/80 rounded-md text-slate-500">
               <UploadCloud className="w-6 h-6 text-primary" />
             </div>
             <div className="text-xs font-medium text-slate-700">

@@ -94,7 +94,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={onClear}
-              className="p-1 mr-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition-colors"
+              className="p-1 mr-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/60 transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>

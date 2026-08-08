@@ -235,7 +235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ${isCollapsed ? "justify-center" : ""}
             `}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
               {profileLoading ? "..." : userInitial}
             </div>
             {!isCollapsed && (
@@ -265,7 +265,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
                         {userInitial}
                       </div>
                       <div className="flex-1 min-w-0">

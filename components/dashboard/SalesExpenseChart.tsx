@@ -37,7 +37,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 mb-2 last:mb-0">
             <span
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2.5 h-2.5 rounded-md"
               style={{ backgroundColor: entry.color }}
             ></span>
             <span className="text-gray-300">{entry.name}:</span>
@@ -89,11 +89,11 @@ const SalesExpensesChart = ({
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600 font-medium">
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>
+              <span className="w-2.5 h-2.5 rounded-md bg-[#2563eb]"></span>
               Income
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span>
+              <span className="w-2.5 h-2.5 rounded-md bg-[#ef4444]"></span>
               Expenses
             </div>
           </div>
@@ -244,7 +244,7 @@ const SalesExpensesChart = ({
           {pieData.map((item) => (
             <div key={item.name} className="flex items-center gap-1.5">
               <span
-                className="w-2.5 h-2.5 rounded-full"
+                className="w-2.5 h-2.5 rounded-md"
                 style={{ backgroundColor: item.color }}
               ></span>
               {item.name}

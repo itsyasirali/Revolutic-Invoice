@@ -9,16 +9,19 @@ const useCustomerData = (
   options: { fetchOnMount?: boolean } = { fetchOnMount: true },
 ) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(false);
+  // Initialize loading to true if we are going to fetch on mount to avoid cascading renders
+  const [loading, setLoading] = useState(options.fetchOnMount ?? true);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
 
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchCustomers = useCallback(async () => {
-    setLoading(true);
+  const fetchCustomers = useCallback(async (isInitialFetch = false) => {
+    // Only set loading to true if it's not the initial fetch (since it's already true)
+    if (!isInitialFetch) {
+      setLoading(true);
+    }
     try {
       const response = await axios.get(`/customers`);
       setCustomers(response.data.customers || []);
@@ -32,7 +35,8 @@ const useCustomerData = (
 
   useEffect(() => {
     if (options.fetchOnMount) {
-      fetchCustomers();
+      // Execute as a microtask to avoid synchronous execution warnings
+      Promise.resolve().then(() => fetchCustomers(true));
     }
   }, [fetchCustomers, options.fetchOnMount]);
 
@@ -64,6 +68,8 @@ const useCustomerData = (
     selectedIds,
     setSelectedIds,
     filteredCustomers,
+    searchQuery,
+    setSearchQuery,
   };
 };
 

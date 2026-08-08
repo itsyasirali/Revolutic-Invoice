@@ -12,7 +12,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div className="p-10 text-center border border-slate-200/80 bg-white rounded-md shadow-sm">
-      <div className="p-4 bg-slate-100/80 text-slate-400 rounded-full w-fit mx-auto mb-4">
+      <div className="p-4 bg-slate-100/80 text-slate-400 rounded-md w-fit mx-auto mb-4">
         <Icon className="w-10 h-10" />
       </div>
       <h3 className="text-lg font-bold text-slate-900 mb-1">{title}</h3>

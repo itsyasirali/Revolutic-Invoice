@@ -38,7 +38,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
     lg: "w-6 h-6",
   };
 
-  const roundedStyle = rounded ? "rounded-full" : "rounded-md";
+  const roundedStyle = rounded ? "rounded-md" : "rounded-md";
 
   return (
     <button

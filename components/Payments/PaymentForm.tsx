@@ -121,7 +121,7 @@ const PaymentForm: React.FC = () => {
                                 className="w-full text-left px-4 py-3 hover:bg-blue-500 hover:text-white transition-colors border-b border-gray-100 last:border-b-0 group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 group-hover:bg-white flex items-center justify-center">
+                                  <div className="flex-shrink-0 w-10 h-10 rounded-md bg-blue-100 group-hover:bg-white flex items-center justify-center">
                                     <span className="text-blue-600 group-hover:text-blue-500 font-bold text-sm">
                                       {initial}
                                     </span>

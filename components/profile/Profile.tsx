@@ -2,7 +2,13 @@
 
 import React from "react";
 import { User, Lock, Save, Camera, Mail, ShieldCheck } from "lucide-react";
-import { PageHeader, Input, Button, AlertModal, LoadingSpinner } from "@/components/ui";
+import {
+  PageHeader,
+  Input,
+  Button,
+  AlertModal,
+  LoadingSpinner,
+} from "@/components/ui";
 import useProfileView, { type TabType } from "@/hooks/profile/useProfileView";
 
 const Profile: React.FC = () => {
@@ -44,25 +50,27 @@ const Profile: React.FC = () => {
           {/* User Header Info - Left Aligned */}
           <div className="flex items-center gap-5 mb-8 pb-6 border-b border-gray-100">
             <div className="relative group cursor-pointer shrink-0">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-primary rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-primary rounded-md flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all">
                 {userInitial}
               </div>
-              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute inset-0 bg-black/40 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera size={18} className="text-white" />
               </div>
             </div>
 
             <div className="flex flex-col gap-1 text-left">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-lg font-bold text-gray-900">{userFullName}</h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <h2 className="text-lg font-bold text-gray-900">
+                  {userFullName}
+                </h2>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <ShieldCheck size={12} />
                   Active Account
                 </span>
               </div>
               <p className="text-xs text-gray-500 flex items-center gap-1.5">
                 <Mail size={13} className="text-gray-400" />
-                {formData.email || 'user@example.com'}
+                {formData.email || "user@example.com"}
               </p>
             </div>
           </div>
@@ -70,8 +78,8 @@ const Profile: React.FC = () => {
           {/* Tab Switcher - Left Aligned */}
           <div className="flex border-b border-gray-200 mb-8 gap-4">
             {[
-              { id: 'personal', label: 'Personal Details', icon: User },
-              { id: 'security', label: 'Security', icon: Lock },
+              { id: "personal", label: "Personal Details", icon: User },
+              { id: "security", label: "Security", icon: Lock },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -82,8 +90,8 @@ const Profile: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={`flex items-center gap-2 py-2.5 px-3 border-b-2 text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                      ? "border-primary text-primary"
+                      : "border-transparent text-gray-500 hover:text-gray-900"
                   }`}
                 >
                   <Icon size={16} />
@@ -94,7 +102,7 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Form Fields */}
-          {activeTab === 'personal' && (
+          {activeTab === "personal" && (
             <div className="flex flex-col gap-y-6">
               <Input
                 type="text"
@@ -120,7 +128,7 @@ const Profile: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'security' && (
+          {activeTab === "security" && (
             <div className="flex flex-col gap-y-6">
               <Input
                 type="password"

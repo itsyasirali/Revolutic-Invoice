@@ -74,7 +74,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white/60 rounded-full transition-colors cursor-pointer shrink-0"
+            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white/60 rounded-md transition-colors cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>

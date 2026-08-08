@@ -198,7 +198,7 @@ const PaymentList: React.FC = () => {
             </Button>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center min-w-[32px] h-8 bg-gray-100 rounded-full px-2.5">
+            <div className="flex items-center justify-center min-w-[32px] h-8 bg-gray-100 rounded-md px-2.5">
               <span className="text-xs font-medium text-gray-700">
                 {selectedIds.length}
               </span>

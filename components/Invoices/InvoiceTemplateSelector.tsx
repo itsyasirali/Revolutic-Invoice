@@ -44,7 +44,7 @@ const InvoiceTemplateSelector: React.FC<InvoiceTemplateSelectorProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
+            className="p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-500 hover:text-gray-700"
           >
             <X size={24} />
           </button>

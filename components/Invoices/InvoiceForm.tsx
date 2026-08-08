@@ -166,7 +166,7 @@ const InvoiceForm = () => {
                                   className="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors border-b border-gray-50 last:border-b-0 group"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                                    <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
                                       {(
                                         customer.displayName ||
                                         customer.companyName ||

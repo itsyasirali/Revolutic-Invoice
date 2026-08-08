@@ -86,7 +86,7 @@ const InvoiceEmailCompose: React.FC = () => {
               {emailData.to.map((email, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
+                  className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-md text-sm"
                 >
                   <span className="text-sm text-gray-900">{email}</span>
                   <button
@@ -112,7 +112,7 @@ const InvoiceEmailCompose: React.FC = () => {
                   />
                   <button
                     onClick={() => handleAddEmail("to")}
-                    className="p-1 hover:bg-gray-100 rounded-full text-primary"
+                    className="p-1 hover:bg-gray-100 rounded-md text-primary"
                   >
                     <Check size={16} />
                   </button>
@@ -120,7 +120,7 @@ const InvoiceEmailCompose: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setActiveField("to")}
-                  className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-primary transition-colors"
+                  className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>
@@ -136,7 +136,7 @@ const InvoiceEmailCompose: React.FC = () => {
               {emailData.cc.map((email, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                  className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm"
                 >
                   <span>{email}</span>
                   <button
@@ -161,7 +161,7 @@ const InvoiceEmailCompose: React.FC = () => {
                   />
                   <button
                     onClick={() => handleAddEmail("cc")}
-                    className="p-1 hover:bg-gray-100 rounded-full text-primary"
+                    className="p-1 hover:bg-gray-100 rounded-md text-primary"
                   >
                     <Check size={16} />
                   </button>
@@ -169,7 +169,7 @@ const InvoiceEmailCompose: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setActiveField("cc")}
-                  className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-primary transition-colors"
+                  className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>
@@ -185,7 +185,7 @@ const InvoiceEmailCompose: React.FC = () => {
               {emailData.bcc.map((email, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                  className="flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm"
                 >
                   <span>{email}</span>
                   <button
@@ -210,7 +210,7 @@ const InvoiceEmailCompose: React.FC = () => {
                   />
                   <button
                     onClick={() => handleAddEmail("bcc")}
-                    className="p-1 hover:bg-gray-100 rounded-full text-primary"
+                    className="p-1 hover:bg-gray-100 rounded-md text-primary"
                   >
                     <Check size={16} />
                   </button>
@@ -218,7 +218,7 @@ const InvoiceEmailCompose: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setActiveField("bcc")}
-                  className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-primary transition-colors"
+                  className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>

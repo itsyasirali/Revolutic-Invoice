@@ -309,7 +309,7 @@ const TemplateForm: React.FC = () => {
               <div className="px-4 py-4 border-b border-gray-200">
                 <label className="block text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
                   Paper Size
-                  <span className="w-4 h-4 bg-gray-200 rounded-full text-xs flex items-center justify-center text-gray-500">
+                  <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
                     ?
                   </span>
                 </label>
@@ -407,7 +407,7 @@ const TemplateForm: React.FC = () => {
                   <span className="text-sm text-gray-800">
                     Include Payment Stub
                   </span>
-                  <span className="w-4 h-4 bg-gray-200 rounded-full text-xs flex items-center justify-center text-gray-500">
+                  <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
                     ?
                   </span>
                 </label>

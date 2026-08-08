@@ -51,7 +51,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             <Button
               variant="secondary"
               size="lg"
-              className="!bg-transparent !text-white !outline-none !border-primary !rounded-full !px-12 !py-2.5 !text-xs !font-bold hover:!bg-white/10 transition-all uppercase tracking-widest cursor-pointer !ring-0 !ring-offset-0 !shadow-none focus:!ring-0 focus:!ring-offset-0 focus:!shadow-none active:!ring-0 active:!ring-offset-0 active:!shadow-none"
+              className="!bg-transparent !text-white !outline-none !border-primary !rounded-md !px-12 !py-2.5 !text-xs !font-bold hover:!bg-white/10 transition-all uppercase tracking-widest cursor-pointer !ring-0 !ring-offset-0 !shadow-none focus:!ring-0 focus:!ring-offset-0 focus:!shadow-none active:!ring-0 active:!ring-offset-0 active:!shadow-none"
               onClick={toggleMode}
             >
               {isSignup ? "Sign In" : "Sign Up"}
@@ -78,7 +78,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
               {["f", "g+", "in"].map((social) => (
                 <button
                   key={social}
-                  className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 font-bold hover:bg-slate-50 transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-md border border-slate-200 flex items-center justify-center text-slate-600 font-bold hover:bg-slate-50 transition-all cursor-pointer"
                 >
                   {social === "g+" ? "G+" : social.toUpperCase()}
                 </button>
@@ -163,7 +163,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   fullWidth
                   loading={loading}
                   onClick={handleSubmit}
-                  className="!bg-gradient-to-r !from-primary !to-primary/90 !text-white !rounded-full !py-3 !text-xs !font-bold uppercase tracking-widest cursor-pointer active:scale-95 transition-all shadow-lg"
+                  className="!bg-gradient-to-r !from-primary !to-primary/90 !text-white !rounded-md !py-3 !text-xs !font-bold uppercase tracking-widest cursor-pointer active:scale-95 transition-all shadow-lg"
                 >
                   {isSignup ? "Sign Up" : "Sign In"}
                 </Button>

@@ -155,7 +155,7 @@ const CustomerDetails: React.FC = () => {
   if (loading && !customer) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-md animate-spin" />
       </div>
     );
   }
@@ -187,25 +187,20 @@ const CustomerDetails: React.FC = () => {
   ];
 
   return (
-    <div className="pb-8">
+    <div className="">
       <PageHeader
         title={customer.displayName || ""}
         showBackButton
         onBack={handleBackClick}
-        subtitle={
-          <div className="flex items-center gap-3.5">
-            <StatusBadge status={customer.status || "Active"} />
-          </div>
-        }
       />
 
-      <div className="px-6 space-y-6 mt-4">
+      <div className="space-y-6">
         {/* Quick Stats Integrated */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-green-600 text-white transition-colors duration-300">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
@@ -236,7 +231,7 @@ const CustomerDetails: React.FC = () => {
           <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
+                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-orange-600 text-white transition-colors duration-300">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
@@ -375,7 +370,7 @@ const CustomerDetails: React.FC = () => {
             )}
 
             {activeTab === "invoices" && (
-              <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
+              <div className="">
                 {customerInvoices.length > 0 ? (
                   <Table
                     columns={invoiceColumns}
@@ -401,7 +396,7 @@ const CustomerDetails: React.FC = () => {
             )}
 
             {activeTab === "transactions" && (
-              <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
+              <div className="">
                 {customerTransactions.length > 0 ? (
                   <Table
                     columns={transactionColumns}

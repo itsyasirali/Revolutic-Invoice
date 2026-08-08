@@ -10,7 +10,7 @@ const variantTableClasses: Record<
 > = {
   default: {
     table:
-      "w-full bg-white border border-slate-200/80 rounded-t-md rounded-b-none shadow-sm overflow-hidden",
+      "w-full bg-white border border-slate-200/80 rounded-t-md rounded-b-none overflow-hidden",
     th: "bg-slate-50 border-b border-slate-200/80 text-slate-700 font-semibold text-xs uppercase tracking-wider",
     td: "border-b border-slate-100 text-sm text-slate-700",
     tr: "hover:bg-slate-50/60 transition-colors",
@@ -151,7 +151,7 @@ export const Table = <T,>({
                   className="px-4 py-12 text-center"
                 >
                   <div className="inline-flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-md animate-spin" />
                     <p className="text-xs font-medium text-slate-500">
                       Loading data...
                     </p>
@@ -169,7 +169,7 @@ export const Table = <T,>({
                   className="px-4 py-12 text-center"
                 >
                   <div className="inline-flex flex-col items-center justify-center gap-2">
-                    <div className="p-3 bg-slate-100 text-slate-400 rounded-full">
+                    <div className="p-3 bg-slate-100 text-slate-400 rounded-md">
                       <EmptyIcon className="w-6 h-6" />
                     </div>
                     <p className="text-sm font-medium text-slate-600">
