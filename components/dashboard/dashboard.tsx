@@ -16,7 +16,7 @@ export const DashboardMain = async () => {
   return (
     <div className="w-full pb-10 min-h-screen">
       <div className="mb-4">
-        <span className="text-blue-500 font-medium cursor-pointer">
+        <span className="text-primary font-medium cursor-pointer">
           Dashboard
         </span>
         <span className="text-gray-400 mx-2">/</span>

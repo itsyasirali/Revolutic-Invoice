@@ -58,7 +58,7 @@ const InvoicePreview: React.FC = () => {
               onClick={handleDownloadPDF}
               variant="secondary"
               size="md"
-              className="!bg-blue-600 !border !border-blue-600 text-white"
+              className="!bg-primary !border !border-primary text-white"
               icon={<Download className="w-4 h-4" />}
             >
               Download
@@ -92,7 +92,7 @@ const InvoicePreview: React.FC = () => {
                   invoice.status.toLowerCase() === "draft"
                     ? "bg-slate-500"
                     : invoice.status.toLowerCase() === "sent"
-                      ? "bg-blue-600"
+                      ? "bg-primary"
                       : invoice.status.toLowerCase() === "paid"
                         ? "bg-emerald-600"
                         : invoice.status.toLowerCase() === "overdue"
@@ -109,7 +109,7 @@ const InvoicePreview: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setShowTemplateSelector(true)}
-                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 shadow-md transition-all text-sm font-medium pr-3"
+                className="flex items-center gap-2 bg-primary/90 hover:bg-primary text-white px-4 py-2 shadow-md transition-all text-sm font-medium pr-3"
               >
                 <Settings className="w-4 h-4" />
                 <span>Customize</span>

@@ -7,7 +7,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-primary text-white hover:bg-primary/90 focus:ring-primary/40 shadow-sm border border-transparent",
   secondary:
-    "bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary/40 shadow-sm border border-transparent",
+    "bg-primary text-white hover:bg-primary/90 focus:ring-secondary/40 shadow-sm border border-transparent",
   outline:
     "bg-transparent text-slate-700 hover:bg-slate-100 border border-slate-300 focus:ring-slate-400",
   ghost:

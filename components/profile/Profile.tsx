@@ -50,7 +50,7 @@ const Profile: React.FC = () => {
           {/* User Header Info - Left Aligned */}
           <div className="flex items-center gap-5 mb-8 pb-6 border-b border-gray-100">
             <div className="relative group cursor-pointer shrink-0">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 via-pink-500 to-primary rounded-md flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all">
+              <div className="w-16 h-16 bg-primary rounded-md flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all">
                 {userInitial}
               </div>
               <div className="absolute inset-0 bg-black/40 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

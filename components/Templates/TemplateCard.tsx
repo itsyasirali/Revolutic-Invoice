@@ -138,7 +138,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
       <div className="px-3.5 py-2.5 bg-white border-t border-slate-100 flex items-center justify-between">
         <h3
           className={`font-semibold text-slate-800 text-sm truncate ${
-            selected ? "text-blue-600" : ""
+            selected ? "text-primary" : ""
           }`}
         >
           {template.name}
@@ -151,7 +151,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
       </div>
 
       {selected && (
-        <div className="absolute top-3 right-3 bg-blue-500 text-white rounded-md p-1 shadow-md">
+        <div className="absolute top-3 right-3 bg-primary/90 text-white rounded-md p-1 shadow-md">
           <CheckCircle size={16} />
         </div>
       )}

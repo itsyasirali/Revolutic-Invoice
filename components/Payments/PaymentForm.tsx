@@ -60,7 +60,7 @@ const PaymentForm: React.FC = () => {
                     onClick={() =>
                       setCustomerDropdownOpen(!customerDropdownOpen)
                     }
-                    className="w-full px-4 py-3 text-left text-sm border border-gray-200 rounded-md bg-white text-gray-900 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 text-left text-sm border border-gray-200 rounded-md bg-white text-gray-900 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                   >
                     <span>{paymentData.customerName || "Select Customer"}</span>
                     <svg
@@ -90,7 +90,7 @@ const PaymentForm: React.FC = () => {
                             onChange={(e) =>
                               setCustomerSearchTerm(e.target.value)
                             }
-                            className="w-full pl-10 pr-4 py-2 text-gray-900 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full pl-10 pr-4 py-2 text-gray-900 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 outline-none"
                             autoFocus
                           />
                         </div>
@@ -118,11 +118,11 @@ const PaymentForm: React.FC = () => {
                               <button
                                 key={customer.id}
                                 onClick={() => selectCustomer(customer)}
-                                className="w-full text-left px-4 py-3 hover:bg-blue-500 hover:text-white transition-colors border-b border-gray-100 last:border-b-0 group"
+                                className="w-full text-left px-4 py-3 hover:bg-primary/90 hover:text-white transition-colors border-b border-gray-100 last:border-b-0 group"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="flex-shrink-0 w-10 h-10 rounded-md bg-blue-100 group-hover:bg-white flex items-center justify-center">
-                                    <span className="text-blue-600 group-hover:text-blue-500 font-bold text-sm">
+                                  <div className="flex-shrink-0 w-10 h-10 rounded-md bg-primary/10 group-hover:bg-white flex items-center justify-center">
+                                    <span className="text-primary group-hover:text-primary/80 font-bold text-sm">
                                       {initial}
                                     </span>
                                   </div>
@@ -371,14 +371,14 @@ const PaymentForm: React.FC = () => {
                                     handleAppliedAmountChange(invoice.id, val);
                                   }
                                 }}
-                                className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-md text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-md text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 bg-gray-50"
                               />
                               <button
                                 type="button"
                                 onClick={() =>
                                   handlePayInFull(invoice.id, invoice.remaining)
                                 }
-                                className="text-blue-600 text-sm hover:underline"
+                                className="text-primary text-sm hover:underline"
                               >
                                 Pay in Full
                               </button>
@@ -429,7 +429,7 @@ const PaymentForm: React.FC = () => {
                       <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                         Amount in Excess:
                       </span>
-                      <span className="text-xl font-black text-blue-600 tracking-tighter">
+                      <span className="text-xl font-black text-primary tracking-tighter">
                         {paymentData.currency} {amountInExcess.toFixed(2)}
                       </span>
                     </div>

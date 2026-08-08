@@ -242,7 +242,7 @@ const InvoiceDetails: React.FC = () => {
               <span className="text-gray-900">Balance Due</span>
               <span
                 className={
-                  balanceDue <= 0 ? "text-green-600" : "text-orange-600"
+                  balanceDue <= 0 ? "text-green-600" : "text-primary"
                 }
               >
                 {balanceDue.toLocaleString("en-US", {

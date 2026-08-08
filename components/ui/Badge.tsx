@@ -8,8 +8,8 @@ const variantClasses: Record<BadgeVariant, { container: string; dot: string }> =
       dot: "bg-primary",
     },
     secondary: {
-      container: "bg-secondary/10 text-secondary border border-secondary/20",
-      dot: "bg-secondary",
+      container: "bg-primary/10 text-primary border border-primary/20",
+      dot: "bg-primary",
     },
     success: {
       container: "bg-emerald-50 text-emerald-700 border border-emerald-200",

@@ -36,7 +36,7 @@ const CurrencyCards = ({
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                <div className="w-10 h-10 rounded-md bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                   <Wallet className="w-5 h-5" />
                 </div>
                 <div>

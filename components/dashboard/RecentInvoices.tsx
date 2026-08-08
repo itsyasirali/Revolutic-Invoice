@@ -20,7 +20,7 @@ const getStatusColor = (status: string) => {
     case "paid":
       return "bg-green-100 text-green-700";
     case "sent":
-      return "bg-blue-100 text-blue-700";
+      return "bg-primary/10 text-primary";
     case "overdue":
       return "bg-red-100 text-red-700";
     case "partially paid":
@@ -115,7 +115,7 @@ export const RecentInvoices = ({ invoices }: { invoices: RecentInvoice[] }) => {
             Recent Invoices
           </h2>
         </div>
-        <button className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+        <button className="text-sm font-medium text-primary hover:text-primary transition-colors">
           View All
         </button>
       </div>

@@ -153,15 +153,11 @@ const CustomerDetails: React.FC = () => {
   ];
 
   if (loading && !customer) {
-    return (
-      null
-    );
+    return null;
   }
 
   if (!customer) {
-    return (
-      null
-    );
+    return null;
   }
 
   const tabs = [
@@ -219,7 +215,7 @@ const CustomerDetails: React.FC = () => {
           <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-orange-600 text-white transition-colors duration-300">
+                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-primary text-white transition-colors duration-300">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
@@ -234,14 +230,14 @@ const CustomerDetails: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-md bg-orange-50/50 border border-orange-100/50">
+              <div className="flex items-center justify-between p-3 rounded-md bg-primary/5 border border-primary/20">
                 <span className="text-sm font-medium text-gray-600">
                   Amount
                 </span>
                 <CurrencyDisplay
                   amount={financials.remaining}
                   currency={customer.currency}
-                  className="text-[15px] font-bold text-orange-600"
+                  className="text-[15px] font-bold text-primary"
                 />
               </div>
             </div>
@@ -309,12 +305,12 @@ const CustomerDetails: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
                     <h3 className="text-sm font-medium text-gray-800 mb-4 flex items-center gap-2">
-                      <User className="w-4 h-4 text-blue-600" /> Primary Contact
+                      <User className="w-4 h-4 text-primary" /> Primary Contact
                     </h3>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-md border border-blue-100/50">
+                      <div className="flex items-center gap-3 p-3 bg-primary/5/50 bg-gray-50 rounded-md border border-gray-100">
                         <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
-                          <User className="w-4 h-4 text-blue-600" />
+                          <User className="w-4 h-4 text-primary" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-[10px] font-bold text-gray-400 uppercase">

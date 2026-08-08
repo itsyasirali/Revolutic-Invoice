@@ -47,7 +47,7 @@ const CustomerList: React.FC = () => {
       key: "displayName",
       label: "NAME",
       render: (c: Customer) => (
-        <span className="text-blue-500">{c.displayName || ""}</span>
+        <span className="text-primary">{c.displayName || ""}</span>
       ),
     },
     {
@@ -170,9 +170,9 @@ const CustomerList: React.FC = () => {
       />
 
       {selectedIds.length > 0 && (
-        <div className="bg-blue-50 border border-blue-100 p-3  mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 text-blue-700 font-medium text-sm">
-            <span className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center text-xs">
+        <div className="bg-primary/5 border border-primary/20 p-3  mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-primary font-medium text-sm">
+            <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
               {selectedIds.length}
             </span>
             customer{selectedIds.length > 1 ? "s" : ""} selected

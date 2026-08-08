@@ -93,7 +93,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Download size={16} />
               Download
@@ -131,7 +131,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               onChange={(e) => onPageChange(Number(e.target.value))}
               min={1}
               max={totalPages}
-              className="w-8 px-1 py-0.5 text-sm text-center text-white bg-blue-600 rounded border-none focus:outline-none"
+              className="w-8 px-1 py-0.5 text-sm text-center text-white bg-primary rounded border-none focus:outline-none"
             />
             <span className="text-gray-400 text-sm">/ {totalPages}</span>
           </div>
@@ -183,7 +183,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
                 onClick={() => onPageChange(1)}
                 className={`w-full rounded-md overflow-hidden border-2 transition-colors ${
                   currentPage === 1
-                    ? "border-blue-500"
+                    ? "border-primary/60"
                     : "border-transparent hover:border-gray-600"
                 }`}
               >

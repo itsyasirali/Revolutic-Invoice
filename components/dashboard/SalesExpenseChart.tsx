@@ -80,7 +80,7 @@ const SalesExpensesChart = ({
         <div className="flex justify-between items-end mb-8 mt-2">
           <div className="flex items-center gap-2">
             <span className="text-[15px] text-gray-700">Total Profit</span>
-            <span className="text-[15px] font-medium text-blue-500">
+            <span className="text-[15px] font-medium text-primary">
               Rs.{" "}
               {(totals.sales - totals.expenses).toLocaleString(undefined, {
                 minimumFractionDigits: 0,

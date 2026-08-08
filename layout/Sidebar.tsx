@@ -18,6 +18,7 @@ import {
   Sigma,
   StickyNote,
   X,
+  ReceiptText,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -52,7 +53,7 @@ const MENU_ITEMS = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Users, label: "Customers", path: "/customers" },
   { icon: Package, label: "Items", path: "/items" },
-  { icon: FileText, label: "Invoices", path: "/invoices" },
+  { icon: ReceiptText, label: "Invoices", path: "/invoices" },
   { icon: Layout, label: "Invoice Templates", path: "/templates" },
   { icon: DollarSign, label: "Payments", path: "/payments" },
   { icon: Receipt, label: "Expenses", path: "/expenses" },
@@ -235,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ${isCollapsed ? "justify-center" : ""}
             `}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
               {profileLoading ? "..." : userInitial}
             </div>
             {!isCollapsed && (
@@ -265,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                      <div className="w-12 h-12 bg-primary rounded-md flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
                         {userInitial}
                       </div>
                       <div className="flex-1 min-w-0">

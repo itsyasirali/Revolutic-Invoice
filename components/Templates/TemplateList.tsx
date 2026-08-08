@@ -63,7 +63,7 @@ const TemplateList: React.FC = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen">
       <PageHeader
         title="PDF Templates"
         actions={
@@ -78,7 +78,7 @@ const TemplateList: React.FC = () => {
         }
       />
 
-      <div className="p-6">
+      <div className="">
         {filteredTemplates.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredTemplates.map((template, index) => (

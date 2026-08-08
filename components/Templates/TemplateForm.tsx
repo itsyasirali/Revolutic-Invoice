@@ -38,7 +38,7 @@ const ColorInput: React.FC<{
         type="color"
         value={getSafeHex(value)}
         onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 rounded-md border-2 border-gray-300 cursor-pointer shadow-sm hover:border-blue-400 transition-colors"
+        className="w-10 h-10 rounded-md border-2 border-gray-300 cursor-pointer shadow-sm hover:border-primary/50 transition-colors"
         title={value || "#000000"}
       />
       <input
@@ -52,7 +52,7 @@ const ColorInput: React.FC<{
           )
         }
         placeholder="#000000"
-        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono text-gray-900 uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono text-gray-900 uppercase focus:ring-2 focus:ring-primary/50 focus:border-primary/60 transition-all"
       />
     </div>
   </div>
@@ -294,7 +294,7 @@ const TemplateForm: React.FC = () => {
           {activeNav === "general" && (
             <>
               <div className="px-4 py-4 border-b border-gray-200">
-                <label className="block text-xs font-medium text-blue-600 mb-1">
+                <label className="block text-xs font-medium text-primary mb-1">
                   Template Name*
                 </label>
                 <input
@@ -327,7 +327,7 @@ const TemplateForm: React.FC = () => {
                         onChange={(e) =>
                           handleChange("paperSize", e.target.value)
                         }
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-primary"
                       />
                       <span className="text-sm text-gray-800">{size}</span>
                     </label>
@@ -353,7 +353,7 @@ const TemplateForm: React.FC = () => {
                         onChange={(e) =>
                           handleChange("orientation", e.target.value)
                         }
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-primary"
                       />
                       <span className="text-sm text-gray-800">
                         {orientation}
@@ -365,7 +365,7 @@ const TemplateForm: React.FC = () => {
 
               <div className="px-4 py-4 border-b border-gray-200">
                 <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Margins <span className="text-blue-600">(in inches)</span>
+                  Margins <span className="text-primary">(in inches)</span>
                 </label>
                 <div className="space-y-3">
                   {(
@@ -402,7 +402,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showNotes", e.target.checked)
                     }
-                    className="w-4 h-4 rounded text-blue-600"
+                    className="w-4 h-4 rounded text-primary"
                   />
                   <span className="text-sm text-gray-800">
                     Include Payment Stub
@@ -518,7 +518,7 @@ const TemplateForm: React.FC = () => {
               >
                 <div className="space-y-4">
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-primary/50 transition-colors cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {branding.logoPreview ? (
@@ -668,7 +668,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showHeader", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Header</span>
                 </label>
@@ -679,7 +679,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showFooter", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Footer</span>
                 </label>
@@ -688,7 +688,7 @@ const TemplateForm: React.FC = () => {
                     type="checkbox"
                     checked={formData.showLogo}
                     onChange={(e) => handleChange("showLogo", e.target.checked)}
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Logo</span>
                 </label>
@@ -958,7 +958,7 @@ const TemplateForm: React.FC = () => {
               <div className="px-4 py-3 border-b border-gray-200">
                 <button
                   onClick={addColumn}
-                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-blue-300 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-primary/40 rounded-md text-primary hover:bg-primary/5 transition-colors"
                 >
                   <Plus size={16} />
                   <span className="text-sm font-medium">Add Column</span>
@@ -984,7 +984,7 @@ const TemplateForm: React.FC = () => {
                         type="checkbox"
                         checked={col.enabled}
                         onChange={() => toggleColumn(idx)}
-                        className="rounded text-blue-600"
+                        className="rounded text-primary"
                       />
                       <span className="text-xs text-gray-600 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
                         {col.key}
@@ -1136,7 +1136,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showTableHeader", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">
                     Show Table Header
@@ -1149,7 +1149,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("alternateRowColors", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">
                     Alternate Row Colors
@@ -1282,7 +1282,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showSubtotal", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Subtotal</span>
                 </label>
@@ -1291,7 +1291,7 @@ const TemplateForm: React.FC = () => {
                     type="checkbox"
                     checked={formData.showTax}
                     onChange={(e) => handleChange("showTax", e.target.checked)}
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Tax</span>
                 </label>
@@ -1302,7 +1302,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showDiscount", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">Show Discount</span>
                 </label>
@@ -1313,7 +1313,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showPreviousDue", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">
                     Show Previous Remaining
@@ -1384,7 +1384,7 @@ const TemplateForm: React.FC = () => {
                     onChange={(e) =>
                       handleChange("showNotes", e.target.checked)
                     }
-                    className="rounded text-blue-600"
+                    className="rounded text-primary"
                   />
                   <span className="text-sm text-gray-700">
                     Show Notes Section
@@ -1400,7 +1400,7 @@ const TemplateForm: React.FC = () => {
             onClick={() => handleSubmit(false)}
             loading={loading}
             variant="primary"
-            className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            className="w-full bg-primary text-white hover:bg-blue-700"
           >
             Save Template
           </Button>
@@ -1431,7 +1431,7 @@ const TemplateForm: React.FC = () => {
               ? "bg-green-50 text-green-800 border border-green-200"
               : alert.type === "error"
                 ? "bg-red-50 text-red-800 border border-red-200"
-                : "bg-blue-50 text-blue-800 border border-blue-200"
+                : "bg-primary/5 text-blue-800 border border-primary/30"
           }`}
         >
           <span>{alert.message}</span>
