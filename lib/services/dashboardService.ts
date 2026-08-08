@@ -25,7 +25,7 @@ export async function getDashboardData(userId: number) {
   const db = await getDatabase();
   const invoiceRepo = db.getRepository(Invoice);
   
-  const invoices = await invoiceRepo.find({ where: { userId } });
+  const invoices = await invoiceRepo.find({ where: { userId }, relations: ["customer"] });
   const rates = await getCurrencyRates();
 
   const emptyBuckets = { current: 0, "1-15": 0, "16-30": 0, "31-45": 0 };
@@ -130,6 +130,20 @@ export async function getDashboardData(userId: number) {
     ...values,
   }));
 
+  const recentInvoices = [...invoices]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5)
+    .map(inv => ({
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      customerName: inv.customer?.displayName || inv.customer?.companyName || "Unknown Customer",
+      total: Number(inv.total || 0),
+      currency: inv.currency || 'PKR',
+      status: inv.status,
+      invoiceDate: inv.invoiceDate,
+      createdAt: inv.createdAt
+    }));
+
   return {
     receivables: {
       buckets,
@@ -141,5 +155,6 @@ export async function getDashboardData(userId: number) {
       totals,
     },
     currencyStats,
+    recentInvoices,
   };
 }

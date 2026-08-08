@@ -2,6 +2,7 @@ import React from "react";
 import { ReceivablesCard } from "./ReceiveableCard";
 import SalesExpensesChart from "./SalesExpenseChart";
 import CurrencyCards from "./CurrencyCards";
+import RecentInvoices from "./RecentInvoices";
 import { getDashboardData } from "@/lib/services/dashboardService";
 import { auth } from "@/auth";
 
@@ -9,7 +10,7 @@ export const DashboardMain = async () => {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const { receivables, salesExpensesData, currencyStats } = await getDashboardData(
+  const { receivables, salesExpensesData, currencyStats, recentInvoices } = await getDashboardData(
     Number(session.user.id),
   );
 
@@ -24,6 +25,7 @@ export const DashboardMain = async () => {
       </div>
       <ReceivablesCard receivables={receivables} />
       <SalesExpensesChart initialData={salesExpensesData} />
+      <RecentInvoices invoices={recentInvoices} />
       <CurrencyCards currencyStats={currencyStats} />
     </div>
   );
