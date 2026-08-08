@@ -81,6 +81,7 @@ const SalesExpensesChart = ({
           <div className="flex items-center gap-2">
             <span className="text-[15px] text-gray-700">Total Profit</span>
             <span className="text-[15px] font-medium text-blue-500">
+              Rs.{" "}
               {(totals.sales - totals.expenses).toLocaleString(undefined, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
@@ -231,7 +232,7 @@ const SalesExpensesChart = ({
               Total Sales
             </span>
             <span className="text-[#3c4858] text-[20px] font-semibold mt-1">
-              $
+              Rs.
               {totals.sales.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
