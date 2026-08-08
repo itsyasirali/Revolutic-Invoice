@@ -10,12 +10,11 @@ export const DashboardMain = async () => {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const { receivables, salesExpensesData, currencyStats, recentInvoices } = await getDashboardData(
-    Number(session.user.id),
-  );
+  const { receivables, salesExpensesData, currencyStats, recentInvoices } =
+    await getDashboardData(Number(session.user.id));
 
   return (
-    <div className="w-full bg-gray-50 pb-10 min-h-screen">
+    <div className="w-full pb-10 min-h-screen">
       <div className="mb-4">
         <span className="text-blue-500 font-medium cursor-pointer">
           Dashboard
