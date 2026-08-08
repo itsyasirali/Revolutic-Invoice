@@ -21,17 +21,7 @@ const PaymentDetails: React.FC = () => {
 
   if (!payment) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <EmptyState
-          icon={FileText}
-          title="Payment Not Found"
-          message="The payment you're looking for doesn't exist or data is not available."
-          action={{
-            label: "Back to Payments",
-            onClick: handleBackClick,
-          }}
-        />
-      </div>
+      null
     );
   }
 

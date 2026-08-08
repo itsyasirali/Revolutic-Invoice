@@ -29,25 +29,13 @@ const InvoicePreview: React.FC = () => {
 
   if (!invoice) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <EmptyState
-          icon={FileText}
-          title="Invoice Not Found"
-          message="The invoice you're looking for doesn't exist or data is not available."
-          action={{
-            label: "Back to Invoices",
-            onClick: handleBackClick,
-          }}
-        />
-      </div>
+      null
     );
   }
 
   if (templatesLoading && !activeTemplate) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      null
     );
   }
 

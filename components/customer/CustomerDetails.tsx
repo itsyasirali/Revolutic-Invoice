@@ -154,25 +154,13 @@ const CustomerDetails: React.FC = () => {
 
   if (loading && !customer) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-md animate-spin" />
-      </div>
+      null
     );
   }
 
   if (!customer) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <EmptyState
-          icon={FileText}
-          title="Customer Not Found"
-          message="The customer you're looking for doesn't exist or data is not available."
-          action={{
-            label: "Back to Customers",
-            onClick: handleBackClick,
-          }}
-        />
-      </div>
+      null
     );
   }
 

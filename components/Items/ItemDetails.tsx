@@ -19,17 +19,7 @@ const ItemDetails: React.FC = () => {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <EmptyState
-          icon={FileText}
-          title="Item Not Found"
-          message="The item you're looking for doesn't exist or data is not available."
-          action={{
-            label: "Back to Items",
-            onClick: handleBackClick,
-          }}
-        />
-      </div>
+      null
     );
   }
 

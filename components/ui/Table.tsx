@@ -149,14 +149,7 @@ export const Table = <T,>({
                     (rowActions ? 1 : 0)
                   }
                   className="px-4 py-12 text-center"
-                >
-                  <div className="inline-flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-md animate-spin" />
-                    <p className="text-xs font-medium text-slate-500">
-                      Loading data...
-                    </p>
-                  </div>
-                </td>
+                ></td>
               </tr>
             ) : data.length === 0 ? (
               <tr>

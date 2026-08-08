@@ -24,22 +24,13 @@ const PaymentPreview: React.FC = () => {
 
   if (!payment) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">No payment data available</p>
-          <Button onClick={handleBackClick} variant="secondary">
-            Back to Payments
-          </Button>
-        </div>
-      </div>
+      null
     );
   }
 
   if (templatesLoading && !activeTemplate) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      null
     );
   }
 
