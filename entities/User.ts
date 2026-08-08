@@ -31,10 +31,10 @@ export class User {
   password!: string;
 
   @Column({ type: "timestamp", nullable: true })
-  emailVerified!: Date | null;
+  emailVerified?: Date;
 
-  @Column({ nullable: true })
-  image!: string | null;
+  @Column({ type: "varchar", nullable: true })
+  image?: string;
 
   @CreateDateColumn()
   createdAt!: Date;

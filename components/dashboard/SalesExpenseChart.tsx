@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -40,9 +40,31 @@ export type SalesExpensesData = {
   totals: { sales: number; receipts: number; expenses: number };
 };
 
+type DotRenderProps = {
+  cx?: number;
+  cy?: number;
+  index?: number;
+  value?: number;
+};
+
+const makePeakDotRenderer =
+  (color: string, peakIndex: number) =>
+  ({ cx, cy, index, value }: DotRenderProps) => {
+    if (index !== peakIndex || cx === undefined || cy === undefined || value === undefined) {
+      return <g key={index} />;
+    }
+    return <circle key={index} cx={cx} cy={cy} r={7} fill={color} stroke="#fff" strokeWidth={2} />;
+  };
+
+const getPeakIndex = (data: { value: number }[]) =>
+  data.reduce((maxIdx, item, idx, arr) => (item.value > arr[maxIdx].value ? idx : maxIdx), 0);
+
 const SalesExpensesChart = ({ initialData }: { initialData: SalesExpensesData }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodPreset>("This Fiscal Year");
   const { data, totals } = initialData;
+
+  const salesPeakIndex = getPeakIndex(data.map((d) => ({ value: d.sales })));
+  const expensesPeakIndex = getPeakIndex(data.map((d) => ({ value: d.expenses })));
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 mx-auto w-[97%]">
@@ -73,8 +95,18 @@ const SalesExpensesChart = ({ initialData }: { initialData: SalesExpensesData })
 
       <div className="flex xs:flex-col sm:flex-row justify-between gap-2 p-3">
         <div className="xs:w-full sm:w-[80%]">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 10 }}>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
+              <defs>
+                <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="expensesGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
               <XAxis dataKey="month" tick={<CustomXAxisTick />} axisLine={false} tickLine={false} height={60} />
               <YAxis
@@ -92,10 +124,25 @@ const SalesExpensesChart = ({ initialData }: { initialData: SalesExpensesData })
                 }}
                 formatter={(v, l) => [formatCurrency(Number(v) || 0), String(l)]}
               />
-              <Line type="monotone" dataKey="sales" stroke="#075056" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="receipts" stroke="#10b981" strokeWidth={2} dot={false} />
-            </LineChart>
+              <Area
+                type="natural"
+                dataKey="expenses"
+                stroke="#ef4444"
+                strokeWidth={2.5}
+                fill="url(#expensesGradient)"
+                dot={makePeakDotRenderer("#ef4444", expensesPeakIndex)}
+                activeDot={{ r: 5, fill: "#ef4444", stroke: "#fff", strokeWidth: 2 }}
+              />
+              <Area
+                type="natural"
+                dataKey="sales"
+                stroke="#2563eb"
+                strokeWidth={2.5}
+                fill="url(#salesGradient)"
+                dot={makePeakDotRenderer("#2563eb", salesPeakIndex)}
+                activeDot={{ r: 5, fill: "#2563eb", stroke: "#fff", strokeWidth: 2 }}
+              />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
 

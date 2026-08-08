@@ -42,6 +42,6 @@ export class InvoiceItem {
   @JoinColumn({ name: "itemId" })
   item!: Item;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   itemId!: number | null;
 }

@@ -16,37 +16,49 @@ const globalForDb = globalThis as unknown as {
   pgPool?: Pool;
 };
 
-const dataSource =
-  globalForDb.dataSource ??
-  new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    entities: [
-      User,
-      Customer,
-      Item,
-      Invoice,
-      InvoiceItem,
-      Payment,
-      PaymentAppliedInvoice,
-      Template,
-    ],
-    synchronize: true,
-  });
-
-globalForDb.dataSource = dataSource;
-
 export const getDatabase = async (): Promise<DataSource> => {
-  if (dataSource.isInitialized) {
-    return dataSource;
+  if (globalForDb.dataSource && process.env.NODE_ENV !== "production") {
+    // Check if HMR has given us new entity class references by comparing User classes
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    const existingEntities = globalForDb.dataSource.options.entities as Function[];
+    if (existingEntities && existingEntities.length > 0 && existingEntities[0] !== User) {
+      console.log("HMR detected: Entity classes changed, recreating TypeORM DataSource...");
+      if (globalForDb.dataSource.isInitialized) {
+        await globalForDb.dataSource.destroy();
+      }
+      globalForDb.dataSource = undefined;
+      globalForDb.dataSourceInitPromise = undefined;
+    }
+  }
+
+  if (!globalForDb.dataSource) {
+    globalForDb.dataSource = new DataSource({
+      type: "postgres",
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : undefined,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [
+        User,
+        Customer,
+        Item,
+        Invoice,
+        InvoiceItem,
+        Payment,
+        PaymentAppliedInvoice,
+        Template,
+      ],
+      synchronize: true,
+    });
+  }
+
+  if (globalForDb.dataSource.isInitialized) {
+    return globalForDb.dataSource;
   }
 
   if (!globalForDb.dataSourceInitPromise) {
-    globalForDb.dataSourceInitPromise = dataSource.initialize();
+    globalForDb.dataSourceInitPromise = globalForDb.dataSource.initialize();
   }
 
   return globalForDb.dataSourceInitPromise;

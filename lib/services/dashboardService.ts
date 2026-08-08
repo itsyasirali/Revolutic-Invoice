@@ -1,6 +1,5 @@
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
-import { Payment } from "@/entities/Payment";
 
 export async function getCurrencyRates() {
   try {
@@ -94,7 +93,7 @@ export async function getDashboardData(userId: number) {
     const d = new Date(inv.invoiceDate ?? inv.createdAt);
     if (!isNaN(d.getTime())) {
       const i = d.getMonth();
-      const expenses = Number((inv as any).expenses || 0); // Assuming expenses might be on invoice or 0 for now
+      const expenses = Number((inv as Invoice & { expenses?: number }).expenses || 0); // Assuming expenses might be on invoice or 0 for now
       
       salesExpenses[i].sales += totalPKR;
       salesExpenses[i].receipts += paidPKR;

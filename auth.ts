@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import bcrypt from "bcrypt";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getDatabase } from "@/lib/database";
@@ -27,13 +28,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          if (user.password !== credentials.password) {
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isPasswordValid) {
             return null;
           }
 
           return {
             id: user.id.toString(),
-            name: `${user.firstName} ${user.lastName}`,
+            name: user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
             email: user.email,
             companyName: user.companyName,
             firstName: user.firstName,
@@ -72,4 +78,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/auth",
   },
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "fallback-secret-for-development-do-not-use-in-prod",
 });

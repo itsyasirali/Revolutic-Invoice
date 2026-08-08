@@ -77,7 +77,7 @@ export class Invoice {
   @JoinColumn({ name: "templateId" })
   template!: Template;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   templateId!: number | null;
 
   @OneToMany("InvoiceItem", "invoice", { cascade: true })
