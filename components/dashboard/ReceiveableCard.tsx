@@ -5,7 +5,8 @@ const formatPKR = (value: number) =>
   new Intl.NumberFormat("en-PK", {
     style: "currency",
     currency: "PKR",
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(value);
 
 const BarChart = ({ color }: { color: string }) => (
@@ -113,7 +114,7 @@ export const ReceivablesCard = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-[97%] mx-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 ">
       {summaryCards.map((card) => (
         <div
           key={card.label}
@@ -126,19 +127,6 @@ export const ReceivablesCard = ({
             >
               <card.icon className="w-6 h-6 text-white" />
             </span>
-
-            {card.badge && (
-              <div className="flex flex-col items-end">
-                <span
-                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full text-white ${card.badgeBg}`}
-                >
-                  {card.badge}
-                </span>
-                <span className="text-[10px] text-gray-400 mt-1 font-medium">
-                  in last 7 Days
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="flex justify-between items-end mt-4">

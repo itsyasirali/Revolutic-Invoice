@@ -1,8 +1,7 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { useState } from "react";
 import type { ReactNode } from "react";
-import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { TemplateFormProvider } from "@/context/TemplateFormContext";
 import { ToastContainer } from "@/components/ui";
@@ -13,7 +12,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState('Home');
+  const [activeItem, setActiveItem] = useState("Home");
 
   return (
     <TemplateFormProvider>
@@ -27,12 +26,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <Suspense fallback={null}>
-            <Header />
-          </Suspense>
-          <main className="max-w-[1920px] w-full mx-auto">
-            {children}
-          </main>
+          <main className="w-full mx-auto px-6 py-3">{children}</main>
         </div>
       </div>
     </TemplateFormProvider>

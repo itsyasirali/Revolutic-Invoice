@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Home,
@@ -17,12 +17,15 @@ import {
   Table as TableIcon,
   Sigma,
   StickyNote,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import {
   useTemplateFormContext,
   type TemplateNavItem,
 } from "@/context/TemplateFormContext";
+import { useProfile } from "@/hooks/auth/useProfile";
+import { useLogout } from "@/hooks/auth/useLogout";
 
 interface SidebarProps {
   activeItem: string;
@@ -66,6 +69,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const pathname = usePathname();
   const { activeNav, setActiveNav, isTemplateFormActive } =
     useTemplateFormContext();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const { user, loading: profileLoading } = useProfile();
+  const { logout, loading: logoutLoading } = useLogout();
+
+  const userName = user?.name || user?.firstName || "User";
+  const userEmail = user?.email || "";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   // Check if we're on a template form route
   const isTemplateRoute =
@@ -90,6 +101,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleTemplateNavClick = (navId: TemplateNavItem) => {
     setActiveNav(navId);
+  };
+
+  const handleMyAccount = () => {
+    setIsProfileOpen(false);
+    router.push("/profile");
+  };
+
+  const handleSignOut = async () => {
+    await logout();
+    setIsProfileOpen(false);
   };
 
   return (
@@ -202,6 +223,94 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })
           )}
         </nav>
+
+        {/* Profile Section */}
+        <div className="border-t border-slate-800 p-2 relative">
+          <div
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className={`flex items-center gap-2 rounded-md px-2 py-2 cursor-pointer hover:bg-slate-700 transition-colors
+              ${isCollapsed ? "justify-center" : ""}
+            `}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+              {profileLoading ? "..." : userInitial}
+            </div>
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-xs font-semibold text-white truncate">
+                  {profileLoading ? "Loading..." : userName}
+                </p>
+                <p className="text-[10px] text-slate-400 truncate">
+                  {profileLoading ? "" : userEmail}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {isProfileOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setIsProfileOpen(false)}
+              />
+              <div
+                className={`absolute bottom-full mb-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50
+                  ${isCollapsed ? "left-14" : "left-2 right-2"}
+                `}
+              >
+                {/* Profile Header */}
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                        {userInitial}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900 truncate">
+                          {profileLoading ? "Loading..." : userName}
+                        </h3>
+                        <p className="text-xs text-gray-600 truncate">
+                          {profileLoading ? "" : userEmail}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 flex-shrink-0 cursor-pointer"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Profile Actions */}
+                <div className="py-2">
+                  <button
+                    type="button"
+                    onClick={handleMyAccount}
+                    className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    My Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    disabled={logoutLoading}
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    {logoutLoading ? "Signing Out..." : "Sign Out"}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Toggle Button at Bottom */}
         <div className="border-t border-slate-800 p-2">
