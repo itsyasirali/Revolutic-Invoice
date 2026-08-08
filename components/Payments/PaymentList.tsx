@@ -6,7 +6,13 @@ import usePaymentsList, {
   PAYMENT_MODE_FILTERS,
 } from "@/hooks/payments/usePaymentsList";
 import usePaymentActions from "@/hooks/payments/usePaymentActions";
-import { PageHeader, Table, Button, StatusBadge, ConfirmDialog } from "@/components/ui";
+import {
+  PageHeader,
+  Table,
+  Button,
+  StatusBadge,
+  ConfirmDialog,
+} from "@/components/ui";
 
 const PaymentList: React.FC = () => {
   const { handlePreview } = usePaymentActions();
@@ -102,12 +108,10 @@ const PaymentList: React.FC = () => {
       {
         key: "status",
         label: "STATUS",
-        render: (p: Payment) => (
-          <StatusBadge status={p.status || "Paid"} />
-        ),
+        render: (p: Payment) => <StatusBadge status={p.status || "Paid"} />,
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -122,17 +126,18 @@ const PaymentList: React.FC = () => {
               option === "All"
                 ? "All Payments"
                 : option === "Cash"
-                ? "Cash Payments"
-                : option === "Bank Transfer"
-                ? "Bank Transfer Payments"
-                : option === "Bank Remittance"
-                ? "Bank Remittance Payments"
-                : option === "Cheque"
-                ? "Cheque Payments"
-                : "Other Payments",
+                  ? "Cash Payments"
+                  : option === "Bank Transfer"
+                    ? "Bank Transfer Payments"
+                    : option === "Bank Remittance"
+                      ? "Bank Remittance Payments"
+                      : option === "Cheque"
+                        ? "Cheque Payments"
+                        : "Other Payments",
             value: option,
           })),
-          onChange: (value) => setModeFilter(value as Parameters<typeof setModeFilter>[0]),
+          onChange: (value) =>
+            setModeFilter(value as Parameters<typeof setModeFilter>[0]),
           value: modeFilter,
           isOpen: dropdownOpen,
           onToggle: () => setDropdownOpen(!dropdownOpen),
@@ -155,10 +160,10 @@ const PaymentList: React.FC = () => {
           alert?.type === "success"
             ? "Success"
             : alert?.type === "error"
-            ? "Error"
-            : alert?.type === "warning"
-            ? "Warning"
-            : "Info"
+              ? "Error"
+              : alert?.type === "warning"
+                ? "Warning"
+                : "Info"
         }
         message={alert?.message || ""}
         confirmText="OK"
@@ -209,7 +214,7 @@ const PaymentList: React.FC = () => {
       )}
 
       {mutateError && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 mx-6 mt-3">
+        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-4 py-2 mx-6 mt-3">
           {mutateError}
         </div>
       )}

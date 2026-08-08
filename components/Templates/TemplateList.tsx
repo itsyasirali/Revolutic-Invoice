@@ -51,7 +51,7 @@ const TemplateList: React.FC = () => {
   if (error) {
     return (
       <div className="bg-white p-6">
-        <div className="p-6 bg-red-50 text-red-700 rounded-xl border border-red-200 max-w-xl mx-auto text-center">
+        <div className="p-6 bg-red-50 text-red-700 rounded-md border border-red-200 max-w-xl mx-auto text-center">
           <h3 className="text-base font-bold mb-1">Failed to load templates</h3>
           <p className="text-xs mb-4">{error}</p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>

@@ -36,8 +36,8 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
   const selectionBorderClass = selected
     ? "ring-4 ring-blue-500 ring-offset-2"
     : isSelectMode
-    ? "hover:ring-2 hover:ring-blue-300 ring-offset-1 cursor-pointer"
-    : "";
+      ? "hover:ring-2 hover:ring-blue-300 ring-offset-1 cursor-pointer"
+      : "";
 
   const handleCardClick = () => {
     if (isSelectMode && onClick) {
@@ -83,7 +83,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-white rounded-xl border border-slate-200/80 shadow-md hover:shadow-xl cursor-pointer transition-all duration-300 overflow-hidden mx-auto ${selectionBorderClass}`}
+      className={`group relative bg-white rounded-md border border-slate-200/80 shadow-md hover:shadow-xl cursor-pointer transition-all duration-300 overflow-hidden mx-auto ${selectionBorderClass}`}
       style={{
         width: "calc(210mm * 0.35)",
         animationDelay: `${index * 100}ms`,

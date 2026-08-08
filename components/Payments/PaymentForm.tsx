@@ -60,11 +60,9 @@ const PaymentForm: React.FC = () => {
                     onClick={() =>
                       setCustomerDropdownOpen(!customerDropdownOpen)
                     }
-                    className="w-full px-4 py-3 text-left text-sm border border-gray-200 rounded-xl bg-white text-gray-900 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 text-left text-sm border border-gray-200 rounded-md bg-white text-gray-900 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   >
-                    <span>
-                      {paymentData.customerName || "Select Customer"}
-                    </span>
+                    <span>{paymentData.customerName || "Select Customer"}</span>
                     <svg
                       className="w-5 h-5 text-gray-400"
                       fill="none"
@@ -81,7 +79,7 @@ const PaymentForm: React.FC = () => {
                   </button>
 
                   {customerDropdownOpen && (
-                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="sticky top-0 bg-gray-50/80 backdrop-blur-md border-b border-gray-100 p-3">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -92,7 +90,7 @@ const PaymentForm: React.FC = () => {
                             onChange={(e) =>
                               setCustomerSearchTerm(e.target.value)
                             }
-                            className="w-full pl-10 pr-4 py-2 text-gray-900 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full pl-10 pr-4 py-2 text-gray-900 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
                             autoFocus
                           />
                         </div>
@@ -181,7 +179,7 @@ const PaymentForm: React.FC = () => {
                         prefix={paymentData.currency}
                         placeholder="0.00"
                         showLabel={false}
-                        className="w-full rounded-xl"
+                        className="w-full rounded-md"
                       />
                       {selectedCustomerData && unpaidInvoices.length > 0 && (
                         <div className="mt-2 flex items-center gap-2">
@@ -200,7 +198,7 @@ const PaymentForm: React.FC = () => {
                             {unpaidInvoices
                               .reduce(
                                 (sum, inv) => sum + Number(inv.remaining || 0),
-                                0
+                                0,
                               )
                               .toFixed(2)}
                             )
@@ -229,7 +227,7 @@ const PaymentForm: React.FC = () => {
                       }}
                       placeholder="0.00"
                       showLabel={false}
-                      className="w-full rounded-xl"
+                      className="w-full rounded-md"
                     />
                   </div>
 
@@ -248,7 +246,7 @@ const PaymentForm: React.FC = () => {
                       }
                       required
                       showLabel={false}
-                      className="w-full rounded-xl"
+                      className="w-full rounded-md"
                     />
                   </div>
 
@@ -261,13 +259,17 @@ const PaymentForm: React.FC = () => {
                       onChange={(e) =>
                         setPaymentData((prev) => ({
                           ...prev,
-                          paymentMode: e.target.value as Parameters<typeof setPaymentData>[0] extends (prev: infer P) => any ? P['paymentMode'] : never,
+                          paymentMode: e.target.value as Parameters<
+                            typeof setPaymentData
+                          >[0] extends (prev: infer P) => any
+                            ? P["paymentMode"]
+                            : never,
                         }))
                       }
                       options={paymentModeOptions}
                       required
                       showLabel={false}
-                      className="w-full rounded-xl"
+                      className="w-full rounded-md"
                     />
                   </div>
 
@@ -285,7 +287,7 @@ const PaymentForm: React.FC = () => {
                       }
                       placeholder="Optional"
                       showLabel={false}
-                      className="w-full rounded-xl"
+                      className="w-full rounded-md"
                     />
                   </div>
                 </div>
@@ -336,7 +338,7 @@ const PaymentForm: React.FC = () => {
                                     day: "2-digit",
                                     month: "short",
                                     year: "numeric",
-                                  }
+                                  },
                                 )
                               : ""}
                           </td>
@@ -354,7 +356,7 @@ const PaymentForm: React.FC = () => {
                               type="date"
                               value={paymentData.paymentDate}
                               readOnly
-                              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-500"
                             />
                           </td>
                           <td className="px-4 py-4 text-right">
@@ -365,25 +367,16 @@ const PaymentForm: React.FC = () => {
                                 value={appliedAmounts[invoice.id] || 0}
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  if (
-                                    val === "" ||
-                                    /^\d*\.?\d*$/.test(val)
-                                  ) {
-                                    handleAppliedAmountChange(
-                                      invoice.id,
-                                      val
-                                    );
+                                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                                    handleAppliedAmountChange(invoice.id, val);
                                   }
                                 }}
-                                className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-lg text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-md text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                               />
                               <button
                                 type="button"
                                 onClick={() =>
-                                  handlePayInFull(
-                                    invoice.id,
-                                    invoice.remaining
-                                  )
+                                  handlePayInFull(invoice.id, invoice.remaining)
                                 }
                                 className="text-blue-600 text-sm hover:underline"
                               >
@@ -415,9 +408,7 @@ const PaymentForm: React.FC = () => {
                         Amount Received:
                       </span>
                       <span className="text-base font-bold text-gray-900">
-                        {(
-                          Number(paymentData.amountReceived) || 0
-                        ).toFixed(2)}
+                        {(Number(paymentData.amountReceived) || 0).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">

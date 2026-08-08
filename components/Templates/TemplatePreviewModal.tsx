@@ -85,12 +85,9 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-40 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
 
-      <div className="fixed left-2 right-2 top-0 bottom-2 z-50 flex flex-col bg-white w-[80%] h-[80%] mx-auto overflow-hidden rounded-lg shadow-2xl">
+      <div className="fixed left-2 right-2 top-0 bottom-2 z-50 flex flex-col bg-white w-[80%] h-[80%] mx-auto overflow-hidden rounded-md shadow-2xl">
         <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
           <h2 className="text-base font-medium text-gray-900">Preview</h2>
           <div className="flex items-center gap-2">
@@ -184,7 +181,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             <div className="w-48 bg-gray-800 border-r border-gray-700 p-3 overflow-y-auto transition-all duration-300">
               <button
                 onClick={() => onPageChange(1)}
-                className={`w-full rounded-lg overflow-hidden border-2 transition-colors ${
+                className={`w-full rounded-md overflow-hidden border-2 transition-colors ${
                   currentPage === 1
                     ? "border-blue-500"
                     : "border-transparent hover:border-gray-600"

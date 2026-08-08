@@ -39,7 +39,7 @@ const InvoiceEmailCompose: React.FC = () => {
   if (!invoice && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-lg shadow-sm">
+        <div className="text-center p-8 bg-white rounded-md shadow-sm">
           <p className="text-red-500 text-lg mb-4">Invoice not found</p>
           <Button onClick={() => router.back()} variant="secondary">
             Go Back
@@ -245,7 +245,7 @@ const InvoiceEmailCompose: React.FC = () => {
             <textarea
               value={emailData.message}
               onChange={(e) => updateMessage(e.target.value)}
-              className="w-full h-64 p-4 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"
+              className="w-full h-64 p-4 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"
               placeholder="Type your message here..."
             />
           </div>
@@ -272,7 +272,7 @@ const InvoiceEmailCompose: React.FC = () => {
             </div>
 
             {emailData.attachPDF && (
-              <div className="mt-3 ml-8 flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg max-w-xs">
+              <div className="mt-3 ml-8 flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-md max-w-xs">
                 <div className="p-1.5 bg-red-50 rounded">
                   <FileText size={16} className="text-red-500" />
                 </div>

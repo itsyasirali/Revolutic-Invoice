@@ -2,7 +2,15 @@
 
 import React from "react";
 import { Edit, Trash2 } from "lucide-react";
-import { Table, StatusBadge, CurrencyDisplay, Button, PageHeader, ConfirmDialog, AlertModal } from "@/components/ui";
+import {
+  Table,
+  StatusBadge,
+  CurrencyDisplay,
+  Button,
+  PageHeader,
+  ConfirmDialog,
+  AlertModal,
+} from "@/components/ui";
 import useCustomerList from "@/hooks/customers/useCustomerList";
 import type { Customer } from "@/types/customer";
 
@@ -91,7 +99,7 @@ const CustomerList: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="pb-8">
       <AlertModal
         isOpen={alert.show}
         type={alert.type}
@@ -122,47 +130,21 @@ const CustomerList: React.FC = () => {
         onBack={() => setStatusFilter("All")}
         dropdown={{
           options: ["All", "Active", "inActive"].map((option) => ({
-            label: option === "All"
-              ? "All Customers"
-              : option === "Active"
-                ? "Active Customers"
-                : "Inactive Customers",
-            value: option
+            label:
+              option === "All"
+                ? "All Customers"
+                : option === "Active"
+                  ? "Active Customers"
+                  : "Inactive Customers",
+            value: option,
           })),
           value: statusFilter,
           onChange: (value) => setStatusFilter(value),
           isOpen: dropdownOpen,
-          onToggle: () => setDropdownOpen(!dropdownOpen)
+          onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
           <>
-            <Button
-              onClick={handleDelete}
-              disabled={loading || selectedIds.length === 0}
-              variant="danger"
-              size="md"
-            >
-              Delete Selected
-            </Button>
-
-            <Button
-              onClick={handleSetActive}
-              disabled={loading || selectedIds.length === 0}
-              variant="success"
-              size="md"
-            >
-              Mark Active
-            </Button>
-
-            <Button
-              onClick={handleSetInactive}
-              disabled={loading || selectedIds.length === 0}
-              variant="warning"
-              size="md"
-            >
-              Mark Inactive
-            </Button>
-
             <Button
               onClick={handleNew}
               disabled={loading}
@@ -175,44 +157,83 @@ const CustomerList: React.FC = () => {
         }
       />
 
-      <Table
-        columns={columns}
-        data={filteredCustomers}
-        selectedIds={selectedIds}
-        onSelectAll={onSelectAll}
-        onSelectRow={onSelectRow}
-        loading={loading}
-        emptyMessage="No customers found"
-        getRowId={(c) => c.id!}
-        onRowClick={(item) => handleRowClick(item)}
-        rowActions={(c) => (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(c);
-              }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg cursor-pointer"
-              title="Edit Customer"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedIds([c.id!]);
-                handleDelete();
-              }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer"
-              title="Delete Customer"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+      {selectedIds.length > 0 && (
+        <div className="bg-blue-50 border border-blue-100 p-3 mx-6 mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-blue-700 font-medium text-sm">
+            <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs">
+              {selectedIds.length}
+            </span>
+            customer{selectedIds.length > 1 ? "s" : ""} selected
           </div>
-        )}
-        showFilter
-        showCheckbox
-      />
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleSetActive}
+              disabled={loading}
+              variant="success"
+              size="sm"
+            >
+              Mark Active
+            </Button>
+            <Button
+              onClick={handleSetInactive}
+              disabled={loading}
+              variant="warning"
+              size="sm"
+            >
+              Mark Inactive
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              variant="danger"
+              size="sm"
+            >
+              Delete Selected
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="px-6 mt-4">
+        <Table
+          columns={columns}
+          data={filteredCustomers}
+          selectedIds={selectedIds}
+          onSelectAll={onSelectAll}
+          onSelectRow={onSelectRow}
+          loading={loading}
+          emptyMessage="No customers found"
+          getRowId={(c) => c.id!}
+          onRowClick={(item) => handleRowClick(item)}
+          rowActions={(c) => (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(c);
+                }}
+                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
+                title="Edit Customer"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedIds([c.id!]);
+                  handleDelete();
+                }}
+                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
+                title="Delete Customer"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          showFilter
+          showCheckbox
+        />
+      </div>
     </div>
   );
 };

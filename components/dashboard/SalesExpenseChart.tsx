@@ -33,7 +33,7 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#27293D] text-white p-3 rounded-lg shadow-xl text-xs font-medium border border-gray-700 min-w-[130px]">
+      <div className="bg-[#27293D] text-white p-3 rounded-md shadow-xl text-xs font-medium border border-gray-700 min-w-[130px]">
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 mb-2 last:mb-0">
             <span
@@ -69,7 +69,7 @@ const SalesExpensesChart = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
       {/* Left Card: Revenue */}
-      <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col">
+      <div className="lg:col-span-2 bg-white rounded-md shadow-sm border border-gray-100 p-6 flex flex-col">
         <div className="flex justify-between items-start mb-2">
           <h2 className="text-[17px] font-medium text-gray-800">Revenue</h2>
           <button className="text-gray-400 hover:text-gray-600">
@@ -182,7 +182,7 @@ const SalesExpensesChart = ({
       </div>
 
       {/* Right Card: Income vs Expense */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col">
+      <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6 flex flex-col">
         <h2 className="text-[17px] font-medium text-gray-800 mb-8">
           Sales Overview
         </h2>

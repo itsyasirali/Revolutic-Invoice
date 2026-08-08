@@ -28,10 +28,12 @@ const PaymentTemplateSelector: React.FC<PaymentTemplateSelectorProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white rounded-md shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="flex justify-between items-center p-6 border-b border-gray-100">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Select Template</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Select Template
+            </h2>
             <p className="text-gray-500 mt-1">
               Choose a design for this payment receipt
             </p>

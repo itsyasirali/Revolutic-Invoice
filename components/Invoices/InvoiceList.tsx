@@ -2,7 +2,13 @@
 
 import { useMemo } from "react";
 import { Edit, Trash2 } from "lucide-react";
-import { Table, Button, StatusBadge, ConfirmDialog, PageHeader } from "@/components/ui";
+import {
+  Table,
+  Button,
+  StatusBadge,
+  ConfirmDialog,
+  PageHeader,
+} from "@/components/ui";
 import useInvoiceList from "@/hooks/invoices/useInvoiceList";
 import type { UIInvoiceListItem } from "@/hooks/invoices/useInvoicesData";
 
@@ -35,45 +41,35 @@ const InvoiceList = () => {
         key: "invoice",
         label: "INVOICE#",
         render: (inv: UIInvoiceListItem) => (
-          <span className="font-bold text-gray-900">
-            {inv.invoice}
-          </span>
+          <span className="font-bold text-gray-900">{inv.invoice}</span>
         ),
       },
       {
         key: "name",
         label: "CUSTOMER",
         render: (inv: UIInvoiceListItem) => (
-          <span className="text-gray-900">
-            {inv.name || ""}
-          </span>
+          <span className="text-gray-900">{inv.name || ""}</span>
         ),
       },
       {
         key: "email",
         label: "EMAIL",
         render: (inv: UIInvoiceListItem) => (
-          <span className="text-gray-600">
-            {inv.email || ""}
-          </span>
+          <span className="text-gray-600">{inv.email || ""}</span>
         ),
       },
       {
         key: "date",
         label: "DATE",
         render: (inv: UIInvoiceListItem) => (
-          <span className="text-gray-600">
-            {inv.date || ""}
-          </span>
+          <span className="text-gray-600">{inv.date || ""}</span>
         ),
       },
       {
         key: "dueDate",
         label: "DUE DATE",
         render: (inv: UIInvoiceListItem) => (
-          <span className="text-gray-600">
-            {inv.dueDate || ""}
-          </span>
+          <span className="text-gray-600">{inv.dueDate || ""}</span>
         ),
       },
       {
@@ -93,15 +89,24 @@ const InvoiceList = () => {
         ),
       },
     ],
-    []
+    [],
   );
 
-  const statusOptions = ["All", "Draft", "Sent", "Paid", "Overdue", "Partially Paid"];
+  const statusOptions = [
+    "All",
+    "Draft",
+    "Sent",
+    "Paid",
+    "Overdue",
+    "Partially Paid",
+  ];
 
   return (
     <div className="bg-white">
       <PageHeader
-        title={statusFilter === "All" ? "All Invoices" : `${statusFilter} Invoices`}
+        title={
+          statusFilter === "All" ? "All Invoices" : `${statusFilter} Invoices`
+        }
         onBack={() => setStatusFilter("All")}
         dropdown={{
           options: statusOptions.map((opt) => ({
@@ -131,10 +136,10 @@ const InvoiceList = () => {
           alert.type === "success"
             ? "Success"
             : alert.type === "error"
-            ? "Error"
-            : alert.type === "warning"
-            ? "Warning"
-            : "Info"
+              ? "Error"
+              : alert.type === "warning"
+                ? "Warning"
+                : "Info"
         }
         message={alert.message}
         confirmText="OK"
@@ -201,7 +206,7 @@ const InvoiceList = () => {
                 e.stopPropagation();
                 handleEdit(inv);
               }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
               title="Edit Invoice"
             >
               <Edit className="w-4 h-4" />
@@ -212,7 +217,7 @@ const InvoiceList = () => {
                 setSelectedIds([String(inv.id)]);
                 handleDelete();
               }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
               title="Delete Invoice"
             >
               <Trash2 className="w-4 h-4" />

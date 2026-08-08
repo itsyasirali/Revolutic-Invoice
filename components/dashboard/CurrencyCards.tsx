@@ -32,11 +32,11 @@ const CurrencyCards = ({
         {currencyStats.map((stat) => (
           <div
             key={stat.currency}
-            className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group"
+            className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                <div className="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                   <Wallet className="w-5 h-5" />
                 </div>
                 <div>
@@ -54,7 +54,7 @@ const CurrencyCards = ({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-green-50/50 border border-green-100/50">
+              <div className="flex items-center justify-between p-3 rounded-md bg-green-50/50 border border-green-100/50">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-green-600" />
                   <span className="text-sm font-medium text-gray-600">
@@ -69,7 +69,7 @@ const CurrencyCards = ({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-red-50/50 border border-red-100/50">
+              <div className="flex items-center justify-between p-3 rounded-md bg-red-50/50 border border-red-100/50">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-red-500" />
                   <span className="text-sm font-medium text-gray-600">

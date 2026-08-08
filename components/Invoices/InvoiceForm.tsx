@@ -2,7 +2,15 @@
 
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { Search, Settings, ChevronDown, X, Eye, Plus, Info } from "lucide-react";
+import {
+  Search,
+  Settings,
+  ChevronDown,
+  X,
+  Eye,
+  Plus,
+  Info,
+} from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
 import { Button, PageHeader, Input, Select } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
@@ -109,7 +117,7 @@ const InvoiceForm = () => {
                             if (!isEditMode) setCustomerDropdownOpen(true);
                           }}
                           disabled={isEditMode}
-                          className={`w-full pl-3 pr-3 py-3 text-sm border border-gray-200 rounded-xl transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary ${
+                          className={`w-full pl-3 pr-3 py-3 text-sm border border-gray-200 rounded-md transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary ${
                             isEditMode
                               ? "bg-gray-50 text-gray-500 cursor-not-allowed"
                               : "bg-white"
@@ -121,7 +129,7 @@ const InvoiceForm = () => {
                       </div>
 
                       {customerDropdownOpen && !isEditMode && (
-                        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                           <div className="sticky top-0 bg-gray-50/80 backdrop-blur-md border-b border-gray-100 p-3">
                             <div className="relative">
                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -132,7 +140,7 @@ const InvoiceForm = () => {
                                 onChange={(e) =>
                                   setCustomerSearchTerm(e.target.value)
                                 }
-                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border-gray-200 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                 autoFocus
                               />
                             </div>
@@ -153,9 +161,7 @@ const InvoiceForm = () => {
                                   key={customer.id}
                                   type="button"
                                   onClick={() =>
-                                    selectCustomer(
-                                      customer as InvoiceCustomer
-                                    )
+                                    selectCustomer(customer as InvoiceCustomer)
                                   }
                                   className="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors border-b border-gray-50 last:border-b-0 group"
                                 >
@@ -321,7 +327,7 @@ const InvoiceForm = () => {
                             className="w-full px-4 py-2.5 text-sm border border-gray-400 rounded-md cursor-pointer bg-white font-medium"
                           />
                           {itemDropdownOpen[item.id] && (
-                            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                               {itemsLoading ? (
                                 <div className="p-4 text-center text-sm text-gray-500">
                                   Loading items...
@@ -338,15 +344,20 @@ const InvoiceForm = () => {
                                         !items.some(
                                           (i) =>
                                             i.itemId === String(invItem.id) &&
-                                            i.id !== item.id
-                                        )
+                                            i.id !== item.id,
+                                        ),
                                     )
                                     .map((invItem) => (
                                       <button
                                         key={invItem.id}
                                         type="button"
                                         onClick={() =>
-                                          selectItem(item.id, invItem as unknown as Parameters<typeof selectItem>[1])
+                                          selectItem(
+                                            item.id,
+                                            invItem as unknown as Parameters<
+                                              typeof selectItem
+                                            >[1],
+                                          )
                                         }
                                         className="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors border-b border-gray-50 last:border-b-0"
                                       >
@@ -383,14 +394,11 @@ const InvoiceForm = () => {
                             value={item.quantity}
                             onChange={(e) => {
                               const val = e.target.value;
-                              if (
-                                val === "" ||
-                                /^\d*\.?\d*$/.test(val)
-                              ) {
+                              if (val === "" || /^\d*\.?\d*$/.test(val)) {
                                 updateItem(
                                   item.id,
                                   "quantity",
-                                  val === "." ? "0." : val
+                                  val === "." ? "0." : val,
                                 );
                               }
                             }}
@@ -424,7 +432,7 @@ const InvoiceForm = () => {
                           <button
                             type="button"
                             onClick={() => deleteItem(item.id)}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
                             title="Remove line"
                           >
                             <X className="w-5 h-5" />
@@ -498,17 +506,14 @@ const InvoiceForm = () => {
                         value={invoiceData.discountPercent}
                         onChange={(e) => {
                           const val = e.target.value;
-                          if (
-                            val === "" ||
-                            /^\d*\.?\d*$/.test(val)
-                          ) {
+                          if (val === "" || /^\d*\.?\d*$/.test(val)) {
                             if (
                               val === "" ||
                               (Number(val) >= 0 && Number(val) <= 100)
                             ) {
                               handleInvoiceChange(
                                 "discountPercent",
-                                val === "." ? "0." : val
+                                val === "." ? "0." : val,
                               );
                             }
                           }

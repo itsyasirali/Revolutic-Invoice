@@ -24,10 +24,7 @@ import {
   Card,
   PageHeader,
 } from "@/components/ui";
-import type {
-  UIInvoiceListItem,
-  PaymentTransaction,
-} from "@/types/customer";
+import type { UIInvoiceListItem, PaymentTransaction } from "@/types/customer";
 import type { TableColumn } from "@/types/common";
 import useCustomerDetailsView, {
   type CustomerTab,
@@ -38,14 +35,11 @@ const CustomerDetails: React.FC = () => {
     customer,
     primaryContact,
     loading,
-    deleteLoading,
     financials,
     customerInvoices,
     customerTransactions,
     activeTab,
     setActiveTab,
-    handleEdit,
-    handleDelete,
     handleBackClick,
     handleInvoiceClick,
     handleTransactionClick,
@@ -193,7 +187,7 @@ const CustomerDetails: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="pb-8">
       <PageHeader
         title={customer.displayName || ""}
         showBackButton
@@ -203,67 +197,77 @@ const CustomerDetails: React.FC = () => {
             <StatusBadge status={customer.status || "Active"} />
           </div>
         }
-        actions={
-          <div className="flex items-center gap-2.5">
-            <Button
-              variant="ghost"
-              onClick={handleEdit}
-              icon={<Edit className="w-4 h-4" />}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              loading={deleteLoading}
-              icon={<Trash2 className="w-4 h-4" />}
-            >
-              Delete
-            </Button>
-          </div>
-        }
       />
 
-      {/* Quick Stats */}
-      <div className="px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card padding="md" className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
-              <CreditCard className="w-6 h-6" />
+      <div className="px-6 space-y-6 mt-4">
+        {/* Quick Stats Integrated */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-md bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h5 className="text-gray-900 font-bold text-lg leading-tight">
+                    Received
+                  </h5>
+                  <span className="text-xs font-medium text-gray-500">
+                    Total Amount
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Total Received
-              </p>
-              <CurrencyDisplay
-                amount={financials.received}
-                currency={customer.currency}
-                className="text-xl font-bold text-gray-900"
-              />
-            </div>
-          </Card>
-          <Card padding="md" className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-              <Clock className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Total Remaining
-              </p>
-              <CurrencyDisplay
-                amount={financials.remaining}
-                currency={customer.currency}
-                className="text-xl font-bold text-gray-900"
-              />
-            </div>
-          </Card>
-        </div>
-      </div>
 
-      {/* Tabs & Content */}
-      <div className="px-8 pb-8 flex flex-col gap-6">
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="px-6 pt-4 bg-slate-50/40 border-b border-slate-200/80">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-md bg-green-50/50 border border-green-100/50">
+                <span className="text-sm font-medium text-gray-600">
+                  Amount
+                </span>
+                <CurrencyDisplay
+                  amount={financials.received}
+                  currency={customer.currency}
+                  className="text-[15px] font-bold text-green-700"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-md bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h5 className="text-gray-900 font-bold text-lg leading-tight">
+                    Pending
+                  </h5>
+                  <span className="text-xs font-medium text-gray-500">
+                    Total Remaining
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-md bg-orange-50/50 border border-orange-100/50">
+                <span className="text-sm font-medium text-gray-600">
+                  Amount
+                </span>
+                <CurrencyDisplay
+                  amount={financials.remaining}
+                  currency={customer.currency}
+                  className="text-[15px] font-bold text-orange-600"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs & Content */}
+        <div className="flex flex-col mt-4">
+          <div className="mb-4">
             <Tabs
               tabs={tabs}
               activeTab={activeTab}
@@ -271,16 +275,16 @@ const CustomerDetails: React.FC = () => {
             />
           </div>
 
-          <div className="p-6">
+          <div>
             {activeTab === "overview" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
-                  <section>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">
+                  <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
+                    <h3 className="text-sm font-medium text-gray-800 mb-4">
                       General Information
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-50">
+                      <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
                         <p className="text-xs font-medium text-gray-500 mb-1">
                           Customer Type
                         </p>
@@ -288,7 +292,7 @@ const CustomerDetails: React.FC = () => {
                           {customer.customerType || "Individual"}
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-50">
+                      <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
                         <p className="text-xs font-medium text-gray-500 mb-1">
                           Currency
                         </p>
@@ -296,7 +300,7 @@ const CustomerDetails: React.FC = () => {
                           {customer.currency || "USD"}
                         </p>
                       </div>
-                      <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-xl border border-gray-50">
+                      <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-md border border-gray-100">
                         <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5" /> Address
                         </p>
@@ -305,7 +309,7 @@ const CustomerDetails: React.FC = () => {
                         </p>
                       </div>
                       {customer.remarks && (
-                        <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-xl border border-gray-50">
+                        <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-md border border-gray-100">
                           <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
                             <MessageSquare className="w-3.5 h-3.5" /> Remarks
                           </p>
@@ -315,19 +319,19 @@ const CustomerDetails: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  </section>
+                  </div>
                 </div>
 
                 {/* Sidebar - Contact Info */}
                 <div className="space-y-6">
-                  <Card padding="md" className="bg-primary/5 border-primary/10">
-                    <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-5 flex items-center gap-2">
-                      <User className="w-4 h-4" /> Primary Contact
+                  <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
+                    <h3 className="text-sm font-medium text-gray-800 mb-4 flex items-center gap-2">
+                      <User className="w-4 h-4 text-blue-600" /> Primary Contact
                     </h3>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                          <User className="w-4 h-4 text-primary" />
+                      <div className="flex items-center gap-3 p-3 bg-blue-50/50 rounded-md border border-blue-100/50">
+                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
+                          <User className="w-4 h-4 text-blue-600" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-[10px] font-bold text-gray-400 uppercase">
@@ -338,9 +342,9 @@ const CustomerDetails: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                          <Mail className="w-4 h-4 text-primary" />
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md border border-gray-100">
+                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
+                          <Mail className="w-4 h-4 text-gray-600" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-[10px] font-bold text-gray-400 uppercase">
@@ -351,9 +355,9 @@ const CustomerDetails: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                          <Phone className="w-4 h-4 text-primary" />
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md border border-gray-100">
+                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
+                          <Phone className="w-4 h-4 text-gray-600" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-[10px] font-bold text-gray-400 uppercase">
@@ -365,13 +369,13 @@ const CustomerDetails: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </div>
               </div>
             )}
 
             {activeTab === "invoices" && (
-              <div className="-m-6">
+              <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
                 {customerInvoices.length > 0 ? (
                   <Table
                     columns={invoiceColumns}
@@ -397,7 +401,7 @@ const CustomerDetails: React.FC = () => {
             )}
 
             {activeTab === "transactions" && (
-              <div className="-m-6">
+              <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
                 {customerTransactions.length > 0 ? (
                   <Table
                     columns={transactionColumns}

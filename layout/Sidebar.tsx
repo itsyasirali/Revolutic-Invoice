@@ -135,7 +135,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <div className="flex items-center justify-center w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/Icon.png" alt="Icon" className="h-8 w-8 object-contain" />
+              <img
+                src="/assets/Icon.png"
+                alt="Icon"
+                className="h-8 w-8 object-contain"
+              />
             </div>
           )}
         </div>
@@ -206,8 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
                     ${
                       pathname === item.path ||
-                      (item.path !== "/" &&
-                        pathname.startsWith(item.path))
+                      (item.path !== "/" && pathname.startsWith(item.path))
                         ? "bg-primary text-white shadow-md"
                         : "text-slate-300 hover:bg-slate-700 hover:text-white"
                     }
@@ -254,7 +257,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => setIsProfileOpen(false)}
               />
               <div
-                className={`absolute bottom-full mb-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50
+                className={`absolute bottom-full mb-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50
                   ${isCollapsed ? "left-14" : "left-2 right-2"}
                 `}
               >
@@ -299,7 +302,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     disabled={logoutLoading}
                     className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                       <polyline points="16 17 21 12 16 7"></polyline>
                       <line x1="21" y1="12" x2="9" y2="12"></line>

@@ -4,7 +4,14 @@ import React from "react";
 import { Info, X } from "lucide-react";
 import currenciesData from "@/data/CurrencyData";
 import type { MaybeFile } from "@/types/customer";
-import { Input, Select, Textarea, Button, AlertModal, PageHeader } from "@/components/ui";
+import {
+  Input,
+  Select,
+  Textarea,
+  Button,
+  AlertModal,
+  PageHeader,
+} from "@/components/ui";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
 
@@ -141,11 +148,14 @@ const CustomerForm: React.FC = () => {
                   {existingFiles.map((doc: MaybeFile, index: number) => (
                     <li
                       key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-100"
                     >
                       <a
                         href={
-                          typeof doc === "object" && doc !== null && "url" in doc && doc.url
+                          typeof doc === "object" &&
+                          doc !== null &&
+                          "url" in doc &&
+                          doc.url
                             ? `/${doc.url.replace(/^\//, "")}`
                             : `/${String(doc).replace(/^\//, "")}`
                         }
@@ -153,7 +163,10 @@ const CustomerForm: React.FC = () => {
                         rel="noopener noreferrer"
                         className="text-sm font-medium text-primary hover:underline flex-1 truncate"
                       >
-                        {typeof doc === "object" && doc !== null && "name" in doc && doc.name
+                        {typeof doc === "object" &&
+                        doc !== null &&
+                        "name" in doc &&
+                        doc.name
                           ? doc.name
                           : String(doc).split("/").pop()}
                       </a>
@@ -161,7 +174,7 @@ const CustomerForm: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveExistingFile(index)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-2 cursor-pointer"
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors ml-2 cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -176,7 +189,7 @@ const CustomerForm: React.FC = () => {
                   multiple
                   accept="application/pdf"
                   onChange={(e) => handleFileChange(e.target.files)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-primary/5 file:text-primary hover:file:bg-primary/10 transition-all cursor-pointer"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-primary/5 file:text-primary hover:file:bg-primary/10 transition-all cursor-pointer"
                 />
               </div>
             </div>

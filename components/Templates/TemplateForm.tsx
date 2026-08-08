@@ -2,13 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import {
-  ChevronRight,
-  Upload,
-  GripVertical,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { ChevronRight, Upload, GripVertical, Plus, Trash2 } from "lucide-react";
 import useTemplateForm from "@/hooks/templates/useTemplateForm";
 import { Button } from "@/components/ui";
 import TemplatePreview from "./TemplatePreview";
@@ -22,13 +16,7 @@ const getSafeHex = (color: string) => {
   if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(color)) {
     if (color.length === 4) {
       return (
-        "#" +
-        color[1] +
-        color[1] +
-        color[2] +
-        color[2] +
-        color[3] +
-        color[3]
+        "#" + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]
       );
     }
     return color;
@@ -60,7 +48,7 @@ const ColorInput: React.FC<{
           onChange(
             e.target.value.startsWith("#")
               ? e.target.value
-              : `#${e.target.value}`
+              : `#${e.target.value}`,
           )
         }
         placeholder="#000000"
@@ -131,9 +119,7 @@ const LabelStyleEditor: React.FC<LabelStyleProps> = ({
         <input
           type="number"
           value={fontSize}
-          onChange={(e) =>
-            onFontSizeChange?.(parseInt(e.target.value) || 10)
-          }
+          onChange={(e) => onFontSizeChange?.(parseInt(e.target.value) || 10)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
         />
       </div>
@@ -222,9 +208,7 @@ const TemplateForm: React.FC = () => {
   useEffect(() => {
     if (selectedElement) {
       setTimeout(() => {
-        const element = document.getElementById(
-          `section-${selectedElement}`
-        );
+        const element = document.getElementById(`section-${selectedElement}`);
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -316,9 +300,7 @@ const TemplateForm: React.FC = () => {
                 <input
                   type="text"
                   value={formData.templateName}
-                  onChange={(e) =>
-                    handleChange("templateName", e.target.value)
-                  }
+                  onChange={(e) => handleChange("templateName", e.target.value)}
                   placeholder="Standard Template"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                 />
@@ -403,10 +385,7 @@ const TemplateForm: React.FC = () => {
                         step="0.1"
                         value={formData[key] as number}
                         onChange={(e) =>
-                          handleChange(
-                            key,
-                            parseFloat(e.target.value) || 0
-                          )
+                          handleChange(key, parseFloat(e.target.value) || 0)
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                       />
@@ -463,9 +442,7 @@ const TemplateForm: React.FC = () => {
                         <option value="Oswald">Oswald</option>
                       </optgroup>
                       <optgroup label="Serif">
-                        <option value="Times New Roman">
-                          Times New Roman
-                        </option>
+                        <option value="Times New Roman">Times New Roman</option>
                         <option value="Georgia">Georgia</option>
                         <option value="Merriweather">Merriweather</option>
                         <option value="Playfair Display">
@@ -506,7 +483,7 @@ const TemplateForm: React.FC = () => {
                       onChange={(e) =>
                         handleChange(
                           "headingFontSize",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -541,7 +518,7 @@ const TemplateForm: React.FC = () => {
               >
                 <div className="space-y-4">
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-blue-400 transition-colors cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {branding.logoPreview ? (
@@ -631,7 +608,7 @@ const TemplateForm: React.FC = () => {
                       onChange={(e) =>
                         handleChange(
                           "headingFontSize",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -674,7 +651,7 @@ const TemplateForm: React.FC = () => {
                       onChange={(e) =>
                         handleChange(
                           "subheadingFontSize",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -710,9 +687,7 @@ const TemplateForm: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={formData.showLogo}
-                    onChange={(e) =>
-                      handleChange("showLogo", e.target.checked)
-                    }
+                    onChange={(e) => handleChange("showLogo", e.target.checked)}
                     className="rounded text-blue-600"
                   />
                   <span className="text-sm text-gray-700">Show Logo</span>
@@ -757,7 +732,7 @@ const TemplateForm: React.FC = () => {
                       onChange={(e) =>
                         handleChange(
                           "billToNameFontSize",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -787,7 +762,7 @@ const TemplateForm: React.FC = () => {
                       onChange={(e) =>
                         handleChange(
                           "billToAddressFontSize",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -814,9 +789,7 @@ const TemplateForm: React.FC = () => {
                       textValue={formData.invoiceDateLabel}
                       textColor={formData.invoiceDateLabelColor}
                       fontSize={formData.invoiceDetailLabelFontSize}
-                      onTextChange={(v) =>
-                        handleChange("invoiceDateLabel", v)
-                      }
+                      onTextChange={(v) => handleChange("invoiceDateLabel", v)}
                       onTextColorChange={(v) =>
                         handleChange("invoiceDateLabelColor", v)
                       }
@@ -848,7 +821,7 @@ const TemplateForm: React.FC = () => {
                           onChange={(e) =>
                             handleChange(
                               "invoiceDetailValueFontSize",
-                              parseInt(e.target.value)
+                              parseInt(e.target.value),
                             )
                           }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
@@ -985,7 +958,7 @@ const TemplateForm: React.FC = () => {
               <div className="px-4 py-3 border-b border-gray-200">
                 <button
                   onClick={addColumn}
-                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-blue-300 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   <Plus size={16} />
                   <span className="text-sm font-medium">Add Column</span>
@@ -996,7 +969,7 @@ const TemplateForm: React.FC = () => {
                 {tableColumns.map((col, idx) => (
                   <div
                     key={col.key}
-                    className={`border rounded-lg p-3 ${
+                    className={`border rounded-md p-3 ${
                       col.enabled
                         ? "bg-white border-gray-200"
                         : "bg-gray-50 border-gray-100 opacity-60"
@@ -1054,7 +1027,7 @@ const TemplateForm: React.FC = () => {
                             handleColumnChange(
                               idx,
                               "width",
-                              parseInt(e.target.value) || 50
+                              parseInt(e.target.value) || 50,
                             )
                           }
                           disabled={!col.enabled}
@@ -1105,10 +1078,7 @@ const TemplateForm: React.FC = () => {
                       type="number"
                       value={formData.tableFontSize}
                       onChange={(e) =>
-                        handleChange(
-                          "tableFontSize",
-                          parseInt(e.target.value)
-                        )
+                        handleChange("tableFontSize", parseInt(e.target.value))
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                     />
@@ -1145,10 +1115,7 @@ const TemplateForm: React.FC = () => {
                       type="number"
                       value={formData.tableFontSize}
                       onChange={(e) =>
-                        handleChange(
-                          "tableFontSize",
-                          parseInt(e.target.value)
-                        )
+                        handleChange("tableFontSize", parseInt(e.target.value))
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                     />
@@ -1239,9 +1206,7 @@ const TemplateForm: React.FC = () => {
                   textColor={formData.secondaryColor}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("previousDueLabel", v)}
-                  onTextColorChange={(v) =>
-                    handleChange("secondaryColor", v)
-                  }
+                  onTextColorChange={(v) => handleChange("secondaryColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showBg={false}
                 />
@@ -1301,10 +1266,7 @@ const TemplateForm: React.FC = () => {
                       type="number"
                       value={formData.labelFontSize}
                       onChange={(e) =>
-                        handleChange(
-                          "labelFontSize",
-                          parseInt(e.target.value)
-                        )
+                        handleChange("labelFontSize", parseInt(e.target.value))
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                     />
@@ -1328,9 +1290,7 @@ const TemplateForm: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={formData.showTax}
-                    onChange={(e) =>
-                      handleChange("showTax", e.target.checked)
-                    }
+                    onChange={(e) => handleChange("showTax", e.target.checked)}
                     className="rounded text-blue-600"
                   />
                   <span className="text-sm text-gray-700">Show Tax</span>
@@ -1470,8 +1430,8 @@ const TemplateForm: React.FC = () => {
             alert.type === "success"
               ? "bg-green-50 text-green-800 border border-green-200"
               : alert.type === "error"
-              ? "bg-red-50 text-red-800 border border-red-200"
-              : "bg-blue-50 text-blue-800 border border-blue-200"
+                ? "bg-red-50 text-red-800 border border-red-200"
+                : "bg-blue-50 text-blue-800 border border-blue-200"
           }`}
         >
           <span>{alert.message}</span>

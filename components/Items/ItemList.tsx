@@ -2,7 +2,14 @@
 
 import React from "react";
 import { Edit, Trash2 } from "lucide-react";
-import { Table, StatusBadge, Button, PageHeader, ConfirmDialog, AlertModal } from "@/components/ui";
+import {
+  Table,
+  StatusBadge,
+  Button,
+  PageHeader,
+  ConfirmDialog,
+  AlertModal,
+} from "@/components/ui";
 import useItemList from "@/hooks/items/useItemList";
 import type { Item } from "@/types/item";
 
@@ -37,19 +44,15 @@ const ItemList: React.FC = () => {
       key: "name",
       label: "NAME",
       render: (i: Item) => (
-        <span className="text-blue-500">
-          {i.name || ""}
-        </span>
-      )
+        <span className="text-blue-500">{i.name || ""}</span>
+      ),
     },
     {
       key: "unit",
       label: "UNIT",
       render: (i: Item) => (
-        <span className="text-gray-900">
-          {i.unit || ""}
-        </span>
-      )
+        <span className="text-gray-900">{i.unit || ""}</span>
+      ),
     },
     {
       key: "sellingPrice",
@@ -69,13 +72,13 @@ const ItemList: React.FC = () => {
         <span className="text-gray-700 leading-relaxed">
           {i.description || ""}
         </span>
-      )
+      ),
     },
     {
       key: "status",
       label: "STATUS",
       render: (i: Item) => <StatusBadge status={i.status || "Active"} />,
-    }
+    },
   ];
 
   return (
@@ -110,17 +113,18 @@ const ItemList: React.FC = () => {
         onBack={() => setStatusFilter("All")}
         dropdown={{
           options: ["All", "Active", "inActive"].map((option) => ({
-            label: option === "All"
-              ? "All Items"
-              : option === "Active"
-                ? "Active Items"
-                : "Inactive Items",
-            value: option
+            label:
+              option === "All"
+                ? "All Items"
+                : option === "Active"
+                  ? "Active Items"
+                  : "Inactive Items",
+            value: option,
           })),
           value: statusFilter,
           onChange: (value) => setStatusFilter(value),
           isOpen: dropdownOpen,
-          onToggle: () => setDropdownOpen(!dropdownOpen)
+          onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
           <>
@@ -180,7 +184,7 @@ const ItemList: React.FC = () => {
                 e.stopPropagation();
                 handleEdit(i);
               }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-lg cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
               title="Edit Item"
             >
               <Edit className="w-4 h-4" />
@@ -194,7 +198,7 @@ const ItemList: React.FC = () => {
                 setSelectedIds([i.id]);
                 handleDelete();
               }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-lg cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
               title="Delete Item"
             >
               <Trash2 className="w-4 h-4" />

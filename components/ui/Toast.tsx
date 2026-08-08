@@ -1,10 +1,16 @@
 "use client";
 
 /* eslint-disable react-refresh/only-export-components */
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  X,
+} from "lucide-react";
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastType = "success" | "error" | "warning" | "info";
 
 export interface ToastMessage {
   id: string;
@@ -26,26 +32,31 @@ class ToastManager {
     };
   }
 
-  show(message: string, type: ToastType = 'info', title?: string, duration = 4000) {
+  show(
+    message: string,
+    type: ToastType = "info",
+    title?: string,
+    duration = 4000,
+  ) {
     const id = Math.random().toString(36).substring(2, 9);
     const toast: ToastMessage = { id, type, title, message, duration };
     this.listeners.forEach((listener) => listener(toast));
   }
 
   success(message: string, title?: string, duration?: number) {
-    this.show(message, 'success', title, duration);
+    this.show(message, "success", title, duration);
   }
 
   error(message: string, title?: string, duration?: number) {
-    this.show(message, 'error', title, duration);
+    this.show(message, "error", title, duration);
   }
 
   warning(message: string, title?: string, duration?: number) {
-    this.show(message, 'warning', title, duration);
+    this.show(message, "warning", title, duration);
   }
 
   info(message: string, title?: string, duration?: number) {
-    this.show(message, 'info', title, duration);
+    this.show(message, "info", title, duration);
   }
 }
 
@@ -59,10 +70,10 @@ const toastIcons: Record<ToastType, React.ReactNode> = {
 };
 
 const toastStyles: Record<ToastType, string> = {
-  success: 'bg-white border-emerald-200 text-slate-800 shadow-emerald-500/10',
-  error: 'bg-white border-rose-200 text-slate-800 shadow-rose-500/10',
-  warning: 'bg-white border-amber-200 text-slate-800 shadow-amber-500/10',
-  info: 'bg-white border-cyan-200 text-slate-800 shadow-cyan-500/10',
+  success: "bg-white border-emerald-200 text-slate-800 shadow-emerald-500/10",
+  error: "bg-white border-rose-200 text-slate-800 shadow-rose-500/10",
+  warning: "bg-white border-amber-200 text-slate-800 shadow-amber-500/10",
+  info: "bg-white border-cyan-200 text-slate-800 shadow-cyan-500/10",
 };
 
 export const ToastContainer: React.FC = () => {
@@ -91,7 +102,7 @@ export const ToastContainer: React.FC = () => {
       {toasts.map((item) => (
         <div
           key={item.id}
-          className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-lg backdrop-blur-sm transition-all duration-300 animate-slide-up ${toastStyles[item.type]}`}
+          className={`pointer-events-auto flex items-start gap-3 p-4 rounded-md border shadow-lg backdrop-blur-sm transition-all duration-300 animate-slide-up ${toastStyles[item.type]}`}
           role="alert"
         >
           {toastIcons[item.type]}
@@ -108,7 +119,7 @@ export const ToastContainer: React.FC = () => {
           <button
             type="button"
             onClick={() => removeToast(item.id)}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
             aria-label="Close notification"
           >
             <X className="w-4 h-4" />

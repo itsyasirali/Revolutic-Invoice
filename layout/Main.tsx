@@ -17,7 +17,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <TemplateFormProvider>
       <ToastContainer />
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen ">
         <Sidebar
           activeItem={activeItem}
           onMenuClick={(item) => setActiveItem(item)}
