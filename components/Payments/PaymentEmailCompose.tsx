@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Send, X, Plus, Check, FileText } from "lucide-react";
+import { Send, X, Plus, Check, FileText, Download } from "lucide-react";
 import usePaymentEmail from "@/hooks/payments/usePaymentEmail";
 import { Button, LoadingSpinner, PageHeader } from "@/components/ui";
 
@@ -274,15 +274,28 @@ const PaymentEmailCompose: React.FC = () => {
             </div>
 
             {emailData.attachPDF && (
-              <div className="mt-3 ml-8 flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-md max-w-xs">
-                <div className="p-1.5 bg-red-50 rounded">
-                  <FileText size={16} className="text-red-500" />
+              <div 
+                onClick={() => window.open(`/payments/preview/${payment?.id || id}`, '_blank')}
+                className="mt-3 ml-8 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg max-w-sm cursor-pointer hover:border-primary transition-colors group"
+                title="Click to view/download PDF"
+              >
+                <div className="relative p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors flex items-center justify-center">
+                  <svg className="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[7px] font-bold px-1 rounded-sm tracking-widest uppercase">
+                    PDF
+                  </div>
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <p className="text-xs font-medium text-gray-700 truncate">
-                    Payment-{payment?.paymentNumber}.pdf
+                  <p className="text-sm font-medium text-gray-700 truncate group-hover:text-primary transition-colors">
+                    Payment-{payment?.paymentNumber || "Draft"}.pdf
                   </p>
-                  <p className="text-[10px] text-gray-400">PDF Document</p>
+                  <p className="text-xs text-gray-400 mt-0.5">PDF Document</p>
+                </div>
+                <div className="p-2 text-gray-400 group-hover:text-primary transition-colors">
+                  <Download size={18} />
                 </div>
               </div>
             )}
