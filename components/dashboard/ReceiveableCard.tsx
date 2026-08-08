@@ -1,7 +1,5 @@
 import React from "react";
-import { Plus } from "lucide-react";
-
-type BucketKey = "current" | "1-15" | "16-30" | "31-45";
+import { Wallet, CheckCircle2, Clock } from "lucide-react";
 
 const formatPKR = (value: number) =>
   new Intl.NumberFormat("en-PK", {
@@ -10,38 +8,52 @@ const formatPKR = (value: number) =>
     minimumFractionDigits: 2,
   }).format(value);
 
-const uiBuckets = [
-  {
-    key: "current" as BucketKey,
-    label: "CURRENT",
-    period: "",
-    color: "text-primary",
-  },
-  {
-    key: "1-15" as BucketKey,
-    label: "RECEIVED",
-    period: "",
-    color: "text-green-600",
-  },
-  {
-    key: "overdue-total",
-    label: "OVERDUE",
-    period: "1–15 Days",
-    color: "text-red-600",
-  },
-  {
-    key: "16-30" as BucketKey,
-    label: "",
-    period: "16–30 Days",
-    color: "text-gray-700",
-  },
-  {
-    key: "31-45" as BucketKey,
-    label: "",
-    period: "30-45 Days",
-    color: "text-gray-700",
-  },
-] as const;
+const BarChart = ({ color }: { color: string }) => (
+  <div className="flex items-end gap-[3px] h-8">
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[40%] rounded-t-[1px]"
+    ></div>
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[60%] rounded-t-[1px]"
+    ></div>
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[100%] rounded-t-[1px]"
+    ></div>
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[80%] rounded-t-[1px]"
+    ></div>
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[50%] rounded-t-[1px]"
+    ></div>
+    <div
+      style={{ backgroundColor: color }}
+      className="w-[5px] h-[70%] rounded-t-[1px]"
+    ></div>
+  </div>
+);
+
+const LineChart = ({ color }: { color: string }) => (
+  <svg
+    width="45"
+    height="25"
+    viewBox="0 0 45 25"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M2 22 L10 16 L18 19 L26 10 L34 14 L42 2"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 type ReceivablesData = {
   buckets: Record<string, number>;
@@ -49,60 +61,106 @@ type ReceivablesData = {
   paidTotal: number;
 };
 
-export const ReceivablesCard = ({ receivables }: { receivables: ReceivablesData }) => {
-  const { buckets, totalReceivables } = receivables;
-  const overdueTotal = buckets["16-30"] + buckets["31-45"];
+export const ReceivablesCard = ({
+  receivables,
+}: {
+  receivables: ReceivablesData;
+}) => {
+  const { totalReceivables, paidTotal } = receivables;
+  const total = totalReceivables + paidTotal;
+
+  const receivedPct = total > 0 ? Math.round((paidTotal / total) * 100) : 0;
+  const remainingPct =
+    total > 0 ? Math.round((totalReceivables / total) * 100) : 0;
+
+  const summaryCards = [
+    {
+      label: "Total",
+      value: total,
+      icon: Wallet,
+      badge: null,
+      iconBg: "bg-[#2499F9]",
+      gradient:
+        "linear-gradient(108deg, #EBF0FF 0%, #EBF0FF 25%, #F2F0FF 25%, #F2F0FF 42%, #FFFFFF 42%)",
+      badgeBg: "",
+      chartType: "bar",
+      chartColor: "#2499F9",
+    },
+    {
+      label: "Received",
+      value: paidTotal,
+      icon: CheckCircle2,
+      badge: `+${receivedPct}%`,
+      iconBg: "bg-[#06B9CE]",
+      gradient:
+        "linear-gradient(108deg, #E2F9F9 0%, #E2F9F9 25%, #ECFAFA 25%, #ECFAFA 42%, #FFFFFF 42%)",
+      badgeBg: "bg-[#1BD084]",
+      chartType: "bar",
+      chartColor: "#06B9CE",
+    },
+    {
+      label: "Remaining",
+      value: totalReceivables,
+      icon: Clock,
+      badge: `-${remainingPct}%`,
+      iconBg: "bg-[#F54C4C]",
+      gradient:
+        "linear-gradient(108deg, #FFEDE8 0%, #FFEDE8 25%, #FFF2EA 25%, #FFF2EA 42%, #FFFFFF 42%)",
+      badgeBg: "bg-[#F54C4C]",
+      chartType: "line",
+      chartColor: "#F54C4C",
+    },
+  ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow w-[97%] mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center p-3 bg-gray-100">
-        <h2 className="text-base sm:text-lg font-normal text-gray-700">
-          Total Receivables
-        </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-[97%] mx-auto">
+      {summaryCards.map((card) => (
+        <div
+          key={card.label}
+          className="rounded-md border border-gray-100 shadow-sm p-5 min-h-[160px] flex flex-col justify-between"
+          style={{ background: card.gradient }}
+        >
+          <div className="flex justify-between items-start">
+            <span
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${card.iconBg}`}
+            >
+              <card.icon className="w-6 h-6 text-white" />
+            </span>
 
-        <button className="flex items-center space-x-2 text-primary hover:text-primary/80 text-sm font-medium px-2 py-1 hover:bg-primary/5 rounded">
-          <span className="bg-primary w-4 h-4 flex justify-center items-center text-white rounded-full">
-            <Plus size={12} />
-          </span>
-          <span>New</span>
-        </button>
-      </div>
+            {card.badge && (
+              <div className="flex flex-col items-end">
+                <span
+                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full text-white ${card.badgeBg}`}
+                >
+                  {card.badge}
+                </span>
+                <span className="text-[10px] text-gray-400 mt-1 font-medium">
+                  in last 7 Days
+                </span>
+              </div>
+            )}
+          </div>
 
-      {/* Total */}
-      <div className="p-3">
-        <p className="text-sm text-gray-600 mb-2">
-          Total Receivables{" "}
-          <span className="font-semibold">
-            {formatPKR(totalReceivables)}
-          </span>
-        </p>
-        <div className="w-full h-2 bg-primary/40 rounded-full" />
-      </div>
-
-      {/* Buckets */}
-      <div className="grid xs:grid-cols-2 sm:grid-cols-5 gap-4 px-3 pb-4">
-        {uiBuckets.map((bucket) => {
-          const value =
-            bucket.key === "overdue-total"
-              ? overdueTotal
-              : buckets[bucket.key];
-
-          return (
-            <div key={bucket.key} className="flex flex-col items-start">
-              <p className={`text-xs font-semibold mb-1 ${bucket.color}`}>
-                {bucket.label}
+          <div className="flex justify-between items-end mt-4">
+            <div>
+              <p className="text-[13px] font-medium text-gray-400 mb-1">
+                {card.label}
               </p>
-
-              <p className="text-lg font-semibold text-gray-700 truncate">
-                {formatPKR(value)}
+              <p className="text-2xl sm:text-[28px] font-bold text-gray-800 tracking-tight truncate">
+                {formatPKR(card.value)}
               </p>
-
-              <p className="text-xs text-gray-500">{bucket.period}</p>
             </div>
-          );
-        })}
-      </div>
+
+            <div className="mb-1">
+              {card.chartType === "bar" ? (
+                <BarChart color={card.chartColor} />
+              ) : (
+                <LineChart color={card.chartColor} />
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
