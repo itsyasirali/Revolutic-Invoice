@@ -1,5 +1,5 @@
-import PaymentPreview from "@/components/Payments/PaymentPreview";
+import PaymentDetails from "@/components/Payments/PaymentDetails";
 
 export default function PaymentDetailsPage() {
-  return <PaymentPreview />;
+  return <PaymentDetails />;
 }

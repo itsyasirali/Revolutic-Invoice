@@ -5,7 +5,7 @@ import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export interface PageHeaderProps {
-  title: string;
+  title: React.ReactNode;
   subtitle?: React.ReactNode;
   showBackButton?: boolean;
   onBack?: () => void;
@@ -72,7 +72,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                         className="fixed inset-0 z-10"
                         onClick={dropdown.onToggle}
                       />
-                      <div className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-md shadow-xl py-1.5 z-20 animate-reveal">
+                      <div className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-md shadow-xl z-20">
                         {dropdown.options.map((opt) => (
                           <button
                             key={opt.value}
@@ -81,7 +81,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                               dropdown.onChange(opt.value);
                               dropdown.onToggle();
                             }}
-                            className={`w-full text-left px-4 py-2 text-xs font-medium cursor-pointer transition-colors ${
+                            className={`w-full text-left px-4 py-2 text-sm font-medium cursor-pointer ${
                               dropdown.value === opt.value
                                 ? "bg-primary/10 text-primary font-semibold"
                                 : "text-slate-700 hover:bg-slate-50"

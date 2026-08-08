@@ -38,7 +38,7 @@ const PaymentEmailCompose: React.FC = () => {
 
   if (!payment && !loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-md shadow-sm">
           <p className="text-red-500 text-lg mb-4">Payment not found</p>
           <Button onClick={() => router.back()} variant="secondary">
@@ -50,7 +50,7 @@ const PaymentEmailCompose: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <PageHeader
         title="Compose Email"
         showBackButton={true}

@@ -1,5 +1,5 @@
-import InvoicePreview from "@/components/Invoices/InvoicePreview";
+import InvoiceDetails from "@/components/Invoices/InvoiceDetails";
 
 export default function InvoiceDetailsPage() {
-  return <InvoicePreview />;
+  return <InvoiceDetails />;
 }

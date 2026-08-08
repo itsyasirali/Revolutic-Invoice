@@ -34,10 +34,12 @@ export interface Payment {
   updatedAt?: string | Date;
   templateId?: string | number;
   template?: unknown;
+  notes?: string;
 }
 
 export interface UsePaymentActionsReturn {
   handleNew: () => void;
+  handleRowClick: (id: string, data?: unknown) => void;
   handleEdit: (id: string, data?: unknown) => void;
   handlePreview: (id: string, data?: unknown) => void;
   handleBackToList: () => void;

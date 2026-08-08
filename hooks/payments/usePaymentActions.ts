@@ -13,6 +13,16 @@ const usePaymentActions = (): UsePaymentActionsReturn => {
     router.push("/payments/new");
   }, [router]);
 
+  const handleRowClick = useCallback(
+    (id: string, data?: any) => {
+      if (data) {
+        setNavState(`payment:${id}`, data);
+      }
+      router.push(`/payments/${id}`);
+    },
+    [router]
+  );
+
   const handlePreview = useCallback(
     (id: string, data?: any) => {
       if (data) {
@@ -53,6 +63,7 @@ const usePaymentActions = (): UsePaymentActionsReturn => {
 
   return {
     handleNew,
+    handleRowClick,
     handlePreview,
     handleEdit,
     handleBackToList,

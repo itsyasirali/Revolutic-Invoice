@@ -69,7 +69,7 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
   const handleRowClick = useCallback(
     (invoice: UIInvoiceListItem) => {
       setNavState(`invoice:${invoice.id}`, invoice.raw || invoice);
-      router.push(`/invoices/preview/${invoice.id}`);
+      router.push(`/invoices/${invoice.id}`);
     },
     [router]
   );

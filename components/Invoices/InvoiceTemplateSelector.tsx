@@ -6,12 +6,12 @@ import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import TemplateCard from "@/components/Templates/TemplateCard";
 import { LoadingSpinner } from "@/components/ui";
 
-import type { Template } from "@/entities/Template";
+import type { TemplateListItem } from "@/types/template";
 
 interface InvoiceTemplateSelectorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (template: Template) => void;
+  onSelect: (template: TemplateListItem) => void;
   currentTemplateId?: string;
 }
 
@@ -25,7 +25,7 @@ const InvoiceTemplateSelector: React.FC<InvoiceTemplateSelectorProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSelect = (template: Template) => {
+  const handleSelect = (template: TemplateListItem) => {
     onSelect(template);
     onClose();
   };

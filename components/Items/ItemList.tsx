@@ -82,7 +82,7 @@ const ItemList: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="pb-8">
       <AlertModal
         isOpen={alert.show}
         type={alert.type}
@@ -127,87 +127,94 @@ const ItemList: React.FC = () => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <>
-            <Button
-              onClick={handleDelete}
-              disabled={loading || selectedIds.length === 0}
-              variant="danger"
-              size="md"
-            >
-              Delete Selected
-            </Button>
-
-            <Button
-              onClick={handleSetActive}
-              disabled={loading || selectedIds.length === 0}
-              variant="success"
-              size="md"
-            >
-              Mark Active
-            </Button>
-
-            <Button
-              onClick={handleSetInactive}
-              disabled={loading || selectedIds.length === 0}
-              variant="warning"
-              size="md"
-            >
-              Mark Inactive
-            </Button>
-
-            <Button
-              onClick={handleNew}
-              disabled={loading}
-              variant="primary"
-              size="md"
-            >
-              New Item
-            </Button>
-          </>
+          <Button
+            onClick={handleNew}
+            disabled={loading}
+            variant="primary"
+            size="md"
+          >
+            New Item
+          </Button>
         }
       />
 
-      <Table<Item>
-        columns={columns}
-        data={filteredItems}
-        selectedIds={selectedIds}
-        onSelectAll={onSelectAll}
-        onSelectRow={onSelectRow}
-        loading={loading}
-        emptyMessage="No items found"
-        getRowId={(i) => String(i.id)}
-        onRowClick={handleRowClick}
-        rowActions={(i) => (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(i);
-              }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
-              title="Edit Item"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                // For simplicity, we trigger the bulk delete flow for a single item
-                // but we might want a separate confirmation here if desired.
-                // For now, let's just use the bulk delete confirmation by setting selectedIds to just this one.
-                setSelectedIds([i.id]);
-                handleDelete();
-              }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
-              title="Delete Item"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+      {selectedIds.length > 0 && (
+        <div className="bg-blue-50 border border-blue-100 p-3 mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-blue-700 font-medium text-sm">
+            <span className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center text-xs">
+              {selectedIds.length}
+            </span>
+            item{selectedIds.length > 1 ? "s" : ""} selected
           </div>
-        )}
-        showFilter
-        showCheckbox
-      />
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleSetActive}
+              disabled={loading}
+              variant="success"
+              size="sm"
+            >
+              Mark Active
+            </Button>
+            <Button
+              onClick={handleSetInactive}
+              disabled={loading}
+              variant="warning"
+              size="sm"
+            >
+              Mark Inactive
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              variant="danger"
+              size="sm"
+            >
+              Delete Selected
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4">
+        <Table<Item>
+          columns={columns}
+          data={filteredItems}
+          selectedIds={selectedIds}
+          onSelectAll={onSelectAll}
+          onSelectRow={onSelectRow}
+          loading={loading}
+          emptyMessage="No items found"
+          getRowId={(i) => String(i.id)}
+          onRowClick={handleRowClick}
+          rowActions={(i) => (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(i);
+                }}
+                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
+                title="Edit Item"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedIds([i.id]);
+                  handleDelete();
+                }}
+                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
+                title="Delete Item"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          showFilter
+          showCheckbox
+        />
+      </div>
     </div>
   );
 };

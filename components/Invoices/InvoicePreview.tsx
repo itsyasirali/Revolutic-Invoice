@@ -2,7 +2,12 @@
 
 import React from "react";
 import { Send, Edit, FileText, Download, Settings } from "lucide-react";
-import { Button, EmptyState, PageHeader, LoadingSpinner } from "@/components/ui";
+import {
+  Button,
+  EmptyState,
+  PageHeader,
+  LoadingSpinner,
+} from "@/components/ui";
 import TemplatePreviewComponent from "@/components/Templates/TemplatePreview";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import useInvoicePreview from "@/hooks/invoices/useInvoicePreview";
@@ -40,14 +45,14 @@ const InvoicePreview: React.FC = () => {
 
   if (templatesLoading && !activeTemplate) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <InvoiceTemplateSelector
         isOpen={showTemplateSelector}
         onClose={() => setShowTemplateSelector(false)}
@@ -99,12 +104,12 @@ const InvoicePreview: React.FC = () => {
                   invoice.status.toLowerCase() === "draft"
                     ? "bg-slate-500"
                     : invoice.status.toLowerCase() === "sent"
-                    ? "bg-blue-600"
-                    : invoice.status.toLowerCase() === "paid"
-                    ? "bg-emerald-600"
-                    : invoice.status.toLowerCase() === "overdue"
-                    ? "bg-rose-600"
-                    : "bg-slate-500"
+                      ? "bg-blue-600"
+                      : invoice.status.toLowerCase() === "paid"
+                        ? "bg-emerald-600"
+                        : invoice.status.toLowerCase() === "overdue"
+                          ? "bg-rose-600"
+                          : "bg-slate-500"
                 }`}
               >
                 {invoice.status}
@@ -130,10 +135,7 @@ const InvoicePreview: React.FC = () => {
             style={{ minHeight: "296mm" }}
           >
             {templateData ? (
-              <TemplatePreviewComponent
-                data={templateData}
-                invoice={invoice}
-              />
+              <TemplatePreviewComponent data={templateData} invoice={invoice} />
             ) : (
               <div className="bg-white p-10 text-center">
                 No template found.

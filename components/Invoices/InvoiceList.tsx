@@ -102,7 +102,7 @@ const InvoiceList = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="pb-8">
       <PageHeader
         title={
           statusFilter === "All" ? "All Invoices" : `${statusFilter} Invoices`
@@ -161,72 +161,66 @@ const InvoiceList = () => {
       />
 
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between bg-white px-6 py-2.5 border-b border-gray-200">
+        <div className="bg-blue-50 border border-blue-100 p-3 mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-blue-700 font-medium text-sm">
+            <span className="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center text-xs">
+              {selectedIds.length}
+            </span>
+            invoice{selectedIds.length > 1 ? "s" : ""} selected
+          </div>
           <div className="flex items-center gap-2">
             <Button
               onClick={handleDelete}
               disabled={loading}
-              variant="secondary"
+              variant="danger"
               size="sm"
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               Delete Selected
             </Button>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center min-w-[32px] h-8 bg-gray-100 rounded-md px-2.5">
-              <span className="text-xs font-medium text-gray-700">
-                {selectedIds.length}
-              </span>
-            </div>
-            <button
-              onClick={() => setSelectedIds([])}
-              className="text-red-500 hover:text-red-600 transition-colors text-xl font-medium"
-            >
-              ×
-            </button>
-          </div>
         </div>
       )}
 
-      <Table<UIInvoiceListItem>
-        columns={columns}
-        data={filteredInvoices}
-        selectedIds={selectedIds}
-        onSelectAll={onSelectAll}
-        onSelectRow={onSelectRow}
-        loading={loading}
-        emptyMessage="No invoices found"
-        getRowId={(i) => String(i.id)}
-        onRowClick={handleRowClick}
-        rowActions={(inv) => (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(inv);
-              }}
-              className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
-              title="Edit Invoice"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedIds([String(inv.id)]);
-                handleDelete();
-              }}
-              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
-              title="Delete Invoice"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-        showFilter
-        showCheckbox
-      />
+      <div className="mt-4">
+        <Table<UIInvoiceListItem>
+          columns={columns}
+          data={filteredInvoices}
+          selectedIds={selectedIds}
+          onSelectAll={onSelectAll}
+          onSelectRow={onSelectRow}
+          loading={loading}
+          emptyMessage="No invoices found"
+          getRowId={(i) => String(i.id)}
+          onRowClick={handleRowClick}
+          rowActions={(inv) => (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(inv);
+                }}
+                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
+                title="Edit Invoice"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedIds([String(inv.id)]);
+                  handleDelete();
+                }}
+                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
+                title="Delete Invoice"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          showFilter
+          showCheckbox
+        />
+      </div>
     </div>
   );
 };

@@ -34,7 +34,7 @@ const ItemDetails: React.FC = () => {
   }
 
   return (
-    <div className="bg-white">
+    <div className="">
       <PageHeader
         title={item.name || ""}
         showBackButton
@@ -51,7 +51,7 @@ const ItemDetails: React.FC = () => {
         actions={
           <div className="flex items-center gap-2.5">
             <Button
-              variant="ghost"
+              variant="secondary"
               onClick={handleEdit}
               icon={<Edit className="w-4 h-4" />}
             >
@@ -69,35 +69,35 @@ const ItemDetails: React.FC = () => {
         }
       />
 
-      <div className="px-8 py-8 max-w-5xl">
-        <div className="flex flex-col gap-8">
-          <div className="space-y-8">
-            <section>
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">
+      <div className="space-y-6 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
+              <h3 className="text-sm font-medium text-gray-800 mb-4">
                 Item Information
               </h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="p-5 bg-gray-50/50 rounded-md border border-gray-50">
-                  <p className="text-sm font-medium text-gray-500 mb-1.5 flex items-center gap-2">
-                    <Type className="w-4 h-4" /> Type
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5" /> Type
                   </p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900">
                     {item.type || "Goods"}
                   </p>
                 </div>
-                <div className="p-5 bg-gray-50/50 rounded-md border border-gray-50">
-                  <p className="text-sm font-medium text-gray-500 mb-1.5 flex items-center gap-2">
-                    <Tag className="w-4 h-4" /> Unit
+                <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5" /> Unit
                   </p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900">
                     {item.unit || ""}
                   </p>
                 </div>
-                <div className="p-5 bg-gray-50/50 rounded-md border border-gray-50">
-                  <p className="text-sm font-medium text-gray-500 mb-1.5 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" /> Selling Price
+                <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
+                  <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5" /> Selling Price
                   </p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900">
                     {item.sellingPrice !== undefined
                       ? `PKR ${item.sellingPrice.toLocaleString("en-US", {
                           minimumFractionDigits: 2,
@@ -107,17 +107,17 @@ const ItemDetails: React.FC = () => {
                   </p>
                 </div>
                 {item.description && (
-                  <div className="p-5 bg-gray-50/50 rounded-md border border-gray-50">
-                    <p className="text-sm font-medium text-gray-500 mb-1.5 flex items-center gap-2">
-                      <FileText className="w-4 h-4" /> Description
+                  <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-md border border-gray-100">
+                    <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5" /> Description
                     </p>
-                    <p className="text-base text-gray-600 leading-relaxed">
+                    <p className="text-sm font-semibold text-gray-900 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
                 )}
               </div>
-            </section>
+            </div>
           </div>
         </div>
       </div>

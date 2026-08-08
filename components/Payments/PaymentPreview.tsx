@@ -44,14 +44,16 @@ const PaymentPreview: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <PaymentTemplateSelector
         isOpen={showTemplateSelector}
         onClose={() => setShowTemplateSelector(false)}
         onSelect={handleTemplateSelect}
         currentTemplateId={
           payment.templateId?.toString() ||
-          (payment.template as { id?: string | number } | undefined)?.id?.toString()
+          (
+            payment.template as { id?: string | number } | undefined
+          )?.id?.toString()
         }
       />
 
@@ -99,12 +101,12 @@ const PaymentPreview: React.FC = () => {
                   payment.status.toLowerCase() === "draft"
                     ? "bg-slate-500"
                     : payment.status.toLowerCase() === "sent"
-                    ? "bg-blue-600"
-                    : payment.status.toLowerCase() === "paid"
-                    ? "bg-emerald-600"
-                    : payment.status.toLowerCase() === "partial"
-                    ? "bg-amber-500"
-                    : "bg-slate-500"
+                      ? "bg-blue-600"
+                      : payment.status.toLowerCase() === "paid"
+                        ? "bg-emerald-600"
+                        : payment.status.toLowerCase() === "partial"
+                          ? "bg-amber-500"
+                          : "bg-slate-500"
                 }`}
               >
                 {payment.status}
