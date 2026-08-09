@@ -32,7 +32,7 @@ const ItemForm: React.FC = () => {
       />
 
       <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 py-8 px-8 max-w-3xl">
+        <div className="flex-1 py-8 max-w-3xl">
           <div className="flex flex-col gap-y-6">
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
@@ -107,7 +107,7 @@ const ItemForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 px-8 py-4 flex justify-start gap-3 z-10">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 py-4 flex justify-start gap-3 z-10">
           <Button
             type="button"
             onClick={handleCancel}

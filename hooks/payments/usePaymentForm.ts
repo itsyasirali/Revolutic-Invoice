@@ -5,7 +5,11 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "@/lib/axios";
 import useCustomers from "@/hooks/customers/useCustomers";
 import usePaymentActions from "./usePaymentActions";
-import type { PaymentFormData, UsePaymentFormReturn } from "@/types/payment";
+import type {
+  PaymentFormData,
+  UsePaymentFormReturn,
+  CustomerOption,
+} from "@/types/payment";
 import { getNavState } from "@/lib/clientNavState";
 
 export const usePaymentForm = (): UsePaymentFormReturn => {
@@ -138,6 +142,31 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     setPayAllRemaining(false);
   };
 
+  const autoAllocate = (totalAmount: number) => {
+    let remainingToAllocate = totalAmount;
+    const newAppliedAmounts: Record<string, number> = {};
+    unpaidInvoices.forEach((inv) => {
+      if (remainingToAllocate <= 0) {
+        newAppliedAmounts[inv.id] = 0;
+        return;
+      }
+      const invRemaining = inv.remaining || 0;
+      const applied = Math.min(invRemaining, remainingToAllocate);
+      newAppliedAmounts[inv.id] = applied;
+      remainingToAllocate -= applied;
+    });
+    setAppliedAmounts(newAppliedAmounts);
+  };
+
+  const handleAmountReceivedChange = (value: string) => {
+    setPayAllRemaining(false);
+    setPaymentData((prev) => ({
+      ...prev,
+      amountReceived: (value === "" ? "" : Number(value)) as unknown as number,
+    }));
+    autoAllocate(value === "" ? 0 : Number(value));
+  };
+
   const handlePayAllRemainingToggle = () => {
     setPayAllRemaining((prev) => {
       const newValue = !prev;
@@ -190,21 +219,23 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     0
   );
 
-  const filteredCustomers = customers.filter((customer) => {
-    const searchLower = customerSearchTerm.toLowerCase();
-    const displayName = (
-      customer.displayName ||
-      customer.companyName ||
-      ""
-    ).toLowerCase();
-    const email = (customer.contacts?.[0]?.email || "").toLowerCase();
-    const companyName = (customer.companyName || "").toLowerCase();
-    return (
-      displayName.includes(searchLower) ||
-      email.includes(searchLower) ||
-      companyName.includes(searchLower)
-    );
-  });
+  const filteredCustomers: CustomerOption[] = customers
+    .filter((customer) => {
+      const searchLower = customerSearchTerm.toLowerCase();
+      const displayName = (
+        customer.displayName ||
+        customer.companyName ||
+        ""
+      ).toLowerCase();
+      const email = (customer.contacts?.[0]?.email || "").toLowerCase();
+      const companyName = (customer.companyName || "").toLowerCase();
+      return (
+        displayName.includes(searchLower) ||
+        email.includes(searchLower) ||
+        companyName.includes(searchLower)
+      );
+    })
+    .map((customer) => ({ ...customer, id: String(customer.id) }));
 
   const handleSaveDraft = async () => {
     if (isSaving || isSubmitting) return;
@@ -355,6 +386,7 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     totalApplied,
     amountInExcess,
     selectCustomer,
+    handleAmountReceivedChange,
     handlePayAllRemainingToggle,
     handleAppliedAmountChange,
     handlePayInFull,

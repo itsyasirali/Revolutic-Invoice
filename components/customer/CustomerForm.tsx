@@ -39,7 +39,6 @@ const CustomerForm: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
         title={customer ? "Update Customer" : "New Customer"}
-        showBackButton
         onBack={handleCancel}
       />
 
@@ -51,7 +50,7 @@ const CustomerForm: React.FC = () => {
       />
 
       <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 py-8 px-8 max-w-3xl">
+        <div className="flex-1 py-8 max-w-3xl">
           <div className="flex flex-col gap-y-6">
             {/* Customer Type */}
             <div>
@@ -202,7 +201,7 @@ const CustomerForm: React.FC = () => {
         </div>
 
         {/* Sticky Action Footer */}
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 px-8 py-4 flex justify-start gap-3 z-10">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 py-4 flex justify-start gap-3 z-10">
           <Button
             type="button"
             onClick={handleCancel}

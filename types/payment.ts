@@ -125,7 +125,7 @@ export type UpdatePaymentPayload = Partial<
 // Helper Types
 export interface InvoiceDetail {
   id: string;
-  number: string;
+  invoiceNumber: string;
   total: number;
   received: number;
   remaining: number;
@@ -136,10 +136,11 @@ export interface InvoiceDetail {
 
 export interface CustomerOption {
   id: string;
-  displayName: string;
+  displayName?: string;
   email?: string;
   companyName?: string;
   currency?: string;
+  contacts?: Array<{ email?: string; contact?: string }>;
 }
 
 // Hook Return Types
@@ -278,6 +279,7 @@ export interface UsePaymentFormReturn {
   totalApplied: number;
   amountInExcess: number;
   selectCustomer: (customer: CustomerOption) => void;
+  handleAmountReceivedChange: (value: string) => void;
   handlePayAllRemainingToggle: () => void;
   handleAppliedAmountChange: (invoiceId: string, value: string) => void;
   handlePayInFull: (invoiceId: string, remaining: number) => void;

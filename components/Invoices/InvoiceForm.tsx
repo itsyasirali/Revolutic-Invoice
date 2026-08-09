@@ -83,7 +83,7 @@ const InvoiceForm = () => {
         }}
         className="flex-1 flex flex-col"
       >
-        <div className="flex-1 py-8 px-8 w-full">
+        <div className="flex-1 py-8 w-full">
           <div className="flex flex-col gap-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-4">
@@ -445,7 +445,6 @@ const InvoiceForm = () => {
 
                 <div className="bg-gray-50 p-4 border-t border-gray-50">
                   <Button variant="primary" size="md" onClick={addNewRow}>
-                    <Plus className="w-4 h-4" />
                     Add New Row
                   </Button>
                 </div>
@@ -551,7 +550,7 @@ const InvoiceForm = () => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-8 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
           <Button
             type="button"
             onClick={handleCancel}

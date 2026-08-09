@@ -204,7 +204,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     return isValidColor(val) ? val : defaultVal;
   };
 
-  const primaryColor = getColor(data.primaryColor, "#FF9608");
+  const primaryColor = getColor(data.primaryColor, "#1AA3FF");
   const accentColor = getColor(data.accentColor, "#FBBF24");
   const secondaryColor = getColor(data.secondaryColor, "#075056");
   const invoiceNumberColor = getColor(data.invoiceNumberColor, secondaryColor);

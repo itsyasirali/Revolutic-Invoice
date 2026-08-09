@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Input, Select, Button, PageHeader } from "@/components/ui";
 import usePaymentForm from "@/hooks/payments/usePaymentForm";
+import type { PaymentFormData } from "@/types/payment";
 import { Search, Mail } from "lucide-react";
 
 const PaymentForm: React.FC = () => {
@@ -22,9 +23,8 @@ const PaymentForm: React.FC = () => {
     isSubmitting,
     isSaving,
     filteredCustomers,
-    totalApplied,
-    amountInExcess,
     selectCustomer,
+    handleAmountReceivedChange,
     handlePayAllRemainingToggle,
     handleAppliedAmountChange,
     handlePayInFull,
@@ -39,11 +39,10 @@ const PaymentForm: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
         title="Record Payment"
-        showBackButton={true}
         onBack={() => router.push("/payments")}
       />
 
-      <div className="flex-1 py-8 px-8 w-full">
+      <div className="flex-1 py-8 w-full">
         <div className="flex flex-col gap-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-4">
@@ -169,10 +168,7 @@ const PaymentForm: React.FC = () => {
                         onChange={(e) => {
                           const val = e.target.value;
                           if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                            setPaymentData((prev) => ({
-                              ...prev,
-                              amountReceived: val as unknown as number,
-                            }));
+                            handleAmountReceivedChange(val);
                           }
                         }}
                         required
@@ -259,11 +255,7 @@ const PaymentForm: React.FC = () => {
                       onChange={(e) =>
                         setPaymentData((prev) => ({
                           ...prev,
-                          paymentMode: e.target.value as Parameters<
-                            typeof setPaymentData
-                          >[0] extends (prev: infer P) => any
-                            ? P["paymentMode"]
-                            : never,
+                          paymentMode: e.target.value as PaymentFormData["paymentMode"],
                         }))
                       }
                       options={paymentModeOptions}
@@ -391,46 +383,14 @@ const PaymentForm: React.FC = () => {
                 </div>
 
                 <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
-                  <div className="text-xs text-gray-600 mb-2">
-                    **List contains only SENT invoices
-                  </div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-semibold text-gray-900">
-                        Total
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {totalApplied.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center border-t border-gray-200 py-2">
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+                      <span className="text-sm font-black text-primary uppercase tracking-tighter">
                         Amount Received:
                       </span>
-                      <span className="text-base font-bold text-gray-900">
-                        {(Number(paymentData.amountReceived) || 0).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">
-                        Amount used for Payments:
-                      </span>
-                      <span className="text-sm text-gray-900">
-                        {totalApplied.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">
-                        Amount Refunded:
-                      </span>
-                      <span className="text-sm text-gray-900">0.00</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                      <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-                        Amount in Excess:
-                      </span>
                       <span className="text-xl font-black text-primary tracking-tighter">
-                        {paymentData.currency} {amountInExcess.toFixed(2)}
+                        {paymentData.currency}{" "}
+                        {(Number(paymentData.amountReceived) || 0).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -441,7 +401,7 @@ const PaymentForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-8 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+      <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
         <Button
           onClick={() => {
             router.push("/payments");

@@ -39,7 +39,7 @@ export class Template {
   padding!: number;
 
   // Colors
-  @Column({ default: "#FF9608" }) primaryColor!: string;
+  @Column({ default: "#1AA3FF" }) primaryColor!: string;
   @Column({ default: "#075056" }) secondaryColor!: string;
   @Column({ default: "#ffffff" }) backgroundColor!: string;
   @Column({ default: "#FBBF24" }) accentColor!: string;
@@ -47,8 +47,8 @@ export class Template {
   @Column({ default: "#075056" }) billToColor!: string;
   @Column({ default: "#075056" }) previousDueColor!: string;
   @Column({ default: "#1f2937" }) textColor!: string;
-  @Column({ default: "#FF9608" }) headerTextColor!: string;
-  @Column({ default: "#FF9608" }) tableHeaderBgColor!: string;
+  @Column({ default: "#1AA3FF" }) headerTextColor!: string;
+  @Column({ default: "#1AA3FF" }) tableHeaderBgColor!: string;
   @Column({ default: "#ffffff" }) tableHeaderTextColor!: string;
   @Column({ default: "#fffbeb" }) tableRowColor!: string;
   @Column({ default: "#ffffff" }) tableAltRowColor!: string;

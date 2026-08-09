@@ -1062,7 +1062,7 @@ const TemplateForm: React.FC = () => {
                 <div className="space-y-3">
                   <ColorInput
                     label="Background"
-                    value={formData.tableHeaderBgColor || "#FF9608"}
+                    value={formData.tableHeaderBgColor || "#1AA3FF"}
                     onChange={(v) => handleChange("tableHeaderBgColor", v)}
                   />
                   <ColorInput

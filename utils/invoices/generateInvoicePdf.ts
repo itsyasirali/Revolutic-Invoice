@@ -53,7 +53,7 @@ export const generateInvoicePDF = (
     try {
       const template = invoice.template;
 
-      const primaryColor = template?.primaryColor || "#FF9608";
+      const primaryColor = template?.primaryColor || "#1AA3FF";
       const secondaryColor = template?.secondaryColor || "#075056";
       const accentColor = template?.accentColor || "#FBBF24";
       const textColor = template?.textColor || "#1f2937";
