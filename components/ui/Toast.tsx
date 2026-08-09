@@ -66,14 +66,14 @@ const toastIcons: Record<ToastType, React.ReactNode> = {
   success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
   error: <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />,
   warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-  info: <Info className="w-5 h-5 text-cyan-500 shrink-0" />,
+  info: <Info className="w-5 h-5 text-primary shrink-0" />,
 };
 
 const toastStyles: Record<ToastType, string> = {
   success: "bg-white border-emerald-200 text-slate-800 shadow-emerald-500/10",
   error: "bg-white border-rose-200 text-slate-800 shadow-rose-500/10",
   warning: "bg-white border-amber-200 text-slate-800 shadow-amber-500/10",
-  info: "bg-white border-cyan-200 text-slate-800 shadow-cyan-500/10",
+  info: "bg-white border-primary/20 text-slate-800 shadow-primary/10",
 };
 
 export const ToastContainer: React.FC = () => {

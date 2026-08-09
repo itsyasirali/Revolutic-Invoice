@@ -158,7 +158,7 @@ const PaymentForm: React.FC = () => {
                   </label>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-bold text-cyan-600 uppercase tracking-wider">
+                    <label className="block text-xs font-bold text-primary uppercase tracking-wider">
                       Amount Received
                     </label>
                     <div className="md:col-span-2">
@@ -188,7 +188,7 @@ const PaymentForm: React.FC = () => {
                             id="payAllRemaining"
                             checked={payAllRemaining}
                             onChange={handlePayAllRemainingToggle}
-                            className="w-4 h-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500 cursor-pointer"
+                            className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
                           />
                           <label
                             htmlFor="payAllRemaining"
@@ -232,7 +232,7 @@ const PaymentForm: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-bold text-cyan-600 uppercase tracking-wider">
+                    <label className="block text-xs font-bold text-primary uppercase tracking-wider">
                       Payment Date
                     </label>
                     <Input
