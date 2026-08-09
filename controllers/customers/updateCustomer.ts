@@ -16,14 +16,20 @@ const updateCustomer = async (
 ) => {
   const { id } = await params;
 
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  if (!token?.id) {
+    return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+  }
+
   try {
     const parsedId = parseInt(id);
+    const userId = parseInt(token.id as string, 10);
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
     const existingCustomer = await customersRepository.findOne({
-      where: { id: parsedId },
+      where: { id: parsedId, userId },
     });
     if (!existingCustomer) {
       return NextResponse.json(
