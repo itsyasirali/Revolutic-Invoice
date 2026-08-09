@@ -19,8 +19,6 @@ export const DashboardMain = async () => {
         <span className="text-primary font-medium cursor-pointer">
           Dashboard
         </span>
-        <span className="text-gray-400 mx-2">/</span>
-        <span className="text-gray-600">Sales</span>
       </div>
       <ReceivablesCard receivables={receivables} />
       <SalesExpensesChart initialData={salesExpensesData} />
