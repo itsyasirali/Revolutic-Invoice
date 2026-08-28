@@ -6,11 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "docker:db": "docker compose up -d postgres",
-    "docker:up": "docker compose up --build -d",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "lint": "eslint"
   },
   "dependencies": {
     "@auth/typeorm-adapter": "^2.11.3",

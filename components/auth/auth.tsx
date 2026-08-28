@@ -91,7 +91,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                 : "or use your Revolutic account"}
             </p>
 
-            <div className="w-full max-w-75 space-y-3">
+            <div className="w-full max-w-[300px] space-y-3">
               {isSignup && (
                 <Input
                   placeholder="Name"
@@ -99,7 +99,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   onChange={(e) => setName(e.target.value)}
                   onKeyPress={handleKeyPress}
                   fullWidth
-                  className="!py-3 px-4! text-sm animate-fade-in"
+                  className="!bg-slate-100 border-none rounded-md !py-3 !px-4 text-sm animate-fade-in"
                   showLabel={false}
                   rightIcon={User}
                 />
@@ -111,7 +111,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 fullWidth
-                className="!py-3 !px-4 text-sm"
+                className="!bg-slate-100 border-none rounded-md !py-3 !px-4 text-sm"
                 showLabel={false}
                 rightIcon={Mail}
               />
@@ -123,7 +123,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 fullWidth
-                className="!py-3 !px-4 text-sm"
+                className="!bg-slate-100 border-none rounded-md !py-3 !px-4 text-sm"
                 showLabel={false}
                 rightIcon={Lock}
               />
@@ -136,7 +136,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   fullWidth
-                  className="!py-3 !px-4 text-sm animate-fade-in"
+                  className="!bg-slate-100 border-none rounded-md !py-3 !px-4 text-sm animate-fade-in"
                   showLabel={false}
                   rightIcon={Lock}
                 />

@@ -10,9 +10,6 @@ const nextConfig: NextConfig = {
   // runtime) don't survive webpack/turbopack bundling — keep them as real
   // Node `require()`s in Route Handlers instead of being bundled.
   serverExternalPackages: ["typeorm", "bcrypt", "pdfkit", "pg"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
 };
 
 export default nextConfig;
