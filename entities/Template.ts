@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { User } from "./User";
+import type { User } from "./User";
 
 @Entity("templates")
 export class Template {
@@ -166,7 +166,7 @@ export class Template {
   @Column({ default: "left" }) contentAlignment!: string; // 'left' | 'center' | 'justify'
 
   // Relationships
-  @ManyToOne(() => User)
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 

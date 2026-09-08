@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { Payment } from "./Payment";
-import { Invoice } from "./Invoice";
+import type { Payment } from "./Payment";
+import type { Invoice } from "./Invoice";
 
 @Entity("payment_applied_invoices")
 export class PaymentAppliedInvoice {
@@ -15,8 +15,8 @@ export class PaymentAppliedInvoice {
   id!: number;
 
   @ManyToOne(
-    () => Payment,
-    (payment) => payment.appliedInvoices,
+    "payments",
+    "appliedInvoices",
     {
       onDelete: "CASCADE",
     },
@@ -27,7 +27,7 @@ export class PaymentAppliedInvoice {
   @Column()
   paymentId!: number;
 
-  @ManyToOne(() => Invoice)
+  @ManyToOne("invoices")
   @JoinColumn({ name: "invoiceId" })
   invoice!: Invoice;
 

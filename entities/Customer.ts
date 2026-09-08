@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { User } from "./User";
+import type { User } from "./User";
 
 @Entity("customers")
 export class Customer {
@@ -47,7 +47,7 @@ export class Customer {
     contact?: string;
   }[];
 
-  @ManyToOne(() => User)
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 

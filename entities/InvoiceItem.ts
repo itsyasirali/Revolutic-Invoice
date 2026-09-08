@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { Invoice } from "./Invoice";
-import { Item } from "./Item";
+import type { Invoice } from "./Invoice";
+import type { Item } from "./Item";
 
 @Entity("invoice_items")
 export class InvoiceItem {
@@ -29,7 +29,7 @@ export class InvoiceItem {
   @Column("decimal", { precision: 12, scale: 2 })
   amount!: number;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.items, {
+  @ManyToOne("invoices", "items", {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "invoiceId" })
@@ -38,7 +38,7 @@ export class InvoiceItem {
   @Column()
   invoiceId!: number;
 
-  @ManyToOne(() => Item, { nullable: true })
+  @ManyToOne("items", { nullable: true })
   @JoinColumn({ name: "itemId" })
   item!: Item;
 

@@ -9,10 +9,10 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
-import { User } from "./User";
-import { Customer } from "./Customer";
-import { Template } from "./Template";
-import { InvoiceItem } from "./InvoiceItem";
+import type { User } from "./User";
+import type { Customer } from "./Customer";
+import type { Template } from "./Template";
+import type { InvoiceItem } from "./InvoiceItem";
 
 @Entity("invoices")
 export class Invoice {
@@ -59,28 +59,28 @@ export class Invoice {
   discountPercent!: number;
 
   // Relationships
-  @ManyToOne(() => User)
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 
   @Column()
   userId!: number;
 
-  @ManyToOne(() => Customer)
+  @ManyToOne("customers")
   @JoinColumn({ name: "customerId" })
   customer!: Customer;
 
   @Column()
   customerId!: number;
 
-  @ManyToOne(() => Template, { nullable: true, onDelete: "SET NULL" })
+  @ManyToOne("templates", { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "templateId" })
   template!: Template;
 
   @Column({ type: "integer", nullable: true })
   templateId!: number | null;
 
-  @OneToMany(() => InvoiceItem, (item) => item.invoice, { cascade: true })
+  @OneToMany("invoice_items", "invoice", { cascade: true })
   items!: InvoiceItem[];
 
   @CreateDateColumn()

@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { User } from "./User";
+import type { User } from "./User";
 
 @Entity("items")
 export class Item {
@@ -31,7 +31,7 @@ export class Item {
   status!: string; // 'Active' | 'inActive'
 
   // Establishing relationship with User
-  @ManyToOne(() => User)
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 
