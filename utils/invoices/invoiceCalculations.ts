@@ -2,7 +2,7 @@
 // Same math, same rounding behavior, same defaulting rules.
 
 export interface InvoiceItem {
-  itemId?: string;
+  itemId?: string | number | null;
   title?: string;
   description?: string;
   quantity: number;

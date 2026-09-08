@@ -386,22 +386,33 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     return `${amount.toFixed(2)} ${activeInvoice.currency}`;
   };
 
-  const getCellValue = (item: InvoiceItemData & { index?: number; itemName?: string; description?: string; quantity?: number; rate?: number; amount?: number }, key: string): string | number => {
+  const getCellValue = (
+    item: any,
+    key: string
+  ): React.ReactNode => {
     switch (key) {
       case "index":
-        return item.index;
+        return item.index ?? "";
       case "itemName":
-        return item.itemName;
+        return item.itemName ?? "";
       case "description":
-        return item.description;
+        return item.description ?? "";
       case "quantity":
-        return Number(item.quantity).toFixed(2);
+        return item.quantity !== undefined && item.quantity !== null
+          ? Number(item.quantity).toFixed(2)
+          : "";
       case "rate":
-        return item.rate;
+        return item.rate !== undefined && item.rate !== null ? item.rate : "";
       case "amount":
-        return Number(item.amount).toFixed(2);
-      default:
-        return item[key] || "";
+        return item.amount !== undefined && item.amount !== null
+          ? Number(item.amount).toFixed(2)
+          : "";
+      default: {
+        const val = item[key];
+        if (val === undefined || val === null) return "";
+        if (typeof val === "object") return "";
+        return String(val);
+      }
     }
   };
 

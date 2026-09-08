@@ -10,7 +10,7 @@ import {
   MissingMailConfigError,
 } from "@/lib/mailer";
 import { createInvoiceRecord, InvoiceOperationError } from "./createInvoice";
-import type { SendInvoicePayload } from "@/types/invoice";
+import type { CreateInvoicePayload, SendInvoicePayload } from "@/types/invoice";
 
 const sendInvoice = async (
   req: NextRequest,
@@ -41,7 +41,10 @@ const sendInvoice = async (
           { status: 500 },
         );
       }
-      const newInvoice = await createInvoiceRecord(parsedUserId, invoiceData);
+      const newInvoice = await createInvoiceRecord(
+        parsedUserId,
+        invoiceData as CreateInvoicePayload,
+      );
       invoiceId = Number(newInvoice.id);
     }
 

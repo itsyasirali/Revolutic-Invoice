@@ -46,7 +46,7 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
 
   useEffect(() => {
     const navPayment = id ? getNavState<any>(`payment:${id}`) : null;
-    let paymentSource = navPayment;
+    const paymentSource = navPayment;
 
     if (paymentSource) {
       setPaymentData({

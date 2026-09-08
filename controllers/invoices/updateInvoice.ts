@@ -80,6 +80,10 @@ const updateInvoice = async (
 
     if (customerId) finalDataset["customerId"] = customerId;
     if (templateId !== undefined) finalDataset["templateId"] = templateId || null; // Also align templateId
+    if (finalDataset["invoiceDate"])
+      finalDataset["invoiceDate"] = new Date(finalDataset["invoiceDate"] as string);
+    if (finalDataset["dueDate"])
+      finalDataset["dueDate"] = new Date(finalDataset["dueDate"] as string);
 
     Object.assign(invoice, finalDataset);
 

@@ -68,6 +68,8 @@ export const createInvoiceRecord = async (
   const invoice = invoiceRepository.create({
     ...invoiceData,
     ...calculatedData,
+    invoiceDate: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate) : new Date(),
+    dueDate: invoiceData.dueDate ? new Date(invoiceData.dueDate) : undefined,
     items:
       items?.map((item) => ({
         itemId: item.itemId || null, // Ensure itemId is handled
@@ -81,7 +83,7 @@ export const createInvoiceRecord = async (
     customerId,
     templateId: finalTemplateId || null,
     status: "Draft",
-  } as Partial<Invoice>);
+  } as unknown as Invoice);
 
   const savedInvoice = (await invoiceRepository.save(invoice)) as unknown as Invoice;
 

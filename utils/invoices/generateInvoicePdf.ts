@@ -19,9 +19,9 @@ export interface InvoiceItemPdf {
 }
 
 export interface ColumnConfig {
-  key: string;
-  label: string;
-  width: number;
+  key?: string;
+  label?: string;
+  width?: number | string;
   align?: "left" | "center" | "right" | "justify";
   visible?: boolean;
   enabled?: boolean;
@@ -31,13 +31,15 @@ export interface ColumnConfig {
   w?: number;
 }
 
+export interface ExtendedCustomer extends Partial<Customer> {
+  receivables?: number;
+  firstName?: string;
+  companyName?: string;
+}
+
 interface ExtendedInvoice
   extends Omit<Invoice, "customer" | "template" | "items" | "previousRemaining"> {
-  customer?: Customer & {
-    receivables?: number;
-    firstName?: string;
-    companyName?: string;
-  };
+  customer?: ExtendedCustomer;
   template?: Template;
   items?: InvoiceItemPdf[];
   currentReceivables?: number;
@@ -92,7 +94,7 @@ export const generateInvoicePDF = (
         return `${numAmount.toFixed(2)} ${currency}`;
       };
 
-      const customer = invoice.customer || ({} as Partial<Customer>);
+      const customer = (invoice.customer || {}) as ExtendedCustomer;
 
       const previousRemaining = Number(invoice.previousRemaining) || 0;
       const subTotal = Number(invoice.subTotal) || 0;
@@ -304,23 +306,33 @@ export const generateInvoicePDF = (
           }
         }
 
-        let activeColumns: ColumnConfig[] = [];
+        let activeColumns: {
+          key: string;
+          label: string;
+          width: number;
+          align: "left" | "center" | "right" | "justify";
+        }[] = [];
         if (Array.isArray(columns) && columns.length > 0) {
-          activeColumns = columns
-            .filter((c: ColumnConfig) => c.visible !== false && c.enabled !== false)
-            .map((c: ColumnConfig) => ({
-              key: c.columnName || c.key,
-              label: c.label,
-              width: Number(c.width),
-              align: c.alignment || c.align,
+          activeColumns = (columns as any[])
+            .filter((c) => c.visible !== false && c.enabled !== false)
+            .map((c) => ({
+              key: String(c.columnName || c.key || ""),
+              label: String(c.label || ""),
+              width: Number(c.width) || 50,
+              align: (c.alignment || c.align || "left") as "left" | "center" | "right" | "justify",
             }));
         } else {
-          activeColumns = defaultColumns as ColumnConfig[];
+          activeColumns = defaultColumns as {
+            key: string;
+            label: string;
+            width: number;
+            align: "left" | "center" | "right" | "justify";
+          }[];
         }
 
         const availableWidth = 525;
         const totalRequestedWidth = activeColumns.reduce(
-          (sum: number, col: ColumnConfig) => sum + (Number(col.width) || 50),
+          (sum: number, col) => sum + (Number(col.width) || 50),
           0,
         );
 
