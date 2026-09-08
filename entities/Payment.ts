@@ -9,10 +9,10 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
-import type { User } from "./User";
-import type { Customer } from "./Customer";
-import type { Template } from "./Template";
-import type { PaymentAppliedInvoice } from "./PaymentAppliedInvoice";
+import { User } from "./User";
+import { Customer } from "./Customer";
+import { Template } from "./Template";
+import { PaymentAppliedInvoice } from "./PaymentAppliedInvoice";
 
 @Entity("payments")
 export class Payment {
@@ -28,14 +28,14 @@ export class Payment {
   @Column({ nullable: true })
   referenceNo!: string;
 
-  @ManyToOne("User")
+  @ManyToOne(() => User)
   @JoinColumn({ name: "userId" })
   user!: User;
 
   @Column()
   userId!: number;
 
-  @ManyToOne("Customer")
+  @ManyToOne(() => Customer)
   @JoinColumn({ name: "customerId" })
   customer!: Customer;
 
@@ -48,7 +48,7 @@ export class Payment {
   @Column({ nullable: true })
   customerEmail!: string;
 
-  @ManyToOne("Template", { nullable: true })
+  @ManyToOne(() => Template, { nullable: true })
   @JoinColumn({ name: "templateId" })
   template!: Template;
 
@@ -77,8 +77,8 @@ export class Payment {
   notes!: string;
 
   @OneToMany(
-    "PaymentAppliedInvoice",
-    "payment",
+    () => PaymentAppliedInvoice,
+    (appliedInvoice) => appliedInvoice.payment,
     {
       cascade: true,
     },
