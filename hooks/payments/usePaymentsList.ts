@@ -14,7 +14,7 @@ export const PAYMENT_MODE_FILTERS = [
   "Other",
 ] as const;
 
-const usePaymentsList = (): UsePaymentsListReturn => {
+const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => {
   const router = useRouter();
   const {
     payments,
@@ -23,7 +23,7 @@ const usePaymentsList = (): UsePaymentsListReturn => {
     mutating,
     mutateError,
     refetch,
-  } = usePaymentsData();
+  } = usePaymentsData(initialPayments);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [modeFilter, setModeFilter] = useState<

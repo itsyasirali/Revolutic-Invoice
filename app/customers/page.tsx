@@ -1,11 +1,12 @@
-import { Suspense } from "react";
 import CustomerList from "@/components/customer/CustomerList";
-import TableSkeleton from "@/components/ui/TableSkeleton";
+import fetchCustomersForUser from "@/lib/services/customersService";
+import { getServerSessionUser } from "@/lib/session";
 
-const CustomersPage = () => (
-  <Suspense fallback={<TableSkeleton title="Customers" columns={5} rows={6} />}>
-    <CustomerList />
-  </Suspense>
-);
+const CustomersPage = async () => {
+  const user = await getServerSessionUser();
+  const customers = user?.id ? await fetchCustomersForUser(Number(user.id)) : [];
+
+  return <CustomerList initialCustomers={customers} />;
+};
 
 export default CustomersPage;

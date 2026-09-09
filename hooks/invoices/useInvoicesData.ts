@@ -92,11 +92,18 @@ type ListFilters = {
   endDate?: string;
 };
 
-export default function useInvoicesList(filters: ListFilters = {}) {
-  const [items, setItems] = useState<UIInvoiceListItem[]>([]);
+export default function useInvoicesList(
+  filters: ListFilters = {},
+  initialInvoices?: any[],
+) {
+  const [items, setItems] = useState<UIInvoiceListItem[]>(
+    initialInvoices ? initialInvoices.map(mapDoc) : [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [rawInvoices, setRawInvoices] = useState<RawDoc[]>([]);
+  const [rawInvoices, setRawInvoices] = useState<RawDoc[]>(
+    initialInvoices || [],
+  );
 
   const fetchList = useCallback(async () => {
     setLoading(true);
@@ -125,8 +132,10 @@ export default function useInvoicesList(filters: ListFilters = {}) {
   }, [filters.status, filters.customerId, filters.startDate, filters.endDate]);
 
   useEffect(() => {
-    fetchList();
-  }, [fetchList]);
+    if (initialInvoices === undefined) {
+      fetchList();
+    }
+  }, [fetchList, initialInvoices]);
 
   const customerFinancials = useMemo(() => {
     const map = new Map<string, CustomerFinancials>();

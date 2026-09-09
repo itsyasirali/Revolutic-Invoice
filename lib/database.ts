@@ -65,9 +65,46 @@ const ENTITIES = [
   }
 });
 
+const ensureFindMetadataPatch = (ds: DataSource) => {
+  if ((ds as any).__findMetadataPatched) return;
+  (ds as any).__findMetadataPatched = true;
+
+  const origFindMetadata = (ds as any).findMetadata.bind(ds);
+  (ds as any).findMetadata = function (target: any) {
+    const result = origFindMetadata(target);
+    if (result) return result;
+
+    if (typeof target === "function" && target.name) {
+      const meta = ds.entityMetadatas.find(
+        (m) =>
+          m.name === target.name ||
+          m.targetName === target.name ||
+          m.tableName === target.name
+      );
+      if (meta) {
+        ds.entityMetadatasMap.set(target, meta);
+        return meta;
+      }
+    }
+
+    if (typeof target === "string") {
+      const meta = ds.entityMetadatas.find(
+        (m) =>
+          m.name === target ||
+          m.targetName === target ||
+          m.tableName === target
+      );
+      if (meta) return meta;
+    }
+
+    return undefined;
+  };
+};
+
 export const getDatabase = async (): Promise<DataSource> => {
   // Fast-path: return cached and initialized DataSource immediately
   if (globalForDb.dataSource?.isInitialized) {
+    ensureFindMetadataPatch(globalForDb.dataSource);
     return globalForDb.dataSource;
   }
 
@@ -138,6 +175,7 @@ export const getDatabase = async (): Promise<DataSource> => {
               (typeof meta.target === "function" ? meta.target.name : String(meta.target));
           }
         });
+        ensureFindMetadataPatch(ds);
         console.log("[Database] Connected successfully.");
         return ds;
       })

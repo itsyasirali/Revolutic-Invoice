@@ -14,7 +14,11 @@ import {
 import useCustomerList from "@/hooks/customers/useCustomerList";
 import type { Customer } from "@/types/customer";
 
-const CustomerList: React.FC = () => {
+interface CustomerListProps {
+  initialCustomers?: Customer[];
+}
+
+const CustomerList = ({ initialCustomers }: CustomerListProps) => {
   const {
     loading,
     statusFilter,
@@ -39,7 +43,7 @@ const CustomerList: React.FC = () => {
     onSelectRow,
     searchQuery,
     setSearchQuery,
-  } = useCustomerList();
+  } = useCustomerList(initialCustomers);
 
   // Table column definitions
   const columns = [

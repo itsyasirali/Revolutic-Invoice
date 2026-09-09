@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "@/lib/axios";
 import type { Payment, UpdatePaymentPayload, UsePaymentsReturn } from "@/types/payment";
 
-const usePaymentsData = (): UsePaymentsReturn => {
-  const [payments, setPayments] = useState<Payment[]>([]);
+const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
+  const [payments, setPayments] = useState<Payment[]>(initialPayments || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mutating, setMutating] = useState(false);
@@ -81,8 +81,10 @@ const usePaymentsData = (): UsePaymentsReturn => {
   }, []);
 
   useEffect(() => {
-    fetchPayments();
-  }, [fetchPayments]);
+    if (initialPayments === undefined) {
+      fetchPayments();
+    }
+  }, [fetchPayments, initialPayments]);
 
   return {
     payments,

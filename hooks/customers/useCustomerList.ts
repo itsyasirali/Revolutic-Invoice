@@ -6,7 +6,9 @@ import useUpdateCustomerStatus from "./useCustomerUpdateStatus";
 import useDeleteCustomer from "./useCustomerDelete";
 import useCustomerActions from "./useCustomerActions";
 
-export const useCustomerList = () => {
+import type { Customer } from "@/types/customer";
+
+export const useCustomerList = (initialCustomers?: Customer[]) => {
   const {
     loading,
     refetch,
@@ -19,7 +21,7 @@ export const useCustomerList = () => {
     filteredCustomers,
     searchQuery,
     setSearchQuery,
-  } = useCustomerData();
+  } = useCustomerData({ initialCustomers });
 
   const {
     updateStatus,

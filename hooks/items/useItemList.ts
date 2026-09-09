@@ -7,8 +7,10 @@ import useUpdateItemStatus from "./useItemUpdateStatus";
 import useDeleteItems from "./useItemsDelete";
 import useItemActions from "./useItemActions";
 
-export const useItemList = () => {
-  const { items, loading, refetch } = useItemsData();
+import type { Item } from "@/types/item";
+
+export const useItemList = (initialItems?: Item[]) => {
+  const { items, loading, refetch } = useItemsData(initialItems);
   const {
     updateStatus,
     loading: statusLoading,

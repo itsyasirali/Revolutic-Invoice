@@ -13,7 +13,11 @@ import {
 import useItemList from "@/hooks/items/useItemList";
 import type { Item } from "@/types/item";
 
-const ItemList: React.FC = () => {
+interface ItemListProps {
+  initialItems?: Item[];
+}
+
+const ItemList = ({ initialItems }: ItemListProps) => {
   const {
     loading,
     statusFilter,
@@ -36,7 +40,7 @@ const ItemList: React.FC = () => {
     handleRowClick,
     onSelectAll,
     onSelectRow,
-  } = useItemList();
+  } = useItemList(initialItems);
 
   // Table columns
   const columns = [

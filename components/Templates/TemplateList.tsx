@@ -10,10 +10,16 @@ import useCloneTemplate from "@/hooks/templates/useCloneTemplate";
 import { Button, ConfirmDialog, EmptyState, PageHeader } from "@/components/ui";
 import TemplateCard from "./TemplateCard";
 import TemplatePreviewModal from "./TemplatePreviewModal";
+import type { TemplateListItem } from "@/types/template";
 
-const TemplateList: React.FC = () => {
+interface TemplateListProps {
+  initialTemplates?: TemplateListItem[];
+}
+
+const TemplateList = ({ initialTemplates }: TemplateListProps) => {
   const router = useRouter();
-  const { loading, error, refetch, filteredTemplates } = useTemplatesList();
+  const { loading, error, refetch, filteredTemplates } =
+    useTemplatesList(initialTemplates);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const {

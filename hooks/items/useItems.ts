@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "@/lib/axios";
 import type { Item } from "@/types/item";
 
-const useItemsData = () => {
-  const [items, setItems] = useState<Item[]>([]);
+const useItemsData = (initialItems?: Item[]) => {
+  const [items, setItems] = useState<Item[]>(initialItems || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,8 +32,10 @@ const useItemsData = () => {
   }, []);
 
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+    if (initialItems === undefined) {
+      fetchItems();
+    }
+  }, [fetchItems, initialItems]);
 
   return { items, loading, error, refetch: fetchItems };
 };

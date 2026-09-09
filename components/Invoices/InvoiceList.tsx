@@ -12,7 +12,11 @@ import {
 import useInvoiceList from "@/hooks/invoices/useInvoiceList";
 import type { UIInvoiceListItem } from "@/hooks/invoices/useInvoicesData";
 
-const InvoiceList = () => {
+interface InvoiceListProps {
+  initialInvoices?: any[];
+}
+
+const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
   const {
     filteredInvoices,
     selectedIds,
@@ -33,7 +37,7 @@ const InvoiceList = () => {
     confirmDelete,
     hideConfirmDialog,
     dismissAlert,
-  } = useInvoiceList();
+  } = useInvoiceList(initialInvoices);
 
   const columns = useMemo(
     () => [

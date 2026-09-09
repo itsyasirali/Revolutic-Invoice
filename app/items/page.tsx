@@ -1,11 +1,12 @@
-import { Suspense } from "react";
 import ItemList from "@/components/Items/ItemList";
-import TableSkeleton from "@/components/ui/TableSkeleton";
+import fetchItemsForUser from "@/lib/services/itemsService";
+import { getServerSessionUser } from "@/lib/session";
 
-const ItemsPage = () => (
-  <Suspense fallback={<TableSkeleton title="All Items" columns={5} rows={6} />}>
-    <ItemList />
-  </Suspense>
-);
+const ItemsPage = async () => {
+  const user = await getServerSessionUser();
+  const items = user?.id ? await fetchItemsForUser(Number(user.id)) : [];
+
+  return <ItemList initialItems={items} />;
+};
 
 export default ItemsPage;

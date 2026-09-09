@@ -140,42 +140,7 @@ export const Table = <T,>({
 
           {/* Body */}
           <tbody>
-            {loading && data.length === 0 ? (
-              Array.from({ length: 4 }).map((_, rIdx) => (
-                <tr key={`loading-row-${rIdx}`} className={styles.tr}>
-                  {showCheckbox && (
-                    <td className="px-4 py-3.5 text-center">
-                      <div className="w-4 h-4 rounded bg-slate-200 animate-pulse mx-auto" />
-                    </td>
-                  )}
-                  {columns.map((column, cIdx) => (
-                    <td
-                      key={`loading-col-${cIdx}`}
-                      className={`px-4 py-3.5 ${styles.td}`}
-                    >
-                      <div
-                        className="h-4 rounded bg-slate-100 animate-pulse"
-                        style={{
-                          width:
-                            cIdx === 0
-                              ? "55%"
-                              : cIdx === 1
-                                ? "40%"
-                                : cIdx === 2
-                                  ? "30%"
-                                  : "50%",
-                        }}
-                      />
-                    </td>
-                  ))}
-                  {rowActions && (
-                    <td className="px-4 py-3.5 text-center">
-                      <div className="w-8 h-4 rounded bg-slate-100 animate-pulse mx-auto" />
-                    </td>
-                  )}
-                </tr>
-              ))
-            ) : data.length === 0 ? (
+            {data.length === 0 ? (
               <tr>
                 <td
                   colSpan={

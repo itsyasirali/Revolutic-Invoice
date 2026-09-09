@@ -8,9 +8,15 @@ import type {
   UseTemplatesListReturn,
 } from "@/types/template";
 
-const useTemplatesList = (): UseTemplatesListReturn => {
-  const [templates, setTemplates] = useState<TemplateListItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const useTemplatesList = (
+  initialTemplates?: TemplateListItem[],
+): UseTemplatesListReturn => {
+  const [templates, setTemplates] = useState<TemplateListItem[]>(
+    initialTemplates || [],
+  );
+  const [loading, setLoading] = useState<boolean>(
+    initialTemplates ? false : true,
+  );
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -21,15 +27,22 @@ const useTemplatesList = (): UseTemplatesListReturn => {
 
       const response = await axios.get(`/templates`);
 
-      const templatesData: Template[] = response.data;
+      const rawData = response.data;
+      const templatesData: Template[] = Array.isArray(rawData)
+        ? rawData
+        : Array.isArray(rawData?.templates)
+          ? rawData.templates
+          : [];
 
       const listItems: TemplateListItem[] = templatesData.map((template) => ({
-        id: template.id.toString(),
-        name: template.templateName,
-        paperSize: template.paperSize,
-        orientation: template.orientation,
-        isDefault: template.isDefault,
-        createdAt: new Date(template.createdAt || "").toLocaleDateString(),
+        id: (template.id ?? "").toString(),
+        name: template.templateName || "Untitled Template",
+        paperSize: template.paperSize || "A4",
+        orientation: template.orientation || "portrait",
+        isDefault: Boolean(template.isDefault),
+        createdAt: template.createdAt
+          ? new Date(template.createdAt).toLocaleDateString()
+          : "",
         raw: template,
       }));
 
@@ -43,8 +56,10 @@ const useTemplatesList = (): UseTemplatesListReturn => {
   };
 
   useEffect(() => {
-    fetchTemplates();
-  }, []);
+    if (initialTemplates === undefined) {
+      fetchTemplates();
+    }
+  }, [initialTemplates]);
 
   const filteredTemplates = useMemo(() => {
     if (!searchTerm.trim()) {

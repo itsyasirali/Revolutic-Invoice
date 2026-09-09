@@ -6,11 +6,17 @@ import axios from "@/lib/axios";
 import type { Customer } from "@/types/customer";
 
 const useCustomerData = (
-  options: { fetchOnMount?: boolean } = { fetchOnMount: true },
+  options: { fetchOnMount?: boolean; initialCustomers?: Customer[] } = {
+    fetchOnMount: true,
+  },
 ) => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  // Initialize loading to true if we are going to fetch on mount to avoid cascading renders
-  const [loading, setLoading] = useState(options.fetchOnMount ?? true);
+  const [customers, setCustomers] = useState<Customer[]>(
+    options.initialCustomers || [],
+  );
+  // Initialize loading to true only if we don't have initialCustomers and are going to fetch on mount
+  const [loading, setLoading] = useState(
+    options.initialCustomers ? false : (options.fetchOnMount ?? true),
+  );
   const [statusFilter, setStatusFilter] = useState("All");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -34,11 +40,11 @@ const useCustomerData = (
   }, []);
 
   useEffect(() => {
-    if (options.fetchOnMount) {
+    if (options.initialCustomers === undefined && options.fetchOnMount) {
       // Execute as a microtask to avoid synchronous execution warnings
       Promise.resolve().then(() => fetchCustomers(true));
     }
-  }, [fetchCustomers, options.fetchOnMount]);
+  }, [fetchCustomers, options.fetchOnMount, options.initialCustomers]);
 
   const filteredCustomers = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();

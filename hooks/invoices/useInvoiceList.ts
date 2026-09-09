@@ -6,8 +6,8 @@ import useInvoicesData, { type UIInvoiceListItem } from "./useInvoicesData";
 import useDeleteInvoices from "./useDeleteInvoices";
 import useInvoiceActions from "./useInvoiceActions";
 
-const useInvoiceList = () => {
-  const { items, loading, refetch } = useInvoicesData();
+const useInvoiceList = (initialInvoices?: any[]) => {
+  const { items, loading, refetch } = useInvoicesData({}, initialInvoices);
   const {
     deleteInvoices,
     loading: deleteLoading,

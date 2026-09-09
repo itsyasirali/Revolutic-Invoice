@@ -1,7 +1,7 @@
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 
-export async function getCurrencyRates() {
+const getCurrencyRates = async () => {
   try {
     const res = await fetch("https://api.exchangerate-api.com/v4/latest/PKR", { next: { revalidate: 3600 } });
     const data = await res.json();
@@ -14,14 +14,14 @@ export async function getCurrencyRates() {
   } catch {
     return { PKR: 1, USD: 278, EUR: 305, GBP: 355 };
   }
-}
+};
 
-export function convertToPKR(amount: number, currency: string, rates: Record<string, number>) {
+const convertToPKR = (amount: number, currency: string, rates: Record<string, number>) => {
   const cur = currency?.toUpperCase() || "PKR";
   return amount * (rates[cur] || 1);
-}
+};
 
-export async function getDashboardData(userId: number) {
+const getDashboardData = async (userId: number) => {
   const db = await getDatabase();
   const invoiceRepo = db.getRepository(Invoice);
   
@@ -157,4 +157,6 @@ export async function getDashboardData(userId: number) {
     currencyStats,
     recentInvoices,
   };
-}
+};
+
+export default getDashboardData;

@@ -14,7 +14,11 @@ import {
   ConfirmDialog,
 } from "@/components/ui";
 
-const PaymentList: React.FC = () => {
+interface PaymentListProps {
+  initialPayments?: Payment[];
+}
+
+const PaymentList = ({ initialPayments }: PaymentListProps) => {
   const { handleRowClick } = usePaymentActions();
 
   const {
@@ -37,7 +41,7 @@ const PaymentList: React.FC = () => {
     dismissAlert,
     selectedIds,
     setSelectedIds,
-  } = usePaymentsList();
+  } = usePaymentsList(initialPayments);
 
   const busy = loading || deleting;
 
