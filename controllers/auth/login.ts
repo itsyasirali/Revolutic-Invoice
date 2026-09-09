@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { encode } from "next-auth/jwt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { LoginPayload } from "@/types/auth";
-import { MOBILE_TOKEN_MAX_AGE, MOBILE_TOKEN_SALT } from "@/lib/session";
+import {
+  AUTH_COOKIE_NAME,
+  TOKEN_MAX_AGE_SECONDS,
+  signAuthToken,
+} from "@/lib/session";
 
 const login = async (req: NextRequest) => {
   try {
@@ -20,8 +23,8 @@ const login = async (req: NextRequest) => {
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
 
-    const user = await usersRepository.findOneBy({ email });
-    if (!user) {
+    const user = await usersRepository.findOneBy({ email: email.trim().toLowerCase() });
+    if (!user || !user.password) {
       return NextResponse.json(
         { message: "Invalid email or password" },
         { status: 401 },
@@ -36,27 +39,21 @@ const login = async (req: NextRequest) => {
       );
     }
 
-    const token = await encode({
-      token: {
-        id: user.id.toString(),
-        name:
-          user.name ||
-          `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-          null,
-        email: user.email,
-        companyName: user.companyName,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      secret:
-        process.env.AUTH_SECRET ||
-        process.env.NEXTAUTH_SECRET ||
-        "fallback-secret-for-development-do-not-use-in-prod",
-      salt: MOBILE_TOKEN_SALT,
-      maxAge: MOBILE_TOKEN_MAX_AGE,
-    });
+    const sessionPayload = {
+      id: user.id.toString(),
+      name:
+        user.name ||
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+        null,
+      email: user.email,
+      companyName: user.companyName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
 
-    return NextResponse.json(
+    const token = await signAuthToken(sessionPayload);
+
+    const response = NextResponse.json(
       {
         message: "Login successful",
         user: {
@@ -71,6 +68,19 @@ const login = async (req: NextRequest) => {
       },
       { status: 200 },
     );
+
+    // Set HTTP-only session cookie for Web browsers
+    response.cookies.set({
+      name: AUTH_COOKIE_NAME,
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: TOKEN_MAX_AGE_SECONDS,
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

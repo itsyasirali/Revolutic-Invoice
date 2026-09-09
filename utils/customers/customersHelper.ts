@@ -3,11 +3,11 @@ import os from "os";
 import path from "path";
 import { Contact } from "@/types/customer";
 import { SavedUpload } from "@/lib/upload";
+import { deleteCloudinaryAsset } from "@/lib/cloudinary";
 
 export const parseContactsFromBody = (
   body: Record<string, unknown>,
 ): Contact[] => {
-  // If contacts were supplied as a JSON-encoded string or already an array
   if (body.contacts) {
     if (Array.isArray(body.contacts)) {
       return body.contacts as Contact[];
@@ -43,12 +43,29 @@ export const buildDocumentPaths = (
   if (!savedFiles || !savedFiles.length) return [];
   return savedFiles
     .filter((f): f is SavedUpload => Boolean(f && f.relativePath))
-    .map((f) => f.relativePath.replace(/\\/g, "/"));
+    .map((f) => f.relativePath);
 };
 
-export const deleteFileIfExists = (relativePath: string): void => {
-  if (!relativePath) return;
+export const deleteFileIfExists = async (fileUrlOrPath: string): Promise<void> => {
+  if (!fileUrlOrPath) return;
 
+  // Cloudinary asset deletion
+  if (fileUrlOrPath.includes("cloudinary.com")) {
+    try {
+      await deleteCloudinaryAsset(fileUrlOrPath);
+      return;
+    } catch (err) {
+      console.warn(`[Upload] Could not delete Cloudinary asset at ${fileUrlOrPath}:`, err);
+      return;
+    }
+  }
+
+  // Data URI does not require deletion
+  if (fileUrlOrPath.startsWith("data:")) {
+    return;
+  }
+
+  // Legacy local disk file fallback
   const tryDelete = (fullPath: string) => {
     try {
       if (fs.existsSync(fullPath)) {
@@ -59,9 +76,6 @@ export const deleteFileIfExists = (relativePath: string): void => {
     }
   };
 
-  // Try in process.cwd() first
-  tryDelete(path.resolve(relativePath));
-  // Also try in os.tmpdir() for serverless files
-  tryDelete(path.join(os.tmpdir(), relativePath));
+  tryDelete(path.resolve(fileUrlOrPath));
+  tryDelete(path.join(os.tmpdir(), fileUrlOrPath));
 };
-

@@ -1,17 +1,17 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext";
 
-interface User {
-  id: string;
-  name?: string;
-  firstName?: string;
-  lastName?: string;
+export interface User {
+  id: string | number;
+  name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   email: string;
-  companyName?: string;
+  companyName?: string | null;
 }
 
-interface UseProfileReturn {
+export interface UseProfileReturn {
   user: User | null;
   loading: boolean;
   error: string | null;
@@ -19,13 +19,13 @@ interface UseProfileReturn {
 }
 
 export const useProfile = (): UseProfileReturn => {
-  const { data: session, status, update } = useSession();
+  const { user, loading, error, refetchProfile } = useAuth();
 
   return {
-    user: session?.user as User | null,
-    loading: status === "loading",
-    error: null,
-    refetch: update as unknown as () => Promise<void>,
+    user: user as User | null,
+    loading,
+    error,
+    refetch: refetchProfile,
   };
 };
 

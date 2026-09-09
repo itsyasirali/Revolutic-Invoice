@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSession, SessionProvider } from "next-auth/react";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import LoginSignupForm from "./auth";
 
 interface AuthWrapperProps {
@@ -9,7 +9,7 @@ interface AuthWrapperProps {
 }
 
 const AuthContent: React.FC<AuthWrapperProps> = ({ children }) => {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
 
   const [showLoader, setShowLoader] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
@@ -23,11 +23,11 @@ const AuthContent: React.FC<AuthWrapperProps> = ({ children }) => {
         sessionStorage.setItem("app_has_loaded", "true");
       }
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
-  if (status === "loading") {
+  if (loading) {
     if (mounted && showLoader) {
       return (
         <div className="min-h-screen flex items-center justify-center">
@@ -43,7 +43,7 @@ const AuthContent: React.FC<AuthWrapperProps> = ({ children }) => {
     return null;
   }
 
-  if (status === "unauthenticated" || !session) {
+  if (!user) {
     return <LoginSignupForm onLoginSuccess={() => window.location.reload()} />;
   }
 
@@ -52,9 +52,9 @@ const AuthContent: React.FC<AuthWrapperProps> = ({ children }) => {
 
 export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <AuthContent>{children}</AuthContent>
-    </SessionProvider>
+    </AuthProvider>
   );
 };
 

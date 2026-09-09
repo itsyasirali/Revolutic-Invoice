@@ -10,17 +10,17 @@ import { Payment } from "@/entities/Payment";
 
 const checkDbHealth = async (): Promise<NextResponse<HealthDbResponse>> => {
   const hasHostOrUrl = Boolean(
-    process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.DB_HOST
+    process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.DB_HOST,
   );
   const host = process.env.DB_HOST
     ? process.env.DB_HOST
     : process.env.DATABASE_URL
-    ? "configured via URL"
-    : undefined;
+      ? "configured via URL"
+      : undefined;
   const hasUser = Boolean(process.env.DB_USER || process.env.DATABASE_URL);
   const hasDatabase = Boolean(process.env.DB_NAME || process.env.DATABASE_URL);
   const hasAuthSecret = Boolean(
-    process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+    process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   );
 
   const baseConfig = {
@@ -36,7 +36,7 @@ const checkDbHealth = async (): Promise<NextResponse<HealthDbResponse>> => {
     const db = await getDatabase();
     // Run a quick query to verify active connection
     const tables: { tablename: string }[] = await db.query(
-      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'",
     );
 
     // Test TypeORM repositories directly to verify entity schemas and relations
@@ -84,7 +84,7 @@ const checkDbHealth = async (): Promise<NextResponse<HealthDbResponse>> => {
         config: baseConfig,
         error: error?.message || "Unknown database connection error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

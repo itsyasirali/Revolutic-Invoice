@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { getAuthUserId } from "@/lib/session";
@@ -22,7 +21,7 @@ const updateCustomer = async (
   }
 
   try {
-    const parsedId = parseInt(id);
+    const parsedId = parseInt(id, 10);
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
@@ -88,13 +87,13 @@ const updateCustomer = async (
     const prevDocs = existingCustomer.documents || [];
     const docsToDelete = prevDocs.filter((p) => !finalDocuments.includes(p));
 
-    docsToDelete.forEach((p) => {
-      try {
-        deleteFileIfExists(p);
-      } catch (e) {
-        console.error("Failed to delete file:", p, e);
-      }
-    });
+    await Promise.all(
+      docsToDelete.map((p) =>
+        deleteFileIfExists(p).catch((e) =>
+          console.error("Failed to delete removed customer document:", p, e),
+        ),
+      ),
+    );
 
     existingCustomer.customerType = customerType ?? existingCustomer.customerType;
     existingCustomer.companyName = companyName ?? existingCustomer.companyName;

@@ -1,95 +1,105 @@
 import { NextRequest } from "next/server";
-import { getToken, JWT } from "next-auth/jwt";
+import { cookies } from "next/headers";
+import { SignJWT, jwtVerify } from "jose";
+
+export const AUTH_COOKIE_NAME = "auth_token";
+export const TOKEN_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
+export interface AuthUserSession {
+  id: string | number;
+  email: string;
+  name?: string | null;
+  companyName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  [key: string]: unknown;
+}
 
 /**
- * `next-auth/jwt`'s `getToken()` falls back to an `Authorization: Bearer <token>`
- * header when no session cookie is present, decrypting it with `salt: cookieName`.
+ * Retrieves the signing secret as a Uint8Array for jose.
  */
-export const MOBILE_TOKEN_SALT = "authjs.session-token";
-export const MOBILE_TOKEN_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
-
-/**
- * Retrieves the NextAuth secret with identical fallbacks to auth.ts
- */
-export const getAuthSecret = (): string => {
-  return (
+export const getAuthSecret = (): Uint8Array => {
+  const secretStr =
     process.env.AUTH_SECRET ||
+    process.env.JWT_SECRET ||
     process.env.NEXTAUTH_SECRET ||
-    "fallback-secret-for-development-do-not-use-in-prod"
-  );
+    "fallback-secret-for-development-do-not-use-in-prod";
+  return new TextEncoder().encode(secretStr);
 };
 
 /**
- * Resolves the authenticated JWT session token across HTTPS, HTTP, and mobile Bearer headers.
+ * Signs a standard JWT with HS256 algorithm.
  */
-export const getAuthToken = async (req: NextRequest): Promise<JWT | null> => {
+export const signAuthToken = async (
+  payload: AuthUserSession,
+  maxAgeSeconds: number = TOKEN_MAX_AGE_SECONDS,
+): Promise<string> => {
   const secret = getAuthSecret();
+  const rawId = String(payload.id);
 
-  // 1. Determine if connection is secure (direct or forwarded)
-  const proto = req.headers.get("x-forwarded-proto");
-  const isHttps = req.nextUrl.protocol === "https:" || proto === "https";
+  return new SignJWT({
+    ...payload,
+    id: rawId,
+    sub: rawId,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${maxAgeSeconds}s`)
+    .sign(secret);
+};
 
-  // Check with primary secureCookie setting based on protocol
-  let token = await getToken({
-    req,
-    secret,
-    secureCookie: isHttps,
-  });
-
-  // 2. If null, check inverse secureCookie setting (covers reverse proxy or dev HTTPS mismatches)
-  if (!token) {
-    token = await getToken({
-      req,
-      secret,
-      secureCookie: !isHttps,
-    });
+/**
+ * Verifies and decodes a JWT token. Returns null if invalid or expired.
+ */
+export const verifyAuthToken = async (
+  token: string,
+): Promise<AuthUserSession | null> => {
+  try {
+    if (!token || typeof token !== "string") return null;
+    const secret = getAuthSecret();
+    const { payload } = await jwtVerify(token, secret);
+    return payload as unknown as AuthUserSession;
+  } catch {
+    return null;
   }
+};
 
-  // 3. Fallback for specific known session cookie names
-  if (!token) {
-    const candidateCookies = [
-      "__Secure-authjs.session-token",
-      "authjs.session-token",
-      "__Secure-next-auth.session-token",
-      "next-auth.session-token",
-    ];
-    for (const cookieName of candidateCookies) {
-      if (req.cookies.has(cookieName)) {
-        try {
-          token = await getToken({
-            req,
-            secret,
-            cookieName,
-            secureCookie: cookieName.startsWith("__Secure-"),
-          });
-          if (token) break;
-        } catch {
-          // ignore decryption mismatch and try next candidate
-        }
-      }
+/**
+ * Resolves the authenticated user session from NextRequest.
+ * Supports:
+ * 1. Authorization: Bearer <token> header (Mobile apps, API clients)
+ * 2. auth_token HTTP-only cookie (Web browser clients)
+ */
+export const getAuthToken = async (
+  req: NextRequest,
+): Promise<AuthUserSession | null> => {
+  // 1. Check Authorization: Bearer <token>
+  const authHeader = req.headers.get("authorization");
+  if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
+    const bearerToken = authHeader.slice(7).trim();
+    if (bearerToken) {
+      const verified = await verifyAuthToken(bearerToken);
+      if (verified) return verified;
     }
   }
 
-  // 4. Fallback for mobile / API clients using Authorization: Bearer <token>
-  if (!token) {
-    const authHeader = req.headers.get("authorization");
-    if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
-      token = await getToken({
-        req,
-        secret,
-        cookieName: MOBILE_TOKEN_SALT,
-      });
-    }
+  // 2. Check primary session cookie
+  const sessionCookie = req.cookies.get(AUTH_COOKIE_NAME)?.value;
+  if (sessionCookie) {
+    const verified = await verifyAuthToken(sessionCookie);
+    if (verified) return verified;
   }
 
-  return token;
+  return null;
 };
 
 /**
  * Resolves and validates the authenticated user ID as a positive integer.
  * Returns null if unauthenticated, missing user ID, or invalid integer.
  */
-export const getAuthUserId = async (req: NextRequest): Promise<number | null> => {
+export const getAuthUserId = async (
+  req: NextRequest,
+): Promise<number | null> => {
   const token = await getAuthToken(req);
   const rawId = token?.id || token?.sub;
   if (!rawId) {
@@ -103,3 +113,31 @@ export const getAuthUserId = async (req: NextRequest): Promise<number | null> =>
 
   return parsed;
 };
+
+/**
+ * Resolves the authenticated session inside React Server Components
+ * using cookies() from next/headers.
+ */
+export const getServerSessionUser = async (): Promise<AuthUserSession | null> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) return null;
+    return await verifyAuthToken(token);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Cookie options for setting and clearing the auth session cookie.
+ */
+export const getSessionCookieOptions = (maxAge: number = TOKEN_MAX_AGE_SECONDS) => ({
+  name: AUTH_COOKIE_NAME,
+  value: "",
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge,
+});

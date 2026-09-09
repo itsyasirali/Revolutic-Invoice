@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import axios from "@/lib/axios";
-import { signIn } from "next-auth/react";
 
 interface UseAuthFormOptions {
   onLoginSuccess?: () => void;
@@ -35,20 +34,29 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
     setLoading(true);
 
     try {
-      const response = await signIn("credentials", {
-        email,
+      const response = await axios.post("/auth/login", {
+        email: email.trim(),
         password,
-        redirect: false,
       });
 
-      if (response?.error) {
-        setError("Invalid credentials. Try again.");
-      } else if (response?.ok) {
+      if (response.data?.user) {
+        if (response.data?.token) {
+          try {
+            localStorage.setItem("auth_token", response.data.token);
+          } catch {
+            // Ignore
+          }
+        }
         resetForm();
-        onLoginSuccess?.(); // ✅ trigger auth
+        onLoginSuccess?.();
+      } else {
+        setError("Invalid credentials. Try again.");
       }
     } catch (err: unknown) {
-      setError("Login failed. Try again.");
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message || "Invalid credentials. Try again."
+        : "Login failed. Try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -66,12 +74,20 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
     setLoading(true);
 
     try {
-      await axios.post(`/auth/signup`, { name, email, password });
+      await axios.post("/auth/signup", {
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
 
       // Automatically Log in after signup
       await handleLogin();
     } catch (err: unknown) {
-      setError(axios.isAxiosError(err) ? err.response?.data?.message || "Signup failed. Try again." : "Signup failed. Try again.");
+      setError(
+        axios.isAxiosError(err)
+          ? err.response?.data?.message || "Signup failed. Try again."
+          : "Signup failed. Try again.",
+      );
       setLoading(false);
     }
   };

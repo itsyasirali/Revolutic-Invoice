@@ -223,7 +223,11 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       data.branding?.tagline || data.tagline || "digital innovation leadership",
     logoPreview:
       data.branding?.logoPreview ||
-      (data.logoUrl ? `/${data.logoUrl.replace(/^\//, "")}` : ""),
+      (data.logoUrl
+        ? data.logoUrl.startsWith("http")
+          ? data.logoUrl
+          : `/${data.logoUrl.replace(/^\//, "")}`
+        : ""),
   };
 
   const DEFAULT_COLUMNS: TableColumn[] = [

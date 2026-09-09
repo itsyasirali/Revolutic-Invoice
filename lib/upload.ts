@@ -1,25 +1,23 @@
-import { existsSync, mkdirSync } from "fs";
-import { writeFile } from "fs/promises";
-import os from "os";
 import path from "path";
+import { uploadFileToCloudinary } from "./cloudinary";
 
 export interface SavedUpload {
   filename: string;
   folder: string;
-  /** Relative path (e.g. "uploads/templates/xyz.png"), matching the shape the old Multer-based API stored/returned. */
+  /** Cloudinary HTTPS URL (or fallback path). */
   relativePath: string;
 }
 
-// Mirrors api/src/multer/multer.config.ts's destination heuristic: folder is
-// picked from a substring match on the request URL, not an explicit param.
 const resolveFolder = (requestUrl: string): string => {
   if (requestUrl.includes("templates")) return "templates";
-  if (requestUrl.includes("customer")) return "customer";
+  if (requestUrl.includes("customer")) return "customers";
   if (requestUrl.includes("invoices")) return "invoices";
   return "others";
 };
 
-/** Splits a multipart FormData into plain string fields + the Files under one field name — the Route Handler equivalent of what Multer's FilesInterceptor handed controllers as `req.body` + `req.files`. */
+/**
+ * Splits multipart FormData into string fields + File instances for a given field name.
+ */
 export const extractFormFields = (
   formData: FormData,
   fileFieldName: string,
@@ -29,7 +27,6 @@ export const extractFormFields = (
 
   for (const [key, value] of formData.entries()) {
     if (key === fileFieldName && value instanceof File) {
-      // Ignore 0-byte empty files created by HTML file inputs when no file was chosen
       if (value.size > 0 && value.name && value.name.trim().length > 0) {
         files.push(value);
       }
@@ -41,7 +38,10 @@ export const extractFormFields = (
   return { fields, files };
 };
 
-/** Multer-equivalent disk write for a single uploaded File (Route Handlers use request.formData() instead of Multer's Express req binding). */
+/**
+ * Uploads a single uploaded File directly to Cloudinary.
+ * Compatible with Vercel serverless environments.
+ */
 export const saveUploadedFile = async (
   file: File,
   requestUrl: string,
@@ -51,41 +51,39 @@ export const saveUploadedFile = async (
   }
 
   const folder = resolveFolder(requestUrl);
-  const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-  const filename = `${uniqueSuffix}${path.extname(file.name)}`;
-
-  // Determine target directory with fallback for read-only serverless filesystems (Vercel)
-  let uploadDir = path.join(process.cwd(), "uploads", folder);
-  try {
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, { recursive: true });
-    }
-  } catch {
-    // Fallback to /tmp when process.cwd() is read-only (e.g. AWS Lambda / Vercel)
-    uploadDir = path.join(os.tmpdir(), "uploads", folder);
-    try {
-      if (!existsSync(uploadDir)) {
-        mkdirSync(uploadDir, { recursive: true });
-      }
-    } catch (e) {
-      console.error("[Upload] Failed to create upload dir even in tmp:", e);
-      return null;
-    }
-  }
 
   try {
-    const filePath = path.join(uploadDir, filename);
+    const isCloudinaryConfigured =
+      Boolean(process.env.CLOUDINARY_URL) ||
+      Boolean(
+        process.env.CLOUDINARY_CLOUD_NAME &&
+          process.env.CLOUDINARY_API_KEY &&
+          process.env.CLOUDINARY_API_SECRET,
+      );
+
+    if (isCloudinaryConfigured) {
+      const result = await uploadFileToCloudinary(file, folder);
+      return {
+        filename: file.name,
+        folder,
+        relativePath: result.url, // Full Cloudinary HTTPS URL
+      };
+    }
+
+    // Dev fallback if Cloudinary credentials are not yet added to .env
+    console.warn(
+      "[Upload] Cloudinary credentials not detected in environment variables. Falling back to data URI for development.",
+    );
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, buffer);
-
+    const mime = file.type || "application/octet-stream";
+    const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
     return {
-      filename,
+      filename: file.name,
       folder,
-      relativePath: path.join("uploads", folder, filename).replace(/\\/g, "/"),
+      relativePath: dataUrl,
     };
-  } catch (writeErr) {
-    console.error("[Upload] Failed to write uploaded file to disk:", writeErr);
+  } catch (error) {
+    console.error("[Upload] Error saving uploaded file to Cloudinary:", error);
     return null;
   }
 };
-

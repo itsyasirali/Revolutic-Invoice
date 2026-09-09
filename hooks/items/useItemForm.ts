@@ -44,7 +44,7 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
     setAlert({ show: false, type: "info", message: "" });
   };
 
-  const handleSubmit = async (payload: ItemPayload) => {
+  const handleSubmit = async (payload: ItemPayload): Promise<boolean> => {
     setLoading(true);
     dismissAlert();
 
@@ -52,24 +52,26 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
       if (initialData?.id) {
         const res = await axios.put(`/items/${initialData.id}`, payload);
         if (res.status === 200 || res.status === 201) {
-          // Success alert suppressed as per user request
+          return true;
         } else {
           setAlert({
             show: true,
             type: "error",
             message: res.data?.message || "Failed to update item.",
           });
+          return false;
         }
       } else {
         const res = await axios.post(`/items`, payload);
         if (res.status === 200 || res.status === 201) {
-          // Success alert suppressed as per user request
+          return true;
         } else {
           setAlert({
             show: true,
             type: "error",
             message: res.data?.message || "Failed to save item.",
           });
+          return false;
         }
       }
     } catch (error: unknown) {
@@ -83,6 +85,7 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
         type: "error",
         message: err.response?.data?.message || err.message || "Failed to save item.",
       });
+      return false;
     } finally {
       setLoading(false);
     }

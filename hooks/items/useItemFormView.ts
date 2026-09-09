@@ -54,8 +54,10 @@ export const useItemFormView = () => {
         status: (formData.get("status") as "Active" | "inActive") || "Active",
       };
 
-      await handleSubmit(payload);
-      router.push("/items");
+      const success = await handleSubmit(payload);
+      if (success) {
+        router.push("/items");
+      }
     },
     [itemType, handleSubmit, router],
   );

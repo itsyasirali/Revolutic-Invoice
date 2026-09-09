@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signOut } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext";
 
 interface UseLogoutReturn {
   logout: () => Promise<void>;
@@ -10,6 +10,7 @@ interface UseLogoutReturn {
 }
 
 export const useLogout = (): UseLogoutReturn => {
+  const { logout: doLogout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,9 +18,8 @@ export const useLogout = (): UseLogoutReturn => {
     try {
       setLoading(true);
       setError(null);
-      localStorage.clear();
-      sessionStorage.clear();
-      await signOut({ callbackUrl: "/login" });
+      await doLogout();
+      window.location.reload();
     } catch (err: unknown) {
       console.error("Logout failed:", err);
       setError("Logout failed");

@@ -14,11 +14,6 @@ const createItem = async (req: NextRequest) => {
     const body: CreateItemPayload = await req.json();
     const { name, unit, description, status } = body;
     const sellingPriceRaw = body.sellingPrice;
-
-    // Mirrors CreateItemDto's class-validator constraints (name/unit
-    // required strings, sellingPrice required number >= 0) since there is
-    // no ValidationPipe equivalent here — checked sequentially like the
-    // customers controller does for its own required fields.
     if (!name || String(name).trim().length === 0) {
       return NextResponse.json(
         { message: "name should not be empty" },

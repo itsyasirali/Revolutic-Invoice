@@ -155,7 +155,11 @@ const CustomerForm: React.FC = () => {
                           doc !== null &&
                           "url" in doc &&
                           doc.url
-                            ? `/${doc.url.replace(/^\//, "")}`
+                            ? String(doc.url).startsWith("http")
+                              ? String(doc.url)
+                              : `/${String(doc.url).replace(/^\//, "")}`
+                            : String(doc).startsWith("http")
+                            ? String(doc)
                             : `/${String(doc).replace(/^\//, "")}`
                         }
                         target="_blank"
