@@ -47,6 +47,7 @@ interface TemplateData {
   tableHeaderBgColor?: string;
   tableHeaderTextColor?: string;
   tableRowColor?: string;
+  tableAltRowColor?: string;
   invoiceDateLabelColor?: string;
   invoiceDateValueColor?: string;
   termsLabelColor?: string;
@@ -205,8 +206,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   };
 
   const primaryColor = getColor(data.primaryColor, "#1AA3FF");
-  const accentColor = getColor(data.accentColor, "#FBBF24");
-  const secondaryColor = getColor(data.secondaryColor, "#075056");
+  const accentColor = getColor(data.accentColor, "#1AA3FF");
+  const secondaryColor = getColor(data.secondaryColor, "#1AA3FF");
   const invoiceNumberColor = getColor(data.invoiceNumberColor, secondaryColor);
   const billToColor = getColor(data.billToColor, secondaryColor);
   const previousDueColor = getColor(data.previousDueColor, secondaryColor);
@@ -218,7 +219,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 
   const branding = {
     brandName: data.branding?.brandName || data.brandName || "revolutic",
-    tagline: data.branding?.tagline || data.tagline || "digital innovation leadership",
+    tagline:
+      data.branding?.tagline || data.tagline || "digital innovation leadership",
     logoPreview:
       data.branding?.logoPreview ||
       (data.logoUrl ? `/${data.logoUrl.replace(/^\//, "")}` : ""),
@@ -226,10 +228,28 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 
   const DEFAULT_COLUMNS: TableColumn[] = [
     { key: "index", label: "#", width: 30, align: "left", enabled: true },
-    { key: "itemName", label: "Item & Description", width: 200, align: "left", enabled: true },
-    { key: "quantity", label: "Qty", width: 50, align: "center", enabled: true },
+    {
+      key: "itemName",
+      label: "Item & Description",
+      width: 200,
+      align: "left",
+      enabled: true,
+    },
+    {
+      key: "quantity",
+      label: "Qty",
+      width: 50,
+      align: "center",
+      enabled: true,
+    },
     { key: "rate", label: "Rate", width: 60, align: "right", enabled: true },
-    { key: "amount", label: "Amount", width: 70, align: "right", enabled: true },
+    {
+      key: "amount",
+      label: "Amount",
+      width: 70,
+      align: "right",
+      enabled: true,
+    },
   ];
 
   const getTableColumns = (): TableColumn[] => {
@@ -271,7 +291,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               ? "itemName"
               : key;
           return !DEFAULT_COLUMNS.find(
-            (d) => d.key === key || d.key === normalizedKey
+            (d) => d.key === key || d.key === normalizedKey,
           );
         })
         .map((c: TableColumnSetting) => ({
@@ -299,7 +319,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         number: invoice.invoiceNumber,
         date: new Date(invoice.invoiceDate || new Date()).toLocaleDateString(
           "en-US",
-          { day: "numeric", month: "short", year: "numeric" }
+          { day: "numeric", month: "short", year: "numeric" },
         ),
         dueDate:
           invoice.formattedDueDate ||
@@ -313,11 +333,12 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         terms:
           invoice.terms ||
           (() => {
-            if (!invoice.dueDate || !invoice.invoiceDate) return "Due on Receipt";
+            if (!invoice.dueDate || !invoice.invoiceDate)
+              return "Due on Receipt";
             const daysDiff = Math.floor(
               (new Date(invoice.dueDate).getTime() -
                 new Date(invoice.invoiceDate).getTime()) /
-                (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24),
             );
             if (daysDiff === 15) return "Net 15";
             if (daysDiff === 30) return "Net 30";
@@ -338,21 +359,24 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             invoice.customer?.address ||
             "",
         },
-        items: (invoice.items || []).map((item: InvoiceItemData, index: number) => ({
-          ...item,
-          index: index + 1,
-          itemName: item.title || item.item?.name || item.name || "",
-          description: item.description || "",
-          quantity: Number(item.quantity) || 0,
-          rate: Number(item.rate) || 0,
-          amount: Number(item.amount) || 0,
-        })),
+        items: (invoice.items || []).map(
+          (item: InvoiceItemData, index: number) => ({
+            ...item,
+            index: index + 1,
+            itemName: item.title || item.item?.name || item.name || "",
+            description: item.description || "",
+            quantity: Number(item.quantity) || 0,
+            rate: Number(item.rate) || 0,
+            amount: Number(item.amount) || 0,
+          }),
+        ),
         subtotal: Number(invoice.subTotal || invoice.subtotal || 0),
         previousRemaining: Number(invoice.previousRemaining || 0),
         total:
           invoice.remaining !== undefined
             ? Number(invoice.remaining)
-            : Number(invoice.total || 0) + Number(invoice.previousRemaining || 0),
+            : Number(invoice.total || 0) +
+              Number(invoice.previousRemaining || 0),
         currency: invoice.currency || "PKR",
         notes: invoice.notes || "",
       }
@@ -386,10 +410,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     return `${amount.toFixed(2)} ${activeInvoice.currency}`;
   };
 
-  const getCellValue = (
-    item: any,
-    key: string
-  ): React.ReactNode => {
+  const getCellValue = (item: any, key: string): React.ReactNode => {
     switch (key) {
       case "index":
         return item.index ?? "";
@@ -753,8 +774,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     breakInside: "avoid",
                     backgroundColor:
                       data.alternateRowColors !== false && i % 2 === 0
-                        ? data.tableRowColor || "#fffbeb"
-                        : "#ffffff",
+                        ? (data.tableRowColor && data.tableRowColor !== "#fffbeb"
+                            ? data.tableRowColor
+                            : data.backgroundColor || "#ffffff")
+                        : (data.tableAltRowColor || data.backgroundColor || "#ffffff"),
                     borderBottom: `1px solid ${grayBorder}`,
                   }}
                 >

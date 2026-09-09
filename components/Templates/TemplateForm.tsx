@@ -638,7 +638,7 @@ const TemplateForm: React.FC = () => {
                   </div>
                   <ColorInput
                     label="Number Color"
-                    value={formData.invoiceNumberColor || "#075056"}
+                    value={formData.invoiceNumberColor || "#1AA3FF"}
                     onChange={(v) => handleChange("invoiceNumberColor", v)}
                   />
                   <div>
@@ -719,7 +719,7 @@ const TemplateForm: React.FC = () => {
                 <div className="space-y-3">
                   <ColorInput
                     label="Name Color"
-                    value={formData.billToNameColor || "#075056"}
+                    value={formData.billToNameColor || "#1AA3FF"}
                     onChange={(v) => handleChange("billToNameColor", v)}
                   />
                   <div>
@@ -749,7 +749,7 @@ const TemplateForm: React.FC = () => {
                 <div className="space-y-3">
                   <ColorInput
                     label="Address Color"
-                    value={formData.billToAddressColor || "#075056"}
+                    value={formData.billToAddressColor || "#1AA3FF"}
                     onChange={(v) => handleChange("billToAddressColor", v)}
                   />
                   <div>
@@ -1085,7 +1085,11 @@ const TemplateForm: React.FC = () => {
                   </div>
                   <ColorInput
                     label="Row Color"
-                    value={formData.tableRowColor || "#fffbeb"}
+                    value={
+                      formData.tableRowColor ||
+                      formData.backgroundColor ||
+                      "#ffffff"
+                    }
                     onChange={(v) => handleChange("tableRowColor", v)}
                   />
                 </div>
@@ -1104,7 +1108,11 @@ const TemplateForm: React.FC = () => {
                   />
                   <ColorInput
                     label="Body Background"
-                    value={formData.tableRowColor || "#fffbeb"}
+                    value={
+                      formData.tableRowColor ||
+                      formData.backgroundColor ||
+                      "#ffffff"
+                    }
                     onChange={(v) => handleChange("tableRowColor", v)}
                   />
                   <div>
@@ -1255,7 +1263,7 @@ const TemplateForm: React.FC = () => {
                   />
                   <ColorInput
                     label="Box Background"
-                    value={formData.accentColor || "#FBBF24"}
+                    value={formData.accentColor || "#1AA3FF"}
                     onChange={(v) => handleChange("accentColor", v)}
                   />
                   <div>

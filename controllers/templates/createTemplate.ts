@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
 import { getAuthUserId } from "@/lib/session";
+import { sanitizeTemplateFields } from "@/utils/templates/sanitizeTemplateFields";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -51,7 +52,8 @@ const createTemplate = async (req: NextRequest) => {
 
   try {
     const parsedUserId = userId;
-    const fields = await parseFields(req);
+    const rawFields = await parseFields(req);
+    const fields = sanitizeTemplateFields(rawFields);
 
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
@@ -63,7 +65,7 @@ const createTemplate = async (req: NextRequest) => {
     const newTemplate = templateRepo.create({
       ...fields,
       userId: parsedUserId,
-      templateName: fields.templateName || "Custom Template",
+      templateName: (fields.templateName as string) || "Custom Template",
     } as unknown as Template);
 
     const savedTemplate = await templateRepo.save(newTemplate);
@@ -72,7 +74,7 @@ const createTemplate = async (req: NextRequest) => {
   } catch (error) {
     console.error("Error creating template:", error);
     return NextResponse.json(
-      { message: "Failed to create template" },
+      { message: (error as Error)?.message || "Failed to create template" },
       { status: 500 }
     );
   }

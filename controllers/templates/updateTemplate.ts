@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
 import { getAuthUserId } from "@/lib/session";
+import { sanitizeTemplateFields } from "@/utils/templates/sanitizeTemplateFields";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -64,7 +65,9 @@ const updateTemplate = async (
       );
     }
 
-    const fields = await parseFields(req);
+    const rawFields = await parseFields(req);
+    const fields = sanitizeTemplateFields(rawFields);
+
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 
@@ -90,7 +93,7 @@ const updateTemplate = async (
   } catch (error) {
     console.error("Error updating template:", error);
     return NextResponse.json(
-      { message: "Failed to update template" },
+      { message: (error as Error)?.message || "Failed to update template" },
       { status: 500 }
     );
   }

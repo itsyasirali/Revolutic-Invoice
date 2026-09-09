@@ -37,18 +37,18 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   marginRight: 0.4,
   padding: 10,
   primaryColor: "#1AA3FF",
-  secondaryColor: "#075056",
+  secondaryColor: "#1AA3FF",
   backgroundColor: "#ffffff",
-  accentColor: "#FBBF24",
+  accentColor: "#1AA3FF",
   textColor: "#1f2937",
   headerTextColor: "#1AA3FF",
-  invoiceNumberColor: "#075056",
-  billToColor: "#075056",
-  previousDueColor: "#075056",
+  invoiceNumberColor: "#1AA3FF",
+  billToColor: "#1AA3FF",
+  previousDueColor: "#1AA3FF",
   borderColor: "#e5e7eb",
   balanceDueTextColor: "#EE5858",
-  billToNameColor: "#075056",
-  billToAddressColor: "#075056",
+  billToNameColor: "#1AA3FF",
+  billToAddressColor: "#1AA3FF",
   billToNameFontSize: 12,
   billToAddressFontSize: 10,
   invoiceDateLabelColor: "#6b7280",
@@ -61,7 +61,7 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   invoiceDetailValueFontSize: 10,
   tableHeaderBgColor: "#1AA3FF",
   tableHeaderTextColor: "#ffffff",
-  tableRowColor: "#fffbeb",
+  tableRowColor: "#ffffff",
   tableAltRowColor: "#ffffff",
   tableBorderColor: "#e5e7eb",
   fontFamily: "Helvetica",
@@ -160,8 +160,7 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
 const useTemplateForm = (id?: string): UseTemplateFormReturn => {
   const router = useRouter();
   const params = useParams();
-  const [formData, setFormData] =
-    useState<TemplateFormData>(DEFAULT_FORM_DATA);
+  const [formData, setFormData] = useState<TemplateFormData>(DEFAULT_FORM_DATA);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>({
     show: false,
@@ -185,19 +184,30 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
   useEffect(() => {
     if (!effectiveId) return;
 
-    const navTemplate = getNavState<Record<string, unknown>>(`template:${effectiveId}`);
+    const navTemplate = getNavState<Record<string, unknown>>(
+      `template:${effectiveId}`,
+    );
     if (navTemplate) {
       queueMicrotask(() => {
-        const data = (navTemplate.raw || navTemplate) as Record<string, unknown>;
+        const data = (navTemplate.raw || navTemplate) as Record<
+          string,
+          unknown
+        >;
         setFormData((prev) => ({
           ...prev,
           ...data,
-          marginTop: (data.margins as Record<string, number>)?.top || prev.marginTop,
-          marginBottom: (data.margins as Record<string, number>)?.bottom || prev.marginBottom,
-          marginLeft: (data.margins as Record<string, number>)?.left || prev.marginLeft,
-          marginRight: (data.margins as Record<string, number>)?.right || prev.marginRight,
+          marginTop:
+            (data.margins as Record<string, number>)?.top || prev.marginTop,
+          marginBottom:
+            (data.margins as Record<string, number>)?.bottom ||
+            prev.marginBottom,
+          marginLeft:
+            (data.margins as Record<string, number>)?.left || prev.marginLeft,
+          marginRight:
+            (data.margins as Record<string, number>)?.right || prev.marginRight,
           tableColumnSettings:
-            (data.tableColumnSettings as TableColumnSetting[]) || prev.tableColumnSettings,
+            (data.tableColumnSettings as TableColumnSetting[]) ||
+            prev.tableColumnSettings,
         }));
 
         setBranding({
@@ -217,7 +227,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           const mergedColumns = DEFAULT_COLUMNS.map((defCol) => {
             const saved = settingsList.find(
               (c: TableColumnSetting) =>
-                c.columnName === defCol.key || c.key === defCol.key
+                c.columnName === defCol.key || c.key === defCol.key,
             );
             if (saved) {
               return {
@@ -238,8 +248,8 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             .filter(
               (c: TableColumnSetting) =>
                 !DEFAULT_COLUMNS.find(
-                  (d) => d.key === c.columnName || d.key === c.key
-                )
+                  (d) => d.key === c.columnName || d.key === c.key,
+                ),
             )
             .map((c: TableColumnSetting) => ({
               key: c.columnName || (c.key as string),
@@ -285,14 +295,11 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             : "",
         });
 
-        if (
-          data.tableColumnSettings &&
-          data.tableColumnSettings.length > 0
-        ) {
+        if (data.tableColumnSettings && data.tableColumnSettings.length > 0) {
           const mergedColumns = DEFAULT_COLUMNS.map((defCol) => {
             const saved = data.tableColumnSettings.find(
               (c: TableColumnSetting) =>
-                c.columnName === defCol.key || c.key === defCol.key
+                c.columnName === defCol.key || c.key === defCol.key,
             );
             if (saved) {
               return {
@@ -313,8 +320,8 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             .filter(
               (c: TableColumnSetting) =>
                 !DEFAULT_COLUMNS.find(
-                  (d) => d.key === c.columnName || d.key === c.key
-                )
+                  (d) => d.key === c.columnName || d.key === c.key,
+                ),
             )
             .map((c: TableColumnSetting) => ({
               key: c.columnName || (c.key as string),
@@ -346,7 +353,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
 
   const handleChange = (
     field: keyof TemplateFormData,
-    value: string | number | boolean | File | null | undefined
+    value: string | number | boolean | File | null | undefined,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -368,7 +375,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
     (
       index: number,
       field: keyof TableColumn,
-      value: string | number | boolean
+      value: string | number | boolean,
     ) => {
       setTableColumns((prev) => {
         const updated = [...prev];
@@ -379,7 +386,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         return updated;
       });
     },
-    []
+    [],
   );
 
   const toggleColumn = useCallback((index: number) => {
@@ -429,19 +436,33 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setLoading(true);
 
         const submitData = new FormData();
+        const skipKeys = new Set([
+          "logoFile",
+          "tableColumnSettings",
+          "id",
+          "userId",
+          "createdAt",
+          "updatedAt",
+          "marginTop",
+          "marginBottom",
+          "marginLeft",
+          "marginRight",
+          "logoPreview",
+        ]);
 
         Object.entries(formData).forEach(([key, value]) => {
-          if (key === "logoFile") return;
-          if (key === "tableColumnSettings") {
-            submitData.append(key, JSON.stringify(value));
+          if (skipKeys.has(key)) return;
+          if (value === null || value === undefined) {
+            submitData.append(key, "");
           } else {
-            const safeValue =
-              value === null || value === undefined
-                ? ""
-                : value.toString();
-            submitData.append(key, safeValue);
+            submitData.append(key, value.toString());
           }
         });
+
+        submitData.append(
+          "tableColumnSettings",
+          JSON.stringify(formData.tableColumnSettings || [])
+        );
 
         submitData.set(
           "margins",
@@ -450,7 +471,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             bottom: formData.marginBottom,
             left: formData.marginLeft,
             right: formData.marginRight,
-          })
+          }),
         );
 
         if (setAsDefault) {
@@ -490,8 +511,8 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         const errorMessage = axios.isAxiosError(err)
           ? err.response?.data?.message
           : err instanceof Error
-          ? err.message
-          : "Failed to save template";
+            ? err.message
+            : "Failed to save template";
 
         setAlert({
           show: true,
@@ -502,7 +523,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setLoading(false);
       }
     },
-    [formData, effectiveId, router]
+    [formData, effectiveId, router],
   );
 
   const dismissAlert = () => {
