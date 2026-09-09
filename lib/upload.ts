@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync } from "fs";
 import { writeFile } from "fs/promises";
+import os from "os";
 import path from "path";
 
 export interface SavedUpload {
@@ -28,7 +29,10 @@ export const extractFormFields = (
 
   for (const [key, value] of formData.entries()) {
     if (key === fileFieldName && value instanceof File) {
-      files.push(value);
+      // Ignore 0-byte empty files created by HTML file inputs when no file was chosen
+      if (value.size > 0 && value.name && value.name.trim().length > 0) {
+        files.push(value);
+      }
     } else if (typeof value === "string") {
       fields[key] = value;
     }
@@ -41,23 +45,47 @@ export const extractFormFields = (
 export const saveUploadedFile = async (
   file: File,
   requestUrl: string,
-): Promise<SavedUpload> => {
-  const folder = resolveFolder(requestUrl);
-  const uploadDir = path.join(process.cwd(), "uploads", folder);
-  if (!existsSync(uploadDir)) {
-    mkdirSync(uploadDir, { recursive: true });
+): Promise<SavedUpload | null> => {
+  if (!file || !file.name || file.size === 0) {
+    return null;
   }
 
+  const folder = resolveFolder(requestUrl);
   const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
   const filename = `${uniqueSuffix}${path.extname(file.name)}`;
-  const filePath = path.join(uploadDir, filename);
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filePath, buffer);
+  // Determine target directory with fallback for read-only serverless filesystems (Vercel)
+  let uploadDir = path.join(process.cwd(), "uploads", folder);
+  try {
+    if (!existsSync(uploadDir)) {
+      mkdirSync(uploadDir, { recursive: true });
+    }
+  } catch {
+    // Fallback to /tmp when process.cwd() is read-only (e.g. AWS Lambda / Vercel)
+    uploadDir = path.join(os.tmpdir(), "uploads", folder);
+    try {
+      if (!existsSync(uploadDir)) {
+        mkdirSync(uploadDir, { recursive: true });
+      }
+    } catch (e) {
+      console.error("[Upload] Failed to create upload dir even in tmp:", e);
+      return null;
+    }
+  }
 
-  return {
-    filename,
-    folder,
-    relativePath: path.join("uploads", folder, filename),
-  };
+  try {
+    const filePath = path.join(uploadDir, filename);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(filePath, buffer);
+
+    return {
+      filename,
+      folder,
+      relativePath: path.join("uploads", folder, filename).replace(/\\/g, "/"),
+    };
+  } catch (writeErr) {
+    console.error("[Upload] Failed to write uploaded file to disk:", writeErr);
+    return null;
+  }
 };
+

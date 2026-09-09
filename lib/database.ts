@@ -76,6 +76,10 @@ export const getDatabase = async (): Promise<DataSource> => {
       throw new Error(missingVarsMsg);
     }
 
+    console.log(
+      `[Database] Initializing connection: ${connectionUrl ? "using URL" : `host ${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`}, ssl=${Boolean(ssl)}`
+    );
+
     if (connectionUrl) {
       globalForDb.dataSource = new DataSource({
         type: "postgres",

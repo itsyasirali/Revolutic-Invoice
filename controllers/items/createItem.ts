@@ -25,23 +25,12 @@ const createItem = async (req: NextRequest) => {
         { status: 400 },
       );
     }
-    if (!unit || String(unit).trim().length === 0) {
-      return NextResponse.json(
-        { message: "unit should not be empty" },
-        { status: 400 },
-      );
-    }
-    if (
-      sellingPriceRaw === undefined ||
-      sellingPriceRaw === null ||
-      (sellingPriceRaw as unknown as string) === ""
-    ) {
-      return NextResponse.json(
-        { message: "sellingPrice should not be empty" },
-        { status: 400 },
-      );
-    }
-    const sellingPrice = Number(sellingPriceRaw);
+
+    const sellingPrice =
+      sellingPriceRaw !== undefined && sellingPriceRaw !== null && (sellingPriceRaw as unknown as string) !== ""
+        ? Number(sellingPriceRaw)
+        : 0;
+
     if (Number.isNaN(sellingPrice)) {
       return NextResponse.json(
         {
@@ -62,10 +51,10 @@ const createItem = async (req: NextRequest) => {
     const itemsRepository = db.getRepository(Item);
 
     const newItem = itemsRepository.create({
-      name,
-      unit,
+      name: String(name).trim(),
+      unit: unit ? String(unit).trim() : null as unknown as string,
       sellingPrice,
-      description,
+      description: description ? String(description).trim() : null as unknown as string,
       userId,
       status: status || "Active",
     });
@@ -78,8 +67,10 @@ const createItem = async (req: NextRequest) => {
     );
   } catch (error) {
     console.error("Error creating item:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create item";
     return NextResponse.json(
-      { message: "Failed to create item" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

@@ -116,8 +116,10 @@ const createPayment = async (req: NextRequest) => {
     );
   } catch (error) {
     console.error("Error creating payment:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create payment";
     return NextResponse.json(
-      { message: "Failed to create payment" },
+      { message: errorMessage },
       { status: 500 }
     );
   }

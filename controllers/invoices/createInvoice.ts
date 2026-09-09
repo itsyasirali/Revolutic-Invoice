@@ -124,8 +124,10 @@ const createInvoice = async (req: NextRequest) => {
       );
     }
     console.error("Error creating invoice:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create invoice";
     return NextResponse.json(
-      { message: "Failed to create invoice" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

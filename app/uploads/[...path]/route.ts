@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
+import os from "os";
 import path from "path";
 
 // Replaces api/src/main.ts's app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' })
@@ -27,20 +28,39 @@ export const GET = async (
 ) => {
   const { path: segments } = await params;
   const uploadsRoot = path.join(process.cwd(), "uploads");
-  const resolvedPath = path.join(uploadsRoot, ...segments);
+  const tmpUploadsRoot = path.join(os.tmpdir(), "uploads");
 
-  if (!resolvedPath.startsWith(uploadsRoot)) {
+  const cwdPath = path.join(uploadsRoot, ...segments);
+  const tmpPath = path.join(tmpUploadsRoot, ...segments);
+
+  let targetPath: string | null = null;
+
+  // Security: ensure segments don't escape root
+  if (cwdPath.startsWith(uploadsRoot)) {
+    try {
+      const s = await stat(/*turbopackIgnore: true*/ cwdPath);
+      if (s.isFile()) targetPath = cwdPath;
+    } catch {
+      // Ignore and check tmpPath
+    }
+  }
+
+  if (!targetPath && tmpPath.startsWith(tmpUploadsRoot)) {
+    try {
+      const s = await stat(/*turbopackIgnore: true*/ tmpPath);
+      if (s.isFile()) targetPath = tmpPath;
+    } catch {
+      // Not found
+    }
+  }
+
+  if (!targetPath) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
 
   try {
-    const fileStat = await stat(resolvedPath);
-    if (!fileStat.isFile()) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
-    }
-
-    const buffer = await readFile(resolvedPath);
-    const ext = path.extname(resolvedPath).toLowerCase();
+    const buffer = await readFile(/*turbopackIgnore: true*/ targetPath);
+    const ext = path.extname(targetPath).toLowerCase();
     const contentType = MIME_TYPES[ext] || "application/octet-stream";
 
     return new NextResponse(new Uint8Array(buffer), {
@@ -50,3 +70,4 @@ export const GET = async (
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
 };
+

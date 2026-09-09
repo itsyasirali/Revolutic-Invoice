@@ -74,9 +74,11 @@ const updateCustomer = async (
       }
     }
 
-    const savedFiles = await Promise.all(
-      files.map((file) => saveUploadedFile(file, req.nextUrl.pathname)),
-    );
+    const savedFiles = files.length > 0
+      ? await Promise.all(
+          files.map((file) => saveUploadedFile(file, req.nextUrl.pathname)),
+        )
+      : [];
     const newDocumentPaths = buildDocumentPaths(savedFiles);
     const finalDocuments = [
       ...(existingFilesFromClient || []),
@@ -88,10 +90,7 @@ const updateCustomer = async (
 
     docsToDelete.forEach((p) => {
       try {
-        const absolute = path.resolve(p);
-        if (absolute.startsWith(path.resolve("uploads", "customer"))) {
-          deleteFileIfExists(p);
-        }
+        deleteFileIfExists(p);
       } catch (e) {
         console.error("Failed to delete file:", p, e);
       }
@@ -115,8 +114,10 @@ const updateCustomer = async (
     });
   } catch (error) {
     console.error("Error updating customer:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update customer";
     return NextResponse.json(
-      { message: "Failed to update customer" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

@@ -36,9 +36,11 @@ const updateItem = async (
 
     const body: UpdateItemPayload = await req.json();
 
-    // Matches the original service's plain Object.assign merge (no field
-    // is individually required/guarded on update).
-    Object.assign(existingItem, body);
+    if (body.name !== undefined) existingItem.name = String(body.name).trim();
+    if (body.unit !== undefined) existingItem.unit = body.unit ? String(body.unit).trim() : null as unknown as string;
+    if (body.sellingPrice !== undefined) existingItem.sellingPrice = Number(body.sellingPrice);
+    if (body.description !== undefined) existingItem.description = body.description ? String(body.description).trim() : null as unknown as string;
+    if (body.status !== undefined) existingItem.status = body.status;
 
     await itemsRepository.save(existingItem);
 
@@ -48,8 +50,10 @@ const updateItem = async (
     });
   } catch (error) {
     console.error("Error updating item:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update item";
     return NextResponse.json(
-      { message: "Failed to update item" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

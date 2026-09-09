@@ -125,8 +125,10 @@ const updateInvoice = async (
     return NextResponse.json({ message: "Invoice updated successfully", ...result });
   } catch (error) {
     console.error("Error updating invoice:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update invoice";
     return NextResponse.json(
-      { message: "Failed to update invoice" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

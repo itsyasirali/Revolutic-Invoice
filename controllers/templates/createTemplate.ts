@@ -17,14 +17,19 @@ const parseFields = async (req: NextRequest) => {
       if (key === "logo" && value instanceof File && value.size > 0) {
         const bytes = await value.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        await mkdir(uploadDir, { recursive: true });
-
         const ext = path.extname(value.name) || ".png";
         const fileName = `logo-${Date.now()}${ext}`;
-        const filePath = path.join(uploadDir, fileName);
-        await writeFile(filePath, buffer);
-        logoUrl = `/uploads/${fileName}`;
+        try {
+          const uploadDir = path.join(process.cwd(), "public", "uploads");
+          await mkdir(uploadDir, { recursive: true });
+          const filePath = path.join(uploadDir, fileName);
+          await writeFile(filePath, buffer);
+          logoUrl = `/uploads/${fileName}`;
+        } catch {
+          // Read-only filesystem fallback (e.g. Vercel): use base64 data URL
+          const mime = value.type || "image/png";
+          logoUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+        }
       } else if (typeof value === "string") {
         try {
           fields[key] = JSON.parse(value);

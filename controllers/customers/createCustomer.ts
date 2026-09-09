@@ -40,9 +40,11 @@ const createCustomer = async (req: NextRequest) => {
     }
 
     const contacts = parseContactsFromBody(fields) || [];
-    const savedFiles = await Promise.all(
-      files.map((file) => saveUploadedFile(file, req.nextUrl.pathname)),
-    );
+    const savedFiles = files.length > 0
+      ? await Promise.all(
+          files.map((file) => saveUploadedFile(file, req.nextUrl.pathname)),
+        )
+      : [];
     const documentPaths = buildDocumentPaths(savedFiles);
 
     const db = await getDatabase();
@@ -51,11 +53,11 @@ const createCustomer = async (req: NextRequest) => {
     const customer = customersRepository.create({
       userId,
       customerType,
-      companyName,
+      companyName: companyName || undefined,
       displayName,
-      currency,
-      address,
-      remarks,
+      currency: currency || "USD",
+      address: address || undefined,
+      remarks: remarks || undefined,
       documents: documentPaths,
       contacts,
       status: status || "Active",
@@ -69,8 +71,10 @@ const createCustomer = async (req: NextRequest) => {
     );
   } catch (error) {
     console.error("Error creating customer:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create customer";
     return NextResponse.json(
-      { message: "Failed to create customer" },
+      { message: errorMessage },
       { status: 500 },
     );
   }

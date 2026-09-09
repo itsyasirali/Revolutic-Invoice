@@ -58,9 +58,13 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
           formData.set("existingDocuments", JSON.stringify(existingDocsPayload));
         }
 
-        if (files) {
+        // Delete any empty/dummy File entry captured from the DOM file input
+        formData.delete("documents");
+        if (files && files.length > 0) {
           Array.from(files).forEach((file) => {
-            formData.append("documents", file);
+            if (file && file.size > 0 && file.name) {
+              formData.append("documents", file);
+            }
           });
         }
 
