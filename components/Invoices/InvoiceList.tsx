@@ -170,7 +170,7 @@ const InvoiceList = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button
-              onClick={handleDelete}
+              onClick={() => handleDelete()}
               disabled={loading}
               variant="danger"
               size="sm"
@@ -207,8 +207,7 @@ const InvoiceList = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedIds([String(inv.id)]);
-                  handleDelete();
+                  handleDelete([String(inv.id)]);
                 }}
                 className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
                 title="Delete Invoice"

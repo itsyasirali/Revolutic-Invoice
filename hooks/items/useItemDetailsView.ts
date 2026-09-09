@@ -10,7 +10,15 @@ export const useItemDetailsView = () => {
   const params = useParams<{ id?: string }>();
   const id = params?.id;
   const router = useRouter();
-  const { deleteItems, loading: deleteLoading } = useDeleteItems();
+  const {
+    deleteItems,
+    loading: deleteLoading,
+    alert,
+    dismissAlert,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
+  } = useDeleteItems();
 
   // Same sessionStorage-backed nav state substitute for react-router's
   // location.state used across the customers module — the item is looked
@@ -44,6 +52,11 @@ export const useItemDetailsView = () => {
     handleEdit,
     handleDelete,
     handleBackClick,
+    alert,
+    dismissAlert,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
   };
 };
 

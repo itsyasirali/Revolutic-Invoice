@@ -10,12 +10,22 @@ import {
   Tag,
   DollarSign,
 } from "lucide-react";
-import { StatusBadge, EmptyState, Button, PageHeader } from "@/components/ui";
+import { StatusBadge, EmptyState, Button, PageHeader, ConfirmDialog, AlertModal } from "@/components/ui";
 import useItemDetailsView from "@/hooks/items/useItemDetailsView";
 
 const ItemDetails: React.FC = () => {
-  const { item, loading, handleEdit, handleDelete, handleBackClick } =
-    useItemDetailsView();
+  const {
+    item,
+    loading,
+    handleEdit,
+    handleDelete,
+    handleBackClick,
+    alert,
+    dismissAlert,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
+  } = useItemDetailsView();
 
   if (!item) {
     return (
@@ -25,6 +35,24 @@ const ItemDetails: React.FC = () => {
 
   return (
     <div className="">
+      <AlertModal
+        isOpen={alert.show}
+        type={alert.type}
+        message={alert.message}
+        onClose={dismissAlert}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.show}
+        title="Delete Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={hideConfirmDialog}
+      />
+
       <PageHeader
         title={item.name || ""}
         showBackButton

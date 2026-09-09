@@ -58,13 +58,18 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
     [router]
   );
 
-  const handleDelete = useCallback(async () => {
-    if (deleteInvoices && selectedIds && refetch && setSelectedIds) {
-      await deleteInvoices(selectedIds);
-      setSelectedIds([]);
-      refetch();
-    }
-  }, [selectedIds, deleteInvoices, refetch, setSelectedIds]);
+  const handleDelete = useCallback(
+    async (ids?: (string | number)[] | React.SyntheticEvent) => {
+      const targetIds = Array.isArray(ids) && ids.length > 0 ? ids : selectedIds;
+      if (deleteInvoices && targetIds && targetIds.length > 0) {
+        await deleteInvoices(targetIds, () => {
+          setSelectedIds?.([]);
+          refetch?.();
+        });
+      }
+    },
+    [selectedIds, deleteInvoices, refetch, setSelectedIds],
+  );
 
   const handleRowClick = useCallback(
     (invoice: UIInvoiceListItem) => {

@@ -29,10 +29,17 @@ const useCustomerActions = ({
     setSelectedIds([]);
   }, [selectedIds, updateStatus, refetch, setSelectedIds]);
 
-  const handleDelete = useCallback(async () => {
-    await deleteCustomers(selectedIds, refetch);
-    setSelectedIds([]);
-  }, [selectedIds, deleteCustomers, refetch, setSelectedIds]);
+  const handleDelete = useCallback(
+    async (ids?: (string | number)[] | React.SyntheticEvent) => {
+      const targetIds = Array.isArray(ids) && ids.length > 0 ? ids : selectedIds;
+      if (!targetIds || targetIds.length === 0) return;
+      await deleteCustomers(targetIds.map(String), () => {
+        setSelectedIds([]);
+        if (refetch) refetch();
+      });
+    },
+    [selectedIds, deleteCustomers, refetch, setSelectedIds],
+  );
 
   const handleEdit = useCallback(
     (customer: Customer) => {

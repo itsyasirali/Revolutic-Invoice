@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
 
 type AlertState = {
@@ -69,6 +69,8 @@ const useDeleteInvoices = () => {
     }
   };
 
+  const refetchRef = useRef<(() => void) | undefined>(undefined);
+
   const deleteInvoices = useCallback(
     async (
       selectedIds: (string | number)[],
@@ -82,16 +84,15 @@ const useDeleteInvoices = () => {
       });
 
       if (refetch) {
-        (window as any).__deleteRefetch = refetch;
+        refetchRef.current = refetch;
       }
     },
     []
   );
 
   const confirmDelete = () => {
-    const refetch = (window as any).__deleteRefetch;
-    performDelete(confirmDialog.selectedIds, refetch);
-    delete (window as any).__deleteRefetch;
+    performDelete(confirmDialog.selectedIds, refetchRef.current);
+    refetchRef.current = undefined;
   };
 
   return {

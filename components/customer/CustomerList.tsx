@@ -195,7 +195,7 @@ const CustomerList: React.FC = () => {
               Mark Inactive
             </Button>
             <Button
-              onClick={handleDelete}
+              onClick={() => handleDelete()}
               disabled={loading}
               variant="danger"
               size="sm"
@@ -232,8 +232,7 @@ const CustomerList: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedIds([c.id!]);
-                  handleDelete();
+                  handleDelete([c.id!]);
                 }}
                 className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
                 title="Delete Customer"

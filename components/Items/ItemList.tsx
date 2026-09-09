@@ -164,7 +164,7 @@ const ItemList: React.FC = () => {
               Mark Inactive
             </Button>
             <Button
-              onClick={handleDelete}
+              onClick={() => handleDelete()}
               disabled={loading}
               variant="danger"
               size="sm"
@@ -201,8 +201,7 @@ const ItemList: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedIds([i.id]);
-                  handleDelete();
+                  handleDelete([i.id]);
                 }}
                 className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
                 title="Delete Item"

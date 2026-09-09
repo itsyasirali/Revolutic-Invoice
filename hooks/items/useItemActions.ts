@@ -29,10 +29,17 @@ const useItemActions = ({
     setSelectedIds([]);
   }, [selectedIds, updateStatus, refetch, setSelectedIds]);
 
-  const handleDelete = useCallback(async () => {
-    await deleteItems(selectedIds, refetch);
-    setSelectedIds([]);
-  }, [selectedIds, deleteItems, refetch, setSelectedIds]);
+  const handleDelete = useCallback(
+    async (ids?: (string | number)[] | React.SyntheticEvent) => {
+      const targetIds = Array.isArray(ids) && ids.length > 0 ? ids : selectedIds;
+      if (!targetIds || targetIds.length === 0) return;
+      await deleteItems(targetIds, () => {
+        setSelectedIds([]);
+        if (refetch) refetch();
+      });
+    },
+    [selectedIds, deleteItems, refetch, setSelectedIds],
+  );
 
   const handleEdit = useCallback(
     (item: Item) => {

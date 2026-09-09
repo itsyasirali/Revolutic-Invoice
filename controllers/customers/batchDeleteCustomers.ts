@@ -52,6 +52,37 @@ const batchDeleteCustomers = async (req: NextRequest) => {
     }
 
     const idsToDelete = docs.map((d) => d.id);
+
+    // Check if any of the customers have associated invoices
+    const { Invoice } = await import("@/entities/Invoice");
+    const invoiceRepo = db.getRepository(Invoice);
+    const invoiceCount = await invoiceRepo.count({
+      where: { customerId: In(idsToDelete), userId: parsedUserId },
+    });
+    if (invoiceCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete customer(s): ${invoiceCount} invoice(s) are linked to these customers. Please delete the associated invoices first.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    // Check if any of the customers have associated payments
+    const { Payment } = await import("@/entities/Payment");
+    const paymentRepo = db.getRepository(Payment);
+    const paymentCount = await paymentRepo.count({
+      where: { customerId: In(idsToDelete), userId: parsedUserId },
+    });
+    if (paymentCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete customer(s): ${paymentCount} payment(s) are linked to these customers. Please delete the associated payments first.`,
+        },
+        { status: 400 },
+      );
+    }
+
     const result = await customersRepository.delete({
       id: In(idsToDelete),
       userId: parsedUserId,
@@ -62,10 +93,11 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       deletedCount: result.affected,
       ids: idsToDelete,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error batch deleting customers:", error);
+    const message = error?.detail || error?.message || "Failed to delete customers";
     return NextResponse.json(
-      { message: "Failed to delete customers" },
+      { message, error: String(error) },
       { status: 500 },
     );
   }

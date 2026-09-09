@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
+import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { getAuthUserId } from "@/lib/session";
 
 const deleteInvoice = async (
@@ -17,9 +18,20 @@ const deleteInvoice = async (
     const parsedUserId = userId;
     const invoiceId = Number(id);
 
-    const db = await getDatabase();
-    const invoiceRepository = db.getRepository(Invoice);
+    if (isNaN(invoiceId)) {
+      return NextResponse.json(
+        { message: "Invalid invoice ID" },
+        { status: 400 },
+      );
+    }
 
+    const db = await getDatabase();
+
+    // Remove any payment applications linked to this invoice first to prevent FK violation
+    const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
+    await paymentAppliedRepo.delete({ invoiceId });
+
+    const invoiceRepository = db.getRepository(Invoice);
     const result = await invoiceRepository.delete({
       id: invoiceId,
       userId: parsedUserId,
@@ -33,10 +45,11 @@ const deleteInvoice = async (
     }
 
     return NextResponse.json({ message: "Invoice deleted successfully" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting invoice:", error);
+    const message = error?.detail || error?.message || "Failed to delete invoice";
     return NextResponse.json(
-      { message: "Failed to delete invoice" },
+      { message, error: String(error) },
       { status: 500 },
     );
   }

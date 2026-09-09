@@ -25,26 +25,31 @@ const deleteTemplate = async (
     }
 
     const db = await getDatabase();
-    const templateRepo = db.getRepository(Template);
 
-    const template = await templateRepo.findOne({
-      where: { id: templateId, userId: parsedUserId },
+    // Unlink any payments referencing this template to prevent FK constraints
+    const { Payment } = await import("@/entities/Payment");
+    const paymentRepo = db.getRepository(Payment);
+    await paymentRepo.update({ templateId }, { templateId: null as any });
+
+    const templateRepo = db.getRepository(Template);
+    const result = await templateRepo.delete({
+      id: templateId,
+      userId: parsedUserId,
     });
 
-    if (!template) {
+    if (result.affected === 0) {
       return NextResponse.json(
         { message: "Template not found" },
         { status: 404 }
       );
     }
 
-    await templateRepo.remove(template);
-
     return NextResponse.json({ message: "Template deleted successfully" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting template:", error);
+    const message = error?.detail || error?.message || "Failed to delete template";
     return NextResponse.json(
-      { message: "Failed to delete template" },
+      { message, error: String(error) },
       { status: 500 }
     );
   }

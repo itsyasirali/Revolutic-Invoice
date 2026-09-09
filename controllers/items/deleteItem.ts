@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
+import { InvoiceItem } from "@/entities/InvoiceItem";
 import { getAuthUserId } from "@/lib/session";
 
 const deleteItem = async (
@@ -15,11 +16,25 @@ const deleteItem = async (
 
   try {
     const parsedId = parseInt(id);
+    if (isNaN(parsedId)) {
+      return NextResponse.json(
+        { message: "Invalid item ID" },
+        { status: 400 },
+      );
+    }
     const parsedUserId = userId;
 
     const db = await getDatabase();
-    const itemsRepository = db.getRepository(Item);
 
+    // Safely unlink any existing invoice line items so invoices retain their text snapshot
+    // without failing Postgres foreign key constraint
+    const invoiceItemRepo = db.getRepository(InvoiceItem);
+    await invoiceItemRepo.update(
+      { itemId: parsedId },
+      { itemId: null },
+    );
+
+    const itemsRepository = db.getRepository(Item);
     const result = await itemsRepository.delete({
       id: parsedId,
       userId: parsedUserId,
@@ -33,10 +48,11 @@ const deleteItem = async (
     }
 
     return NextResponse.json({ message: "Item deleted successfully" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting item:", error);
+    const message = error?.detail || error?.message || "Failed to delete item";
     return NextResponse.json(
-      { message: "Failed to delete item" },
+      { message, error: String(error) },
       { status: 500 },
     );
   }

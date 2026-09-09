@@ -25,26 +25,31 @@ const deletePayment = async (
     }
 
     const db = await getDatabase();
-    const paymentRepo = db.getRepository(Payment);
 
-    const payment = await paymentRepo.findOne({
-      where: { id: paymentId, userId: parsedUserId },
+    // Delete applied invoice records first to ensure no constraint issues
+    const { PaymentAppliedInvoice } = await import("@/entities/PaymentAppliedInvoice");
+    const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
+    await paymentAppliedRepo.delete({ paymentId });
+
+    const paymentRepo = db.getRepository(Payment);
+    const result = await paymentRepo.delete({
+      id: paymentId,
+      userId: parsedUserId,
     });
 
-    if (!payment) {
+    if (result.affected === 0) {
       return NextResponse.json(
         { message: "Payment not found" },
         { status: 404 }
       );
     }
 
-    await paymentRepo.remove(payment);
-
     return NextResponse.json({ message: "Payment deleted successfully" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting payment:", error);
+    const message = error?.detail || error?.message || "Failed to delete payment";
     return NextResponse.json(
-      { message: "Failed to delete payment" },
+      { message, error: String(error) },
       { status: 500 }
     );
   }
