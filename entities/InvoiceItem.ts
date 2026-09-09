@@ -45,3 +45,5 @@ export class InvoiceItem {
   @Column({ type: "integer", nullable: true })
   itemId!: number | null;
 }
+
+Object.defineProperty(InvoiceItem, "name", { value: "InvoiceItem", configurable: true });

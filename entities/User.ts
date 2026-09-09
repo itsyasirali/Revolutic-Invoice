@@ -42,3 +42,5 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
+Object.defineProperty(User, "name", { value: "User", configurable: true });

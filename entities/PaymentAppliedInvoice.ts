@@ -37,3 +37,5 @@ export class PaymentAppliedInvoice {
   @Column("decimal", { precision: 12, scale: 2 })
   amount!: number;
 }
+
+Object.defineProperty(PaymentAppliedInvoice, "name", { value: "PaymentAppliedInvoice", configurable: true });

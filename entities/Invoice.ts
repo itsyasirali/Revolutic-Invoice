@@ -89,3 +89,5 @@ export class Invoice {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
+Object.defineProperty(Invoice, "name", { value: "Invoice", configurable: true });

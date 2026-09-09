@@ -195,3 +195,5 @@ export class Template {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
+Object.defineProperty(Template, "name", { value: "Template", configurable: true });

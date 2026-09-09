@@ -31,7 +31,7 @@ axios.interceptors.response.use(
     } else if (error.response?.status === 401) {
       console.error("Unauthorized (401)");
     } else if (error.response?.status === 500) {
-      console.error("Internal Server Error (500)");
+      console.error("Internal Server Error (500):", error.response?.data);
     }
 
     // Show non-blocking toast notification to user instead of alert()

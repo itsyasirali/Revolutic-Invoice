@@ -91,3 +91,5 @@ export class Payment {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
+Object.defineProperty(Payment, "name", { value: "Payment", configurable: true });

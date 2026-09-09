@@ -75,15 +75,20 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
         }
       }
     } catch (error: unknown) {
-      console.error("Error saving item:", error);
       const err = error as {
-        response?: { data?: { message?: string } };
+        response?: { data?: { message?: string; detail?: string } };
         message?: string;
       };
+      console.error("Error saving item:", error, err.response?.data);
+      const displayMsg =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
+        "Failed to save item.";
       setAlert({
         show: true,
         type: "error",
-        message: err.response?.data?.message || err.message || "Failed to save item.",
+        message: displayMsg,
       });
       return false;
     } finally {

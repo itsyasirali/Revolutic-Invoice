@@ -46,6 +46,25 @@ const ENTITIES = [
   Template,
 ];
 
+// Ensure entity class names are preserved in production builds to prevent TypeORM
+// SubjectTopologicalSorter minification collisions ("Cyclic dependency: 'p'")
+[
+  [User, "User"],
+  [Customer, "Customer"],
+  [Item, "Item"],
+  [Invoice, "Invoice"],
+  [InvoiceItem, "InvoiceItem"],
+  [Payment, "Payment"],
+  [PaymentAppliedInvoice, "PaymentAppliedInvoice"],
+  [Template, "Template"],
+].forEach(([cls, name]) => {
+  try {
+    Object.defineProperty(cls, "name", { value: name, configurable: true });
+  } catch {
+    // Ignore if already configured
+  }
+});
+
 export const getDatabase = async (): Promise<DataSource> => {
   if (globalForDb.dataSource && process.env.NODE_ENV !== "production") {
     // Check if HMR has given us new entity class references by comparing User classes
@@ -117,6 +136,14 @@ export const getDatabase = async (): Promise<DataSource> => {
     globalForDb.dataSourceInitPromise = globalForDb.dataSource
       .initialize()
       .then((ds) => {
+        // Enforce unique targetName on all EntityMetadatas to guarantee SubjectTopologicalSorter never sees duplicate names
+        ds.entityMetadatas.forEach((meta) => {
+          if (!meta.targetName || meta.targetName.length <= 2) {
+            meta.targetName =
+              meta.tableName ||
+              (typeof meta.target === "function" ? meta.target.name : String(meta.target));
+          }
+        });
         console.log("[Database] Connected successfully.");
         return ds;
       })
