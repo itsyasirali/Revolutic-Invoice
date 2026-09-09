@@ -31,7 +31,7 @@ export class Item {
   status!: string; // 'Active' | 'inActive'
 
   // Establishing relationship with User
-  @ManyToOne("users")
+  @ManyToOne("User")
   @JoinColumn({ name: "userId" })
   user!: User;
 

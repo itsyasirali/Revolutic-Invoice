@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { FindOptionsWhere } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 
 const getAllPayments = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
     const status = req.nextUrl.searchParams.get("status") || undefined;
     const customerIdParam = req.nextUrl.searchParams.get("customerId");
     const customerId = customerIdParam ? Number(customerIdParam) : undefined;

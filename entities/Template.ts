@@ -166,7 +166,7 @@ export class Template {
   @Column({ default: "left" }) contentAlignment!: string; // 'left' | 'center' | 'justify'
 
   // Relationships
-  @ManyToOne("users")
+  @ManyToOne("User")
   @JoinColumn({ name: "userId" })
   user!: User;
 

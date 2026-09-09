@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
@@ -9,9 +9,10 @@ import {
 } from "@/utils/customers/customersHelper";
 
 const createCustomer = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const formData = await req.formData();
@@ -48,7 +49,7 @@ const createCustomer = async (req: NextRequest) => {
     const customersRepository = db.getRepository(Customer);
 
     const customer = customersRepository.create({
-      userId: parseInt(String(userId)),
+      userId,
       customerType,
       companyName,
       displayName,

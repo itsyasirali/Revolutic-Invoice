@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { BatchDeleteItemPayload } from "@/types/item";
 
 const batchDeleteItems = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const body: BatchDeleteItemPayload = await req.json();
@@ -21,7 +22,7 @@ const batchDeleteItems = async (req: NextRequest) => {
       );
     }
 
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
     const parsedItemIds = itemIds.map((id) => parseInt(id));
 
     const db = await getDatabase();

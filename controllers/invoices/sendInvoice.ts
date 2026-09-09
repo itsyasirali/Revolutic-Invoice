@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { generateInvoicePDF } from "@/utils/invoices/generateInvoicePdf";
 import {
   createMailTransporter,
@@ -16,13 +16,14 @@ const sendInvoice = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
     let invoiceId = Number(id);
 
     const body: SendInvoicePayload = await req.json();

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import {
   createMailTransporter,
   getMailFromName,
@@ -13,13 +13,14 @@ const sendPayment = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
     const body = await req.json();
 
     const db = await getDatabase();

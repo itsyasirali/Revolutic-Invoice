@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
@@ -16,14 +16,13 @@ const updateCustomer = async (
 ) => {
   const { id } = await params;
 
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  if (!token?.id) {
+  const userId = await getAuthUserId(req);
+  if (!userId) {
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
 
   try {
     const parsedId = parseInt(id);
-    const userId = parseInt(token.id as string, 10);
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 
 const getMe = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const userId = await getAuthUserId(req);
 
-  if (!token?.id) {
+  if (!userId) {
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
 
@@ -15,7 +15,7 @@ const getMe = async (req: NextRequest) => {
     const usersRepository = db.getRepository(User);
 
     const user = await usersRepository.findOne({
-      where: { id: parseInt(token.id as string, 10) },
+      where: { id: userId },
     });
 
     if (!user) {

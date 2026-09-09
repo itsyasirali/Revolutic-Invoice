@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { CreateItemPayload } from "@/types/item";
 
 const createItem = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const body: CreateItemPayload = await req.json();
@@ -65,7 +66,7 @@ const createItem = async (req: NextRequest) => {
       unit,
       sellingPrice,
       description,
-      userId: parseInt(String(userId)),
+      userId,
       status: status || "Active",
     });
 

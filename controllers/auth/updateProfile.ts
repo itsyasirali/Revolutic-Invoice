@@ -3,14 +3,12 @@ import bcrypt from "bcrypt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { UpdateProfilePayload } from "@/types/auth";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 
 const updateProfile = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const sessionUser = data.user;
+  const userId = await getAuthUserId(req);
 
-  if (!sessionUser || !sessionUser.id) {
+  if (!userId) {
     return NextResponse.json(
       { message: "Not authenticated" },
       { status: 401 },
@@ -23,7 +21,6 @@ const updateProfile = async (req: NextRequest) => {
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
 
-    const userId = parseInt(sessionUser.id as string, 10);
     const user = await usersRepository.findOne({
       where: { id: userId },
     });

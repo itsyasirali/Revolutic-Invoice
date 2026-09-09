@@ -3,15 +3,16 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 
 const getAllCustomers = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);

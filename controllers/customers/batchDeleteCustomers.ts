@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getToken } from "next-auth/jwt";
+import { getAuthUserId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 import { BatchDeleteCustomerPayload } from "@/types/customer";
 
 const batchDeleteCustomers = async (req: NextRequest) => {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  const data = { user: token };
-  const userId = data.user?.id;
+  const userId = await getAuthUserId(req);
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const body: BatchDeleteCustomerPayload = await req.json();
@@ -22,7 +23,7 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    const parsedUserId = parseInt(String(userId));
+    const parsedUserId = userId;
     const parsedCustomerIds = customerIds.map((id) => parseInt(id));
 
     const db = await getDatabase();
