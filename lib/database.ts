@@ -66,27 +66,23 @@ const ENTITIES = [
 });
 
 export const getDatabase = async (): Promise<DataSource> => {
-  if (globalForDb.dataSource && process.env.NODE_ENV !== "production") {
-    // Check if HMR has given us new entity class references by comparing User classes
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    const existingEntities = globalForDb.dataSource.options.entities as Function[];
-    if (existingEntities && existingEntities.length > 0 && existingEntities[0] !== User) {
-      console.log("HMR detected: Entity classes changed, recreating TypeORM DataSource...");
-      if (globalForDb.dataSource.isInitialized) {
-        await globalForDb.dataSource.destroy();
-      }
-      globalForDb.dataSource = undefined;
-      globalForDb.dataSourceInitPromise = undefined;
-    }
+  // Fast-path: return cached and initialized DataSource immediately
+  if (globalForDb.dataSource?.isInitialized) {
+    return globalForDb.dataSource;
+  }
+
+  // If initialization is already in progress, wait for it
+  if (globalForDb.dataSourceInitPromise) {
+    return globalForDb.dataSourceInitPromise;
   }
 
   if (!globalForDb.dataSource) {
     const connectionUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
     const ssl = getSslConfig(connectionUrl);
-    const synchronize =
-      process.env.DB_SYNCHRONIZE !== undefined
-        ? process.env.DB_SYNCHRONIZE === "true"
-        : process.env.NODE_ENV !== "production";
+    // Schema synchronization runs dozens of roundtrip network queries to introspect
+    // tables, columns, indexes, and constraints. Keep it disabled by default for instant
+    // connection speed unless explicitly requested via DB_SYNCHRONIZE=true.
+    const synchronize = process.env.DB_SYNCHRONIZE === "true";
 
     if (!connectionUrl && !process.env.DB_HOST) {
       const missingVarsMsg =
@@ -99,6 +95,12 @@ export const getDatabase = async (): Promise<DataSource> => {
       `[Database] Initializing connection: ${connectionUrl ? "using URL" : `host ${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`}, ssl=${Boolean(ssl)}`
     );
 
+    const poolConfig = {
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    };
+
     if (connectionUrl) {
       globalForDb.dataSource = new DataSource({
         type: "postgres",
@@ -106,9 +108,7 @@ export const getDatabase = async (): Promise<DataSource> => {
         ssl: ssl || undefined,
         entities: ENTITIES,
         synchronize,
-        extra: {
-          connectionTimeoutMillis: 10000,
-        },
+        extra: poolConfig,
       });
     } else {
       globalForDb.dataSource = new DataSource({
@@ -121,15 +121,9 @@ export const getDatabase = async (): Promise<DataSource> => {
         ssl,
         entities: ENTITIES,
         synchronize,
-        extra: {
-          connectionTimeoutMillis: 10000,
-        },
+        extra: poolConfig,
       });
     }
-  }
-
-  if (globalForDb.dataSource.isInitialized) {
-    return globalForDb.dataSource;
   }
 
   if (!globalForDb.dataSourceInitPromise) {

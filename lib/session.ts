@@ -15,16 +15,20 @@ export interface AuthUserSession {
   [key: string]: unknown;
 }
 
+let cachedAuthSecret: Uint8Array | null = null;
+
 /**
  * Retrieves the signing secret as a Uint8Array for jose.
  */
 export const getAuthSecret = (): Uint8Array => {
+  if (cachedAuthSecret) return cachedAuthSecret;
   const secretStr =
     process.env.AUTH_SECRET ||
     process.env.JWT_SECRET ||
     process.env.NEXTAUTH_SECRET ||
     "fallback-secret-for-development-do-not-use-in-prod";
-  return new TextEncoder().encode(secretStr);
+  cachedAuthSecret = new TextEncoder().encode(secretStr);
+  return cachedAuthSecret;
 };
 
 /**

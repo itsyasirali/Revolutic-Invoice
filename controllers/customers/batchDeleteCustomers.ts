@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
+import { Invoice } from "@/entities/Invoice";
+import { Payment } from "@/entities/Payment";
 import { getAuthUserId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 import { BatchDeleteCustomerPayload } from "@/types/customer";
@@ -53,12 +55,19 @@ const batchDeleteCustomers = async (req: NextRequest) => {
 
     const idsToDelete = docs.map((d) => d.id);
 
-    // Check if any of the customers have associated invoices
-    const { Invoice } = await import("@/entities/Invoice");
+    // Check in parallel if any customers have associated invoices or payments
     const invoiceRepo = db.getRepository(Invoice);
-    const invoiceCount = await invoiceRepo.count({
-      where: { customerId: In(idsToDelete), userId: parsedUserId },
-    });
+    const paymentRepo = db.getRepository(Payment);
+
+    const [invoiceCount, paymentCount] = await Promise.all([
+      invoiceRepo.count({
+        where: { customerId: In(idsToDelete), userId: parsedUserId },
+      }),
+      paymentRepo.count({
+        where: { customerId: In(idsToDelete), userId: parsedUserId },
+      }),
+    ]);
+
     if (invoiceCount > 0) {
       return NextResponse.json(
         {
@@ -68,12 +77,6 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    // Check if any of the customers have associated payments
-    const { Payment } = await import("@/entities/Payment");
-    const paymentRepo = db.getRepository(Payment);
-    const paymentCount = await paymentRepo.count({
-      where: { customerId: In(idsToDelete), userId: parsedUserId },
-    });
     if (paymentCount > 0) {
       return NextResponse.json(
         {

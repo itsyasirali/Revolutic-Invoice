@@ -35,10 +35,15 @@ export const createInvoiceRecord = async (
   const customerRepository = db.getRepository(Customer);
   const templateRepository = db.getRepository(Template);
 
-  // Verify customer exists and belongs to user
-  const customer = await customerRepository.findOne({
-    where: { id: customerId, userId },
-  });
+  // Fetch customer and default template (if needed) concurrently
+  const [customer, defaultTemplate] = await Promise.all([
+    customerRepository.findOne({
+      where: { id: customerId, userId },
+    }),
+    !templateId
+      ? templateRepository.findOne({ where: { userId, isDefault: true } })
+      : Promise.resolve(null),
+  ]);
 
   if (!customer) {
     throw new InvoiceOperationError(
@@ -48,15 +53,7 @@ export const createInvoiceRecord = async (
   }
 
   // Get template (provided or default)
-  let finalTemplateId = templateId;
-  if (!finalTemplateId) {
-    const defaultTemplate = await templateRepository.findOne({
-      where: { userId, isDefault: true },
-    });
-    if (defaultTemplate) {
-      finalTemplateId = defaultTemplate.id;
-    }
-  }
+  const finalTemplateId = templateId || defaultTemplate?.id;
 
   // Calculate totals
   const calculatedData = calculateInvoiceTotals({

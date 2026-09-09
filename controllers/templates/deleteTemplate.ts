@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
+import { Payment } from "@/entities/Payment";
 import { getAuthUserId } from "@/lib/session";
 
 const deleteTemplate = async (
@@ -27,7 +28,6 @@ const deleteTemplate = async (
     const db = await getDatabase();
 
     // Unlink any payments referencing this template to prevent FK constraints
-    const { Payment } = await import("@/entities/Payment");
     const paymentRepo = db.getRepository(Payment);
     await paymentRepo.update({ templateId }, { templateId: null as any });
 

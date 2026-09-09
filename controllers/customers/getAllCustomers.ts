@@ -19,18 +19,19 @@ const getAllCustomers = async (req: NextRequest) => {
     const invoicesRepository = db.getRepository(Invoice);
     const paymentsRepository = db.getRepository(Payment);
 
-    const customers = await customersRepository.find({
-      where: { userId: parsedUserId },
-      order: { createdAt: "DESC" },
-    });
-
-    const invoices = await invoicesRepository.find({
-      where: { userId: parsedUserId },
-    });
-    const payments = await paymentsRepository.find({
-      where: { userId: parsedUserId },
-      order: { paymentDate: "DESC" },
-    });
+    const [customers, invoices, payments] = await Promise.all([
+      customersRepository.find({
+        where: { userId: parsedUserId },
+        order: { createdAt: "DESC" },
+      }),
+      invoicesRepository.find({
+        where: { userId: parsedUserId },
+      }),
+      paymentsRepository.find({
+        where: { userId: parsedUserId },
+        order: { paymentDate: "DESC" },
+      }),
+    ]);
 
     const customersWithFinancials = customers.map((customer) => {
       const customerObj = { ...customer };

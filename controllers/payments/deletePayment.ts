@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
+import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { getAuthUserId } from "@/lib/session";
 
 const deletePayment = async (
@@ -27,7 +28,6 @@ const deletePayment = async (
     const db = await getDatabase();
 
     // Delete applied invoice records first to ensure no constraint issues
-    const { PaymentAppliedInvoice } = await import("@/entities/PaymentAppliedInvoice");
     const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
     await paymentAppliedRepo.delete({ paymentId });
 

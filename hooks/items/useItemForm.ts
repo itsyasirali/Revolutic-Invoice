@@ -49,31 +49,22 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
     dismissAlert();
 
     try {
-      if (initialData?.id) {
-        const res = await axios.put(`/items/${initialData.id}`, payload);
-        if (res.status === 200 || res.status === 201) {
-          return true;
-        } else {
-          setAlert({
-            show: true,
-            type: "error",
-            message: res.data?.message || "Failed to update item.",
-          });
-          return false;
-        }
-      } else {
-        const res = await axios.post(`/items`, payload);
-        if (res.status === 200 || res.status === 201) {
-          return true;
-        } else {
-          setAlert({
-            show: true,
-            type: "error",
-            message: res.data?.message || "Failed to save item.",
-          });
-          return false;
-        }
+      const res = initialData?.id
+        ? await axios.put(`/items/${initialData.id}`, payload)
+        : await axios.post(`/items`, payload);
+
+      if (res.status === 200 || res.status === 201) {
+        return true;
       }
+
+      setAlert({
+        show: true,
+        type: "error",
+        message:
+          res.data?.message ||
+          (initialData?.id ? "Failed to update item." : "Failed to save item."),
+      });
+      return false;
     } catch (error: unknown) {
       const err = error as {
         response?: { data?: { message?: string; detail?: string } };

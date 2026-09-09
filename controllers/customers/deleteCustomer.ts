@@ -28,10 +28,21 @@ const deleteCustomer = async (
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
+    const invoiceRepo = db.getRepository(Invoice);
+    const paymentRepo = db.getRepository(Payment);
 
-    const customer = await customersRepository.findOne({
-      where: { id: customerId, userId: parsedUserId },
-    });
+    // Run customer lookup, invoice constraint check, and payment constraint check concurrently
+    const [customer, invoiceCount, paymentCount] = await Promise.all([
+      customersRepository.findOne({
+        where: { id: customerId, userId: parsedUserId },
+      }),
+      invoiceRepo.count({
+        where: { customerId, userId: parsedUserId },
+      }),
+      paymentRepo.count({
+        where: { customerId, userId: parsedUserId },
+      }),
+    ]);
 
     if (!customer) {
       return NextResponse.json(
@@ -40,11 +51,6 @@ const deleteCustomer = async (
       );
     }
 
-    // Check if customer has associated invoices
-    const invoiceRepo = db.getRepository(Invoice);
-    const invoiceCount = await invoiceRepo.count({
-      where: { customerId, userId: parsedUserId },
-    });
     if (invoiceCount > 0) {
       return NextResponse.json(
         {
@@ -54,11 +60,6 @@ const deleteCustomer = async (
       );
     }
 
-    // Check if customer has associated payments
-    const paymentRepo = db.getRepository(Payment);
-    const paymentCount = await paymentRepo.count({
-      where: { customerId, userId: parsedUserId },
-    });
     if (paymentCount > 0) {
       return NextResponse.json(
         {

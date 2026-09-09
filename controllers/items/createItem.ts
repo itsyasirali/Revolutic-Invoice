@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { User } from "@/entities/User";
 import { getAuthUserId } from "@/lib/session";
 import { CreateItemPayload } from "@/types/item";
 
@@ -48,17 +47,6 @@ const createItem = async (req: NextRequest) => {
     }
 
     const db = await getDatabase();
-
-    // Verify user exists in the database to prevent foreign key violations
-    const usersRepository = db.getRepository(User);
-    const existingUser = await usersRepository.findOne({ where: { id: userId } });
-    if (!existingUser) {
-      return NextResponse.json(
-        { message: "User account not found. Please log out and log in again." },
-        { status: 401 },
-      );
-    }
-
     const itemsRepository = db.getRepository(Item);
 
     const newItem = itemsRepository.create({
@@ -66,8 +54,7 @@ const createItem = async (req: NextRequest) => {
       unit: unit && String(unit).trim() ? String(unit).trim() : undefined,
       sellingPrice,
       description: description && String(description).trim() ? String(description).trim() : undefined,
-      user: existingUser,
-      userId: existingUser.id,
+      userId,
       status: status || "Active",
     });
 
