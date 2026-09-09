@@ -15,7 +15,7 @@ export class PaymentAppliedInvoice {
   id!: number;
 
   @ManyToOne(
-    "Payment",
+    "payments",
     "appliedInvoices",
     {
       onDelete: "CASCADE",
@@ -27,7 +27,7 @@ export class PaymentAppliedInvoice {
   @Column()
   paymentId!: number;
 
-  @ManyToOne("Invoice")
+  @ManyToOne("invoices")
   @JoinColumn({ name: "invoiceId" })
   invoice!: Invoice;
 

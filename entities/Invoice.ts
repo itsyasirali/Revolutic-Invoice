@@ -59,28 +59,28 @@ export class Invoice {
   discountPercent!: number;
 
   // Relationships
-  @ManyToOne("User")
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 
   @Column()
   userId!: number;
 
-  @ManyToOne("Customer")
+  @ManyToOne("customers")
   @JoinColumn({ name: "customerId" })
   customer!: Customer;
 
   @Column()
   customerId!: number;
 
-  @ManyToOne("Template", { nullable: true, onDelete: "SET NULL" })
+  @ManyToOne("templates", { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "templateId" })
   template!: Template;
 
   @Column({ type: "integer", nullable: true })
   templateId!: number | null;
 
-  @OneToMany("InvoiceItem", "invoice", { cascade: true })
+  @OneToMany("invoice_items", "invoice", { cascade: true })
   items!: InvoiceItem[];
 
   @CreateDateColumn()

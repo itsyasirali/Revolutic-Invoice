@@ -47,7 +47,7 @@ export class Customer {
     contact?: string;
   }[];
 
-  @ManyToOne("User")
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 

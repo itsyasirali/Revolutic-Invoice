@@ -29,7 +29,7 @@ export class InvoiceItem {
   @Column("decimal", { precision: 12, scale: 2 })
   amount!: number;
 
-  @ManyToOne("Invoice", "items", {
+  @ManyToOne("invoices", "items", {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "invoiceId" })
@@ -38,7 +38,7 @@ export class InvoiceItem {
   @Column()
   invoiceId!: number;
 
-  @ManyToOne("Item", { nullable: true })
+  @ManyToOne("items", { nullable: true })
   @JoinColumn({ name: "itemId" })
   item!: Item;
 

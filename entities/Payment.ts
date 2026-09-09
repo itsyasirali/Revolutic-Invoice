@@ -28,14 +28,14 @@ export class Payment {
   @Column({ nullable: true })
   referenceNo!: string;
 
-  @ManyToOne("User")
+  @ManyToOne("users")
   @JoinColumn({ name: "userId" })
   user!: User;
 
   @Column()
   userId!: number;
 
-  @ManyToOne("Customer")
+  @ManyToOne("customers")
   @JoinColumn({ name: "customerId" })
   customer!: Customer;
 
@@ -48,7 +48,7 @@ export class Payment {
   @Column({ nullable: true })
   customerEmail!: string;
 
-  @ManyToOne("Template", { nullable: true })
+  @ManyToOne("templates", { nullable: true })
   @JoinColumn({ name: "templateId" })
   template!: Template;
 
@@ -77,7 +77,7 @@ export class Payment {
   notes!: string;
 
   @OneToMany(
-    "PaymentAppliedInvoice",
+    "payment_applied_invoices",
     "payment",
     {
       cascade: true,
