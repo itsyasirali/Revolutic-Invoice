@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   Home,
   Users,
@@ -184,8 +185,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Back to Templates List */}
               <div className="border-t border-slate-800 mt-4 pt-4">
-                <button
-                  onClick={() => router.push("/templates")}
+                <Link
+                  href="/templates"
+                  prefetch={true}
                   className={`flex w-[90%] mx-auto rounded-md px-2 py-2 text-xs transition-all
                     ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
                     text-slate-400 hover:bg-slate-700 hover:text-white
@@ -196,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {!isCollapsed && (
                     <span className="text-xs truncate">Back to Templates</span>
                   )}
-                </button>
+                </Link>
               </div>
             </>
           ) : (
@@ -204,9 +206,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             MENU_ITEMS.map((item) => {
               const IconComp = item.icon;
               return (
-                <button
+                <Link
                   key={item.label}
-                  onClick={() => handleClick(item.label, item.path)}
+                  href={item.path}
+                  prefetch={true}
+                  onClick={() => onMenuClick(item.label)}
                   className={`flex w-[90%] mx-auto cursor-pointer rounded-md px-2 py-2 my-0.5 text-xs transition-all
                     ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
                     ${
@@ -222,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {!isCollapsed && (
                     <span className="text-xs truncate">{item.label}</span>
                   )}
-                </button>
+                </Link>
               );
             })
           )}
@@ -290,13 +294,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Profile Actions */}
                 <div className="py-2">
-                  <button
-                    type="button"
-                    onClick={handleMyAccount}
-                    className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors cursor-pointer"
+                  <Link
+                    href="/profile"
+                    prefetch={true}
+                    onClick={() => setIsProfileOpen(false)}
+                    className="w-full block text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     My Account
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     onClick={handleSignOut}

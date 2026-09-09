@@ -23,3 +23,4 @@ export { SettingsDrawer, default as SettingsDrawerComponent } from './SettingsDr
 export { Tabs, default as TabsComponent } from './Tabs';
 export { ComingSoon, default as ComingSoonComponent } from './ComingSoon';
 export { ToastContainer, toast, default as ToastComponent } from './Toast';
+export { default as TableSkeleton } from './TableSkeleton';

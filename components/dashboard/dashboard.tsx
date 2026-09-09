@@ -8,7 +8,15 @@ import { getServerSessionUser } from "@/lib/session";
 
 export const DashboardMain = async () => {
   const user = await getServerSessionUser();
-  if (!user?.id) return null;
+  if (!user?.id) {
+    return (
+      <div className="w-full pb-10 min-h-screen">
+        <div className="mb-4">
+          <span className="text-primary font-medium">Dashboard</span>
+        </div>
+      </div>
+    );
+  }
 
   const { receivables, salesExpensesData, currencyStats, recentInvoices } =
     await getDashboardData(Number(user.id));

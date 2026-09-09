@@ -24,11 +24,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+export interface AuthProviderProps {
+  children: React.ReactNode;
+  initialUser?: User | null;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
+  initialUser,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(initialUser ?? null);
+  const [loading, setLoading] = useState<boolean>(initialUser === undefined);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async (opts?: { silent?: boolean }) => {
@@ -53,8 +59,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    if (initialUser === undefined) {
+      fetchProfile();
+    }
+  }, [fetchProfile, initialUser]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
