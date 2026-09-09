@@ -57,10 +57,10 @@ const getAllInvoices = async (req: NextRequest) => {
     const invoices = await queryBuilder.getMany();
 
     return NextResponse.json({ invoices });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching invoices:", error);
     return NextResponse.json(
-      { message: "Failed to fetch invoices" },
+      { message: "Failed to fetch invoices", error: error?.message || String(error) },
       { status: 500 },
     );
   }

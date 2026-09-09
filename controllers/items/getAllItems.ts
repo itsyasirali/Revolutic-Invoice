@@ -21,10 +21,10 @@ const getAllItems = async (req: NextRequest) => {
     });
 
     return NextResponse.json({ items });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching items:", error);
     return NextResponse.json(
-      { message: "Failed to fetch items" },
+      { message: "Failed to fetch items", error: error?.message || String(error) },
       { status: 500 },
     );
   }

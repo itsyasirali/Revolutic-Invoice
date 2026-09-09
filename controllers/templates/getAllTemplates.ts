@@ -20,10 +20,10 @@ const getAllTemplates = async (req: NextRequest) => {
     });
 
     return NextResponse.json(templates);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching templates:", error);
     return NextResponse.json(
-      { message: "Failed to fetch templates" },
+      { message: "Failed to fetch templates", error: error?.message || String(error) },
       { status: 500 }
     );
   }

@@ -10,5 +10,7 @@ export interface HealthDbResponse {
     isProduction: boolean;
   };
   tablesFound?: number;
+  entityCounts?: Record<string, number>;
+  customerSampleTest?: string;
   error?: string;
 }

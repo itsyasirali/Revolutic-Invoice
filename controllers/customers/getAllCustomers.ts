@@ -98,10 +98,10 @@ const getAllCustomers = async (req: NextRequest) => {
     });
 
     return NextResponse.json({ customers: customersWithFinancials });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching customers:", error);
     return NextResponse.json(
-      { message: "Failed to fetch customers" },
+      { message: "Failed to fetch customers", error: error?.message || String(error) },
       { status: 500 },
     );
   }

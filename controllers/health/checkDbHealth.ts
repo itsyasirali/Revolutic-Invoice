@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { HealthDbResponse } from "@/types/health";
+import { User } from "@/entities/User";
+import { Customer } from "@/entities/Customer";
+import { Invoice } from "@/entities/Invoice";
+import { Item } from "@/entities/Item";
+import { Template } from "@/entities/Template";
+import { Payment } from "@/entities/Payment";
 
 const checkDbHealth = async (): Promise<NextResponse<HealthDbResponse>> => {
   const hasHostOrUrl = Boolean(
@@ -33,11 +39,41 @@ const checkDbHealth = async (): Promise<NextResponse<HealthDbResponse>> => {
       "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
     );
 
+    // Test TypeORM repositories directly to verify entity schemas and relations
+    const userRepo = db.getRepository(User);
+    const customerRepo = db.getRepository(Customer);
+    const invoiceRepo = db.getRepository(Invoice);
+    const itemRepo = db.getRepository(Item);
+    const templateRepo = db.getRepository(Template);
+    const paymentRepo = db.getRepository(Payment);
+
+    const entityCounts = {
+      users: await userRepo.count(),
+      customers: await customerRepo.count(),
+      invoices: await invoiceRepo.count(),
+      items: await itemRepo.count(),
+      templates: await templateRepo.count(),
+      payments: await paymentRepo.count(),
+    };
+
+    // Test query customer with ordering (exact query in getAllCustomers)
+    let customerSampleTest = "OK";
+    try {
+      await customerRepo.find({
+        take: 1,
+        order: { createdAt: "DESC" },
+      });
+    } catch (err: any) {
+      customerSampleTest = `Failed: ${err?.message}`;
+    }
+
     return NextResponse.json({
       status: "connected",
       timestamp: new Date().toISOString(),
       config: baseConfig,
       tablesFound: tables.length,
+      entityCounts,
+      customerSampleTest,
     });
   } catch (error: any) {
     console.error("[Health API] DB Health check failed:", error);
