@@ -13,16 +13,16 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
   const getStatusBadge = (status: DashboardInvoice["status"]) => {
     switch (status) {
       case "Paid":
-        return "bg-emerald-50 text-emerald-600 border-emerald-100/80";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "Partial":
-        return "bg-sky-50 text-sky-600 border-sky-100/80";
+        return "bg-amber-50 text-amber-800 border-amber-200";
       case "Unpaid":
-        return "bg-amber-50 text-amber-600 border-amber-100/80";
+        return "bg-rose-50 text-rose-700 border-rose-200";
       case "Overdue":
-        return "bg-rose-50 text-rose-600 border-rose-100/80";
+        return "bg-rose-50 text-rose-700 border-rose-200";
       case "Draft":
       default:
-        return "bg-slate-100 text-slate-600 border-slate-200/60";
+        return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 

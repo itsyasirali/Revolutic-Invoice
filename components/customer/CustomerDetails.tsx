@@ -88,6 +88,7 @@ const CustomerDetails: React.FC = () => {
               | "danger"
               | "warning"
               | "info"
+              | "gray"
           }
         />
       ),

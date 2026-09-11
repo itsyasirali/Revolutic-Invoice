@@ -4,14 +4,18 @@ import type { BadgeProps, BadgeVariant, BadgeSize } from "@/types/common";
 const variantClasses: Record<BadgeVariant, { container: string; dot: string }> =
   {
     primary: {
-      container: "bg-primary/10 text-primary border border-primary/20",
-      dot: "bg-primary",
+      container: "bg-blue-50 text-blue-700 border border-blue-200",
+      dot: "bg-blue-500",
     },
     secondary: {
-      container: "bg-primary/10 text-primary border border-primary/20",
-      dot: "bg-primary",
+      container: "bg-blue-50 text-blue-700 border border-blue-200",
+      dot: "bg-blue-500",
     },
     success: {
+      container: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+      dot: "bg-emerald-500",
+    },
+    active: {
       container: "bg-emerald-50 text-emerald-700 border border-emerald-200",
       dot: "bg-emerald-500",
     },
@@ -31,13 +35,17 @@ const variantClasses: Record<BadgeVariant, { container: string; dot: string }> =
       container: "bg-slate-100 text-slate-700 border border-slate-200",
       dot: "bg-slate-500",
     },
+    inactive: {
+      container: "bg-slate-100 text-slate-600 border border-slate-200",
+      dot: "bg-slate-400",
+    },
     outline: {
       container: "bg-transparent text-slate-700 border border-slate-300",
       dot: "bg-slate-400",
     },
     default: {
-      container: "bg-primary/10 text-primary border border-primary/20",
-      dot: "bg-primary",
+      container: "bg-slate-100 text-slate-700 border border-slate-200",
+      dot: "bg-slate-500",
     },
   };
 
@@ -51,33 +59,35 @@ export const Badge: React.FC<BadgeProps> = ({
   children,
   label,
   status,
-  variant = "primary",
+  variant,
   size = "md",
   dot = false,
   icon: Icon,
   rounded = true,
   className = "",
 }) => {
-  let computedVariant = variant;
-  if (status && !label && !children) {
-    const lower = status.toLowerCase();
-    if (
-      lower.includes("active") ||
-      lower.includes("paid") ||
-      lower.includes("success")
-    )
-      computedVariant = "success";
-    else if (lower.includes("inactive") || lower.includes("archived"))
-      computedVariant = "gray";
-    else if (lower.includes("overdue") || lower.includes("failed"))
-      computedVariant = "danger";
-    else if (
-      lower.includes("pending") ||
-      lower.includes("draft") ||
-      lower.includes("sent")
-    )
+  const text = (status || label || (typeof children === "string" ? children : "")).toString().trim();
+  const lower = text.toLowerCase();
+
+  let computedVariant: BadgeVariant = variant || "primary";
+
+  // Auto-detect status colors when variant is not explicitly specialized
+  if (!variant || variant === "primary" || variant === "default") {
+    if (lower === "inactive" || lower.startsWith("inactive") || lower.includes("inactive") || lower.includes("archived")) {
+      computedVariant = "inactive";
+    } else if (lower === "active" || lower.includes("active")) {
+      computedVariant = "active";
+    } else if (lower.includes("partially paid") || lower.includes("partial") || lower === "partially_paid") {
       computedVariant = "warning";
-    else computedVariant = "primary";
+    } else if (lower === "paid" || lower.includes("paid") || lower.includes("success")) {
+      computedVariant = "success";
+    } else if (lower.includes("overdue") || lower.includes("failed") || lower.includes("unpaid")) {
+      computedVariant = "danger";
+    } else if (lower.includes("sent")) {
+      computedVariant = "info";
+    } else if (lower.includes("draft") || lower.includes("pending") || lower.includes("cancelled")) {
+      computedVariant = "gray";
+    }
   }
 
   const style = variantClasses[computedVariant] || variantClasses.primary;

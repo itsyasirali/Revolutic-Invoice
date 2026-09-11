@@ -157,8 +157,18 @@ export interface StatusBadgeProps {
     variant?: 'active' | 'inactive' | 'success' | 'danger' | 'warning' | 'info' | 'default';
 }
 
-// Badge Component Types
-export type BadgeVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'gray' | 'outline' | 'default';
+export type BadgeVariant =
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'danger'
+  | 'warning'
+  | 'info'
+  | 'gray'
+  | 'outline'
+  | 'default'
+  | 'active'
+  | 'inactive';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {

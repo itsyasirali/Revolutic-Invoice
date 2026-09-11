@@ -14,7 +14,10 @@ export type UIInvoiceListItem = {
   date: string;
   dueDate?: string;
   amount: string;
-  status: { tooltip: string; color: "success" | "danger" | "warning" };
+  status: {
+    tooltip: string;
+    color: "success" | "danger" | "warning" | "info" | "gray" | "default";
+  };
   overdueDays?: number;
   documents?: any[];
   raw: RawDoc;
@@ -28,13 +31,14 @@ export type CustomerFinancials = {
 
 function toStatus(s: any): UIInvoiceListItem["status"] {
   const v = String(s ?? "").toLowerCase();
-  if (v === "sent") return { tooltip: "Sent", color: "success" };
-  if (v === "draft") return { tooltip: "Draft", color: "warning" };
+  if (v === "sent") return { tooltip: "Sent", color: "info" };
+  if (v === "draft") return { tooltip: "Draft", color: "gray" };
   if (v === "overdue") return { tooltip: "Overdue", color: "danger" };
-  if (v === "partially paid") return { tooltip: "Partially Paid", color: "warning" };
+  if (v === "partially paid" || v === "partial") return { tooltip: "Partially Paid", color: "warning" };
   if (v === "paid") return { tooltip: "Paid", color: "success" };
-  return { tooltip: "Overdue", color: "warning" };
+  return { tooltip: s || "Draft", color: "gray" };
 }
+
 
 function computeOverdueDays(due: any): number | undefined {
   if (!due) return undefined;

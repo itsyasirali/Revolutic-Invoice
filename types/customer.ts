@@ -59,7 +59,7 @@ export interface UIInvoiceListItem {
   amount: string;
   status: {
     tooltip: string;
-    color: "success" | "danger" | "warning" | "default";
+    color: "success" | "danger" | "warning" | "info" | "gray" | "default";
   };
   overdueDays: number;
   raw: unknown;
