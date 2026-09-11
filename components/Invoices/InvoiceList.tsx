@@ -20,7 +20,6 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
   const {
     filteredInvoices,
     selectedIds,
-    setSelectedIds,
     statusFilter,
     setStatusFilter,
     dropdownOpen,

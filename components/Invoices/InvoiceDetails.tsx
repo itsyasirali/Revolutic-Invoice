@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import { Edit, Download, Send, FileText, Eye } from "lucide-react";
+import { Edit, Send, Eye } from "lucide-react";
 import {
   Button,
-  EmptyState,
   PageHeader,
-  StatusBadge,
   Table,
 } from "@/components/ui";
 import useInvoicePreview from "@/hooks/invoices/useInvoicePreview";

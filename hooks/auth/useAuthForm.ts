@@ -93,7 +93,11 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
   };
 
   const handleSubmit = async () => {
-    isSignup ? await handleSignup() : await handleLogin();
+    if (isSignup) {
+      await handleSignup();
+    } else {
+      await handleLogin();
+    }
   };
 
   const toggleMode = () => {

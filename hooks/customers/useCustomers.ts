@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
 import type { Customer } from "@/types/customer";
 

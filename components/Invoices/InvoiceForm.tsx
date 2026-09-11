@@ -8,7 +8,6 @@ import {
   ChevronDown,
   X,
   Eye,
-  Plus,
   Info,
 } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";

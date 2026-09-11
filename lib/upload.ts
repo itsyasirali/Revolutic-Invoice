@@ -1,4 +1,3 @@
-import path from "path";
 import { uploadFileToCloudinary } from "./cloudinary";
 
 export interface SavedUpload {

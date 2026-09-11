@@ -158,7 +158,6 @@ export default function useInvoicesList(
 
       const total = parseFloat(invoice?.total ?? invoice?.amount ?? "0");
       const paid = parseFloat(invoice?.paidAmount ?? invoice?.received ?? "0");
-      const remaining = parseFloat(invoice?.remaining ?? "0");
       const status = String(invoice?.status ?? "").toLowerCase();
 
       if (!map.has(nameKey)) {

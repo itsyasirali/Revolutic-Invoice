@@ -26,7 +26,6 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
     dropdownOpen,
     setDropdownOpen,
     selectedIds,
-    setSelectedIds,
     filteredCustomers,
     alert,
     dismissAlert,

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Send, Edit, Download, Settings } from "lucide-react";
-import { Button, LoadingSpinner, PageHeader } from "@/components/ui";
+import { Button, PageHeader } from "@/components/ui";
 import PaymentTemplateSelector from "./PaymentTemplateSelector";
 import TemplatePreview from "@/components/Templates/TemplatePreview";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";

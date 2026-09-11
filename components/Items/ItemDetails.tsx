@@ -10,7 +10,7 @@ import {
   Tag,
   DollarSign,
 } from "lucide-react";
-import { StatusBadge, EmptyState, Button, PageHeader, ConfirmDialog, AlertModal } from "@/components/ui";
+import { StatusBadge, Button, PageHeader, ConfirmDialog, AlertModal } from "@/components/ui";
 import useItemDetailsView from "@/hooks/items/useItemDetailsView";
 
 const ItemDetails: React.FC = () => {

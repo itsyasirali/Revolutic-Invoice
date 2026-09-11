@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Send, X, Plus, Check, FileText, Download } from "lucide-react";
+import { useParams , useRouter } from "next/navigation";
+import { Send, X, Plus, Check, Download } from "lucide-react";
 import usePaymentEmail from "@/hooks/payments/usePaymentEmail";
 import { Button, LoadingSpinner, PageHeader } from "@/components/ui";
 

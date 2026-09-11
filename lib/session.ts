@@ -133,15 +133,4 @@ export const getServerSessionUser = async (): Promise<AuthUserSession | null> =>
   }
 };
 
-/**
- * Cookie options for setting and clearing the auth session cookie.
- */
-export const getSessionCookieOptions = (maxAge: number = TOKEN_MAX_AGE_SECONDS) => ({
-  name: AUTH_COOKIE_NAME,
-  value: "",
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  path: "/",
-  maxAge,
-});
+

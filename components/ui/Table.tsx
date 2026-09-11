@@ -3,6 +3,7 @@
 import type { TableProps, TableVariant } from "@/types/common";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import Checkbox from "./Checkbox";
+import LoadingSpinner from "./LoadingSpinner";
 
 const variantTableClasses: Record<
   TableVariant,
@@ -140,7 +141,23 @@ export const Table = <T,>({
 
           {/* Body */}
           <tbody>
-            {data.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={
+                    columns.length +
+                    (showCheckbox ? 1 : 0) +
+                    (rowActions ? 1 : 0)
+                  }
+                  className="px-4 py-12 text-center"
+                >
+                  <div className="inline-flex flex-col items-center justify-center gap-2">
+                    <LoadingSpinner size="md" color="primary" />
+                    <p className="text-xs text-slate-500 font-medium">Loading...</p>
+                  </div>
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
               <tr>
                 <td
                   colSpan={

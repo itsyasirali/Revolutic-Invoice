@@ -40,7 +40,6 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
     hideConfirmDialog,
     dismissAlert,
     selectedIds,
-    setSelectedIds,
   } = usePaymentsList(initialPayments);
 
   const busy = loading || deleting;

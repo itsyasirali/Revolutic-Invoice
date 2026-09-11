@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { FileText, ArrowRight, MoreHorizontal, Plus } from "lucide-react";
+import { FileText, ArrowRight, Plus } from "lucide-react";
 import type { DashboardInvoice } from "@/types/dashboard";
 
 interface RecentInvoicesTableProps {

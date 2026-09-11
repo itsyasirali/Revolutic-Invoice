@@ -36,11 +36,6 @@ export interface UseItemActionsProps {
   setOpenDropdownId?: (id: string | number | null) => void;
 }
 
-export interface UseItemDetailsProps {
-  items: Item[];
-  deleteItems: (ids: string[], callback: () => void) => Promise<void>;
-  deleteLoading: boolean;
-}
 
 // Item form data
 export interface ItemFormData {

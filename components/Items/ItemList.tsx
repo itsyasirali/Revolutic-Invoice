@@ -25,7 +25,6 @@ const ItemList = ({ initialItems }: ItemListProps) => {
     dropdownOpen,
     setDropdownOpen,
     selectedIds,
-    setSelectedIds,
     filteredItems,
     alert,
     dismissAlert,

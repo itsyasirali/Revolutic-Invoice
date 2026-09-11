@@ -6,7 +6,7 @@ interface TableSkeletonProps {
   rows?: number;
 }
 
-const TableSkeleton = ({
+export const TableSkeleton = ({
   title,
   columns = 5,
   rows = 5,

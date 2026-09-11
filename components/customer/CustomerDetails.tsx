@@ -4,8 +4,6 @@ import React from "react";
 import {
   Mail,
   Phone,
-  Edit,
-  Trash2,
   FileText,
   MapPin,
   MessageSquare,
@@ -20,8 +18,6 @@ import {
   Tabs,
   EmptyState,
   CurrencyDisplay,
-  Button,
-  Card,
   PageHeader,
 } from "@/components/ui";
 import type { UIInvoiceListItem, PaymentTransaction } from "@/types/customer";

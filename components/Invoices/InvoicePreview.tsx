@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import { Send, Edit, FileText, Download, Settings } from "lucide-react";
+import { Send, Edit, Download, Settings } from "lucide-react";
 import {
   Button,
-  EmptyState,
   PageHeader,
-  LoadingSpinner,
 } from "@/components/ui";
 import TemplatePreviewComponent from "@/components/Templates/TemplatePreview";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";

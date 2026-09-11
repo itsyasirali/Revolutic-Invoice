@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Send, X, Plus, Check, FileText, Download } from "lucide-react";
+import { useParams } from "next/navigation";
+import { Send, X, Plus, Check, Download } from "lucide-react";
 import useInvoiceEmail from "@/hooks/invoices/useInvoiceEmail";
 import { Button, LoadingSpinner, PageHeader } from "@/components/ui";
 
 const InvoiceEmailCompose: React.FC = () => {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
 
   const {

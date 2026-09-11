@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import { Edit, Send, FileText, Eye } from "lucide-react";
+import { Edit, Send, Eye } from "lucide-react";
 import {
   Button,
-  EmptyState,
   PageHeader,
-  StatusBadge,
   Table,
 } from "@/components/ui";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";

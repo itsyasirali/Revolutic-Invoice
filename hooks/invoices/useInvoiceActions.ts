@@ -23,7 +23,6 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
     setSelectedIds,
     deleteInvoices,
     refetch,
-    setOpenDropdownId,
   } = props || {};
 
   const handleNew = useCallback(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { getNavState } from "@/lib/clientNavState";
