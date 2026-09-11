@@ -33,6 +33,7 @@ export const Card: React.FC<CardProps> & {
   bordered,
   hoverable = false,
   onClick,
+  style,
 }) => {
   const hoverClass = hoverable
     ? "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
@@ -47,6 +48,7 @@ export const Card: React.FC<CardProps> & {
   return (
     <div
       onClick={onClick}
+      style={style}
       className={`${variantClasses[variant]} ${paddingClasses[padding]} ${hoverClass} ${borderOverride} ${className}`}
     >
       {children}
@@ -54,7 +56,7 @@ export const Card: React.FC<CardProps> & {
   );
 };
 
-const CardHeader: React.FC<{
+export const CardHeader: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className = "" }) => (
@@ -66,13 +68,37 @@ const CardHeader: React.FC<{
 );
 CardHeader.displayName = "Card.Header";
 
-const CardBody: React.FC<{ children: React.ReactNode; className?: string }> = ({
+export const CardBody: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = "",
 }) => <div className={`py-4 ${className}`}>{children}</div>;
 CardBody.displayName = "Card.Body";
 
-const CardFooter: React.FC<{
+export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => <div className={`pt-2 ${className}`}>{children}</div>;
+CardContent.displayName = "Card.Content";
+
+export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => (
+  <h3 className={`font-semibold leading-none tracking-tight text-slate-900 ${className}`}>
+    {children}
+  </h3>
+);
+CardTitle.displayName = "Card.Title";
+
+export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => (
+  <p className={`text-sm text-slate-500 ${className}`}>{children}</p>
+);
+CardDescription.displayName = "Card.Description";
+
+export const CardFooter: React.FC<{
   children: React.ReactNode;
   className?: string;
 }> = ({ children, className = "" }) => (

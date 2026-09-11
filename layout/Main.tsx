@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { TemplateFormProvider } from "@/context/TemplateFormContext";
@@ -12,8 +13,25 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
+
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/demo") ||
+    pathname.startsWith("/billing");
+
+  if (isPublicRoute) {
+    return (
+      <TemplateFormProvider>
+        <ToastContainer />
+        {children}
+      </TemplateFormProvider>
+    );
+  }
 
   return (
     <TemplateFormProvider>

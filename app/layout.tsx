@@ -5,9 +5,9 @@ import MainLayout from "@/layout/Main";
 import { getServerSessionUser } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "Revolutic Invoice",
+  title: "Revolutic ",
   description:
-    "Revolutic Invoice - Modern invoicing, payments, customer billing, and PDF template management application.",
+    "Revolutic  - Modern invoicing, payments, customer billing, and PDF template management application.",
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {

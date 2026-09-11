@@ -14,6 +14,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: React.ReactNode;
     iconPosition?: 'left' | 'right';
     rounded?: boolean;
+    asChild?: boolean;
 }
 
 // Input Component Types
@@ -247,6 +248,7 @@ export interface CardProps {
     shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
     hoverable?: boolean;
     onClick?: () => void;
+    style?: React.CSSProperties;
 }
 
 // Info Card Component Types

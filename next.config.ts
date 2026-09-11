@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   // pdfkit (reads font data files at runtime) don't survive webpack/turbopack
   // bundling — keep them external in Node Route Handlers.
   serverExternalPackages: ["typeorm", "bcrypt", "pdfkit", "pg"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

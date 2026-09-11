@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 import type { ButtonProps, ButtonVariant, ButtonSize } from "@/types/common";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -40,6 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       icon,
       iconPosition = "left",
       rounded = false,
+      asChild = false,
       children,
       className = "",
       disabled,
@@ -52,12 +53,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-sans tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] cursor-pointer";
     const borderRadiusClass = rounded ? "rounded-md" : "rounded-sm";
     const widthClass = fullWidth ? "w-full" : "";
+    const combinedClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${borderRadiusClass} ${widthClass} ${className}`.trim();
+
+    if (asChild && children && typeof children === "object" && "props" in children) {
+      const child = children as React.ReactElement<{ className?: string }>;
+      return (
+        <span className="inline-flex">
+          {React.cloneElement(child, {
+            className: `${combinedClasses} ${child.props.className || ""}`.trim(),
+          })}
+        </span>
+      );
+    }
 
     return (
       <button
         ref={ref}
         type={type}
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${borderRadiusClass} ${widthClass} ${className}`}
+        className={combinedClasses}
         disabled={disabled || loading}
         {...props}
       >
