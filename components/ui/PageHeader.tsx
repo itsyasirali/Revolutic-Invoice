@@ -18,6 +18,7 @@ export interface PageHeaderProps {
     isOpen: boolean;
     onToggle: () => void;
   };
+  actionBar?: React.ReactNode;
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
@@ -28,6 +29,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   actions,
   className = "",
   dropdown,
+  actionBar,
 }) => {
   const router = useRouter();
 
@@ -40,9 +42,15 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   };
 
   return (
-    <div className={`${className}`}>
-      <div className="py-4 mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className={`px-2 sm:px-4 md:px-6 relative ${className}`}>
+      <div className="py-2 mx-auto">
+        <div
+          className={`flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-150 ${
+            actionBar
+              ? "opacity-0 invisible pointer-events-none"
+              : "opacity-100 visible"
+          }`}
+        >
           <div className="flex items-center gap-3.5">
             {showBackButton && (
               <button
@@ -112,6 +120,15 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             <div className="flex items-center gap-2.5 shrink-0">{actions}</div>
           )}
         </div>
+
+        {/* Overlapping Action Bar */}
+        {actionBar && (
+          <div className="absolute inset-x-2 sm:inset-x-4 md:inset-x-6 top-1/2 -translate-y-1/2 z-20 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-full bg-primary/5 border border-primary/20 p-2.5 rounded-md flex items-center justify-between gap-4 shadow-xs">
+              {actionBar}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

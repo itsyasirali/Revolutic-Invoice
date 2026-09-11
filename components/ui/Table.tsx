@@ -119,8 +119,8 @@ export const Table = <T,>({
                           className={`w-3.5 h-3.5 transition-all duration-200 ${
                             column.key === sortKey
                               ? sortDirection === "asc"
-                                ? "text-primary -translate-y-[1px]"
-                                : "text-primary rotate-180 translate-y-[1px]"
+                                ? "text-primary -translate-y-px"
+                                : "text-primary rotate-180 translate-y-px"
                               : "text-slate-400 group-hover/sort:text-slate-600"
                           }`}
                         />
@@ -174,13 +174,15 @@ export const Table = <T,>({
                     }`}
                   >
                     {showCheckbox && (
-                      <td className="px-4 py-3 text-center">
+                      <td
+                        className="px-4 py-3 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Checkbox
                           checked={isSelected}
                           onChange={(e) => {
                             onSelectRow?.(id, e.target.checked);
                           }}
-                          onClick={(e) => e.stopPropagation()}
                         />
                       </td>
                     )}

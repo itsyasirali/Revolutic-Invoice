@@ -132,6 +132,28 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
             New Invoice
           </Button>
         }
+        actionBar={
+          selectedIds.length > 0 ? (
+            <>
+              <div className="flex items-center gap-2 text-primary font-medium text-sm">
+                <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
+                  {selectedIds.length}
+                </span>
+                invoice{selectedIds.length > 1 ? "s" : ""} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => handleDelete()}
+                  disabled={loading}
+                  variant="danger"
+                  size="sm"
+                >
+                  Delete
+                </Button>
+              </div>
+            </>
+          ) : null
+        }
       />
 
       <ConfirmDialog
@@ -163,27 +185,6 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
         onConfirm={confirmDelete}
         onCancel={hideConfirmDialog}
       />
-
-      {selectedIds.length > 0 && (
-        <div className="bg-primary/5 border border-primary/20 p-3 mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 text-primary font-medium text-sm">
-            <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
-              {selectedIds.length}
-            </span>
-            invoice{selectedIds.length > 1 ? "s" : ""} selected
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => handleDelete()}
-              disabled={loading}
-              variant="danger"
-              size="sm"
-            >
-              Delete Selected
-            </Button>
-          </div>
-        </div>
-      )}
 
       <div className="mt-4">
         <Table<UIInvoiceListItem>

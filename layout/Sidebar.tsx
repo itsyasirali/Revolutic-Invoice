@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
   Users,
   Package,
   FileText,
-  Receipt,
   DollarSign,
   Clock,
   BarChart3,
@@ -18,16 +17,14 @@ import {
   Table as TableIcon,
   Sigma,
   StickyNote,
-  X,
   ReceiptText,
+  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import {
   useTemplateFormContext,
   type TemplateNavItem,
 } from "@/context/TemplateFormContext";
-import { useProfile } from "@/hooks/auth/useProfile";
-import { useLogout } from "@/hooks/auth/useLogout";
 
 interface SidebarProps {
   activeItem: string;
@@ -51,7 +48,7 @@ const TEMPLATE_NAV_ITEMS: {
 
 // Regular menu items
 const MENU_ITEMS = [
-  { icon: Home, label: "Home", path: "/" },
+  { icon: Home, label: "Dashboard", path: "/" },
   { icon: Users, label: "Customers", path: "/customers" },
   { icon: Package, label: "Items", path: "/items" },
   { icon: ReceiptText, label: "Invoices", path: "/invoices" },
@@ -67,18 +64,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onToggle,
 }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const { activeNav, setActiveNav, isTemplateFormActive } =
     useTemplateFormContext();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  const { user, loading: profileLoading } = useProfile();
-  const { logout, loading: logoutLoading } = useLogout();
-
-  const userName = user?.name || user?.firstName || "User";
-  const userEmail = user?.email || "";
-  const userInitial = userName.charAt(0).toUpperCase();
 
   // Check if we're on a template form route
   const isTemplateRoute =
@@ -96,64 +84,57 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, [isCollapsed, onToggle]);
 
-  const handleClick = (item: string, path: string) => {
-    onMenuClick(item);
-    router.push(path);
-  };
-
   const handleTemplateNavClick = (navId: TemplateNavItem) => {
     setActiveNav(navId);
   };
 
-  const handleMyAccount = () => {
-    setIsProfileOpen(false);
-    router.push("/profile");
-  };
-
-  const handleSignOut = async () => {
-    await logout();
-    setIsProfileOpen(false);
-  };
-
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-slate-900 transition-all duration-300 ease-in-out z-40
-        ${isCollapsed ? "w-16" : "w-56"}
-        md:sticky md:top-0 md:h-screen
+      className={`fixed top-0 left-0 h-full bg-[#0B0F19] border-r border-slate-800 transition-all duration-300 ease-in-out z-40
+        ${isCollapsed ? "w-20" : "w-64"}
+        md:sticky md:top-0 md:h-screen flex flex-col justify-between shadow-2xl text-slate-300
       `}
     >
-      <div className="flex flex-col h-full">
-        {/* Header Section - Logo Only */}
-        <div className="flex items-center justify-center p-3 border-b border-slate-800">
-          {!isCollapsed ? (
-            <div className="flex items-center justify-center w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/assets/revolutic-logo-white.svg"
-                alt="Logo"
-                className="h-6 w-auto object-contain"
-              />
+      <div className="flex flex-col flex-1 min-h-0">
+        {/* Brand / Logo Section */}
+        <div className="flex items-center px-6 py-5 border-b border-slate-800/80">
+          <Link href="/" className="flex items-center gap-3 w-full">
+            {/* Logo Icon */}
+            <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center text-white shrink-0 shadow-md shadow-blue-600/30">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect width="18" height="18" x="3" y="3" rx="4" />
+                <path d="M7 8h10" />
+                <path d="M7 12h10" />
+                <path d="M7 16h6" />
+              </svg>
             </div>
-          ) : (
-            <div className="flex items-center justify-center w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/assets/Icon.png"
-                alt="Icon"
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-          )}
+
+            {!isCollapsed && (
+              <div className="flex items-center tracking-tight text-lg font-bold">
+                <span className="text-white">Invoice</span>
+                <span className="text-primary">Smarty</span>
+              </div>
+            )}
+          </Link>
         </div>
 
-        {/* Menu / Template Navigation */}
-        <nav className="flex-1 overflow-y-auto py-2 scrollbar-thin scrollbar-thumb-slate-700">
+        {/* Navigation Items */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
           {isTemplateRoute && isTemplateFormActive ? (
             // Template Form Navigation
             <>
               {!isCollapsed && (
-                <div className="px-4 py-2 mb-2">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <div className="px-3 py-1.5 mb-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                     Template Settings
                   </span>
                 </div>
@@ -165,38 +146,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleTemplateNavClick(item.id)}
-                    className={`flex w-[90%] cursor-pointer cursor-pointer mx-auto rounded-md px-2 py-2 my-0.5 text-xs transition-all
-                      ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
+                    className={`flex w-full cursor-pointer rounded-md px-3.5 py-2.5 text-xs transition-all
+                      ${isCollapsed ? "justify-center" : "items-center gap-3"}
                       ${
                         isActive
-                          ? "bg-primary text-white shadow-md"
-                          : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                          ? "bg-primary text-white font-semibold shadow-md shadow-blue-500/25"
+                          : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
                       }
                     `}
                     title={item.label}
                   >
-                    <IconComp size={16} className="flex-shrink-0" />
+                    <IconComp
+                      size={18}
+                      className={`shrink-0 ${isActive ? "text-white" : "text-slate-400"}`}
+                    />
                     {!isCollapsed && (
-                      <span className="text-xs truncate">{item.label}</span>
+                      <span className="truncate">{item.label}</span>
                     )}
                   </button>
                 );
               })}
 
               {/* Back to Templates List */}
-              <div className="border-t border-slate-800 mt-4 pt-4">
+              <div className="border-t border-slate-800/80 mt-4 pt-3">
                 <Link
                   href="/templates"
                   prefetch={true}
-                  className={`flex w-[90%] mx-auto rounded-md px-2 py-2 text-xs transition-all
-                    ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
-                    text-slate-400 hover:bg-slate-700 hover:text-white
+                  className={`flex w-full rounded-md px-3.5 py-2.5 text-xs transition-all
+                    ${isCollapsed ? "justify-center" : "items-center gap-3"}
+                    text-slate-400 hover:bg-slate-800/70 hover:text-white font-medium
                   `}
                   title="Back to Templates"
                 >
-                  <ChevronLeft size={16} className="flex-shrink-0" />
+                  <ChevronLeft size={18} className="shrink-0" />
                   {!isCollapsed && (
-                    <span className="text-xs truncate">Back to Templates</span>
+                    <span className="truncate">Back to Templates</span>
                   )}
                 </Link>
               </div>
@@ -205,150 +189,60 @@ export const Sidebar: React.FC<SidebarProps> = ({
             // Regular Menu Items
             MENU_ITEMS.map((item) => {
               const IconComp = item.icon;
+              const isActive =
+                item.path === "/"
+                  ? pathname === "/"
+                  : pathname === item.path || pathname.startsWith(item.path);
+
               return (
                 <Link
                   key={item.label}
                   href={item.path}
                   prefetch={true}
                   onClick={() => onMenuClick(item.label)}
-                  className={`flex w-[90%] mx-auto cursor-pointer rounded-md px-2 py-2 my-0.5 text-xs transition-all
-                    ${isCollapsed ? "flex-col justify-center items-center gap-0.5" : "items-center gap-2"}
+                  className={`flex w-full cursor-pointer rounded-md px-3.5 py-2.5 text-sm transition-all duration-150 group
+                    ${isCollapsed ? "justify-center" : "items-center gap-3"}
                     ${
-                      pathname === item.path ||
-                      (item.path !== "/" && pathname.startsWith(item.path))
-                        ? "bg-primary text-white shadow-md"
-                        : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                      isActive
+                        ? "bg-primary text-white font-semibold shadow-md shadow-blue-500/25"
+                        : "text-slate-400 hover:bg-slate-800/70 hover:text-white font-medium"
                     }
                   `}
                   title={item.label}
                 >
-                  <IconComp size={16} className="flex-shrink-0" />
+                  <IconComp
+                    size={18}
+                    className={`shrink-0 transition-colors ${
+                      isActive
+                        ? "text-white"
+                        : "text-slate-400 group-hover:text-white"
+                    }`}
+                  />
                   {!isCollapsed && (
-                    <span className="text-xs truncate">{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                   )}
                 </Link>
               );
             })
           )}
         </nav>
+      </div>
 
-        {/* Profile Section */}
-        <div className="border-t border-slate-800 p-2 relative">
-          <div
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className={`flex items-center gap-2 rounded-md px-2 py-2 cursor-pointer hover:bg-slate-700 transition-colors
-              ${isCollapsed ? "justify-center" : ""}
-            `}
-          >
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-              {profileLoading ? "..." : userInitial}
-            </div>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-xs font-semibold text-white truncate">
-                  {profileLoading ? "Loading..." : userName}
-                </p>
-                <p className="text-[10px] text-slate-400 truncate">
-                  {profileLoading ? "" : userEmail}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {isProfileOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setIsProfileOpen(false)}
-              />
-              <div
-                className={`absolute bottom-full mb-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50
-                  ${isCollapsed ? "left-14" : "left-2 right-2"}
-                `}
-              >
-                {/* Profile Header */}
-                <div className="p-4 border-b border-gray-200">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-12 h-12 bg-primary rounded-md flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
-                        {userInitial}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-gray-900 truncate">
-                          {profileLoading ? "Loading..." : userName}
-                        </h3>
-                        <p className="text-xs text-gray-600 truncate">
-                          {profileLoading ? "" : userEmail}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="text-gray-400 hover:text-gray-600 flex-shrink-0 cursor-pointer"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Profile Actions */}
-                <div className="py-2">
-                  <Link
-                    href="/profile"
-                    prefetch={true}
-                    onClick={() => setIsProfileOpen(false)}
-                    className="w-full block text-left px-4 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    My Account
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    disabled={logoutLoading}
-                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                      <polyline points="16 17 21 12 16 7"></polyline>
-                      <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    {logoutLoading ? "Signing Out..." : "Sign Out"}
-                  </button>
-                </div>
-              </div>
-            </>
+      {/* Bottom Sidebar: Collapse Toggle Only */}
+      <div className="p-3 border-t border-slate-800/80 bg-[#090D16]">
+        <button
+          onClick={() => onToggle(!isCollapsed)}
+          className="w-full flex items-center justify-center p-2 text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl transition-colors cursor-pointer text-xs"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {!isCollapsed ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium">
+              <ChevronLeft size={15} /> Collapse
+            </span>
+          ) : (
+            <ChevronRight size={15} />
           )}
-        </div>
-
-        {/* Toggle Button at Bottom */}
-        <div className="border-t border-slate-800 p-2">
-          <button
-            onClick={() => onToggle(!isCollapsed)}
-            className={`w-full flex items-center justify-center p-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition-colors
-              ${isCollapsed ? "flex-col gap-1" : "gap-2"}
-            `}
-            title={isCollapsed ? "Expand" : "Collapse"}
-          >
-            {!isCollapsed ? (
-              <>
-                <ChevronLeft size={18} />
-              </>
-            ) : (
-              <ChevronRight size={18} />
-            )}
-          </button>
-        </div>
+        </button>
       </div>
     </aside>
   );

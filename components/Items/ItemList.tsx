@@ -47,9 +47,7 @@ const ItemList = ({ initialItems }: ItemListProps) => {
     {
       key: "name",
       label: "NAME",
-      render: (i: Item) => (
-        <span className="text-primary">{i.name || ""}</span>
-      ),
+      render: (i: Item) => <span className="text-primary">{i.name || ""}</span>,
     },
     {
       key: "unit",
@@ -140,44 +138,45 @@ const ItemList = ({ initialItems }: ItemListProps) => {
             New Item
           </Button>
         }
+        actionBar={
+          selectedIds.length > 0 ? (
+            <>
+              <div className="flex items-center gap-2 text-primary font-medium text-sm">
+                <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
+                  {selectedIds.length}
+                </span>
+                item{selectedIds.length > 1 ? "s" : ""} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleSetActive}
+                  disabled={loading}
+                  variant="success"
+                  size="sm"
+                >
+                  Mark Active
+                </Button>
+                <Button
+                  onClick={handleSetInactive}
+                  disabled={loading}
+                  variant="warning"
+                  size="sm"
+                >
+                  Mark Inactive
+                </Button>
+                <Button
+                  onClick={() => handleDelete()}
+                  disabled={loading}
+                  variant="danger"
+                  size="sm"
+                >
+                  Delete
+                </Button>
+              </div>
+            </>
+          ) : null
+        }
       />
-
-      {selectedIds.length > 0 && (
-        <div className="bg-primary/5 border border-primary/20 p-3 mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 text-primary font-medium text-sm">
-            <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
-              {selectedIds.length}
-            </span>
-            item{selectedIds.length > 1 ? "s" : ""} selected
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSetActive}
-              disabled={loading}
-              variant="success"
-              size="sm"
-            >
-              Mark Active
-            </Button>
-            <Button
-              onClick={handleSetInactive}
-              disabled={loading}
-              variant="warning"
-              size="sm"
-            >
-              Mark Inactive
-            </Button>
-            <Button
-              onClick={() => handleDelete()}
-              disabled={loading}
-              variant="danger"
-              size="sm"
-            >
-              Delete Selected
-            </Button>
-          </div>
-        </div>
-      )}
 
       <div className="mt-4">
         <Table<Item>

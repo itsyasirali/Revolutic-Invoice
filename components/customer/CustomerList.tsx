@@ -152,7 +152,7 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
         actions={
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search customers..."
@@ -171,44 +171,45 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
             </Button>
           </div>
         }
+        actionBar={
+          selectedIds.length > 0 ? (
+            <>
+              <div className="flex items-center gap-2 text-primary font-medium text-sm">
+                <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
+                  {selectedIds.length}
+                </span>
+                customer{selectedIds.length > 1 ? "s" : ""} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleSetActive}
+                  disabled={loading}
+                  variant="success"
+                  size="sm"
+                >
+                  Mark Active
+                </Button>
+                <Button
+                  onClick={handleSetInactive}
+                  disabled={loading}
+                  variant="warning"
+                  size="sm"
+                >
+                  Mark Inactive
+                </Button>
+                <Button
+                  onClick={() => handleDelete()}
+                  disabled={loading}
+                  variant="danger"
+                  size="sm"
+                >
+                  Delete
+                </Button>
+              </div>
+            </>
+          ) : null
+        }
       />
-
-      {selectedIds.length > 0 && (
-        <div className="bg-primary/5 border border-primary/20 p-3  mt-4 rounded-md flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 text-primary font-medium text-sm">
-            <span className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-xs">
-              {selectedIds.length}
-            </span>
-            customer{selectedIds.length > 1 ? "s" : ""} selected
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSetActive}
-              disabled={loading}
-              variant="success"
-              size="sm"
-            >
-              Mark Active
-            </Button>
-            <Button
-              onClick={handleSetInactive}
-              disabled={loading}
-              variant="warning"
-              size="sm"
-            >
-              Mark Inactive
-            </Button>
-            <Button
-              onClick={() => handleDelete()}
-              disabled={loading}
-              variant="danger"
-              size="sm"
-            >
-              Delete Selected
-            </Button>
-          </div>
-        </div>
-      )}
 
       <div className="mt-4">
         <Table
