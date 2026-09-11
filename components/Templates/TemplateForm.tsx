@@ -68,6 +68,7 @@ interface LabelStyleProps {
   onTextColorChange?: (val: string) => void;
   onBgColorChange?: (val: string) => void;
   onFontSizeChange?: (val: number) => void;
+  showColor?: boolean;
   showBg?: boolean;
   showSize?: boolean;
 }
@@ -82,6 +83,7 @@ const LabelStyleEditor: React.FC<LabelStyleProps> = ({
   onTextColorChange,
   onBgColorChange,
   onFontSizeChange,
+  showColor = true,
   showBg = true,
   showSize = true,
 }) => (
@@ -99,17 +101,19 @@ const LabelStyleEditor: React.FC<LabelStyleProps> = ({
       />
     </div>
 
-    <ColorInput
-      label="Color"
-      value={textColor}
-      onChange={(v) => onTextColorChange?.(v)}
-    />
+    {showColor && onTextColorChange && (
+      <ColorInput
+        label="Color"
+        value={textColor}
+        onChange={(v) => onTextColorChange(v)}
+      />
+    )}
 
-    {showBg && (
+    {showBg && onBgColorChange && (
       <ColorInput
         label="Background"
         value={bgColor === "transparent" ? "#ffffff" : bgColor}
-        onChange={(v) => onBgColorChange?.(v)}
+        onChange={(v) => onBgColorChange(v)}
       />
     )}
 
@@ -131,39 +135,70 @@ interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
   icon?: React.ReactNode;
   id?: string;
+  isSelected?: boolean;
 }
 
-const CollapsibleSection = ({
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   children,
   defaultOpen = false,
+  isOpen: controlledIsOpen,
+  onToggle,
   icon,
   id,
-}: CollapsibleSectionProps) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [prevDefaultOpen, setPrevDefaultOpen] = useState(defaultOpen);
+  isSelected = false,
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
 
-  if (prevDefaultOpen !== defaultOpen) {
-    setPrevDefaultOpen(defaultOpen);
-    setIsOpen(defaultOpen);
-  }
+  useEffect(() => {
+    if (defaultOpen) {
+      setInternalIsOpen(true);
+    }
+  }, [defaultOpen]);
+
+  const isOpen =
+    controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const handleToggle = () => {
+    if (onToggle) {
+      onToggle();
+    } else {
+      setInternalIsOpen(!internalIsOpen);
+    }
+  };
 
   return (
-    <div id={id} className="border-b border-gray-200">
+    <div
+      id={id}
+      className={`border-b border-gray-200 transition-all duration-200 ${
+        isSelected ? "bg-blue-50/50 ring-2 ring-primary/40 rounded-sm" : ""
+      }`}
+    >
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={handleToggle}
         className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-sm font-medium text-gray-800">{title}</span>
+          <span
+            className={`text-sm transition-colors ${
+              isSelected
+                ? "font-semibold text-primary"
+                : "font-medium text-gray-800"
+            }`}
+          >
+            {title}
+          </span>
         </div>
         <ChevronRight
           size={16}
           className={`text-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-90" : ""
+            isOpen ? "rotate-90 text-primary" : ""
           }`}
         />
       </button>
@@ -205,17 +240,6 @@ const TemplateForm: React.FC = () => {
     return () => setIsTemplateFormActive(false);
   }, [setIsTemplateFormActive]);
 
-  useEffect(() => {
-    if (selectedElement) {
-      setTimeout(() => {
-        const element = document.getElementById(`section-${selectedElement}`);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 100);
-    }
-  }, [selectedElement, activeNav]);
-
   const onLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -252,23 +276,131 @@ const TemplateForm: React.FC = () => {
     "bill-to-address": "header",
     "invoice-date-label": "header",
     "invoice-date-value": "header",
+    "invoice-date": "header",
     "due-date-label": "header",
     "due-date-value": "header",
+    "due-date": "header",
     "terms-label": "header",
     "terms-value": "header",
+    terms: "header",
     footer: "header",
+
     table: "table",
     "table-header": "table",
     "table-body": "table",
-    "subtotal-label": "table",
-    "tax-label": "table",
-    "discount-row": "table",
-    "total-label": "table",
-    "previous-remaining": "table",
-    "balance-due": "table",
+
+    "subtotal-label": "total",
+    subtotal: "total",
+    "tax-label": "total",
+    tax: "total",
+    "discount-label": "total",
+    "discount-row": "total",
+    discount: "total",
+    "previous-remaining": "total",
+    "total-label": "total",
+    total: "total",
+    "balance-due": "total",
+
     "notes-label": "notes",
+    notes: "notes",
+
     background: "general",
     paper: "general",
+  };
+
+  const ELEMENT_TO_SECTION_ID: Record<string, string> = {
+    logo: "section-logo",
+    "invoice-title": "section-invoice-title",
+    "invoice-number": "section-invoice-number",
+    "bill-to-label": "section-bill-to-label",
+    "bill-to-name": "section-bill-to-name",
+    "bill-to-address": "section-bill-to-address",
+    "invoice-date-label": "section-invoice-date-label",
+    "invoice-date-value": "section-invoice-date-value",
+    "invoice-date": "section-invoice-date",
+    "due-date-label": "section-due-date-label",
+    "due-date-value": "section-due-date-value",
+    "due-date": "section-due-date",
+    "terms-label": "section-terms-label",
+    "terms-value": "section-terms-value",
+    terms: "section-terms",
+    footer: "section-footer",
+
+    table: "section-table-header",
+    "table-header": "section-table-header",
+    "table-body": "section-table-body",
+
+    "subtotal-label": "section-subtotal-label",
+    subtotal: "section-subtotal-label",
+    "tax-label": "section-tax-label",
+    tax: "section-tax-label",
+    "discount-label": "section-discount-label",
+    "discount-row": "section-discount-label",
+    discount: "section-discount-label",
+    "previous-remaining": "section-previous-remaining",
+    "total-label": "section-total-label",
+    total: "section-total-label",
+    "balance-due": "section-balance-due",
+
+    "notes-label": "section-notes-label",
+    notes: "section-notes-label",
+
+    background: "section-background",
+    paper: "section-paper",
+  };
+
+  const ELEMENT_TO_PARENT_SECTION: Record<string, string> = {
+    logo: "logo",
+    "invoice-title": "invoice-title",
+    "invoice-number": "invoice-number",
+    "bill-to-label": "bill-to-label",
+    "bill-to-name": "bill-to-name",
+    "bill-to-address": "bill-to-address",
+    "invoice-date-label": "invoice-date",
+    "invoice-date-value": "invoice-date",
+    "invoice-date": "invoice-date",
+    "due-date-label": "due-date",
+    "due-date-value": "due-date",
+    "due-date": "due-date",
+    "terms-label": "terms",
+    "terms-value": "terms",
+    terms: "terms",
+    footer: "footer",
+
+    table: "table-header",
+    "table-header": "table-header",
+    "table-body": "table-body",
+
+    "subtotal-label": "subtotal-label",
+    subtotal: "subtotal-label",
+    "tax-label": "tax-label",
+    tax: "tax-label",
+    "discount-label": "discount-label",
+    "discount-row": "discount-label",
+    discount: "discount-label",
+    "previous-remaining": "previous-remaining",
+    "total-label": "total-label",
+    total: "total-label",
+    "balance-due": "balance-due",
+
+    "notes-label": "notes-label",
+    notes: "notes-label",
+  };
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  const isSectionOpen = (key: string, isSelected = false) => {
+    if (openSections[key] !== undefined) {
+      return openSections[key];
+    }
+    return isSelected;
+  };
+
+  const toggleSection = (key: string, isSelected = false) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !isSectionOpen(key, isSelected),
+    }));
   };
 
   const handlePreviewSelection = (elementId: string) => {
@@ -277,7 +409,32 @@ const TemplateForm: React.FC = () => {
     if (targetNav && targetNav !== activeNav) {
       setActiveNav(targetNav);
     }
+    const parentSection = ELEMENT_TO_PARENT_SECTION[elementId] || elementId;
+    setOpenSections((prev) => ({
+      ...prev,
+      [parentSection]: true,
+    }));
   };
+
+  useEffect(() => {
+    if (selectedElement) {
+      const timer = setTimeout(() => {
+        const targetId =
+          ELEMENT_TO_SECTION_ID[selectedElement] || `section-${selectedElement}`;
+        let element = document.getElementById(targetId);
+        if (!element) {
+          const parentSection = ELEMENT_TO_PARENT_SECTION[selectedElement];
+          if (parentSection) {
+            element = document.getElementById(`section-${parentSection}`);
+          }
+        }
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedElement, activeNav]);
 
   const paperDims = getPaperDimensions();
 
@@ -513,8 +670,10 @@ const TemplateForm: React.FC = () => {
             <>
               <CollapsibleSection
                 title="Logo"
-                defaultOpen={selectedElement === "logo"}
+                isOpen={isSectionOpen("logo", selectedElement === "logo")}
+                onToggle={() => toggleSection("logo", selectedElement === "logo")}
                 id="section-logo"
+                isSelected={selectedElement === "logo"}
               >
                 <div className="space-y-4">
                   <div
@@ -576,8 +735,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Invoice Title"
-                defaultOpen={selectedElement === "invoice-title"}
+                isOpen={isSectionOpen("invoice-title", selectedElement === "invoice-title")}
+                onToggle={() => toggleSection("invoice-title", selectedElement === "invoice-title")}
                 id="section-invoice-title"
+                isSelected={selectedElement === "invoice-title"}
               >
                 <div className="space-y-3">
                   <div>
@@ -619,8 +780,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Invoice Number"
-                defaultOpen={selectedElement === "invoice-number"}
+                isOpen={isSectionOpen("invoice-number", selectedElement === "invoice-number")}
+                onToggle={() => toggleSection("invoice-number", selectedElement === "invoice-number")}
                 id="section-invoice-number"
+                isSelected={selectedElement === "invoice-number"}
               >
                 <div className="space-y-3">
                   <div>
@@ -696,16 +859,18 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Bill To Label"
-                defaultOpen={selectedElement === "bill-to-label"}
+                isOpen={isSectionOpen("bill-to-label", selectedElement === "bill-to-label")}
+                onToggle={() => toggleSection("bill-to-label", selectedElement === "bill-to-label")}
                 id="section-bill-to-label"
+                isSelected={selectedElement === "bill-to-label"}
               >
                 <LabelStyleEditor
                   label="Bill To Label"
                   textValue={formData.billToLabel}
-                  textColor={formData.textColor}
+                  textColor={formData.billToColor || "#1AA3FF"}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("billToLabel", v)}
-                  onTextColorChange={(v) => handleChange("textColor", v)}
+                  onTextColorChange={(v) => handleChange("billToColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showBg={false}
                 />
@@ -713,8 +878,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Bill To Name"
-                defaultOpen={selectedElement === "bill-to-name"}
+                isOpen={isSectionOpen("bill-to-name", selectedElement === "bill-to-name")}
+                onToggle={() => toggleSection("bill-to-name", selectedElement === "bill-to-name")}
                 id="section-bill-to-name"
+                isSelected={selectedElement === "bill-to-name"}
               >
                 <div className="space-y-3">
                   <ColorInput
@@ -743,8 +910,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Bill To Address"
-                defaultOpen={selectedElement === "bill-to-address"}
+                isOpen={isSectionOpen("bill-to-address", selectedElement === "bill-to-address")}
+                onToggle={() => toggleSection("bill-to-address", selectedElement === "bill-to-address")}
                 id="section-bill-to-address"
+                isSelected={selectedElement === "bill-to-address"}
               >
                 <div className="space-y-3">
                   <ColorInput
@@ -773,14 +942,36 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Invoice Date"
-                defaultOpen={
+                isOpen={isSectionOpen(
+                  "invoice-date",
                   selectedElement === "invoice-date-label" ||
-                  selectedElement === "invoice-date-value"
+                    selectedElement === "invoice-date-value" ||
+                    selectedElement === "invoice-date",
+                )}
+                onToggle={() =>
+                  toggleSection(
+                    "invoice-date",
+                    selectedElement === "invoice-date-label" ||
+                      selectedElement === "invoice-date-value" ||
+                      selectedElement === "invoice-date",
+                  )
                 }
                 id="section-invoice-date"
+                isSelected={
+                  selectedElement === "invoice-date-label" ||
+                  selectedElement === "invoice-date-value" ||
+                  selectedElement === "invoice-date"
+                }
               >
                 <div className="space-y-4">
-                  <div className="border-b pb-2">
+                  <div
+                    id="section-invoice-date-label"
+                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
+                      selectedElement === "invoice-date-label"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Label Style
                     </p>
@@ -799,7 +990,14 @@ const TemplateForm: React.FC = () => {
                       showBg={false}
                     />
                   </div>
-                  <div>
+                  <div
+                    id="section-invoice-date-value"
+                    className={`transition-all duration-200 rounded p-1 ${
+                      selectedElement === "invoice-date-value"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Value Style
                     </p>
@@ -834,14 +1032,36 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Due Date"
-                defaultOpen={
+                isOpen={isSectionOpen(
+                  "due-date",
                   selectedElement === "due-date-label" ||
-                  selectedElement === "due-date-value"
+                    selectedElement === "due-date-value" ||
+                    selectedElement === "due-date",
+                )}
+                onToggle={() =>
+                  toggleSection(
+                    "due-date",
+                    selectedElement === "due-date-label" ||
+                      selectedElement === "due-date-value" ||
+                      selectedElement === "due-date",
+                  )
                 }
                 id="section-due-date"
+                isSelected={
+                  selectedElement === "due-date-label" ||
+                  selectedElement === "due-date-value" ||
+                  selectedElement === "due-date"
+                }
               >
                 <div className="space-y-4">
-                  <div className="border-b pb-2">
+                  <div
+                    id="section-due-date-label"
+                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
+                      selectedElement === "due-date-label"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Label Style
                     </p>
@@ -860,7 +1080,14 @@ const TemplateForm: React.FC = () => {
                       showBg={false}
                     />
                   </div>
-                  <div>
+                  <div
+                    id="section-due-date-value"
+                    className={`transition-all duration-200 rounded p-1 ${
+                      selectedElement === "due-date-value"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Value Style
                     </p>
@@ -880,14 +1107,36 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Terms"
-                defaultOpen={
+                isOpen={isSectionOpen(
+                  "terms",
                   selectedElement === "terms-label" ||
-                  selectedElement === "terms-value"
+                    selectedElement === "terms-value" ||
+                    selectedElement === "terms",
+                )}
+                onToggle={() =>
+                  toggleSection(
+                    "terms",
+                    selectedElement === "terms-label" ||
+                      selectedElement === "terms-value" ||
+                      selectedElement === "terms",
+                  )
                 }
-                id="section-terms-date"
+                id="section-terms"
+                isSelected={
+                  selectedElement === "terms-label" ||
+                  selectedElement === "terms-value" ||
+                  selectedElement === "terms"
+                }
               >
                 <div className="space-y-4">
-                  <div className="border-b pb-2">
+                  <div
+                    id="section-terms-label"
+                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
+                      selectedElement === "terms-label"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Label Style
                     </p>
@@ -906,7 +1155,14 @@ const TemplateForm: React.FC = () => {
                       showBg={false}
                     />
                   </div>
-                  <div>
+                  <div
+                    id="section-terms-value"
+                    className={`transition-all duration-200 rounded p-1 ${
+                      selectedElement === "terms-value"
+                        ? "bg-blue-50/60 ring-1 ring-primary/40"
+                        : ""
+                    }`}
+                  >
                     <p className="text-xs font-bold text-gray-500 mb-2">
                       Value Style
                     </p>
@@ -926,8 +1182,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Footer Settings"
-                defaultOpen={selectedElement === "footer"}
+                isOpen={isSectionOpen("footer", selectedElement === "footer")}
+                onToggle={() => toggleSection("footer", selectedElement === "footer")}
                 id="section-footer"
+                isSelected={selectedElement === "footer"}
               >
                 <div className="space-y-3">
                   <div>
@@ -1056,8 +1314,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Table Header Style"
-                defaultOpen={selectedElement === "table-header"}
+                isOpen={isSectionOpen("table-header", selectedElement === "table-header")}
+                onToggle={() => toggleSection("table-header", selectedElement === "table-header")}
                 id="section-table-header"
+                isSelected={selectedElement === "table-header"}
               >
                 <div className="space-y-3">
                   <ColorInput
@@ -1097,8 +1357,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Table Body Style"
-                defaultOpen={selectedElement === "table-body"}
+                isOpen={isSectionOpen("table-body", selectedElement === "table-body")}
+                onToggle={() => toggleSection("table-body", selectedElement === "table-body")}
                 id="section-table-body"
+                isSelected={selectedElement === "table-body"}
               >
                 <div className="space-y-3">
                   <ColorInput
@@ -1171,50 +1433,88 @@ const TemplateForm: React.FC = () => {
             <>
               <CollapsibleSection
                 title="Subtotal Label"
-                defaultOpen={selectedElement === "subtotal-label"}
+                isOpen={isSectionOpen("subtotal-label", selectedElement === "subtotal-label")}
+                onToggle={() => toggleSection("subtotal-label", selectedElement === "subtotal-label")}
                 id="section-subtotal-label"
+                isSelected={selectedElement === "subtotal-label"}
               >
                 <LabelStyleEditor
                   label="Subtotal"
                   textValue={formData.subtotalLabel}
-                  textColor={formData.textColor}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("subtotalLabel", v)}
-                  onTextColorChange={(v) => handleChange("textColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
                 />
               </CollapsibleSection>
 
               <CollapsibleSection
                 title="Tax Label"
-                defaultOpen={selectedElement === "tax-label"}
+                isOpen={isSectionOpen("tax-label", selectedElement === "tax-label")}
+                onToggle={() => toggleSection("tax-label", selectedElement === "tax-label")}
                 id="section-tax-label"
+                isSelected={selectedElement === "tax-label"}
               >
                 <LabelStyleEditor
                   label="Tax"
                   textValue={formData.taxLabel}
-                  textColor={formData.textColor}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("taxLabel", v)}
-                  onTextColorChange={(v) => handleChange("textColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
+                  showBg={false}
+                />
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Discount Label"
+                isOpen={isSectionOpen(
+                  "discount-label",
+                  selectedElement === "discount-label" ||
+                    selectedElement === "discount-row" ||
+                    selectedElement === "discount",
+                )}
+                onToggle={() =>
+                  toggleSection(
+                    "discount-label",
+                    selectedElement === "discount-label" ||
+                      selectedElement === "discount-row" ||
+                      selectedElement === "discount",
+                  )
+                }
+                id="section-discount-label"
+                isSelected={
+                  selectedElement === "discount-label" ||
+                  selectedElement === "discount-row" ||
+                  selectedElement === "discount"
+                }
+              >
+                <LabelStyleEditor
+                  label="Discount"
+                  textValue={formData.discountLabel || "Discount"}
+                  fontSize={formData.labelFontSize}
+                  onTextChange={(v) => handleChange("discountLabel", v)}
+                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
                 />
               </CollapsibleSection>
 
               <CollapsibleSection
                 title="Previous Remaining"
-                defaultOpen={selectedElement === "previous-remaining"}
+                isOpen={isSectionOpen("previous-remaining", selectedElement === "previous-remaining")}
+                onToggle={() => toggleSection("previous-remaining", selectedElement === "previous-remaining")}
                 id="section-previous-remaining"
+                isSelected={selectedElement === "previous-remaining"}
               >
                 <LabelStyleEditor
                   label="Previous Remaining"
                   textValue={formData.previousDueLabel}
-                  textColor={formData.secondaryColor}
+                  textColor={formData.previousDueColor || "#1AA3FF"}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("previousDueLabel", v)}
-                  onTextColorChange={(v) => handleChange("secondaryColor", v)}
+                  onTextColorChange={(v) => handleChange("previousDueColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showBg={false}
                 />
@@ -1222,13 +1522,15 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Total Label"
-                defaultOpen={selectedElement === "total-label"}
+                isOpen={isSectionOpen("total-label", selectedElement === "total-label")}
+                onToggle={() => toggleSection("total-label", selectedElement === "total-label")}
                 id="section-total-label"
+                isSelected={selectedElement === "total-label"}
               >
                 <LabelStyleEditor
                   label="Total"
                   textValue={formData.totalLabel}
-                  textColor="#EE5858"
+                  textColor={formData.accentColor || "#EE5858"}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("totalLabel", v)}
                   onTextColorChange={(v) => handleChange("accentColor", v)}
@@ -1239,8 +1541,10 @@ const TemplateForm: React.FC = () => {
 
               <CollapsibleSection
                 title="Balance Due Style"
-                defaultOpen={selectedElement === "balance-due"}
+                isOpen={isSectionOpen("balance-due", selectedElement === "balance-due")}
+                onToggle={() => toggleSection("balance-due", selectedElement === "balance-due")}
                 id="section-balance-due"
+                isSelected={selectedElement === "balance-due"}
               >
                 <div className="space-y-3">
                   <div>
@@ -1335,17 +1639,18 @@ const TemplateForm: React.FC = () => {
             <>
               <CollapsibleSection
                 title="Notes Label"
-                defaultOpen={selectedElement === "notes-label"}
+                isOpen={isSectionOpen("notes-label", selectedElement === "notes-label")}
+                onToggle={() => toggleSection("notes-label", selectedElement === "notes-label")}
                 id="section-notes-label"
+                isSelected={selectedElement === "notes-label"}
               >
                 <LabelStyleEditor
                   label="Notes"
                   textValue={formData.notesLabel}
-                  textColor={formData.textColor}
                   fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("notesLabel", v)}
-                  onTextColorChange={(v) => handleChange("textColor", v)}
                   onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
                 />
               </CollapsibleSection>

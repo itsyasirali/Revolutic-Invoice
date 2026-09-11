@@ -57,27 +57,45 @@ export const generateInvoicePDF = (
     try {
       const template = invoice.template;
 
-      const primaryColor = template?.primaryColor || "#1AA3FF";
-      const secondaryColor = template?.secondaryColor || "#1AA3FF";
-      const accentColor = template?.accentColor || "#1AA3FF";
-      const textColor = template?.textColor || "#1f2937";
+      const isValidHex = (color: unknown): color is string => {
+        if (!color || typeof color !== "string") return false;
+        if (color === "#") return false;
+        return /^#([0-9A-F]{3}){1,2}$/i.test(color);
+      };
+
+      const getColor = (val: string | undefined, defaultVal: string): string => {
+        return isValidHex(val) ? val : defaultVal;
+      };
+
+      const primaryColor = getColor(template?.primaryColor, "#1AA3FF");
+      const accentColor = getColor(template?.accentColor, "#1AA3FF");
+      const invoiceNumberColor = getColor(template?.invoiceNumberColor, "#1AA3FF");
+      const billToColor = getColor(template?.billToColor, "#1AA3FF");
+      const billToNameColor = getColor(template?.billToNameColor, "#1AA3FF");
+      const billToAddressColor = getColor(template?.billToAddressColor, "#1AA3FF");
+      const previousDueColor = getColor(template?.previousDueColor, "#1AA3FF");
+      const textColor = getColor(template?.textColor, "#1f2937");
+      const headerTextColor = getColor(template?.headerTextColor, "#1AA3FF");
+      const tableHeaderBgColor = getColor(template?.tableHeaderBgColor, "#1AA3FF");
+      const tableHeaderTextColor = getColor(template?.tableHeaderTextColor, "#ffffff");
+      const tableRowColor = getColor(template?.tableRowColor, "#ffffff");
+      const tableAltRowColor = getColor(template?.tableAltRowColor, "#ffffff");
+      const tableBorderColor = getColor(template?.tableBorderColor, "#e5e7eb");
+      const borderColor = getColor(template?.borderColor, "#e5e7eb");
+      const balanceDueTextColor = getColor(template?.balanceDueTextColor, "#ffffff");
+      const invoiceDateLabelColor = getColor(template?.invoiceDateLabelColor, "#6b7280");
+      const invoiceDateValueColor = getColor(template?.invoiceDateValueColor, "#1f2937");
+      const dueDateLabelColor = getColor(template?.dueDateLabelColor, "#6b7280");
+      const dueDateValueColor = getColor(template?.dueDateValueColor, "#1f2937");
+      const termsLabelColor = getColor(template?.termsLabelColor, "#6b7280");
+      const termsValueColor = getColor(template?.termsValueColor, "#1f2937");
+      const footerBackgroundColor = getColor(template?.footerBackgroundColor, "#f9fafb");
       const grayText = "#6b7280";
-      const whiteColor = "#FFFFFF";
-      const redColor = template?.invoiceNumberColor || "#EE5858";
-      const lightGrayBg = template?.footerBackgroundColor || "#f9fafb";
-      const grayBorder = template?.borderColor || "#e5e7eb";
-      const tableHeaderBg = template?.tableHeaderBgColor || primaryColor;
-      const tableHeaderText = template?.tableHeaderTextColor || whiteColor;
-      const pageBg = template?.backgroundColor || "#ffffff";
-      const tableRowColor =
-        template?.tableRowColor && template?.tableRowColor !== "#fffbeb"
-          ? template.tableRowColor
-          : pageBg;
-      const tableAltRowColor = template?.tableAltRowColor || pageBg;
 
       const baseFontSize = template?.fontSize || 10;
       const headingFontSize = template?.headingFontSize || 20;
       const labelFontSize = template?.labelFontSize || 10;
+      const tableFontSize = template?.tableFontSize || baseFontSize || 9;
 
       const doc = new PDFDocument({
         margin: 35,
@@ -96,9 +114,11 @@ export const generateInvoicePDF = (
       doc.on("error", reject);
 
       const formatCurrency = (amount: number | string | undefined): string => {
-        const currency = invoice.currency || "PKR";
+        const currency = invoice.currency ?? "";
         const numAmount = Number(amount) || 0;
-        return `${numAmount.toFixed(2)} ${currency}`;
+        return currency
+          ? `${numAmount.toFixed(2)} ${currency}`
+          : `${numAmount.toFixed(2)}`;
       };
 
       const customer = (invoice.customer || {}) as ExtendedCustomer;
@@ -153,62 +173,75 @@ export const generateInvoicePDF = (
           }
         }
 
-        const brandName = template?.brandName || "revolutic";
-        const tagline = template?.tagline || "digital innovation leadership";
+        const brandName = template?.brandName ?? "";
+        const tagline = template?.tagline ?? "";
 
         if (!logoDrawn) {
-          doc
-            .fontSize(24)
-            .font("Helvetica-Bold")
-            .fillColor(textColor)
-            .text(brandName, 35, 35, { lineBreak: false });
-          doc
-            .fontSize(9)
-            .font("Helvetica")
-            .fillColor(grayText)
-            .text(tagline, 35, 60, { lineBreak: false });
+          if (brandName) {
+            doc
+              .fontSize(24)
+              .font("Helvetica-Bold")
+              .fillColor(headerTextColor)
+              .text(brandName, 35, 35, { lineBreak: false });
+          }
+          if (tagline) {
+            doc
+              .fontSize(9)
+              .font("Helvetica")
+              .fillColor(primaryColor)
+              .text(tagline, 35, 60, { lineBreak: false });
+          }
         }
 
-        const invoiceLabel = template?.invoiceLabel || "INVOICE";
-        doc
-          .fontSize(headingFontSize)
-          .font("Helvetica-Bold")
-          .fillColor(redColor)
-          .text(invoiceLabel, 400, 35, {
-            width: 155,
-            align: "right",
-            lineBreak: false,
-          });
-        doc
-          .fontSize(baseFontSize)
-          .font("Helvetica")
-          .fillColor(template?.invoiceNumberColor || secondaryColor)
-          .text(`${invoice.invoiceNumber}`, 400, 60 + (headingFontSize - 20), {
-            width: 155,
-            align: "right",
-            lineBreak: false,
-          });
+        const invoiceLabel = template?.invoiceLabel ?? "";
+        if (invoiceLabel) {
+          doc
+            .fontSize(headingFontSize)
+            .font("Helvetica-Bold")
+            .fillColor(invoiceNumberColor)
+            .text(invoiceLabel, 400, 35, {
+              width: 155,
+              align: "right",
+              lineBreak: false,
+            });
+        }
+        if (invoice.invoiceNumber) {
+          doc
+            .fontSize(baseFontSize)
+            .font("Helvetica")
+            .fillColor(invoiceNumberColor)
+            .text(`${invoice.invoiceNumber}`, 400, 60 + (headingFontSize - 20), {
+              width: 155,
+              align: "right",
+              lineBreak: false,
+            });
+        }
 
         const detailsY = 110;
-        doc
-          .fontSize(baseFontSize + 3)
-          .font("Helvetica-Bold")
-          .fillColor(template?.billToColor || textColor)
-          .text(template?.billToLabel || "Bill To", 35, detailsY, {
-            lineBreak: false,
-          });
+        const billToLabel = template?.billToLabel ?? "";
+        if (billToLabel) {
+          doc
+            .fontSize(baseFontSize + 3)
+            .font("Helvetica-Bold")
+            .fillColor(billToColor)
+            .text(billToLabel, 35, detailsY, {
+              lineBreak: false,
+            });
+        }
 
         const customerName =
           invoice.customerDisplayName ||
           customer.displayName ||
           customer.companyName ||
           customer.firstName ||
-          "Customer";
-        doc
-          .fontSize(baseFontSize + 1)
-          .font("Helvetica")
-          .fillColor(textColor)
-          .text(customerName, 35, detailsY + 18, { lineBreak: false });
+          "";
+        if (customerName) {
+          doc
+            .fontSize(baseFontSize + 1)
+            .font("Helvetica")
+            .fillColor(billToNameColor)
+            .text(customerName, 35, detailsY + 18, { lineBreak: false });
+        }
 
         const customerAddress =
           invoice.customerAddress || customer.address || "";
@@ -216,7 +249,7 @@ export const generateInvoicePDF = (
           doc
             .fontSize(baseFontSize)
             .font("Helvetica")
-            .fillColor(grayText)
+            .fillColor(billToAddressColor)
             .text(customerAddress, 35, detailsY + 36, {
               width: 250,
               lineBreak: false,
@@ -230,37 +263,42 @@ export const generateInvoicePDF = (
         let currentY = detailsY;
 
         if (template?.showInvoiceDate !== false) {
-          doc
-            .fontSize(baseFontSize)
-            .font("Helvetica")
-            .fillColor(grayText)
-            .text(
-              (template?.invoiceDateLabel || "Invoice Date") + " :",
-              labelX,
-              currentY,
-              {
-                lineBreak: false,
-              },
-            );
-          doc
-            .fontSize(baseFontSize)
-            .font("Helvetica-Bold")
-            .fillColor(textColor)
-            .text(
-              new Date(invoice.invoiceDate).toLocaleDateString("en-US", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }),
-              valueX,
-              currentY,
-              { width: valueWidth, align: "right", lineBreak: false },
-            );
+          const invoiceDateLabel = template?.invoiceDateLabel ?? "";
+          if (invoiceDateLabel) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica")
+              .fillColor(invoiceDateLabelColor)
+              .text(
+                `${invoiceDateLabel} :`,
+                labelX,
+                currentY,
+                {
+                  lineBreak: false,
+                },
+              );
+          }
+          if (invoice.invoiceDate) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica-Bold")
+              .fillColor(invoiceDateValueColor)
+              .text(
+                new Date(invoice.invoiceDate).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                }),
+                valueX,
+                currentY,
+                { width: valueWidth, align: "right", lineBreak: false },
+              );
+          }
           currentY += rowHeight;
         }
 
-        let termsText = "Due on Receipt";
-        if (invoice.dueDate && invoice.invoiceDate) {
+        let termsText = (invoice as any).terms || "";
+        if (!termsText && invoice.dueDate && invoice.invoiceDate) {
           const daysDiff = Math.floor(
             (new Date(invoice.dueDate).getTime() -
               new Date(invoice.invoiceDate).getTime()) /
@@ -271,85 +309,157 @@ export const generateInvoicePDF = (
           else if (daysDiff === 60) termsText = "Net 60";
         }
 
-        doc
-          .fontSize(baseFontSize)
-          .font("Helvetica")
-          .fillColor(grayText)
-          .text((template?.termsLabel || "Terms") + " :", labelX, currentY, {
-            lineBreak: false,
-          });
-        doc
-          .fontSize(baseFontSize)
-          .font("Helvetica-Bold")
-          .fillColor(textColor)
-          .text(termsText, valueX, currentY, {
-            width: valueWidth,
-            align: "right",
-            lineBreak: false,
-          });
-        currentY += rowHeight;
-
-        if (template?.showDueDate !== false) {
-          doc
-            .fontSize(baseFontSize)
-            .font("Helvetica")
-            .fillColor(grayText)
-            .text(
-              (template?.dueDateLabel || "Due Date") + " :",
-              labelX,
-              currentY,
-              {
+        const termsLabel = template?.termsLabel ?? "";
+        if (termsLabel || termsText) {
+          if (termsLabel) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica")
+              .fillColor(termsLabelColor)
+              .text(`${termsLabel} :`, labelX, currentY, {
                 lineBreak: false,
-              },
-            );
-          doc
-            .fontSize(baseFontSize)
-            .font("Helvetica-Bold")
-            .fillColor(textColor)
-            .text(
-              invoice.dueDate
-                ? new Date(invoice.dueDate).toLocaleDateString("en-US", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })
-                : "N/A",
-              valueX,
-              currentY,
-              { width: valueWidth, align: "right", lineBreak: false },
-            );
+              });
+          }
+          if (termsText) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica-Bold")
+              .fillColor(termsValueColor)
+              .text(termsText, valueX, currentY, {
+                width: valueWidth,
+                align: "right",
+                lineBreak: false,
+              });
+          }
+          currentY += rowHeight;
         }
 
-        const tableTop = 180;
+        if (template?.showDueDate !== false) {
+          const dueDateLabel = template?.dueDateLabel ?? "";
+          if (dueDateLabel) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica")
+              .fillColor(dueDateLabelColor)
+              .text(
+                `${dueDateLabel} :`,
+                labelX,
+                currentY,
+                {
+                  lineBreak: false,
+                },
+              );
+          }
+          if (invoice.dueDate) {
+            doc
+              .fontSize(baseFontSize)
+              .font("Helvetica-Bold")
+              .fillColor(dueDateValueColor)
+              .text(
+                new Date(invoice.dueDate).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                }),
+                valueX,
+                currentY,
+                { width: valueWidth, align: "right", lineBreak: false },
+              );
+          }
+        }
+
+        const tableTop = Math.max(180, currentY + 25);
         const tableHeight = 25;
+        const showTableHeader =
+          template?.showTableHeader !== false &&
+          String(template?.showTableHeader) !== "false";
 
         const defaultColumns = [
           { key: "index", label: "#", width: 25, align: "left" },
           {
             key: "items",
-            label: template?.itemsLabel || "Item & Description",
+            label: template?.itemsLabel ?? "",
             width: 200,
             align: "left",
           },
           {
             key: "quantity",
-            label: template?.quantityLabel || "Qty",
+            label: template?.quantityLabel ?? "",
             width: 55,
             align: "center",
           },
           {
             key: "rate",
-            label: template?.rateLabel || "Rate",
+            label: template?.rateLabel ?? "",
             width: 70,
             align: "right",
           },
           {
             key: "amount",
-            label: template?.amountLabel || "Amount",
+            label: template?.amountLabel ?? "",
             width: 75,
             align: "right",
           },
         ];
+
+        const getDefaultColumnLabel = (key: string): string => {
+          switch (key) {
+            case "index":
+              return "#";
+            case "itemName":
+            case "name":
+            case "item":
+            case "items":
+            case "description":
+              return template?.itemsLabel ?? "";
+            case "quantity":
+            case "qty":
+              return template?.quantityLabel ?? "";
+            case "rate":
+            case "price":
+            case "unitPrice":
+              return template?.rateLabel ?? "";
+            case "amount":
+            case "total":
+              return template?.amountLabel ?? "";
+            default:
+              return key ?? "";
+          }
+        };
+
+        const parseColumnWidth = (w: unknown, key: string): number => {
+          const defaultWidths: Record<string, number> = {
+            index: 25,
+            itemName: 200,
+            items: 200,
+            item: 200,
+            description: 150,
+            quantity: 55,
+            qty: 55,
+            rate: 70,
+            price: 70,
+            amount: 75,
+            total: 75,
+          };
+          const fallback = defaultWidths[key] || 60;
+
+          if (typeof w === "number" && !isNaN(w) && w > 0) {
+            return w;
+          }
+          if (typeof w === "string") {
+            if (w.endsWith("%")) {
+              const pct = parseFloat(w);
+              if (!isNaN(pct) && pct > 0) {
+                return (pct / 100) * 525;
+              }
+            }
+            const parsed = parseFloat(w);
+            if (!isNaN(parsed) && parsed > 0) {
+              return parsed;
+            }
+          }
+          return fallback;
+        };
 
         let columns = template?.tableColumnSettings;
 
@@ -367,19 +477,25 @@ export const generateInvoicePDF = (
           width: number;
           align: "left" | "center" | "right" | "justify";
         }[] = [];
+
         if (Array.isArray(columns) && columns.length > 0) {
           activeColumns = (columns as any[])
             .filter((c) => c.visible !== false && c.enabled !== false)
-            .map((c) => ({
-              key: String(c.columnName || c.key || ""),
-              label: String(c.label || ""),
-              width: Number(c.width) || 50,
-              align: (c.alignment || c.align || "left") as
+            .map((c) => {
+              const key = String(c.columnName || c.key || "");
+              const label =
+                c.label && typeof c.label === "string" && c.label.trim()
+                  ? c.label.trim()
+                  : getDefaultColumnLabel(key);
+              const width = parseColumnWidth(c.width, key);
+              const align = (c.alignment || c.align || "left") as
                 | "left"
                 | "center"
                 | "right"
-                | "justify",
-            }));
+                | "justify";
+
+              return { key, label, width, align };
+            });
         } else {
           activeColumns = defaultColumns as {
             key: string;
@@ -400,32 +516,34 @@ export const generateInvoicePDF = (
           scaleFactor = availableWidth / totalRequestedWidth;
         }
 
-        doc
-          .rect(35, tableTop, availableWidth, tableHeight)
-          .fillAndStroke(tableHeaderBg, tableHeaderBg);
-
         let currentX = 35;
-
-        doc
-          .fontSize(baseFontSize)
-          .font("Helvetica-Bold")
-          .fillColor(tableHeaderText);
-
         const finalColumns = activeColumns.map((col: ColumnConfig) => {
           const w = (Number(col.width) || 50) * scaleFactor;
           const x = currentX;
-
-          doc.text(col.label || "", x + 5, tableTop + 8, {
-            width: w - 10,
-            align: col.align || "left",
-            lineBreak: false,
-          });
-
           currentX += w;
           return { ...col, x, w };
         });
 
-        let yPosition = tableTop + tableHeight;
+        if (showTableHeader) {
+          doc
+            .rect(35, tableTop, availableWidth, tableHeight)
+            .fillAndStroke(tableHeaderBgColor, tableHeaderBgColor);
+
+          doc
+            .fontSize(tableFontSize)
+            .font("Helvetica-Bold")
+            .fillColor(tableHeaderTextColor);
+
+          finalColumns.forEach((col: ColumnConfig) => {
+            doc.text(col.label || "", (col.x || 35) + 5, tableTop + 7, {
+              width: (col.w || 50) - 10,
+              align: col.align || "left",
+              lineBreak: false,
+            });
+          });
+        }
+
+        let yPosition = showTableHeader ? tableTop + tableHeight : tableTop;
         const itemsToShow = invoice.items || [];
 
         itemsToShow.forEach((item: InvoiceItemPdf, index: number) => {
@@ -434,16 +552,16 @@ export const generateInvoicePDF = (
           if (template?.alternateRowColors !== false && index % 2 === 1) {
             doc
               .rect(35, yPosition, availableWidth, itemRowHeight)
-              .fill(tableRowColor);
+              .fill(tableAltRowColor);
           } else {
             doc
               .rect(35, yPosition, availableWidth, itemRowHeight)
-              .fill(tableAltRowColor);
+              .fill(tableRowColor);
           }
 
           doc
             .rect(35, yPosition, availableWidth, itemRowHeight)
-            .stroke(grayBorder);
+            .stroke(tableBorderColor);
 
           doc.fontSize(baseFontSize).font("Helvetica").fillColor(textColor);
 
@@ -503,7 +621,7 @@ export const generateInvoicePDF = (
 
         doc
           .rect(35, tableTop, availableWidth, yPosition - tableTop)
-          .stroke(grayBorder);
+          .stroke(tableBorderColor);
 
         yPosition += 12;
         const totalsLabelX = 360;
@@ -511,11 +629,11 @@ export const generateInvoicePDF = (
 
         if (template?.showSubtotal !== false) {
           doc
-            .fontSize(baseFontSize + 1)
+            .fontSize(baseFontSize)
             .font("Helvetica")
-            .fillColor(textColor)
+            .fillColor(grayText)
             .text(
-              template?.subtotalLabel || "Sub Total",
+              template?.subtotalLabel ?? "",
               totalsLabelX,
               yPosition,
               {
@@ -538,7 +656,7 @@ export const generateInvoicePDF = (
           .moveTo(360, yPosition - 3)
           .lineTo(560, yPosition - 3)
           .lineWidth(1)
-          .stroke(grayBorder);
+          .stroke(borderColor);
 
         if (template?.showPreviousDue !== false) {
           doc
@@ -546,7 +664,7 @@ export const generateInvoicePDF = (
             .font("Helvetica")
             .fillColor(grayText)
             .text(
-              template?.previousDueLabel || "Previous Remaining",
+              template?.previousDueLabel ?? "",
               totalsLabelX,
               yPosition + 3,
               {
@@ -554,11 +672,10 @@ export const generateInvoicePDF = (
               },
             );
 
-          const prevDueColor = template?.previousDueColor || secondaryColor;
           doc
             .fontSize(baseFontSize)
             .font("Helvetica")
-            .fillColor(prevDueColor)
+            .fillColor(previousDueColor)
             .text(
               formatCurrency(previousRemaining),
               totalsValueX,
@@ -576,13 +693,13 @@ export const generateInvoicePDF = (
           .fontSize(labelFontSize + 1)
           .font("Helvetica-Bold")
           .fillColor(textColor)
-          .text(template?.totalLabel || "Total", totalsLabelX, yPosition, {
+          .text(template?.totalLabel ?? "", totalsLabelX, yPosition, {
             lineBreak: false,
           });
         doc
           .fontSize(labelFontSize + 1)
           .font("Helvetica-Bold")
-          .fillColor(redColor)
+          .fillColor(accentColor)
           .text(
             formatCurrency(invoice.total || totalBalanceDue),
             totalsValueX,
@@ -601,9 +718,9 @@ export const generateInvoicePDF = (
         doc
           .fontSize(labelFontSize)
           .font("Helvetica-Bold")
-          .fillColor(whiteColor)
+          .fillColor(balanceDueTextColor)
           .text(
-            template?.balanceDueLabel || "Balance Due",
+            template?.balanceDueLabel ?? "",
             370,
             yPosition + 9,
             {
@@ -613,7 +730,7 @@ export const generateInvoicePDF = (
         doc
           .fontSize(labelFontSize + 2)
           .font("Helvetica-Bold")
-          .fillColor(whiteColor)
+          .fillColor(balanceDueTextColor)
           .text(formatCurrency(totalBalanceDue), 480, yPosition + 8, {
             width: 75,
             align: "right",
@@ -627,7 +744,7 @@ export const generateInvoicePDF = (
             .fontSize(baseFontSize + 2)
             .font("Helvetica-Bold")
             .fillColor(textColor)
-            .text(template?.notesLabel || "Notes", 35, yPosition, {
+            .text(template?.notesLabel ?? "", 35, yPosition, {
               lineBreak: false,
             });
           yPosition += 15;
@@ -666,21 +783,20 @@ export const generateInvoicePDF = (
           yPosition += notesHeight + 20;
         }
 
-        if (template?.showFooter !== false) {
+        if (template?.showFooter !== false && template?.footerText) {
           const footerHeight = 35;
           const footerY = doc.page.height - footerHeight;
 
           doc
             .rect(0, footerY, doc.page.width, footerHeight)
-            .fill(template?.footerBackgroundColor || lightGrayBg);
+            .fill(footerBackgroundColor);
           doc
             .moveTo(0, footerY)
             .lineTo(doc.page.width, footerY)
-            .stroke(grayBorder);
+            .stroke(borderColor);
 
           doc.fontSize(9).font("Helvetica").fillColor(grayText);
-          const footerText =
-            template?.footerText || "Powered by Revolutic — Smart Invoicing";
+          const footerText = template.footerText;
           const textWidth = doc.widthOfString(footerText);
           const startX = (doc.page.width - textWidth) / 2;
 

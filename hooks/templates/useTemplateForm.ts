@@ -459,9 +459,18 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           }
         });
 
+        const columnSettingsToSave = tableColumns.map((col) => ({
+          columnName: col.key,
+          key: col.key,
+          label: col.label,
+          width: col.width,
+          alignment: col.align,
+          visible: col.enabled,
+        }));
+
         submitData.append(
           "tableColumnSettings",
-          JSON.stringify(formData.tableColumnSettings || [])
+          JSON.stringify(columnSettingsToSave)
         );
 
         submitData.set(
@@ -523,7 +532,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setLoading(false);
       }
     },
-    [formData, effectiveId, router],
+    [formData, effectiveId, router, tableColumns],
   );
 
   const dismissAlert = () => {

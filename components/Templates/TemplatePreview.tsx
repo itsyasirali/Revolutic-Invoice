@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "@/lib/axios";
 
 interface TableColumn {
   key: string;
@@ -44,6 +45,8 @@ interface TemplateData {
   textColor?: string;
   footerBackgroundColor?: string;
   borderColor?: string;
+  headerTextColor?: string;
+  tableBorderColor?: string;
   tableHeaderBgColor?: string;
   tableHeaderTextColor?: string;
   tableRowColor?: string;
@@ -56,6 +59,7 @@ interface TemplateData {
   dueDateValueColor?: string;
   billToNameColor?: string;
   billToAddressColor?: string;
+  balanceDueTextColor?: string;
 
   branding?: TemplateBranding;
   brandName?: string;
@@ -80,6 +84,10 @@ interface TemplateData {
   invoiceDateLabel?: string;
   termsLabel?: string;
   dueDateLabel?: string;
+  itemsLabel?: string;
+  quantityLabel?: string;
+  rateLabel?: string;
+  amountLabel?: string;
   subtotalLabel?: string;
   taxLabel?: string;
   discountLabel?: string;
@@ -167,16 +175,26 @@ const SelectableElement: React.FC<{
   style?: React.CSSProperties;
   className?: string;
 }> = ({ id, selectedElement, onSelect, children, style, className }) => {
-  const isSelected = selectedElement === id;
+  const isSelected = !!onSelect && selectedElement === id;
+
+  if (!onSelect) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div
       onClick={(e) => {
         e.stopPropagation();
-        onSelect?.(id);
+        onSelect(id);
       }}
       className={`cursor-pointer transition-all duration-150 rounded-sm ${
-        isSelected ? "outline-2 outline-blue-500 outline-offset-2" : ""
+        isSelected
+          ? "outline outline-2 outline-blue-500 outline-offset-2 ring-2 ring-blue-400/20"
+          : "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
       } ${className || ""}`}
       style={style}
       title={`Click to edit ${id}`}
@@ -205,22 +223,58 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     return isValidColor(val) ? val : defaultVal;
   };
 
+  // Exact DB colors matched 1:1 to entities/Template.ts schema defaults
   const primaryColor = getColor(data.primaryColor, "#1AA3FF");
-  const accentColor = getColor(data.accentColor, "#1AA3FF");
   const secondaryColor = getColor(data.secondaryColor, "#1AA3FF");
-  const invoiceNumberColor = getColor(data.invoiceNumberColor, secondaryColor);
-  const billToColor = getColor(data.billToColor, secondaryColor);
-  const previousDueColor = getColor(data.previousDueColor, secondaryColor);
+  const backgroundColor = getColor(data.backgroundColor, "#ffffff");
+  const accentColor = getColor(data.accentColor, "#1AA3FF");
+  const invoiceNumberColor = getColor(data.invoiceNumberColor, "#1AA3FF");
+  const billToColor = getColor(data.billToColor, "#1AA3FF");
+  const billToNameColor = getColor(data.billToNameColor, "#1AA3FF");
+  const billToAddressColor = getColor(data.billToAddressColor, "#1AA3FF");
+  const previousDueColor = getColor(data.previousDueColor, "#1AA3FF");
+  const textColor = getColor(data.textColor, "#1f2937");
+  const headerTextColor = getColor(data.headerTextColor, "#1AA3FF");
+  const tableHeaderBgColor = getColor(data.tableHeaderBgColor, "#1AA3FF");
+  const tableHeaderTextColor = getColor(data.tableHeaderTextColor, "#ffffff");
+  const tableRowColor = getColor(data.tableRowColor, "#ffffff");
+  const tableAltRowColor = getColor(data.tableAltRowColor, "#ffffff");
+  const tableBorderColor = getColor(data.tableBorderColor, "#e5e7eb");
+  const borderColor = getColor(data.borderColor, "#e5e7eb");
+  const balanceDueTextColor = getColor(data.balanceDueTextColor, "#ffffff");
+  const invoiceDateLabelColor = getColor(data.invoiceDateLabelColor, "#6b7280");
+  const invoiceDateValueColor = getColor(data.invoiceDateValueColor, "#1f2937");
+  const dueDateLabelColor = getColor(data.dueDateLabelColor, "#6b7280");
+  const dueDateValueColor = getColor(data.dueDateValueColor, "#1f2937");
+  const termsLabelColor = getColor(data.termsLabelColor, "#6b7280");
+  const termsValueColor = getColor(data.termsValueColor, "#1f2937");
+  const footerBackgroundColor = getColor(data.footerBackgroundColor, "#f9fafb");
   const grayText = "#6b7280";
-  const darkText = getColor(data.textColor, "#1f2937");
-  const redText = "#EE5858";
-  const lightGrayBg = getColor(data.footerBackgroundColor, "#f9fafb");
-  const grayBorder = getColor(data.borderColor, "#e5e7eb");
+  const darkText = textColor;
+
+  const [dbInvoice, setDbInvoice] = useState<InvoiceData | null>(null);
+
+  useEffect(() => {
+    if (invoice) return;
+    axios
+      .get("/invoices")
+      .then((res) => {
+        const invoices =
+          res.data?.invoices || (Array.isArray(res.data) ? res.data : []);
+        if (invoices && invoices.length > 0) {
+          setDbInvoice(invoices[0]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch invoice from DB for preview:", err);
+      });
+  }, [invoice]);
+
+  const effectiveInvoice = invoice || dbInvoice;
 
   const branding = {
-    brandName: data.branding?.brandName || data.brandName || "revolutic",
-    tagline:
-      data.branding?.tagline || data.tagline || "digital innovation leadership",
+    brandName: data.branding?.brandName ?? data.brandName ?? "",
+    tagline: data.branding?.tagline ?? data.tagline ?? "",
     logoPreview:
       data.branding?.logoPreview ||
       (data.logoUrl
@@ -234,22 +288,22 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     { key: "index", label: "#", width: 30, align: "left", enabled: true },
     {
       key: "itemName",
-      label: "Item & Description",
+      label: data.itemsLabel ?? "",
       width: 200,
       align: "left",
       enabled: true,
     },
     {
       key: "quantity",
-      label: "Qty",
+      label: data.quantityLabel ?? "",
       width: 50,
       align: "center",
       enabled: true,
     },
-    { key: "rate", label: "Rate", width: 60, align: "right", enabled: true },
+    { key: "rate", label: data.rateLabel ?? "", width: 60, align: "right", enabled: true },
     {
       key: "amount",
-      label: "Amount",
+      label: data.amountLabel ?? "",
       width: 70,
       align: "right",
       enabled: true,
@@ -275,7 +329,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         if (saved) {
           return {
             ...defCol,
-            label: saved.label || defCol.label,
+            label: saved.label ?? defCol.label,
             width:
               typeof saved.width === "string"
                 ? parseInt(saved.width) || defCol.width
@@ -300,7 +354,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         })
         .map((c: TableColumnSetting) => ({
           key: c.columnName || c.key || `col-${Math.random()}`,
-          label: c.label || "Custom Column",
+          label: c.label || "",
           width:
             typeof c.width === "string"
               ? parseInt(c.width) || 100
@@ -318,52 +372,40 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const tableColumns = getTableColumns();
   const enabledColumns = tableColumns.filter((col) => col.enabled);
 
-  const activeInvoice = invoice
+  const activeInvoice = effectiveInvoice
     ? {
-        number: invoice.invoiceNumber,
-        date: new Date(invoice.invoiceDate || new Date()).toLocaleDateString(
-          "en-US",
-          { day: "numeric", month: "short", year: "numeric" },
-        ),
+        number: effectiveInvoice.invoiceNumber ?? "",
+        date: effectiveInvoice.invoiceDate
+          ? new Date(effectiveInvoice.invoiceDate).toLocaleDateString(
+              "en-US",
+              { day: "numeric", month: "short", year: "numeric" },
+            )
+          : "",
         dueDate:
-          invoice.formattedDueDate ||
-          (invoice.dueDate
-            ? new Date(invoice.dueDate).toLocaleDateString("en-US", {
+          effectiveInvoice.formattedDueDate ||
+          (effectiveInvoice.dueDate
+            ? new Date(effectiveInvoice.dueDate).toLocaleDateString("en-US", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               })
-            : "N/A"),
-        terms:
-          invoice.terms ||
-          (() => {
-            if (!invoice.dueDate || !invoice.invoiceDate)
-              return "Due on Receipt";
-            const daysDiff = Math.floor(
-              (new Date(invoice.dueDate).getTime() -
-                new Date(invoice.invoiceDate).getTime()) /
-                (1000 * 60 * 60 * 24),
-            );
-            if (daysDiff === 15) return "Net 15";
-            if (daysDiff === 30) return "Net 30";
-            if (daysDiff === 60) return "Net 60";
-            return "Due on Receipt";
-          })(),
+            : ""),
+        terms: effectiveInvoice.terms ?? "",
         client: {
           name:
-            invoice.customerDisplayName ||
-            invoice.customerId?.displayName ||
-            invoice.customerId?.companyName ||
-            invoice.customer?.displayName ||
-            invoice.customer?.companyName ||
-            "Customer",
+            effectiveInvoice.customerDisplayName ||
+            effectiveInvoice.customerId?.displayName ||
+            effectiveInvoice.customerId?.companyName ||
+            effectiveInvoice.customer?.displayName ||
+            effectiveInvoice.customer?.companyName ||
+            "",
           address:
-            invoice.customerAddress ||
-            invoice.customerId?.address ||
-            invoice.customer?.address ||
+            effectiveInvoice.customerAddress ||
+            effectiveInvoice.customerId?.address ||
+            effectiveInvoice.customer?.address ||
             "",
         },
-        items: (invoice.items || []).map(
+        items: (effectiveInvoice.items || []).map(
           (item: InvoiceItemData, index: number) => ({
             ...item,
             index: index + 1,
@@ -374,44 +416,39 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             amount: Number(item.amount) || 0,
           }),
         ),
-        subtotal: Number(invoice.subTotal || invoice.subtotal || 0),
-        previousRemaining: Number(invoice.previousRemaining || 0),
+        subtotal: Number(
+          effectiveInvoice.subTotal || effectiveInvoice.subtotal || 0,
+        ),
+        previousRemaining: Number(effectiveInvoice.previousRemaining || 0),
         total:
-          invoice.remaining !== undefined
-            ? Number(invoice.remaining)
-            : Number(invoice.total || 0) +
-              Number(invoice.previousRemaining || 0),
-        currency: invoice.currency || "PKR",
-        notes: invoice.notes || "",
+          effectiveInvoice.remaining !== undefined
+            ? Number(effectiveInvoice.remaining)
+            : Number(effectiveInvoice.total || 0) +
+              Number(effectiveInvoice.previousRemaining || 0),
+        currency: effectiveInvoice.currency ?? "",
+        notes: effectiveInvoice.notes ?? "",
       }
     : {
-        number: "INV-0000005",
-        date: "Dec 15, 2025",
-        dueDate: "Feb 13, 2026",
-        terms: "Net 60",
+        number: "",
+        date: "",
+        dueDate: "",
+        terms: "",
         client: {
-          name: "Ali House",
-          address: "Chak118n.b",
+          name: "",
+          address: "",
         },
-        items: [
-          {
-            index: 1,
-            itemName: "cloudcall",
-            description: "Consultation",
-            quantity: 8.0,
-            rate: 19,
-            amount: 152.0,
-          },
-        ],
-        subtotal: 1216.0,
-        previousRemaining: 0.0,
-        total: 152.0,
-        currency: "USD",
-        notes: `Thanks for your business.`,
+        items: [],
+        subtotal: 0,
+        previousRemaining: 0,
+        total: 0,
+        currency: "",
+        notes: "",
       };
 
   const formatCurrency = (amount: number): string => {
-    return `${amount.toFixed(2)} ${activeInvoice.currency}`;
+    return activeInvoice.currency
+      ? `${amount.toFixed(2)} ${activeInvoice.currency}`
+      : `${amount.toFixed(2)}`;
   };
 
   const getCellValue = (item: any, key: string): React.ReactNode => {
@@ -461,10 +498,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       onClick={() => onSelectElement?.("")}
       className={`w-full flex flex-col ${className || ""}`}
       style={{
-        backgroundColor: data.backgroundColor || "#ffffff",
+        backgroundColor: backgroundColor,
         fontFamily: data.fontFamily || "Helvetica, Arial, sans-serif",
         fontSize: `${data.fontSize || 10}pt`,
-        color: darkText,
+        color: textColor,
         minHeight: minHeight,
         ...style,
       }}
@@ -508,11 +545,11 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       style={{
                         fontSize: `${data.headingFontSize || 24}pt`,
                         fontWeight: "bold",
-                        color: darkText,
+                        color: headerTextColor,
                         letterSpacing: "-0.5px",
                       }}
                     >
-                      {branding.brandName || "revolutic"}
+                      {branding.brandName}
                     </span>
                   </div>
                   <div
@@ -523,7 +560,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       marginLeft: "40px",
                     }}
                   >
-                    {branding.tagline || "digital innovation leadership"}
+                    {branding.tagline}
                   </div>
                 </div>
               ))}
@@ -545,7 +582,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   letterSpacing: "1px",
                 }}
               >
-                {data.invoiceLabel || "INVOICE"}
+                {data.invoiceLabel ?? ""}
               </h1>
             </SelectableElement>
             <SelectableElement
@@ -579,10 +616,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 className="font-bold m-0"
                 style={{
                   fontSize: `${data.labelFontSize || 12}pt`,
-                  color: darkText,
+                  color: billToColor,
                 }}
               >
-                {data.billToLabel || "Bill To"}
+                {data.billToLabel ?? ""}
               </h3>
             </SelectableElement>
 
@@ -597,10 +634,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     <span
                       style={{
                         fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
-                        color: data.invoiceDateLabelColor || grayText,
+                        color: invoiceDateLabelColor,
                       }}
                     >
-                      {data.invoiceDateLabel || "Invoice Date"} :
+                      {data.invoiceDateLabel ? `${data.invoiceDateLabel} :` : ""}
                     </span>
                   </SelectableElement>
                   <SelectableElement
@@ -612,7 +649,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       style={{
                         fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
                         fontWeight: "bold",
-                        color: data.invoiceDateValueColor || darkText,
+                        color: invoiceDateValueColor,
                       }}
                     >
                       {activeInvoice.date}
@@ -632,7 +669,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               <div
                 style={{
                   fontSize: `${data.billToNameFontSize || 12}pt`,
-                  color: data.billToNameColor || billToColor,
+                  color: billToNameColor,
                   fontWeight: 600,
                 }}
               >
@@ -650,10 +687,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   <span
                     style={{
                       fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
-                      color: data.termsLabelColor || grayText,
+                      color: termsLabelColor,
                     }}
                   >
-                    {data.termsLabel || "Terms"} :
+                    {data.termsLabel ? `${data.termsLabel} :` : ""}
                   </span>
                 </SelectableElement>
                 <SelectableElement
@@ -665,7 +702,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     style={{
                       fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
                       fontWeight: "bold",
-                      color: data.termsValueColor || "#1f2937",
+                      color: termsValueColor,
                     }}
                   >
                     {activeInvoice.terms}
@@ -685,7 +722,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               <div
                 style={{
                   fontSize: `${data.billToAddressFontSize || 10}pt`,
-                  color: data.billToAddressColor || billToColor,
+                  color: billToAddressColor,
                 }}
               >
                 {activeInvoice.client.address}
@@ -703,10 +740,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     <span
                       style={{
                         fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
-                        color: data.dueDateLabelColor || grayText,
+                        color: dueDateLabelColor,
                       }}
                     >
-                      {data.dueDateLabel || "Due Date"} :
+                      {data.dueDateLabel ? `${data.dueDateLabel} :` : ""}
                     </span>
                   </SelectableElement>
                   <SelectableElement
@@ -718,7 +755,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       style={{
                         fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
                         fontWeight: "bold",
-                        color: data.dueDateValueColor || darkText,
+                        color: dueDateValueColor,
                       }}
                     >
                       {activeInvoice.dueDate}
@@ -730,19 +767,31 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           </div>
         </div>
 
-        <SelectableElement
-          id="table"
-          selectedElement={selectedElement}
-          onSelect={onSelectElement}
-          className="mb-5"
-          style={{ marginBottom: "20px" }}
-        >
+        <div className="mb-5" style={{ marginBottom: "20px" }}>
           <table className="w-full border-collapse">
             {data.showTableHeader !== false && (
-              <thead id="table-head">
+              <thead
+                id="table-head"
+                onClick={(e) => {
+                  if (onSelectElement) {
+                    e.stopPropagation();
+                    onSelectElement("table-header");
+                  }
+                }}
+                className={`transition-all duration-150 ${
+                  onSelectElement ? "cursor-pointer" : ""
+                } ${
+                  onSelectElement && selectedElement === "table-header"
+                    ? "outline outline-2 outline-blue-500 outline-offset-1 ring-2 ring-blue-400/20"
+                    : onSelectElement
+                    ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
+                    : ""
+                }`}
+                title={onSelectElement ? "Click to edit Table Header" : undefined}
+              >
                 <tr
                   style={{
-                    backgroundColor: data.tableHeaderBgColor || primaryColor,
+                    backgroundColor: tableHeaderBgColor,
                   }}
                 >
                   {enabledColumns.map((col) => (
@@ -751,38 +800,51 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       className="p-0"
                       style={{ width: `${col.width}px` }}
                     >
-                      <SelectableElement
-                        id="table-header"
-                        selectedElement={selectedElement}
-                        onSelect={onSelectElement}
+                      <div
                         className="font-bold block"
                         style={{
                           padding: "7px 9px",
                           textAlign: col.align,
-                          color: data.tableHeaderTextColor || "#ffffff",
+                          color: tableHeaderTextColor,
                           fontSize: `${data.tableFontSize || 10}pt`,
                         }}
                       >
                         {col.label}
-                      </SelectableElement>
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
             )}
-            <tbody id="table-body">
+            <tbody
+              id="table-body"
+              onClick={(e) => {
+                if (onSelectElement) {
+                  e.stopPropagation();
+                  onSelectElement("table-body");
+                }
+              }}
+              className={`transition-all duration-150 ${
+                onSelectElement ? "cursor-pointer" : ""
+              } ${
+                onSelectElement && selectedElement === "table-body"
+                  ? "outline outline-2 outline-blue-500 outline-offset-1 ring-2 ring-blue-400/20"
+                  : onSelectElement
+                  ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
+                  : ""
+              }`}
+              title={onSelectElement ? "Click to edit Table Body" : undefined}
+            >
               {activeInvoice.items.map((item: InvoiceItem, i: number) => (
                 <tr
                   key={i}
                   style={{
                     breakInside: "avoid",
                     backgroundColor:
-                      data.alternateRowColors !== false && i % 2 === 0
-                        ? (data.tableRowColor && data.tableRowColor !== "#fffbeb"
-                            ? data.tableRowColor
-                            : data.backgroundColor || "#ffffff")
-                        : (data.tableAltRowColor || data.backgroundColor || "#ffffff"),
-                    borderBottom: `1px solid ${grayBorder}`,
+                      data.alternateRowColors !== false && i % 2 === 1
+                        ? tableAltRowColor
+                        : tableRowColor,
+                    borderBottom: `1px solid ${tableBorderColor}`,
                   }}
                 >
                   {enabledColumns.map((col) => (
@@ -791,35 +853,26 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       className="p-0"
                       style={{ width: `${col.width}px` }}
                     >
-                      <SelectableElement
-                        id="table-body"
-                        selectedElement={selectedElement}
-                        onSelect={onSelectElement}
+                      <div
                         className="block"
                         style={{
                           padding: "10px 12px",
                           fontSize: `${data.tableFontSize || 10}pt`,
-                          color: darkText,
+                          color: textColor,
                           textAlign: col.align,
                         }}
                       >
                         {getCellValue(item, col.key)}
-                      </SelectableElement>
+                      </div>
                     </td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
-        </SelectableElement>
+        </div>
 
-        <SelectableElement
-          id="total"
-          selectedElement={selectedElement}
-          onSelect={onSelectElement}
-          className="flex justify-end"
-          style={{ marginBottom: "32px" }}
-        >
+        <div className="flex justify-end" style={{ marginBottom: "32px" }}>
           <div className="w-[260px]">
             {data.showSubtotal !== false && (
               <SelectableElement
@@ -834,7 +887,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       color: grayText,
                     }}
                   >
-                    {data.subtotalLabel || "Sub Total"}
+                    {data.subtotalLabel ?? ""}
                   </span>
                   <span
                     style={{
@@ -862,7 +915,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       color: grayText,
                     }}
                   >
-                    {data.taxLabel || "Tax"}
+                    {data.taxLabel ?? ""}
                   </span>
                   <span
                     style={{
@@ -877,31 +930,37 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             )}
 
             {data.showDiscount && (
-              <div
-                id="discount-row"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "6px 0",
-                }}
+              <SelectableElement
+                id="discount-label"
+                selectedElement={selectedElement}
+                onSelect={onSelectElement}
               >
-                <span
+                <div
+                  id="discount-row"
                   style={{
-                    fontSize: `${data.labelFontSize || 10}pt`,
-                    color: grayText,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "6px 0",
                   }}
                 >
-                  {data.discountLabel || "Discount"}
-                </span>
-                <span
-                  style={{
-                    fontSize: `${data.labelFontSize || 10}pt`,
-                    color: darkText,
-                  }}
-                >
-                  -{formatCurrency(0)}
-                </span>
-              </div>
+                  <span
+                    style={{
+                      fontSize: `${data.labelFontSize || 10}pt`,
+                      color: grayText,
+                    }}
+                  >
+                    {data.discountLabel ?? ""}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: `${data.labelFontSize || 10}pt`,
+                      color: darkText,
+                    }}
+                  >
+                    -{formatCurrency(0)}
+                  </span>
+                </div>
+              </SelectableElement>
             )}
 
             {data.showPreviousDue !== false && (
@@ -915,7 +974,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     display: "flex",
                     justifyContent: "space-between",
                     padding: "6px 0",
-                    borderBottom: `1px solid ${grayBorder}`,
+                    borderBottom: `1px solid ${borderColor}`,
                   }}
                 >
                   <span
@@ -924,7 +983,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       color: grayText,
                     }}
                   >
-                    {data.previousDueLabel || "Previous Remaining"}
+                    {data.previousDueLabel ?? ""}
                   </span>
                   <span
                     style={{
@@ -955,16 +1014,16 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     style={{
                       fontSize: `${data.labelFontSize || 11}pt`,
                       fontWeight: "bold",
-                      color: grayText,
+                      color: textColor,
                     }}
                   >
-                    {data.totalLabel || "Total"}
+                    {data.totalLabel ?? ""}
                   </span>
                   <span
                     style={{
                       fontSize: `${data.labelFontSize || 11}pt`,
                       fontWeight: "bold",
-                      color: redText,
+                      color: accentColor,
                     }}
                   >
                     {formatCurrency(activeInvoice.total)}
@@ -993,16 +1052,16 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   style={{
                     fontSize: `${data.labelFontSize || 11}pt`,
                     fontWeight: "bold",
-                    color: "#FFFFFF",
+                    color: balanceDueTextColor,
                   }}
                 >
-                  {data.balanceDueLabel || "Balance Due"}
+                  {data.balanceDueLabel ?? ""}
                 </span>
                 <span
                   style={{
                     fontSize: `${data.labelFontSize || 13}pt`,
                     fontWeight: "bold",
-                    color: "#FFFFFF",
+                    color: balanceDueTextColor,
                   }}
                 >
                   {formatCurrency(activeInvoice.total)}
@@ -1010,7 +1069,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               </div>
             </SelectableElement>
           </div>
-        </SelectableElement>
+        </div>
 
         {data.showNotes !== false && (
           <SelectableElement
@@ -1029,7 +1088,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 display: "inline-block",
               }}
             >
-              {data.notesLabel || "Notes"}
+              {data.notesLabel ?? ""}
             </h3>
             <div
               id="notes-content"
@@ -1051,8 +1110,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           selectedElement={selectedElement}
           onSelect={onSelectElement}
           style={{
-            backgroundColor: data.footerBackgroundColor || lightGrayBg,
-            borderTop: `1px solid ${grayBorder}`,
+            backgroundColor: footerBackgroundColor,
+            borderTop: `1px solid ${borderColor}`,
             padding: "14px 20px",
             textAlign: "center" as const,
             flexShrink: 0,
@@ -1063,11 +1122,11 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           <p
             style={{
               fontSize: `${data.footerFontSize || 9}pt`,
-              color: grayText,
+              color: textColor,
               margin: 0,
             }}
           >
-            {data.footerText || "Powered by Revolutic — Smart Invoicing"}
+            {data.footerText ?? ""}
           </p>
         </SelectableElement>
       )}

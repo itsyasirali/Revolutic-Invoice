@@ -1,6 +1,14 @@
 import { NextRequest } from "next/server";
+import getInvoice from "@/controllers/invoices/getInvoice";
 import updateInvoice from "@/controllers/invoices/updateInvoice";
 import deleteInvoice from "@/controllers/invoices/deleteInvoice";
+
+export const GET = async (
+  req: NextRequest,
+  ctx: { params: Promise<{ id: string }> },
+) => {
+  return getInvoice(req, ctx);
+};
 
 export const PUT = async (
   req: NextRequest,
@@ -15,3 +23,4 @@ export const DELETE = async (
 ) => {
   return deleteInvoice(req, ctx);
 };
+
