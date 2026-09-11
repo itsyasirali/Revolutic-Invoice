@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
 import type { Customer } from "@/types/customer";
 
@@ -20,7 +21,13 @@ const useCustomerData = (
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams?.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+
+  useEffect(() => {
+    setSearchQuery(urlSearch);
+  }, [urlSearch]);
 
   const fetchCustomers = useCallback(async (isInitialFetch = false) => {
     // Only set loading to true if it's not the initial fetch (since it's already true)

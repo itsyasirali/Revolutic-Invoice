@@ -294,3 +294,31 @@ export interface CurrencyDisplayProps {
     className?: string;
     size?: 'sm' | 'md' | 'lg';
 }
+
+// Search Dropdown Component Types
+export interface SearchResultItem {
+    id: string | number;
+    title: string;
+    subtitle?: string;
+    category?: string;
+    badge?: string;
+    badgeVariant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'default';
+    icon?: LucideIcon | React.ComponentType<{ className?: string }>;
+    href?: string;
+    onClick?: () => void;
+    metadata?: Record<string, unknown>;
+}
+
+export interface SearchDropdownProps {
+    placeholder?: string;
+    value?: string;
+    onChange?: (value: string) => void;
+    onSearch?: (query: string) => Promise<SearchResultItem[]> | SearchResultItem[];
+    items?: SearchResultItem[];
+    onSelect?: (item: SearchResultItem) => void;
+    className?: string;
+    dropdownWidth?: string;
+    emptyMessage?: string;
+    autoFocus?: boolean;
+}
+

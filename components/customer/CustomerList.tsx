@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Search } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
   StatusBadge,
@@ -40,8 +40,6 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
     handleRowClick,
     onSelectAll,
     onSelectRow,
-    searchQuery,
-    setSearchQuery,
   } = useCustomerList(initialCustomers);
 
   // Table column definitions
@@ -149,26 +147,14 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search customers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-64"
-              />
-            </div>
-            <Button
-              onClick={handleNew}
-              disabled={loading}
-              variant="primary"
-              size="md"
-            >
-              New Customer
-            </Button>
-          </div>
+          <Button
+            onClick={handleNew}
+            disabled={loading}
+            variant="primary"
+            size="md"
+          >
+            New Customer
+          </Button>
         }
         actionBar={
           selectedIds.length > 0 ? (

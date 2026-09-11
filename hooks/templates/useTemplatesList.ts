@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
 import type {
   Template,
@@ -18,7 +19,14 @@ const useTemplatesList = (
     initialTemplates ? false : true,
   );
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams?.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
+
+  useEffect(() => {
+    setSearchTerm(urlSearch);
+  }, [urlSearch]);
 
   const fetchTemplates = async () => {
     try {
@@ -62,11 +70,15 @@ const useTemplatesList = (
   }, [initialTemplates]);
 
   const filteredTemplates = useMemo(() => {
-    if (!searchTerm.trim()) {
+    const query = searchTerm.toLowerCase().trim();
+    if (!query) {
       return templates;
     }
-    return templates.filter((template) =>
-      template.name.toLowerCase().includes(searchTerm.toLowerCase())
+    return templates.filter(
+      (template) =>
+        template.name.toLowerCase().includes(query) ||
+        (template.paperSize || "").toLowerCase().includes(query) ||
+        (template.orientation || "").toLowerCase().includes(query)
     );
   }, [templates, searchTerm]);
 

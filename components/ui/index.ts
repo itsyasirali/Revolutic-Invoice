@@ -24,3 +24,4 @@ export { Tabs } from './Tabs';
 export { ComingSoon } from './ComingSoon';
 export { ToastContainer, toast } from './Toast';
 export { TableSkeleton } from './TableSkeleton';
+export { SearchDropdown } from './SearchDropdown';

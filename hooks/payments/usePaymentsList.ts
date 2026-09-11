@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import usePaymentsData from "./usePayments";
 import type { Payment, UsePaymentsListReturn } from "@/types/payment";
 
@@ -31,6 +31,9 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
   >("All");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams?.get("search") || "";
 
   const [alert, setAlert] = useState<{
     show: boolean;
@@ -74,13 +77,24 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
 
   const filteredPayments = useMemo<Payment[]>(() => {
     if (!Array.isArray(payments)) return [];
-    if (modeFilter === "All") return payments;
+    const query = searchQuery.toLowerCase().trim();
 
-    return payments.filter(
-      (payment) =>
-        (payment.paymentMode || "").toLowerCase() === modeFilter.toLowerCase()
-    );
-  }, [payments, modeFilter]);
+    return payments.filter((payment) => {
+      const matchesMode =
+        modeFilter === "All" ||
+        (payment.paymentMode || "").toLowerCase() === modeFilter.toLowerCase();
+      const matchesSearch =
+        !query ||
+        (payment.customerDisplayName || "").toLowerCase().includes(query) ||
+        (payment.customerEmail || "").toLowerCase().includes(query) ||
+        (payment.paymentMode || "").toLowerCase().includes(query) ||
+        (payment.referenceNo || "").toLowerCase().includes(query) ||
+        String(payment.paymentNumber || "").toLowerCase().includes(query) ||
+        String(payment.amountReceived || "").includes(query);
+
+      return matchesMode && matchesSearch;
+    });
+  }, [payments, modeFilter, searchQuery]);
 
   const onSelectAll = useCallback(
     (checked: boolean) => {

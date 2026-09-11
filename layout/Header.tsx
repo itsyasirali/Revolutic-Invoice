@@ -1,25 +1,222 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, Suspense, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
-  Search,
   Bell,
   ChevronDown,
   User as UserIcon,
   Settings,
   LogOut,
+  Users,
+  Package,
+  FileText,
+  DollarSign,
+  Layout,
 } from "lucide-react";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
+import { SearchDropdown } from "@/components/ui";
+import type { SearchResultItem } from "@/types/common";
+import axios from "@/lib/axios";
+
+const getSearchConfig = (pathname: string) => {
+  if (pathname === "/" || pathname.startsWith("/customers")) {
+    return {
+      type: "customers",
+      placeholder: "Search customers...",
+      basePath: "/customers",
+    };
+  }
+  if (pathname.startsWith("/items")) {
+    return {
+      type: "items",
+      placeholder: "Search items...",
+      basePath: "/items",
+    };
+  }
+  if (pathname.startsWith("/invoices")) {
+    return {
+      type: "invoices",
+      placeholder: "Search invoices...",
+      basePath: "/invoices",
+    };
+  }
+  if (pathname.startsWith("/payments")) {
+    return {
+      type: "payments",
+      placeholder: "Search payments...",
+      basePath: "/payments",
+    };
+  }
+  if (pathname.startsWith("/templates")) {
+    return {
+      type: "templates",
+      placeholder: "Search templates...",
+      basePath: "/templates",
+    };
+  }
+  return null;
+};
+
+const HeaderSearch = () => {
+  const pathname = usePathname();
+  const searchConfig = useMemo(() => getSearchConfig(pathname), [pathname]);
+
+  const handleSearch = useCallback(
+    async (searchTerm: string): Promise<SearchResultItem[]> => {
+      if (!searchConfig) return [];
+      const lower = searchTerm.toLowerCase();
+
+      try {
+        if (searchConfig.type === "customers") {
+          const res = await axios.get("/customers");
+          const customers = res.data?.customers || [];
+          return customers
+            .filter(
+              (c: any) =>
+                (c.displayName || "").toLowerCase().includes(lower) ||
+                (c.companyName || "").toLowerCase().includes(lower) ||
+                (c.contacts?.[0]?.email || "").toLowerCase().includes(lower) ||
+                (c.contacts?.[0]?.contact || "").toLowerCase().includes(lower),
+            )
+            .map((c: any) => ({
+              id: c.id,
+              title: c.displayName || c.companyName || "Customer",
+              subtitle: [c.companyName, c.contacts?.[0]?.email || c.email]
+                .filter(Boolean)
+                .join(" • "),
+              category: "Customer",
+              badge: c.status,
+              badgeVariant: c.status === "Active" ? "success" : "default",
+              icon: Users,
+              href: `/customers/${c.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "items") {
+          const res = await axios.get("/items");
+          const items = res.data?.items || [];
+          return items
+            .filter(
+              (i: any) =>
+                (i.name || "").toLowerCase().includes(lower) ||
+                (i.description || "").toLowerCase().includes(lower) ||
+                (i.unit || "").toLowerCase().includes(lower),
+            )
+            .map((i: any) => ({
+              id: i.id,
+              title: i.name || "Item",
+              subtitle: `${i.currency || "$"}${i.sellingPrice ?? 0} • ${i.unit || "unit"}`,
+              category: "Item",
+              badge: i.status,
+              badgeVariant: i.status === "Active" ? "success" : "default",
+              icon: Package,
+              href: `/items/edit/${i.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "invoices") {
+          const res = await axios.get("/invoices");
+          const invoices = res.data?.invoices || [];
+          return invoices
+            .filter(
+              (inv: any) =>
+                (inv.invoiceNumber || "").toLowerCase().includes(lower) ||
+                (inv.customer?.displayName || "").toLowerCase().includes(lower) ||
+                (inv.customer?.companyName || "").toLowerCase().includes(lower) ||
+                String(inv.total || "").includes(lower),
+            )
+            .map((inv: any) => ({
+              id: inv.id,
+              title: inv.invoiceNumber || `INV-${inv.id}`,
+              subtitle: `${inv.customer?.displayName || "Customer"} • ${inv.currency || "$"}${inv.total || 0}`,
+              category: "Invoice",
+              badge: inv.status,
+              badgeVariant:
+                String(inv.status).toLowerCase() === "paid"
+                  ? "success"
+                  : "warning",
+              icon: FileText,
+              href: `/invoices/preview/${inv.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "payments") {
+          const res = await axios.get("/payments");
+          const payments = res.data?.payments || [];
+          return payments
+            .filter(
+              (p: any) =>
+                (p.customerDisplayName || "").toLowerCase().includes(lower) ||
+                (p.customerEmail || "").toLowerCase().includes(lower) ||
+                (p.paymentMode || "").toLowerCase().includes(lower) ||
+                (p.referenceNo || "").toLowerCase().includes(lower) ||
+                String(p.paymentNumber || "").includes(lower),
+            )
+            .map((p: any) => ({
+              id: p.id,
+              title: `Payment #${p.paymentNumber || p.id}`,
+              subtitle: `${p.customerDisplayName} • ${p.currency || "$"}${p.amountReceived} (${p.paymentMode})`,
+              category: "Payment",
+              badge: p.status || "Paid",
+              badgeVariant: "success",
+              icon: DollarSign,
+              href: `/payments/${p.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "templates") {
+          const res = await axios.get("/templates");
+          const raw =
+            res.data?.templates || (Array.isArray(res.data) ? res.data : []);
+          return raw
+            .filter(
+              (t: any) =>
+                (t.templateName || t.name || "").toLowerCase().includes(lower) ||
+                (t.paperSize || "").toLowerCase().includes(lower),
+            )
+            .map((t: any) => ({
+              id: t.id,
+              title: t.templateName || t.name || "Template",
+              subtitle: `${t.paperSize || "A4"} • ${t.orientation || "portrait"}`,
+              category: "Template",
+              icon: Layout,
+              href: `/templates/edit/${t.id}`,
+            }));
+        }
+
+        return [];
+      } catch (err) {
+        console.error("[HeaderSearch] search error:", err);
+        return [];
+      }
+    },
+    [searchConfig],
+  );
+
+  if (!searchConfig) {
+    return <div className="flex-1" />;
+  }
+
+  return (
+    <div className="w-64 sm:w-72">
+      <SearchDropdown
+        key={searchConfig.type}
+        placeholder={searchConfig.placeholder}
+        onSearch={handleSearch}
+        dropdownWidth="w-80 sm:w-96"
+        emptyMessage={`No matching ${searchConfig.type} found`}
+      />
+    </div>
+  );
+};
 
 const Header = () => {
-  const router = useRouter();
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
@@ -61,13 +258,6 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/invoices?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
   const handleSignOut = async () => {
     setIsProfileOpen(false);
     await logout();
@@ -75,19 +265,10 @@ const Header = () => {
 
   return (
     <header className="w-full bg-white border-b border-slate-200/80 px-6 py-3 sticky top-0 z-30 flex items-center justify-between gap-4">
-      {/* Global Search */}
-      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-xl">
-        <div className="relative flex items-center">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search invoices, clients, or anything..."
-            className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white text-slate-700 placeholder-slate-400 text-xs rounded-xl pl-10 pr-4 py-2.5 outline-none border border-slate-200/80 focus:border-blue-500/50 focus:ring-3 focus:ring-blue-500/10"
-          />
-        </div>
-      </form>
+      {/* Context-aware Search (Hidden on Dashboard, active on Customers, Items, Invoices, Payments) */}
+      <Suspense fallback={<div className="flex-1" />}>
+        <HeaderSearch />
+      </Suspense>
 
       {/* Right Side Actions */}
       <div className="flex items-center gap-4 shrink-0">
