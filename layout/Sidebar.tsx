@@ -100,22 +100,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center px-6 py-5 border-b border-slate-800/80">
           <Link href="/" className="flex items-center gap-3 w-full">
             {/* Logo Icon */}
-            <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center text-white shrink-0 shadow-md shadow-blue-600/30">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="18" height="18" x="3" y="3" rx="4" />
-                <path d="M7 8h10" />
-                <path d="M7 12h10" />
-                <path d="M7 16h6" />
-              </svg>
+            <div className="w-9 h-9 rounded-md flex items-center justify-center shrink-0 overflow-hidden shadow-md shadow-blue-600/20">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/InvoiceSmartyIcon.png"
+                alt="InvoiceSmarty"
+                className="w-full h-full object-contain"
+              />
             </div>
 
             {!isCollapsed && (
@@ -166,24 +157,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 );
               })}
-
-              {/* Back to Templates List */}
-              <div className="border-t border-slate-800/80 mt-4 pt-3">
-                <Link
-                  href="/templates"
-                  prefetch={true}
-                  className={`flex w-full rounded-md px-3.5 py-2.5 text-xs transition-all
-                    ${isCollapsed ? "justify-center" : "items-center gap-3"}
-                    text-slate-400 hover:bg-slate-800/70 hover:text-white font-medium
-                  `}
-                  title="Back to Templates"
-                >
-                  <ChevronLeft size={18} className="shrink-0" />
-                  {!isCollapsed && (
-                    <span className="truncate">Back to Templates</span>
-                  )}
-                </Link>
-              </div>
             </>
           ) : (
             // Regular Menu Items
@@ -237,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           {!isCollapsed ? (
             <span className="flex items-center gap-1.5 text-xs font-medium">
-              <ChevronLeft size={15} /> Collapse
+              <ChevronLeft size={15} />
             </span>
           ) : (
             <ChevronRight size={15} />
