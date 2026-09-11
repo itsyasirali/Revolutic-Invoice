@@ -1,32 +1,50 @@
 import React from "react";
 import type { LoadingSpinnerProps } from "@/types/common";
 
+const sizeMap = {
+  xs: { dot: "w-1 h-1", gap: "gap-1" },
+  sm: { dot: "w-1.5 h-1.5", gap: "gap-1.5" },
+  md: { dot: "w-2 h-2", gap: "gap-2" },
+  lg: { dot: "w-2.5 h-2.5", gap: "gap-2.5" },
+};
+
+const colorMap = {
+  primary: "bg-primary",
+  white: "bg-white",
+  gray: "bg-slate-400",
+  current: "bg-current",
+};
+
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = "md",
   color = "primary",
   className = "",
 }) => {
-  const sizeStyles = {
-    sm: "w-4 h-4 border-2",
-    md: "w-8 h-8 border-3",
-    lg: "w-12 h-12 border-4",
-  };
-
-  const colorStyles = {
-    primary: "border-primary border-t-transparent",
-    white: "border-white border-t-transparent",
-    gray: "border-slate-500 border-t-transparent",
-  };
+  const currentSize = sizeMap[size] || sizeMap.md;
+  const currentColor = colorMap[color] || colorMap.primary;
 
   return (
     <div
-      className={`${sizeStyles[size]} ${colorStyles[color]} rounded-md animate-spin ${className}`}
+      className={`inline-flex items-center justify-center ${currentSize.gap} ${className}`}
       role="status"
       aria-label="Loading"
     >
+      <span
+        className={`${currentSize.dot} ${currentColor} rounded-full animate-dot-bounce`}
+        style={{ animationDelay: "-0.32s" }}
+      />
+      <span
+        className={`${currentSize.dot} ${currentColor} rounded-full animate-dot-bounce`}
+        style={{ animationDelay: "-0.16s" }}
+      />
+      <span
+        className={`${currentSize.dot} ${currentColor} rounded-full animate-dot-bounce`}
+        style={{ animationDelay: "0s" }}
+      />
       <span className="sr-only">Loading...</span>
     </div>
   );
 };
 
+export const ThreeDotLoader = LoadingSpinner;
 export default LoadingSpinner;

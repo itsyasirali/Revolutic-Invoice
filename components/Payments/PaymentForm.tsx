@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Input, Select, Button, PageHeader } from "@/components/ui";
+import { Input, Select, Button, PageHeader, LoadingSpinner } from "@/components/ui";
 import usePaymentForm from "@/hooks/payments/usePaymentForm";
 import type { PaymentFormData } from "@/types/payment";
 import { Search, Mail } from "lucide-react";
@@ -97,8 +97,9 @@ const PaymentForm: React.FC = () => {
 
                       <div className="max-h-64 overflow-y-auto">
                         {customersLoading ? (
-                          <div className="px-4 py-3 text-sm text-gray-700">
-                            Loading customers...
+                          <div className="px-4 py-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
+                            <LoadingSpinner size="sm" color="primary" />
+                            <span>Loading customers...</span>
                           </div>
                         ) : filteredCustomers.length === 0 ? (
                           <div className="px-4 py-3 text-sm text-gray-700">

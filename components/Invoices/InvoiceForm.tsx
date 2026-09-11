@@ -11,7 +11,7 @@ import {
   Info,
 } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
-import { Button, PageHeader, Input, Select } from "@/components/ui";
+import { Button, PageHeader, Input, Select, LoadingSpinner } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import type { InvoiceCustomer } from "@/types/invoice";
@@ -146,8 +146,9 @@ const InvoiceForm = () => {
                           </div>
 
                           {customersLoading ? (
-                            <div className="p-8 text-center text-sm text-gray-500">
-                              Loading customers...
+                            <div className="p-8 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
+                              <LoadingSpinner size="sm" color="primary" />
+                              <span>Loading customers...</span>
                             </div>
                           ) : filteredCustomers.length === 0 ? (
                             <div className="p-8 text-center text-sm text-gray-500">
@@ -328,8 +329,9 @@ const InvoiceForm = () => {
                           {itemDropdownOpen[item.id] && (
                             <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                               {itemsLoading ? (
-                                <div className="p-4 text-center text-sm text-gray-500">
-                                  Loading items...
+                                <div className="p-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
+                                  <LoadingSpinner size="sm" color="primary" />
+                                  <span>Loading items...</span>
                                 </div>
                               ) : itemsData.length === 0 ? (
                                 <div className="p-4 text-center text-sm text-gray-500">

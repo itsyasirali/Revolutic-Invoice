@@ -7,9 +7,10 @@ import React, {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, Loader2, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight } from "lucide-react";
 import type { SearchDropdownProps, SearchResultItem } from "@/types/common";
 import { Badge } from "./Badge";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   placeholder = "Search...",
@@ -205,7 +206,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
         {/* Clear or Loading Icon */}
         <div className="absolute right-2.5 flex items-center">
           {loading ? (
-            <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
+            <LoadingSpinner size="xs" color="gray" />
           ) : query ? (
             <button
               type="button"

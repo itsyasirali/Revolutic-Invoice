@@ -11,6 +11,7 @@ import {
   Button,
   AlertModal,
   PageHeader,
+  LoadingSpinner,
 } from "@/components/ui";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
@@ -32,7 +33,11 @@ const CustomerForm: React.FC = () => {
   } = useCustomerFormView();
 
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] bg-white">
+        <LoadingSpinner size="lg" color="primary" />
+      </div>
+    );
   }
 
   return (

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
-import { SearchDropdown } from "@/components/ui";
+import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
 
@@ -312,11 +312,17 @@ const Header = () => {
             className="flex items-center gap-3 p-1 sm:pr-3 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              {profileLoading ? "..." : userInitials}
+              {profileLoading ? <LoadingSpinner size="xs" color="white" /> : userInitials}
             </div>
             <div className="text-left hidden sm:block">
               <p className="text-xs font-semibold text-slate-800 leading-tight">
-                {profileLoading ? "Loading..." : displayName}
+                {profileLoading ? (
+                  <span className="inline-flex items-center pt-0.5">
+                    <LoadingSpinner size="xs" color="gray" />
+                  </span>
+                ) : (
+                  displayName
+                )}
               </p>
               <p className="text-[10px] text-slate-400 leading-tight">Admin</p>
             </div>

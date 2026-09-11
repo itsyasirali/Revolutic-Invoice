@@ -7,7 +7,7 @@ import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useTemplateActions from "@/hooks/templates/useTemplateActions";
 import useTemplatePreview from "@/hooks/templates/useTemplatePreview";
 import useCloneTemplate from "@/hooks/templates/useCloneTemplate";
-import { Button, ConfirmDialog, EmptyState, PageHeader } from "@/components/ui";
+import { Button, ConfirmDialog, EmptyState, PageHeader, LoadingSpinner } from "@/components/ui";
 import TemplateCard from "./TemplateCard";
 import TemplatePreviewModal from "./TemplatePreviewModal";
 import type { TemplateListItem } from "@/types/template";
@@ -85,7 +85,12 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
       />
 
       <div className="">
-        {filteredTemplates.length > 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <LoadingSpinner size="lg" color="primary" />
+            <p className="text-xs text-slate-500 font-medium">Loading templates...</p>
+          </div>
+        ) : filteredTemplates.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredTemplates.map((template, index) => (
               <TemplateCard

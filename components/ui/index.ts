@@ -17,7 +17,7 @@ export { EmptyState } from './EmptyState';
 export { FileUpload } from './FileUpload';
 export { IconButton } from './IconButton';
 export { InfoCard } from './InfoCard';
-export { LoadingSpinner } from './LoadingSpinner';
+export { LoadingSpinner, ThreeDotLoader } from './LoadingSpinner';
 export { PageHeader } from './PageHeader';
 export { SettingsDrawer } from './SettingsDrawer';
 export { Tabs } from './Tabs';

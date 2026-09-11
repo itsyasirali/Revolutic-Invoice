@@ -280,12 +280,14 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
     label?: string; // for aria-label
 }
 
-// Loading Spinner Component Types
+// Loading Spinner / Three Dot Loader Component Types
 export interface LoadingSpinnerProps {
-    size?: 'sm' | 'md' | 'lg';
-    color?: 'primary' | 'white' | 'gray';
+    size?: 'xs' | 'sm' | 'md' | 'lg';
+    color?: 'primary' | 'white' | 'gray' | 'current';
     className?: string;
 }
+
+export type ThreeDotLoaderProps = LoadingSpinnerProps;
 
 // Currency Display Component Types
 export interface CurrencyDisplayProps {

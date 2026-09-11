@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import type { ButtonProps, ButtonVariant, ButtonSize } from "@/types/common";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
@@ -61,7 +62,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-md animate-spin shrink-0" />
+          <LoadingSpinner
+            size={size === "xs" || size === "sm" ? "xs" : "sm"}
+            color="current"
+            className="shrink-0"
+          />
         ) : (
           icon &&
           iconPosition === "left" && <span className="shrink-0">{icon}</span>

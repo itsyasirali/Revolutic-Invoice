@@ -4,7 +4,7 @@ import React from "react";
 import { useParams , useRouter } from "next/navigation";
 import { Send, X, Plus, Check, Download } from "lucide-react";
 import usePaymentEmail from "@/hooks/payments/usePaymentEmail";
-import { Button, LoadingSpinner, PageHeader } from "@/components/ui";
+import { Button, PageHeader } from "@/components/ui";
 
 const PaymentEmailCompose: React.FC = () => {
   const params = useParams();
@@ -50,14 +50,9 @@ const PaymentEmailCompose: React.FC = () => {
           <Button
             onClick={handleSend}
             disabled={sending}
+            loading={sending}
             variant="primary"
-            icon={
-              sending ? (
-                <LoadingSpinner size="sm" color="white" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )
-            }
+            icon={<Send className="w-4 h-4" />}
           >
             {sending ? "Sending..." : "Send"}
           </Button>
