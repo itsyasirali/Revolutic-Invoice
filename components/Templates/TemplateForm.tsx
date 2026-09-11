@@ -617,50 +617,6 @@ const TemplateForm: React.FC = () => {
                       </optgroup>
                     </select>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Base Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.fontSize}
-                      onChange={(e) =>
-                        handleChange("fontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Heading Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.headingFontSize}
-                      onChange={(e) =>
-                        handleChange(
-                          "headingFontSize",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection title="Background" defaultOpen={false}>
-                <div className="space-y-3">
-                  <ColorInput
-                    label="Page Background"
-                    value={formData.backgroundColor || "#ffffff"}
-                    onChange={(v) => handleChange("backgroundColor", v)}
-                  />
-                  <ColorInput
-                    label="Text Color"
-                    value={formData.textColor || "#1f2937"}
-                    onChange={(v) => handleChange("textColor", v)}
-                  />
                 </div>
               </CollapsibleSection>
             </>
@@ -759,22 +715,6 @@ const TemplateForm: React.FC = () => {
                     value={formData.primaryColor}
                     onChange={(v) => handleChange("primaryColor", v)}
                   />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Title Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.headingFontSize}
-                      onChange={(e) =>
-                        handleChange(
-                          "headingFontSize",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
                 </div>
               </CollapsibleSection>
 
@@ -804,22 +744,6 @@ const TemplateForm: React.FC = () => {
                     value={formData.invoiceNumberColor || "#1AA3FF"}
                     onChange={(v) => handleChange("invoiceNumberColor", v)}
                   />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Number Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.subheadingFontSize}
-                      onChange={(e) =>
-                        handleChange(
-                          "subheadingFontSize",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
                 </div>
               </CollapsibleSection>
 
@@ -867,77 +791,11 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Bill To Label"
                   textValue={formData.billToLabel}
-                  textColor={formData.billToColor || "#1AA3FF"}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("billToLabel", v)}
-                  onTextColorChange={(v) => handleChange("billToColor", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
-              </CollapsibleSection>
-
-              <CollapsibleSection
-                title="Bill To Name"
-                isOpen={isSectionOpen("bill-to-name", selectedElement === "bill-to-name")}
-                onToggle={() => toggleSection("bill-to-name", selectedElement === "bill-to-name")}
-                id="section-bill-to-name"
-                isSelected={selectedElement === "bill-to-name"}
-              >
-                <div className="space-y-3">
-                  <ColorInput
-                    label="Name Color"
-                    value={formData.billToNameColor || "#1AA3FF"}
-                    onChange={(v) => handleChange("billToNameColor", v)}
-                  />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Name Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.billToNameFontSize}
-                      onChange={(e) =>
-                        handleChange(
-                          "billToNameFontSize",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection
-                title="Bill To Address"
-                isOpen={isSectionOpen("bill-to-address", selectedElement === "bill-to-address")}
-                onToggle={() => toggleSection("bill-to-address", selectedElement === "bill-to-address")}
-                id="section-bill-to-address"
-                isSelected={selectedElement === "bill-to-address"}
-              >
-                <div className="space-y-3">
-                  <ColorInput
-                    label="Address Color"
-                    value={formData.billToAddressColor || "#1AA3FF"}
-                    onChange={(v) => handleChange("billToAddressColor", v)}
-                  />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Address Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.billToAddressFontSize}
-                      onChange={(e) =>
-                        handleChange(
-                          "billToAddressFontSize",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                </div>
               </CollapsibleSection>
 
               <CollapsibleSection
@@ -964,69 +822,14 @@ const TemplateForm: React.FC = () => {
                 }
               >
                 <div className="space-y-4">
-                  <div
-                    id="section-invoice-date-label"
-                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
-                      selectedElement === "invoice-date-label"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Label Style
-                    </p>
-                    <LabelStyleEditor
-                      label="Label"
-                      textValue={formData.invoiceDateLabel}
-                      textColor={formData.invoiceDateLabelColor}
-                      fontSize={formData.invoiceDetailLabelFontSize}
-                      onTextChange={(v) => handleChange("invoiceDateLabel", v)}
-                      onTextColorChange={(v) =>
-                        handleChange("invoiceDateLabelColor", v)
-                      }
-                      onFontSizeChange={(v) =>
-                        handleChange("invoiceDetailLabelFontSize", v)
-                      }
-                      showBg={false}
-                    />
-                  </div>
-                  <div
-                    id="section-invoice-date-value"
-                    className={`transition-all duration-200 rounded p-1 ${
-                      selectedElement === "invoice-date-value"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Value Style
-                    </p>
-                    <div className="space-y-2">
-                      <ColorInput
-                        label="Value Color"
-                        value={formData.invoiceDateValueColor || "#1f2937"}
-                        onChange={(v) =>
-                          handleChange("invoiceDateValueColor", v)
-                        }
-                      />
-                      <div>
-                        <label className="text-xs text-gray-600 mb-1 block">
-                          Value Size (pt)
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.invoiceDetailValueFontSize}
-                          onChange={(e) =>
-                            handleChange(
-                              "invoiceDetailValueFontSize",
-                              parseInt(e.target.value),
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <LabelStyleEditor
+                    label="Label"
+                    textValue={formData.invoiceDateLabel}
+                    onTextChange={(v) => handleChange("invoiceDateLabel", v)}
+                    showColor={false}
+                    showBg={false}
+                    showSize={false}
+                  />
                 </div>
               </CollapsibleSection>
 
@@ -1054,54 +857,14 @@ const TemplateForm: React.FC = () => {
                 }
               >
                 <div className="space-y-4">
-                  <div
-                    id="section-due-date-label"
-                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
-                      selectedElement === "due-date-label"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Label Style
-                    </p>
-                    <LabelStyleEditor
-                      label="Label"
-                      textValue={formData.dueDateLabel}
-                      textColor={formData.dueDateLabelColor}
-                      fontSize={formData.invoiceDetailLabelFontSize}
-                      onTextChange={(v) => handleChange("dueDateLabel", v)}
-                      onTextColorChange={(v) =>
-                        handleChange("dueDateLabelColor", v)
-                      }
-                      onFontSizeChange={(v) =>
-                        handleChange("invoiceDetailLabelFontSize", v)
-                      }
-                      showBg={false}
-                    />
-                  </div>
-                  <div
-                    id="section-due-date-value"
-                    className={`transition-all duration-200 rounded p-1 ${
-                      selectedElement === "due-date-value"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Value Style
-                    </p>
-                    <div className="space-y-2">
-                      <ColorInput
-                        label="Value Color"
-                        value={formData.dueDateValueColor || "#1f2937"}
-                        onChange={(v) => handleChange("dueDateValueColor", v)}
-                      />
-                      <div className="text-xs text-gray-400 italic">
-                        Uses shared Value Size
-                      </div>
-                    </div>
-                  </div>
+                  <LabelStyleEditor
+                    label="Label"
+                    textValue={formData.dueDateLabel}
+                    onTextChange={(v) => handleChange("dueDateLabel", v)}
+                    showColor={false}
+                    showBg={false}
+                    showSize={false}
+                  />
                 </div>
               </CollapsibleSection>
 
@@ -1129,54 +892,14 @@ const TemplateForm: React.FC = () => {
                 }
               >
                 <div className="space-y-4">
-                  <div
-                    id="section-terms-label"
-                    className={`border-b pb-2 transition-all duration-200 rounded p-1 ${
-                      selectedElement === "terms-label"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Label Style
-                    </p>
-                    <LabelStyleEditor
-                      label="Label"
-                      textValue={formData.termsLabel}
-                      textColor={formData.termsLabelColor}
-                      fontSize={formData.invoiceDetailLabelFontSize}
-                      onTextChange={(v) => handleChange("termsLabel", v)}
-                      onTextColorChange={(v) =>
-                        handleChange("termsLabelColor", v)
-                      }
-                      onFontSizeChange={(v) =>
-                        handleChange("invoiceDetailLabelFontSize", v)
-                      }
-                      showBg={false}
-                    />
-                  </div>
-                  <div
-                    id="section-terms-value"
-                    className={`transition-all duration-200 rounded p-1 ${
-                      selectedElement === "terms-value"
-                        ? "bg-blue-50/60 ring-1 ring-primary/40"
-                        : ""
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-gray-500 mb-2">
-                      Value Style
-                    </p>
-                    <div className="space-y-2">
-                      <ColorInput
-                        label="Value Color"
-                        value={formData.termsValueColor || "#1f2937"}
-                        onChange={(v) => handleChange("termsValueColor", v)}
-                      />
-                      <div className="text-xs text-gray-400 italic">
-                        Uses shared Value Size
-                      </div>
-                    </div>
-                  </div>
+                  <LabelStyleEditor
+                    label="Label"
+                    textValue={formData.termsLabel}
+                    onTextChange={(v) => handleChange("termsLabel", v)}
+                    showColor={false}
+                    showBg={false}
+                    showSize={false}
+                  />
                 </div>
               </CollapsibleSection>
 
@@ -1201,11 +924,6 @@ const TemplateForm: React.FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
                     />
                   </div>
-                  <ColorInput
-                    label="Footer Background"
-                    value={formData.footerBackgroundColor || "#f9fafb"}
-                    onChange={(v) => handleChange("footerBackgroundColor", v)}
-                  />
                 </div>
               </CollapsibleSection>
             </>
@@ -1330,71 +1048,6 @@ const TemplateForm: React.FC = () => {
                     value={formData.tableHeaderTextColor || "#ffffff"}
                     onChange={(v) => handleChange("tableHeaderTextColor", v)}
                   />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Font Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.tableFontSize}
-                      onChange={(e) =>
-                        handleChange("tableFontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                  <ColorInput
-                    label="Row Color"
-                    value={
-                      formData.tableRowColor ||
-                      formData.backgroundColor ||
-                      "#ffffff"
-                    }
-                    onChange={(v) => handleChange("tableRowColor", v)}
-                  />
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection
-                title="Table Body Style"
-                isOpen={isSectionOpen("table-body", selectedElement === "table-body")}
-                onToggle={() => toggleSection("table-body", selectedElement === "table-body")}
-                id="section-table-body"
-                isSelected={selectedElement === "table-body"}
-              >
-                <div className="space-y-3">
-                  <ColorInput
-                    label="Body Text"
-                    value={formData.textColor || "#1f2937"}
-                    onChange={(v) => handleChange("textColor", v)}
-                  />
-                  <ColorInput
-                    label="Body Background"
-                    value={
-                      formData.tableRowColor ||
-                      formData.backgroundColor ||
-                      "#ffffff"
-                    }
-                    onChange={(v) => handleChange("tableRowColor", v)}
-                  />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Body Font (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.tableFontSize}
-                      onChange={(e) =>
-                        handleChange("tableFontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                  <ColorInput
-                    label="Alt Row Color"
-                    value={formData.tableAltRowColor || "#ffffff"}
-                    onChange={(v) => handleChange("tableAltRowColor", v)}
-                  />
                 </div>
               </CollapsibleSection>
 
@@ -1441,11 +1094,10 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Subtotal"
                   textValue={formData.subtotalLabel}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("subtotalLabel", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
               </CollapsibleSection>
 
@@ -1459,11 +1111,10 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Tax"
                   textValue={formData.taxLabel}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("taxLabel", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
               </CollapsibleSection>
 
@@ -1493,11 +1144,10 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Discount"
                   textValue={formData.discountLabel || "Discount"}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("discountLabel", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
               </CollapsibleSection>
 
@@ -1511,12 +1161,10 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Previous Remaining"
                   textValue={formData.previousDueLabel}
-                  textColor={formData.previousDueColor || "#1AA3FF"}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("previousDueLabel", v)}
-                  onTextColorChange={(v) => handleChange("previousDueColor", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
               </CollapsibleSection>
 
@@ -1530,12 +1178,10 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Total"
                   textValue={formData.totalLabel}
-                  textColor={formData.accentColor || "#EE5858"}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("totalLabel", v)}
-                  onTextColorChange={(v) => handleChange("accentColor", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
+                  showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
               </CollapsibleSection>
 
@@ -1562,7 +1208,7 @@ const TemplateForm: React.FC = () => {
                   </div>
                   <ColorInput
                     label="Text Color"
-                    value={formData.balanceDueTextColor || "#EE5858"}
+                    value={formData.balanceDueTextColor || "#ffffff"}
                     onChange={(v) => handleChange("balanceDueTextColor", v)}
                   />
                   <ColorInput
@@ -1570,19 +1216,6 @@ const TemplateForm: React.FC = () => {
                     value={formData.accentColor || "#1AA3FF"}
                     onChange={(v) => handleChange("accentColor", v)}
                   />
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Font Size (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.labelFontSize}
-                      onChange={(e) =>
-                        handleChange("labelFontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
                 </div>
               </CollapsibleSection>
 
@@ -1647,43 +1280,11 @@ const TemplateForm: React.FC = () => {
                 <LabelStyleEditor
                   label="Notes"
                   textValue={formData.notesLabel}
-                  fontSize={formData.labelFontSize}
                   onTextChange={(v) => handleChange("notesLabel", v)}
-                  onFontSizeChange={(v) => handleChange("labelFontSize", v)}
                   showColor={false}
                   showBg={false}
+                  showSize={false}
                 />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="Font Sizes" defaultOpen={false}>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Base Font (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.fontSize}
-                      onChange={(e) =>
-                        handleChange("fontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-600 mb-1 block">
-                      Label Font (pt)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.labelFontSize}
-                      onChange={(e) =>
-                        handleChange("labelFontSize", parseInt(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
-                    />
-                  </div>
-                </div>
               </CollapsibleSection>
 
               <div className="px-4 py-4 border-b border-gray-200 space-y-2">

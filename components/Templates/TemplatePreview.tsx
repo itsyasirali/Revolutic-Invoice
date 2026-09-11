@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "@/lib/axios";
+import React from "react";
 
 interface TableColumn {
   key: string;
@@ -223,54 +222,39 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     return isValidColor(val) ? val : defaultVal;
   };
 
-  // Exact DB colors matched 1:1 to entities/Template.ts schema defaults
+  // Dynamic colors strictly limited to user-allowed fields:
   const primaryColor = getColor(data.primaryColor, "#1AA3FF");
-  const secondaryColor = getColor(data.secondaryColor, "#1AA3FF");
-  const backgroundColor = getColor(data.backgroundColor, "#ffffff");
-  const accentColor = getColor(data.accentColor, "#1AA3FF");
   const invoiceNumberColor = getColor(data.invoiceNumberColor, "#1AA3FF");
-  const billToColor = getColor(data.billToColor, "#1AA3FF");
-  const billToNameColor = getColor(data.billToNameColor, "#1AA3FF");
-  const billToAddressColor = getColor(data.billToAddressColor, "#1AA3FF");
-  const previousDueColor = getColor(data.previousDueColor, "#1AA3FF");
-  const textColor = getColor(data.textColor, "#1f2937");
-  const headerTextColor = getColor(data.headerTextColor, "#1AA3FF");
   const tableHeaderBgColor = getColor(data.tableHeaderBgColor, "#1AA3FF");
   const tableHeaderTextColor = getColor(data.tableHeaderTextColor, "#ffffff");
-  const tableRowColor = getColor(data.tableRowColor, "#ffffff");
-  const tableAltRowColor = getColor(data.tableAltRowColor, "#ffffff");
-  const tableBorderColor = getColor(data.tableBorderColor, "#e5e7eb");
-  const borderColor = getColor(data.borderColor, "#e5e7eb");
+  const accentColor = getColor(data.accentColor, "#1AA3FF");
   const balanceDueTextColor = getColor(data.balanceDueTextColor, "#ffffff");
-  const invoiceDateLabelColor = getColor(data.invoiceDateLabelColor, "#6b7280");
-  const invoiceDateValueColor = getColor(data.invoiceDateValueColor, "#1f2937");
-  const dueDateLabelColor = getColor(data.dueDateLabelColor, "#6b7280");
-  const dueDateValueColor = getColor(data.dueDateValueColor, "#1f2937");
-  const termsLabelColor = getColor(data.termsLabelColor, "#6b7280");
-  const termsValueColor = getColor(data.termsValueColor, "#1f2937");
-  const footerBackgroundColor = getColor(data.footerBackgroundColor, "#f9fafb");
-  const grayText = "#6b7280";
-  const darkText = textColor;
 
-  const [dbInvoice, setDbInvoice] = useState<InvoiceData | null>(null);
+  // All other text and label colors are strictly static #1F2937:
+  const staticTextColor = "#1F2937";
+  const secondaryColor = "#1AA3FF";
+  const backgroundColor = "#ffffff";
+  const billToColor = staticTextColor;
+  const billToNameColor = staticTextColor;
+  const billToAddressColor = staticTextColor;
+  const previousDueColor = staticTextColor;
+  const textColor = staticTextColor;
+  const headerTextColor = staticTextColor;
+  const tableRowColor = "#ffffff";
+  const tableAltRowColor = "#ffffff";
+  const tableBorderColor = "#e5e7eb";
+  const borderColor = "#e5e7eb";
+  const invoiceDateLabelColor = staticTextColor;
+  const invoiceDateValueColor = staticTextColor;
+  const dueDateLabelColor = staticTextColor;
+  const dueDateValueColor = staticTextColor;
+  const termsLabelColor = staticTextColor;
+  const termsValueColor = staticTextColor;
+  const footerBackgroundColor = "#f9fafb";
+  const grayText = staticTextColor;
+  const darkText = staticTextColor;
 
-  useEffect(() => {
-    if (invoice) return;
-    axios
-      .get("/invoices")
-      .then((res) => {
-        const invoices =
-          res.data?.invoices || (Array.isArray(res.data) ? res.data : []);
-        if (invoices && invoices.length > 0) {
-          setDbInvoice(invoices[0]);
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch invoice from DB for preview:", err);
-      });
-  }, [invoice]);
 
-  const effectiveInvoice = invoice || dbInvoice;
 
   const branding = {
     brandName: data.branding?.brandName ?? data.brandName ?? "",
@@ -372,78 +356,95 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const tableColumns = getTableColumns();
   const enabledColumns = tableColumns.filter((col) => col.enabled);
 
-  const activeInvoice = effectiveInvoice
+  const DUMMY_INVOICE_DATA = {
+    number: "INV-000001",
+    date: "Sep 11, 2026",
+    dueDate: "Oct 11, 2026",
+    terms: "Net 30",
+    client: {
+      name: "Rob & Joe Traders",
+      address: "4141 Hacienda Drive, Pleasanton, 94588 CA, USA"
+    },
+    items: [
+      {
+        index: 1,
+        itemName: "Web Development Services",
+        description: "Custom software development, UI design and maintenance",
+        quantity: 1,
+        rate: 150,
+        amount: 150,
+      },
+    ],
+    subtotal: 150,
+    previousRemaining: 0,
+    total: 150,
+    currency: "USD",
+    notes:
+      "Thank you for your business. Please remit payment within 30 days via bank transfer.",
+  };
+
+  const activeInvoice = invoice
     ? {
-        number: effectiveInvoice.invoiceNumber ?? "",
-        date: effectiveInvoice.invoiceDate
-          ? new Date(effectiveInvoice.invoiceDate).toLocaleDateString(
-              "en-US",
-              { day: "numeric", month: "short", year: "numeric" },
-            )
-          : "",
+        number: invoice.invoiceNumber ?? DUMMY_INVOICE_DATA.number,
+        date: invoice.invoiceDate
+          ? new Date(invoice.invoiceDate).toLocaleDateString("en-US", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : DUMMY_INVOICE_DATA.date,
         dueDate:
-          effectiveInvoice.formattedDueDate ||
-          (effectiveInvoice.dueDate
-            ? new Date(effectiveInvoice.dueDate).toLocaleDateString("en-US", {
+          invoice.formattedDueDate ||
+          (invoice.dueDate
+            ? new Date(invoice.dueDate).toLocaleDateString("en-US", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               })
-            : ""),
-        terms: effectiveInvoice.terms ?? "",
+            : DUMMY_INVOICE_DATA.dueDate),
+        terms: invoice.terms ?? DUMMY_INVOICE_DATA.terms,
         client: {
           name:
-            effectiveInvoice.customerDisplayName ||
-            effectiveInvoice.customerId?.displayName ||
-            effectiveInvoice.customerId?.companyName ||
-            effectiveInvoice.customer?.displayName ||
-            effectiveInvoice.customer?.companyName ||
-            "",
+            invoice.customerDisplayName ||
+            invoice.customerId?.displayName ||
+            invoice.customerId?.companyName ||
+            invoice.customer?.displayName ||
+            invoice.customer?.companyName ||
+            DUMMY_INVOICE_DATA.client.name,
           address:
-            effectiveInvoice.customerAddress ||
-            effectiveInvoice.customerId?.address ||
-            effectiveInvoice.customer?.address ||
-            "",
+            invoice.customerAddress ||
+            invoice.customerId?.address ||
+            invoice.customer?.address ||
+            DUMMY_INVOICE_DATA.client.address,
         },
-        items: (effectiveInvoice.items || []).map(
-          (item: InvoiceItemData, index: number) => ({
-            ...item,
-            index: index + 1,
-            itemName: item.title || item.item?.name || item.name || "",
-            description: item.description || "",
-            quantity: Number(item.quantity) || 0,
-            rate: Number(item.rate) || 0,
-            amount: Number(item.amount) || 0,
-          }),
-        ),
+        items:
+          invoice.items && invoice.items.length > 0
+            ? invoice.items.map((item: InvoiceItemData, index: number) => ({
+                ...item,
+                index: index + 1,
+                itemName: item.title || item.item?.name || item.name || "",
+                description: item.description || "",
+                quantity: Number(item.quantity) || 0,
+                rate: Number(item.rate) || 0,
+                amount: Number(item.amount) || 0,
+              }))
+            : DUMMY_INVOICE_DATA.items,
         subtotal: Number(
-          effectiveInvoice.subTotal || effectiveInvoice.subtotal || 0,
+          invoice.subTotal ?? invoice.subtotal ?? DUMMY_INVOICE_DATA.subtotal,
         ),
-        previousRemaining: Number(effectiveInvoice.previousRemaining || 0),
+        previousRemaining: Number(
+          invoice.previousRemaining ?? DUMMY_INVOICE_DATA.previousRemaining,
+        ),
         total:
-          effectiveInvoice.remaining !== undefined
-            ? Number(effectiveInvoice.remaining)
-            : Number(effectiveInvoice.total || 0) +
-              Number(effectiveInvoice.previousRemaining || 0),
-        currency: effectiveInvoice.currency ?? "",
-        notes: effectiveInvoice.notes ?? "",
+          invoice.remaining !== undefined
+            ? Number(invoice.remaining)
+            : invoice.total !== undefined
+            ? Number(invoice.total) + Number(invoice.previousRemaining || 0)
+            : DUMMY_INVOICE_DATA.total,
+        currency: invoice.currency ?? DUMMY_INVOICE_DATA.currency,
+        notes: invoice.notes ?? DUMMY_INVOICE_DATA.notes,
       }
-    : {
-        number: "",
-        date: "",
-        dueDate: "",
-        terms: "",
-        client: {
-          name: "",
-          address: "",
-        },
-        items: [],
-        subtotal: 0,
-        previousRemaining: 0,
-        total: 0,
-        currency: "",
-        notes: "",
-      };
+    : DUMMY_INVOICE_DATA;
 
   const formatCurrency = (amount: number): string => {
     return activeInvoice.currency
@@ -555,7 +556,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   <div
                     style={{
                       fontSize: "9pt",
-                      color: primaryColor,
+                      color: staticTextColor,
                       marginTop: "2px",
                       marginLeft: "40px",
                     }}
@@ -577,7 +578,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 style={{
                   fontSize: `${data.headingFontSize || 28}pt`,
                   fontWeight: "bold",
-                  color: invoiceNumberColor,
+                  color: primaryColor,
                   margin: 0,
                   letterSpacing: "1px",
                 }}
@@ -615,7 +616,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               <h3
                 className="font-bold m-0"
                 style={{
-                  fontSize: `${data.labelFontSize || 12}pt`,
+                  fontSize: `${data.labelFontSize || 10}pt`,
                   color: billToColor,
                 }}
               >
@@ -668,7 +669,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             >
               <div
                 style={{
-                  fontSize: `${data.billToNameFontSize || 12}pt`,
+                  fontSize: `${data.billToNameFontSize || 10}pt`,
                   color: billToNameColor,
                   fontWeight: 600,
                 }}
@@ -1023,7 +1024,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     style={{
                       fontSize: `${data.labelFontSize || 11}pt`,
                       fontWeight: "bold",
-                      color: accentColor,
+                      color: staticTextColor,
                     }}
                   >
                     {formatCurrency(activeInvoice.total)}

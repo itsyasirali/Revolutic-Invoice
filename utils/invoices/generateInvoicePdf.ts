@@ -70,27 +70,31 @@ export const generateInvoicePDF = (
       const primaryColor = getColor(template?.primaryColor, "#1AA3FF");
       const accentColor = getColor(template?.accentColor, "#1AA3FF");
       const invoiceNumberColor = getColor(template?.invoiceNumberColor, "#1AA3FF");
-      const billToColor = getColor(template?.billToColor, "#1AA3FF");
-      const billToNameColor = getColor(template?.billToNameColor, "#1AA3FF");
-      const billToAddressColor = getColor(template?.billToAddressColor, "#1AA3FF");
-      const previousDueColor = getColor(template?.previousDueColor, "#1AA3FF");
-      const textColor = getColor(template?.textColor, "#1f2937");
-      const headerTextColor = getColor(template?.headerTextColor, "#1AA3FF");
       const tableHeaderBgColor = getColor(template?.tableHeaderBgColor, "#1AA3FF");
       const tableHeaderTextColor = getColor(template?.tableHeaderTextColor, "#ffffff");
-      const tableRowColor = getColor(template?.tableRowColor, "#ffffff");
-      const tableAltRowColor = getColor(template?.tableAltRowColor, "#ffffff");
-      const tableBorderColor = getColor(template?.tableBorderColor, "#e5e7eb");
-      const borderColor = getColor(template?.borderColor, "#e5e7eb");
       const balanceDueTextColor = getColor(template?.balanceDueTextColor, "#ffffff");
-      const invoiceDateLabelColor = getColor(template?.invoiceDateLabelColor, "#6b7280");
-      const invoiceDateValueColor = getColor(template?.invoiceDateValueColor, "#1f2937");
-      const dueDateLabelColor = getColor(template?.dueDateLabelColor, "#6b7280");
-      const dueDateValueColor = getColor(template?.dueDateValueColor, "#1f2937");
-      const termsLabelColor = getColor(template?.termsLabelColor, "#6b7280");
-      const termsValueColor = getColor(template?.termsValueColor, "#1f2937");
-      const footerBackgroundColor = getColor(template?.footerBackgroundColor, "#f9fafb");
-      const grayText = "#6b7280";
+
+      // All other text and label colors are strictly static #1F2937:
+      const staticTextColor = "#1F2937";
+      const billToColor = staticTextColor;
+      const billToNameColor = staticTextColor;
+      const billToAddressColor = staticTextColor;
+      const previousDueColor = staticTextColor;
+      const textColor = staticTextColor;
+      const headerTextColor = staticTextColor;
+      const invoiceDateLabelColor = staticTextColor;
+      const invoiceDateValueColor = staticTextColor;
+      const dueDateLabelColor = staticTextColor;
+      const dueDateValueColor = staticTextColor;
+      const termsLabelColor = staticTextColor;
+      const termsValueColor = staticTextColor;
+      const grayText = staticTextColor;
+
+      const tableRowColor = "#ffffff";
+      const tableAltRowColor = "#ffffff";
+      const tableBorderColor = "#e5e7eb";
+      const borderColor = "#e5e7eb";
+      const footerBackgroundColor = "#f9fafb";
 
       const baseFontSize = template?.fontSize || 10;
       const headingFontSize = template?.headingFontSize || 20;
@@ -188,7 +192,7 @@ export const generateInvoicePDF = (
             doc
               .fontSize(9)
               .font("Helvetica")
-              .fillColor(primaryColor)
+              .fillColor(textColor)
               .text(tagline, 35, 60, { lineBreak: false });
           }
         }
@@ -198,7 +202,7 @@ export const generateInvoicePDF = (
           doc
             .fontSize(headingFontSize)
             .font("Helvetica-Bold")
-            .fillColor(invoiceNumberColor)
+            .fillColor(primaryColor)
             .text(invoiceLabel, 400, 35, {
               width: 155,
               align: "right",
@@ -221,7 +225,7 @@ export const generateInvoicePDF = (
         const billToLabel = template?.billToLabel ?? "";
         if (billToLabel) {
           doc
-            .fontSize(baseFontSize + 3)
+            .fontSize(template?.labelFontSize || 10)
             .font("Helvetica-Bold")
             .fillColor(billToColor)
             .text(billToLabel, 35, detailsY, {
@@ -237,7 +241,7 @@ export const generateInvoicePDF = (
           "";
         if (customerName) {
           doc
-            .fontSize(baseFontSize + 1)
+            .fontSize(template?.billToNameFontSize || 10)
             .font("Helvetica")
             .fillColor(billToNameColor)
             .text(customerName, 35, detailsY + 18, { lineBreak: false });
@@ -699,7 +703,7 @@ export const generateInvoicePDF = (
         doc
           .fontSize(labelFontSize + 1)
           .font("Helvetica-Bold")
-          .fillColor(accentColor)
+          .fillColor(textColor)
           .text(
             formatCurrency(invoice.total || totalBalanceDue),
             totalsValueX,
@@ -778,7 +782,7 @@ export const generateInvoicePDF = (
           doc
             .fontSize(9)
             .font("Helvetica")
-            .fillColor("#374151")
+            .fillColor(textColor)
             .text(parsedText, 35, yPosition + 5, { width: 490, lineGap: 1 });
           yPosition += notesHeight + 20;
         }

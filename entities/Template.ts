@@ -44,30 +44,30 @@ export class Template {
   @Column({ default: "#ffffff" }) backgroundColor!: string;
   @Column({ default: "#1AA3FF" }) accentColor!: string;
   @Column({ default: "#1AA3FF" }) invoiceNumberColor!: string;
-  @Column({ default: "#1AA3FF" }) billToColor!: string;
-  @Column({ default: "#1AA3FF" }) previousDueColor!: string;
+  @Column({ default: "#1f2937" }) billToColor!: string;
+  @Column({ default: "#1f2937" }) previousDueColor!: string;
   @Column({ default: "#1f2937" }) textColor!: string;
-  @Column({ default: "#1AA3FF" }) headerTextColor!: string;
+  @Column({ default: "#1f2937" }) headerTextColor!: string;
   @Column({ default: "#1AA3FF" }) tableHeaderBgColor!: string;
   @Column({ default: "#ffffff" }) tableHeaderTextColor!: string;
   @Column({ default: "#ffffff" }) tableRowColor!: string;
   @Column({ default: "#ffffff" }) tableAltRowColor!: string;
   @Column({ default: "#e5e7eb" }) tableBorderColor!: string;
   @Column({ default: "#e5e7eb" }) borderColor!: string;
-  @Column({ default: "#1AA3FF" }) balanceDueTextColor!: string;
+  @Column({ default: "#ffffff" }) balanceDueTextColor!: string;
 
   // Granular Bill To Styles
-  @Column({ default: "#1AA3FF" }) billToNameColor!: string;
-  @Column({ default: "#1AA3FF" }) billToAddressColor!: string;
-  @Column({ default: 12 }) billToNameFontSize!: number;
+  @Column({ default: "#1f2937" }) billToNameColor!: string;
+  @Column({ default: "#1f2937" }) billToAddressColor!: string;
+  @Column({ default: 10 }) billToNameFontSize!: number;
   @Column({ default: 10 }) billToAddressFontSize!: number;
 
   // Granular Invoice Details Styles
-  @Column({ default: "#6b7280" }) invoiceDateLabelColor!: string;
+  @Column({ default: "#1f2937" }) invoiceDateLabelColor!: string;
   @Column({ default: "#1f2937" }) invoiceDateValueColor!: string;
-  @Column({ default: "#6b7280" }) dueDateLabelColor!: string;
+  @Column({ default: "#1f2937" }) dueDateLabelColor!: string;
   @Column({ default: "#1f2937" }) dueDateValueColor!: string;
-  @Column({ default: "#6b7280" }) termsLabelColor!: string;
+  @Column({ default: "#1f2937" }) termsLabelColor!: string;
   @Column({ default: "#1f2937" }) termsValueColor!: string;
   @Column({ default: 10 }) invoiceDetailLabelFontSize!: number;
   @Column({ default: 10 }) invoiceDetailValueFontSize!: number;
