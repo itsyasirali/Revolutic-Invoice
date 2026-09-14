@@ -22,7 +22,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     pathname.startsWith("/pricing") ||
     pathname.startsWith("/about") ||
     pathname.startsWith("/demo") ||
-    pathname.startsWith("/billing");
+    pathname.startsWith("/billing") ||
+    pathname.startsWith("/industries") ||
+    pathname.startsWith("/resources") ||
+    pathname.startsWith("/blog") ||
+    pathname.startsWith("/customers-stories");
 
   if (isPublicRoute) {
     return (

@@ -9,8 +9,9 @@ import { Menu, X, ArrowRight, LayoutDashboard } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Features", href: "/#features" },
-  { label: "How It Works", href: "/#how-it-works" },
-  { label: "Solutions", href: "/#solutions" },
+  { label: "Industries", href: "/industries" },
+  { label: "Customers", href: "/customers-stories" },
+  { label: "Resources", href: "/resources" },
   { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/about" },
   { label: "Book Demo", href: "/demo" },

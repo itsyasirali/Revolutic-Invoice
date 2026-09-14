@@ -19,7 +19,11 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     pathname.startsWith("/pricing") ||
     pathname.startsWith("/about") ||
     pathname.startsWith("/demo") ||
-    pathname.startsWith("/billing");
+    pathname.startsWith("/billing") ||
+    pathname.startsWith("/industries") ||
+    pathname.startsWith("/resources") ||
+    pathname.startsWith("/blog") ||
+    pathname.startsWith("/customers-stories");
 
   // Public marketing pages are always accessible
   if (isPublicRoute) {
