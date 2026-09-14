@@ -806,7 +806,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       key={col.key}
                       style={{
                         width: `${col.width}px`,
-                        padding: "2px 12px 15px 12px",
+                        padding: "10px 12px",
                         textAlign: col.align,
                         verticalAlign: "middle",
                         color: tableHeaderTextColor,
@@ -857,7 +857,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       key={col.key}
                       style={{
                         width: `${col.width}px`,
-                        padding: "2px 12px 8px 12px",
+                        padding: "6px 12px",
                         textAlign: col.align,
                         verticalAlign: "middle",
                         fontSize: `${data.tableFontSize || 10}pt`,
@@ -1044,7 +1044,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 id="balance-due-box"
                 style={{
                   backgroundColor: accentColor,
-                  padding: "2px 14px 15px 14px",
+                  padding: "8px 14px",
                   marginTop: "4px",
                   boxSizing: "border-box",
                   display: "flex",

@@ -53,6 +53,21 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
     clone.style.width = "210mm";
     clone.style.height = "auto";
 
+    const ths = clone.querySelectorAll("th");
+    ths.forEach((th) => {
+      (th as HTMLElement).style.padding = "2px 12px 15px 12px";
+    });
+
+    const tds = clone.querySelectorAll("td");
+    tds.forEach((td) => {
+      (td as HTMLElement).style.padding = "2px 12px 8px 12px";
+    });
+
+    const balanceBox = clone.querySelector("#balance-due-box");
+    if (balanceBox) {
+      (balanceBox as HTMLElement).style.padding = "2px 14px 15px 14px";
+    }
+
     const container = document.createElement("div");
     container.style.position = "fixed";
     container.style.left = "-9999px";

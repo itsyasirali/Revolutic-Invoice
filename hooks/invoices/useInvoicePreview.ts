@@ -215,22 +215,48 @@ export const useInvoicePreview = () => {
           logging: false,
           scrollY: 0,
           windowWidth: 1200,
-          onclone: (clonedDoc: Document) => {
-            const area = clonedDoc.getElementById("pdf-print-area");
-            if (area) {
-              const imgs = area.querySelectorAll("img");
-              imgs.forEach((img: Element) => {
-                const htmlImg = img as HTMLImageElement;
-                htmlImg.style.display = "inline-block";
-                htmlImg.style.verticalAlign = "middle";
-              });
-            }
-          },
         },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
       };
 
-      await html2pdf.default().from(element).set(opt).save();
+      // Temporarily apply PDF-specific padding offsets to DOM before canvas snapshot
+      const ths = element.querySelectorAll("th");
+      const tds = element.querySelectorAll("td");
+      const balanceBox = element.querySelector("#balance-due-box");
+
+      const prevThPaddings = Array.from(ths).map(
+        (th) => (th as HTMLElement).style.padding,
+      );
+      const prevTdPaddings = Array.from(tds).map(
+        (td) => (td as HTMLElement).style.padding,
+      );
+      const prevBalancePadding =
+        (balanceBox as HTMLElement)?.style.padding || "";
+
+      ths.forEach((th) => {
+        (th as HTMLElement).style.padding = "2px 12px 15px 12px";
+      });
+      tds.forEach((td) => {
+        (td as HTMLElement).style.padding = "2px 12px 8px 12px";
+      });
+      if (balanceBox) {
+        (balanceBox as HTMLElement).style.padding = "2px 14px 15px 14px";
+      }
+
+      try {
+        await html2pdf.default().from(element).set(opt).save();
+      } finally {
+        // Restore clean on-screen UI styling immediately
+        ths.forEach((th, i) => {
+          (th as HTMLElement).style.padding = prevThPaddings[i];
+        });
+        tds.forEach((td, i) => {
+          (td as HTMLElement).style.padding = prevTdPaddings[i];
+        });
+        if (balanceBox) {
+          (balanceBox as HTMLElement).style.padding = prevBalancePadding;
+        }
+      }
 
       imageConversions.forEach(({ img, originalSrc }) => {
         img.src = originalSrc;
