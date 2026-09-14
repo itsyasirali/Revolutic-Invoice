@@ -1,10 +1,5 @@
-"use client";
-
 import React, { forwardRef } from "react";
-
-export interface SetupInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
-}
+import type { SetupInputProps } from "@/types/organization";
 
 export const SetupInput = forwardRef<HTMLInputElement, SetupInputProps>(
   ({ className = "", error = false, ...props }, ref) => {
@@ -19,7 +14,7 @@ export const SetupInput = forwardRef<HTMLInputElement, SetupInputProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 SetupInput.displayName = "SetupInput";

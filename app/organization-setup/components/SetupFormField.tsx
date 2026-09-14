@@ -1,14 +1,5 @@
-"use client";
-
 import React from "react";
-
-interface SetupFormFieldProps {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-  className?: string;
-  error?: string;
-}
+import type { SetupFormFieldProps } from "@/types/organization";
 
 export const SetupFormField: React.FC<SetupFormFieldProps> = ({
   label,

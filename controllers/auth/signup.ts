@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
-import { Template } from "@/entities/Template";
 import { SignupPayload } from "@/types/auth";
 import {
   AUTH_COOKIE_NAME,
@@ -24,7 +23,6 @@ const signup = async (req: NextRequest) => {
     const normalizedEmail = email.trim().toLowerCase();
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
-    const templatesRepository = db.getRepository(Template);
 
     const userExist = await usersRepository.findOne({
       where: { email: normalizedEmail },

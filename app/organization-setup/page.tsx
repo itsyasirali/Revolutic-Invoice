@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { PlusCircle, ChevronUp } from "lucide-react";
-import axios from "@/lib/axios";
-import { useAuth } from "@/context/AuthContext";
-import { useOrganization } from "@/context/OrganizationContext";
-import { toast } from "@/components/ui";
-
+import { useOrganizationSetup } from "@/hooks/organization/useOrganizationSetup";
+import {
+  INDUSTRIES,
+  LOCATIONS,
+  PROVINCES,
+  CURRENCIES,
+  LANGUAGES,
+  TIMEZONES,
+} from "@/data/organizationSetupData";
 import SetupHeader from "./components/SetupHeader";
 import SetupFormField from "./components/SetupFormField";
 import SetupInput from "./components/SetupInput";
@@ -15,170 +18,37 @@ import SetupSelect from "./components/SetupSelect";
 import SetupNotes from "./components/SetupNotes";
 import SetupButtons from "./components/SetupButtons";
 
-const INDUSTRIES = [
-  "Web Development",
-  "Software & Technology",
-  "Consulting & Professional Services",
-  "Design, Agency & Media",
-  "Retail & E-commerce",
-  "Financial Services & Accounting",
-  "Construction & Real Estate",
-  "Healthcare & Wellness",
-  "Education & Training",
-  "Other",
-];
-
-const LOCATIONS = [
-  "Pakistan",
-  "United States",
-  "United Kingdom",
-  "United Arab Emirates",
-  "Saudi Arabia",
-  "Canada",
-  "Australia",
-  "Germany",
-  "France",
-  "India",
-  "Other",
-];
-
-const PROVINCES = [
-  "State/Province",
-  "Punjab",
-  "Sindh",
-  "Khyber Pakhtunkhwa",
-  "Balochistan",
-  "Islamabad Capital Territory",
-  "Gilgit-Baltistan",
-  "Azad Kashmir",
-  "Other",
-];
-
-const CURRENCIES = [
-  { value: "PKR", label: "PKR - Pakistani Rupee" },
-  { value: "USD", label: "USD - United States Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "AED", label: "AED - UAE Dirham" },
-  { value: "SAR", label: "SAR - Saudi Riyal" },
-];
-
-const LANGUAGES = ["English", "Urdu", "Arabic", "Spanish", "French", "German"];
-
-const TIMEZONES = [
-  "(GMT 5:00) Pakistan Time (Asia/Karachi)",
-  "(GMT 0:00) Greenwich Mean Time (Europe/London)",
-  "(GMT -5:00) Eastern Time (US & Canada)",
-  "(GMT -8:00) Pacific Time (US & Canada)",
-  "(GMT +4:00) Gulf Standard Time (Asia/Dubai)",
-  "(GMT +3:00) Arabian Standard Time (Asia/Riyadh)",
-  "(GMT +1:00) Central European Time (Europe/Paris)",
-];
-
 const OrganizationSetupPage: React.FC = () => {
-  const router = useRouter();
-  const { user, refetchProfile, logout } = useAuth();
-  const { hasOrganization, refreshOrganizations, setOrganization } =
-    useOrganization();
-
-  const isAddingNewOrg = hasOrganization;
-
-  // Form State
-  const [organizationName, setOrganizationName] = useState(
-    isAddingNewOrg ? "" : user?.companyName || "",
-  );
-  const [industry, setIndustry] = useState(INDUSTRIES[0]);
-  const [location, setLocation] = useState(LOCATIONS[0]);
-  const [province, setProvince] = useState(PROVINCES[0]);
-  const [currency, setCurrency] = useState("PKR");
-  const [language, setLanguage] = useState(LANGUAGES[0]);
-  const [timeZone, setTimeZone] = useState(TIMEZONES[0]);
-
-  // Optional Address toggle & fields
-  const [showAddress, setShowAddress] = useState(false);
-  const [streetAddress, setStreetAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const userName = user?.firstName || user?.name?.split(" ")[0] || "there";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!organizationName.trim()) {
-      setError("Organization Name is required");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const fullAddress = showAddress
-        ? [
-            streetAddress,
-            city,
-            province !== "State/Province" ? province : "",
-            location,
-            zipCode,
-          ]
-            .filter(Boolean)
-            .join(", ")
-        : location;
-
-      const response = await axios.post("/organizations", {
-        name: organizationName.trim(),
-        industry,
-        currency,
-        address: fullAddress || undefined,
-        businessLocation: location,
-        stateProvince: province !== "State/Province" ? province : undefined,
-        language,
-        timeZone,
-      });
-
-      const savedOrg = response.data?.organization;
-      if (savedOrg) {
-        setOrganization(savedOrg);
-      }
-
-      await refreshOrganizations();
-      await refetchProfile({ silent: true });
-
-      toast.success(
-        isAddingNewOrg
-          ? `Organization "${organizationName}" has been created.`
-          : `${organizationName} has been initialized successfully.`,
-        isAddingNewOrg ? "Organization Created" : "Setup Complete",
-      );
-
-      // Reload dashboard so all active tenant data matches new organization
-      window.location.href = "/dashboard";
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.message || "Failed to set up organization.",
-        );
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBack = () => {
-    if (isAddingNewOrg) {
-      router.push("/dashboard");
-    } else {
-      logout();
-    }
-  };
+  const {
+    organizationName,
+    setOrganizationName,
+    industry,
+    setIndustry,
+    location,
+    setLocation,
+    province,
+    setProvince,
+    currency,
+    setCurrency,
+    language,
+    setLanguage,
+    timeZone,
+    setTimeZone,
+    showAddress,
+    setShowAddress,
+    streetAddress,
+    setStreetAddress,
+    city,
+    setCity,
+    zipCode,
+    setZipCode,
+    loading,
+    error,
+    userName,
+    isAddingNewOrg,
+    handleSubmit,
+    handleBack,
+  } = useOrganizationSetup();
 
   return (
     <div className="min-h-screen bg-[#f3f7fd] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden font-sans">
@@ -273,7 +143,7 @@ const OrganizationSetupPage: React.FC = () => {
           <div>
             <button
               type="button"
-              onClick={() => setShowAddress(!showAddress)}
+              onClick={() => setShowAddress((prev) => !prev)}
               className="inline-flex items-center gap-1.5 text-sm text-[#2563eb] hover:text-primary font-medium transition-colors cursor-pointer"
             >
               {showAddress ? (

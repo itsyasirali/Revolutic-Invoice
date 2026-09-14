@@ -1,17 +1,6 @@
-"use client";
-
 import React, { forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
-
-export interface SetupSelectOption {
-  value: string;
-  label: string;
-}
-
-export interface SetupSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  options: (string | SetupSelectOption)[];
-  error?: boolean;
-}
+import type { SetupSelectProps } from "@/types/organization";
 
 export const SetupSelect = forwardRef<HTMLSelectElement, SetupSelectProps>(
   ({ options, className = "", error = false, ...props }, ref) => {
@@ -41,7 +30,7 @@ export const SetupSelect = forwardRef<HTMLSelectElement, SetupSelectProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 SetupSelect.displayName = "SetupSelect";

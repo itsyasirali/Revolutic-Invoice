@@ -1,75 +1,33 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { Building2, ChevronDown, Check, Plus, Sparkles } from "lucide-react";
-import { useOrganization } from "@/context/OrganizationContext";
+import useOrganizationSwitcher from "@/hooks/organization/useOrganizationSwitcher";
 import { LoadingSpinner } from "@/components/ui";
 
 const OrganizationSwitcher: React.FC = () => {
-  const router = useRouter();
   const {
     organization,
     organizations,
     loading,
     isSwitching,
-    switchOrganization,
-  } = useOrganization();
-
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
+    isOpen,
+    dropdownRef,
+    setIsOpen,
+    handleSelectOrg,
+    handleAddNewOrg,
+  } = useOrganizationSwitcher();
 
   if (!organization && !loading) {
     return null;
   }
-
-  const handleSelectOrg = async (orgId: number) => {
-    if (orgId === organization?.id || isSwitching) {
-      setIsOpen(false);
-      return;
-    }
-    await switchOrganization(orgId);
-    setIsOpen(false);
-  };
-
-  const handleAddNewOrg = () => {
-    setIsOpen(false);
-    router.push("/organization-setup?new=true");
-  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Trigger Button */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((prev) => !prev)}
         disabled={isSwitching}
         className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none text-left ${
           isOpen
@@ -135,7 +93,7 @@ const OrganizationSwitcher: React.FC = () => {
                   onClick={() => handleSelectOrg(org.id)}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
                     isActive
-                      ? "bg-blue-50/80 text-blue-900 font-semibold"
+                      ? "bg-blue-50/80 text-primary font-semibold"
                       : "hover:bg-slate-50 text-slate-700"
                   }`}
                 >
@@ -143,7 +101,7 @@ const OrganizationSwitcher: React.FC = () => {
                     <div
                       className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                         isActive
-                          ? "bg-blue-600 text-white shadow-xs"
+                          ? "bg-primary text-white shadow-xs"
                           : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                       }`}
                     >

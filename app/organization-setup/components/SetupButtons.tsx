@@ -1,15 +1,7 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import { LoadingSpinner } from "@/components/ui";
-
-interface SetupButtonsProps {
-  loading?: boolean;
-  onBack?: () => void;
-  submitText?: string;
-  backText?: string;
-}
+import type { SetupButtonsProps } from "@/types/organization";
 
 export const SetupButtons: React.FC<SetupButtonsProps> = ({
   loading = false,

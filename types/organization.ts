@@ -48,3 +48,85 @@ export interface OrganizationResponse {
   organizations?: OrganizationData[];
   error?: string;
 }
+
+export interface SetupSelectOption {
+  value: string;
+  label: string;
+}
+
+export interface SetupHeaderProps {
+  onClose?: () => void;
+  brandName?: string;
+  subBrand?: string;
+  title?: string;
+}
+
+export interface SetupFormFieldProps {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+  className?: string;
+  error?: string;
+}
+
+export interface SetupButtonsProps {
+  loading?: boolean;
+  onBack?: () => void;
+  submitText?: string;
+  backText?: string;
+}
+
+export interface SetupInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  error?: boolean;
+}
+
+export interface SetupSelectProps
+  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  options: (string | SetupSelectOption)[];
+  error?: boolean;
+}
+
+export interface UseOrganizationSetupReturn {
+  organizationName: string;
+  setOrganizationName: (val: string) => void;
+  industry: string;
+  setIndustry: (val: string) => void;
+  location: string;
+  setLocation: (val: string) => void;
+  province: string;
+  setProvince: (val: string) => void;
+  currency: string;
+  setCurrency: (val: string) => void;
+  language: string;
+  setLanguage: (val: string) => void;
+  timeZone: string;
+  setTimeZone: (val: string) => void;
+  showAddress: boolean;
+  setShowAddress: (val: boolean | ((prev: boolean) => boolean)) => void;
+  streetAddress: string;
+  setStreetAddress: (val: string) => void;
+  city: string;
+  setCity: (val: string) => void;
+  zipCode: string;
+  setZipCode: (val: string) => void;
+  loading: boolean;
+  error: string | null;
+  userName: string;
+  isAddingNewOrg: boolean;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  handleBack: () => void;
+}
+
+export interface UseOrganizationSwitcherReturn {
+  organization: OrganizationData | null;
+  organizations: OrganizationData[];
+  loading: boolean;
+  isSwitching: boolean;
+  isOpen: boolean;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  setIsOpen: (val: boolean | ((prev: boolean) => boolean)) => void;
+  handleSelectOrg: (orgId: number) => Promise<void>;
+  handleAddNewOrg: () => void;
+}
+

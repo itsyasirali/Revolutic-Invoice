@@ -1,14 +1,6 @@
-"use client";
-
 import React from "react";
 import { X, FileText } from "lucide-react";
-
-interface SetupHeaderProps {
-  onClose?: () => void;
-  brandName?: string;
-  subBrand?: string;
-  title?: string;
-}
+import type { SetupHeaderProps } from "@/types/organization";
 
 export const SetupHeader: React.FC<SetupHeaderProps> = ({
   onClose,

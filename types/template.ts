@@ -466,3 +466,53 @@ export interface UseTemplateDetailsReturn {
   loading: boolean;
   error: string | null;
 }
+
+export interface ColorInputProps {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+}
+
+export interface LabelStyleProps {
+  label: string;
+  textValue: string;
+  textColor?: string;
+  bgColor?: string;
+  fontSize?: number;
+  onTextChange: (val: string) => void;
+  onTextColorChange?: (val: string) => void;
+  onBgColorChange?: (val: string) => void;
+  onFontSizeChange?: (val: number) => void;
+  showColor?: boolean;
+  showBg?: boolean;
+  showSize?: boolean;
+}
+
+export interface CollapsibleSectionProps {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
+  icon?: React.ReactNode;
+  id?: string;
+  isSelected?: boolean;
+}
+
+export interface PaperDimensions {
+  width: string;
+  height: string;
+}
+
+export interface UseTemplateFormViewReturn extends UseTemplateFormReturn {
+  activeNav: string;
+  setActiveNav: (nav: any) => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onLogoFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  templateConfig: any;
+  paperDims: PaperDimensions;
+  isSectionOpen: (key: string, isSelected?: boolean) => boolean;
+  toggleSection: (key: string, isSelected?: boolean) => void;
+  handlePreviewSelection: (elementId: string) => void;
+}
+
