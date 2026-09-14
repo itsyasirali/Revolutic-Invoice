@@ -41,7 +41,7 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
 
         <Link
           href="/invoices"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E6BFF] hover:text-blue-700 transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E6BFF] hover:text-primary transition-colors"
         >
           <span>View All</span>
           <ArrowRight className="w-3.5 h-3.5" />

@@ -4,6 +4,8 @@ import { Organization } from "@/entities/Organization";
 import { Template } from "@/entities/Template";
 import { getAuthUserId, getAuthToken, signAuthToken, AUTH_COOKIE_NAME, TOKEN_MAX_AGE_SECONDS } from "@/lib/session";
 
+import { CreateOrganizationPayload } from "@/types/organization";
+
 const createOrganization = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
   if (!userId) {
@@ -11,7 +13,7 @@ const createOrganization = async (req: NextRequest) => {
   }
 
   try {
-    const body = await req.json();
+    const body: CreateOrganizationPayload = await req.json();
     const { name } = body;
 
     if (!name || String(name).trim().length === 0) {
@@ -21,31 +23,42 @@ const createOrganization = async (req: NextRequest) => {
       );
     }
 
+    const trimmedName = String(name).trim();
     const db = await getDatabase();
     const orgRepo = db.getRepository(Organization);
     const templateRepo = db.getRepository(Template);
 
-    // Prevent duplicate orgs for the same user
-    const existing = await orgRepo.findOne({ where: { userId } });
-    if (existing) {
+    // Prevent duplicate organization names for the same user
+    const existingSameName = await orgRepo.findOne({
+      where: { userId, name: trimmedName },
+    });
+    if (existingSameName) {
       return NextResponse.json(
-        { message: "Organization already exists", organization: existing },
-        { status: 200 },
+        { message: "An organization with this name already exists in your account." },
+        { status: 400 },
       );
     }
 
     // Create the organization
     const org = orgRepo.create({
-      name: String(name).trim(),
+      name: trimmedName,
       userId,
-      email: body.email || null,
-      phone: body.phone || null,
+      industry: body.industry || "Web Development",
+      businessLocation: body.businessLocation || "Pakistan",
+      stateProvince: body.stateProvince || null,
+      streetAddress: body.streetAddress || null,
+      city: body.city || null,
+      zipCode: body.zipCode || null,
       address: body.address || null,
       currency: body.currency || "PKR",
+      language: body.language || "English",
+      timeZone: body.timeZone || "(GMT 5:00) Pakistan Time (Asia/Karachi)",
+      email: body.email || null,
+      phone: body.phone || null,
       logoUrl: body.logoUrl || null,
       website: body.website || null,
-    });
-    const savedOrg = await orgRepo.save(org);
+    } as Partial<Organization>);
+    const savedOrg: Organization = await orgRepo.save(org);
 
     // Create default template scoped to this org
     const defaultTemplate = templateRepo.create({

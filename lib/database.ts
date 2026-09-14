@@ -160,7 +160,7 @@ export const getDatabase = async (): Promise<DataSource> => {
         database: process.env.DB_NAME,
         ssl,
         entities: ENTITIES,
-        synchronize,
+        synchronize:true,
         extra: poolConfig,
       });
     }

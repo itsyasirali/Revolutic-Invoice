@@ -19,22 +19,46 @@ export class Organization {
   name!: string;
 
   @Column({ nullable: true })
-  email!: string;
+  industry!: string | null;
 
   @Column({ nullable: true })
-  phone!: string;
+  businessLocation!: string | null;
+
+  @Column({ nullable: true })
+  stateProvince!: string | null;
+
+  @Column({ nullable: true })
+  streetAddress!: string | null;
+
+  @Column({ nullable: true })
+  city!: string | null;
+
+  @Column({ nullable: true })
+  zipCode!: string | null;
 
   @Column({ type: "text", nullable: true })
-  address!: string;
+  address!: string | null;
 
   @Column({ default: "PKR" })
   currency!: string;
 
-  @Column({ nullable: true })
-  logoUrl!: string;
+  @Column({ default: "English" })
+  language!: string;
+
+  @Column({ default: "(GMT 5:00) Pakistan Time (Asia/Karachi)" })
+  timeZone!: string;
 
   @Column({ nullable: true })
-  website!: string;
+  email!: string | null;
+
+  @Column({ nullable: true })
+  phone!: string | null;
+
+  @Column({ nullable: true })
+  logoUrl!: string | null;
+
+  @Column({ nullable: true })
+  website!: string | null;
 
   // Owner
   @ManyToOne("users")

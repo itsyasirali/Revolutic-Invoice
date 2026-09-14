@@ -47,13 +47,19 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // If already has org and tries to visit organization-setup
+    // If already has org and tries to visit organization-setup without ?new=true
+    const isCreatingNewOrg =
+      typeof window !== "undefined" &&
+      (window.location.search.includes("new=true") ||
+        window.location.search.includes("create=true"));
+
     if (
       !authLoading &&
       !orgLoading &&
       user &&
       hasOrganization &&
-      pathname === "/organization-setup"
+      pathname === "/organization-setup" &&
+      !isCreatingNewOrg
     ) {
       router.replace("/dashboard");
     }

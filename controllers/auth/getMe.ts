@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { Organization } from "@/entities/Organization";
@@ -16,12 +16,13 @@ const getMe = async (req: NextRequest) => {
     const usersRepository = db.getRepository(User);
     const orgRepository = db.getRepository(Organization);
 
-    const [user, org] = await Promise.all([
+    const [user, orgs] = await Promise.all([
       usersRepository.findOne({
         where: { id: userId },
       }),
-      orgRepository.findOne({
+      orgRepository.find({
         where: { userId },
+        order: { createdAt: "ASC" },
       }),
     ]);
 
@@ -29,16 +30,21 @@ const getMe = async (req: NextRequest) => {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    const activeOrgId = await getAuthOrgId(req);
+    const activeOrg = activeOrgId
+      ? orgs.find((o) => o.id === activeOrgId) || orgs[0] || null
+      : orgs[0] || null;
+
     return NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        companyName: org?.name || user.companyName,
+        companyName: activeOrg?.name || user.companyName,
         firstName: user.firstName,
         lastName: user.lastName,
-        organizationId: org?.id || null,
-        organization: org || null,
+        organizationId: activeOrg?.id || null,
+        organization: activeOrg || null,
       },
     });
   } catch (error) {

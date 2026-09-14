@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Organization } from "@/entities/Organization";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
+import { OrganizationResponse } from "@/types/organization";
 
 const getOrganization = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -13,19 +14,35 @@ const getOrganization = async (req: NextRequest) => {
     const db = await getDatabase();
     const orgRepo = db.getRepository(Organization);
 
-    const organization = await orgRepo.findOne({
+    const organizations = await orgRepo.find({
       where: { userId },
       order: { createdAt: "ASC" },
     });
 
-    if (!organization) {
-      return NextResponse.json(
-        { message: "No organization found", organization: null },
-        { status: 200 },
-      );
+    if (!organizations || organizations.length === 0) {
+      const responseBody: OrganizationResponse = {
+        message: "No organization found",
+        organization: null,
+        organizations: [],
+      };
+      return NextResponse.json(responseBody, { status: 200 });
     }
 
-    return NextResponse.json({ organization });
+    const activeOrgId = await getAuthOrgId(req);
+    let organization = activeOrgId
+      ? organizations.find((o) => o.id === activeOrgId) || null
+      : null;
+
+    if (!organization) {
+      organization = organizations[0];
+    }
+
+    const responseBody: OrganizationResponse = {
+      organization,
+      organizations,
+    };
+
+    return NextResponse.json(responseBody);
   } catch (error: any) {
     console.error("Error fetching organization:", error);
     return NextResponse.json(
@@ -36,3 +53,4 @@ const getOrganization = async (req: NextRequest) => {
 };
 
 export default getOrganization;
+

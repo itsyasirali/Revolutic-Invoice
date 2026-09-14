@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo, Suspense, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  Suspense,
+  useCallback,
+} from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -19,6 +26,7 @@ import {
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
 import { useOrganization } from "@/context/OrganizationContext";
+import OrganizationSwitcher from "@/components/organization/OrganizationSwitcher";
 import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
@@ -126,8 +134,12 @@ const HeaderSearch = () => {
             .filter(
               (inv: any) =>
                 (inv.invoiceNumber || "").toLowerCase().includes(lower) ||
-                (inv.customer?.displayName || "").toLowerCase().includes(lower) ||
-                (inv.customer?.companyName || "").toLowerCase().includes(lower) ||
+                (inv.customer?.displayName || "")
+                  .toLowerCase()
+                  .includes(lower) ||
+                (inv.customer?.companyName || "")
+                  .toLowerCase()
+                  .includes(lower) ||
                 String(inv.total || "").includes(lower),
             )
             .map((inv: any) => ({
@@ -176,7 +188,9 @@ const HeaderSearch = () => {
           return raw
             .filter(
               (t: any) =>
-                (t.templateName || t.name || "").toLowerCase().includes(lower) ||
+                (t.templateName || t.name || "")
+                  .toLowerCase()
+                  .includes(lower) ||
                 (t.paperSize || "").toLowerCase().includes(lower),
             )
             .map((t: any) => ({
@@ -275,13 +289,8 @@ const Header = () => {
 
       {/* Right Side Actions */}
       <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-        {/* Organization Badge */}
-        {organization && (
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs font-semibold text-blue-900 shadow-2xs">
-            <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span className="truncate max-w-[150px]">{organization.name}</span>
-          </div>
-        )}
+        {/* Organization Switcher */}
+        <OrganizationSwitcher />
 
         {/* Notification Bell */}
         <div className="relative" ref={notificationRef}>
@@ -323,10 +332,14 @@ const Header = () => {
             className="flex items-center gap-3 p-1 sm:pr-3 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              {profileLoading ? <LoadingSpinner size="xs" color="white" /> : userInitials}
+              {profileLoading ? (
+                <LoadingSpinner size="xs" color="white" />
+              ) : (
+                userInitials
+              )}
             </div>
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-semibold text-slate-800 leading-tight">
+              <div className="text-xs font-semibold text-slate-800 leading-tight">
                 {profileLoading ? (
                   <span className="inline-flex items-center pt-0.5">
                     <LoadingSpinner size="xs" color="gray" />
@@ -334,7 +347,7 @@ const Header = () => {
                 ) : (
                   displayName
                 )}
-              </p>
+              </div>
               <p className="text-[10px] text-slate-400 leading-tight">Admin</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -351,7 +364,7 @@ const Header = () => {
                   {userEmail}
                 </p>
                 {organization?.name && (
-                  <p className="text-[10px] font-semibold text-blue-600 truncate mt-1 flex items-center gap-1">
+                  <p className="text-[10px] font-semibold text-primary truncate mt-1 flex items-center gap-1">
                     <Building2 className="w-3 h-3 shrink-0" />
                     <span>{organization.name}</span>
                   </p>
@@ -360,9 +373,17 @@ const Header = () => {
 
               <div className="py-1">
                 <Link
+                  href="/organization-setup?new=true"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Add Organization</span>
+                </Link>
+                <Link
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-blue-600"
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
                 >
                   <UserIcon className="w-3.5 h-3.5" />
                   <span>My Account</span>
@@ -370,7 +391,7 @@ const Header = () => {
                 <Link
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-blue-600"
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>Settings</span>

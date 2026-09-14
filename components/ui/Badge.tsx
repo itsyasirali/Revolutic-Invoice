@@ -4,11 +4,11 @@ import type { BadgeProps, BadgeVariant, BadgeSize } from "@/types/common";
 const variantClasses: Record<BadgeVariant, { container: string; dot: string }> =
   {
     primary: {
-      container: "bg-blue-50 text-blue-700 border border-blue-200",
+      container: "bg-blue-50 text-primary border border-blue-200",
       dot: "bg-blue-500",
     },
     secondary: {
-      container: "bg-blue-50 text-blue-700 border border-blue-200",
+      container: "bg-blue-50 text-primary border border-blue-200",
       dot: "bg-blue-500",
     },
     success: {
@@ -66,26 +66,53 @@ export const Badge: React.FC<BadgeProps> = ({
   rounded = true,
   className = "",
 }) => {
-  const text = (status || label || (typeof children === "string" ? children : "")).toString().trim();
+  const text = (
+    status ||
+    label ||
+    (typeof children === "string" ? children : "")
+  )
+    .toString()
+    .trim();
   const lower = text.toLowerCase();
 
   let computedVariant: BadgeVariant = variant || "primary";
 
   // Auto-detect status colors when variant is not explicitly specialized
   if (!variant || variant === "primary" || variant === "default") {
-    if (lower === "inactive" || lower.startsWith("inactive") || lower.includes("inactive") || lower.includes("archived")) {
+    if (
+      lower === "inactive" ||
+      lower.startsWith("inactive") ||
+      lower.includes("inactive") ||
+      lower.includes("archived")
+    ) {
       computedVariant = "inactive";
     } else if (lower === "active" || lower.includes("active")) {
       computedVariant = "active";
-    } else if (lower.includes("partially paid") || lower.includes("partial") || lower === "partially_paid") {
+    } else if (
+      lower.includes("partially paid") ||
+      lower.includes("partial") ||
+      lower === "partially_paid"
+    ) {
       computedVariant = "warning";
-    } else if (lower === "paid" || lower.includes("paid") || lower.includes("success")) {
+    } else if (
+      lower === "paid" ||
+      lower.includes("paid") ||
+      lower.includes("success")
+    ) {
       computedVariant = "success";
-    } else if (lower.includes("overdue") || lower.includes("failed") || lower.includes("unpaid")) {
+    } else if (
+      lower.includes("overdue") ||
+      lower.includes("failed") ||
+      lower.includes("unpaid")
+    ) {
       computedVariant = "danger";
     } else if (lower.includes("sent")) {
       computedVariant = "info";
-    } else if (lower.includes("draft") || lower.includes("pending") || lower.includes("cancelled")) {
+    } else if (
+      lower.includes("draft") ||
+      lower.includes("pending") ||
+      lower.includes("cancelled")
+    ) {
       computedVariant = "gray";
     }
   }
