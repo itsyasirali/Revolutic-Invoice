@@ -64,7 +64,7 @@ const ActionCards = () => {
                   className="text-primary hover:bg-transparent w-fit pl-0 flex items-center gap-2 group font-semibold"
                   asChild
                 >
-                  <Link href="/demo">
+                  <Link href="/register">
                     {actionCards[1].buttonText}{" "}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>

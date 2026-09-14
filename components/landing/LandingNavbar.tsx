@@ -12,9 +12,7 @@ const NAV_LINKS = [
   { label: "Industries", href: "/industries" },
   { label: "Customers", href: "/customers-stories" },
   { label: "Resources", href: "/resources" },
-  { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/about" },
-  { label: "Book Demo", href: "/demo" },
 ];
 
 const LandingNavbar = () => {
@@ -77,7 +75,7 @@ const LandingNavbar = () => {
                   className="text-slate-700 font-semibold hover:text-primary"
                   asChild
                 >
-                  <Link href="/dashboard">Sign In</Link>
+                  <Link href="/login">Sign In</Link>
                 </Button>
                 <Button
                   variant="primary"
@@ -85,7 +83,7 @@ const LandingNavbar = () => {
                   className="rounded-full shadow-md shadow-primary/20 font-semibold"
                   asChild
                 >
-                  <Link href="/demo" className="flex items-center gap-2">
+                  <Link href="/register" className="flex items-center gap-2">
                     <span>Start Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
@@ -156,7 +154,7 @@ const LandingNavbar = () => {
                   asChild
                 >
                   <Link
-                    href="/dashboard"
+                    href="/login"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign In
@@ -170,11 +168,11 @@ const LandingNavbar = () => {
                   asChild
                 >
                   <Link
-                    href="/demo"
+                    href="/register"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-center gap-2"
                   >
-                    <span>Start Free Trial</span>
+                    <span>Start Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>

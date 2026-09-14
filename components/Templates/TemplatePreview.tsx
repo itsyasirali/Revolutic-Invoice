@@ -190,7 +190,7 @@ const SelectableElement: React.FC<{
         e.stopPropagation();
         onSelect(id);
       }}
-      className={`cursor-pointer transition-all duration-150 rounded-sm ${
+      className={`cursor-pointer rounded-sm ${
         isSelected
           ? "outline outline-2 outline-blue-500 outline-offset-2 ring-2 ring-blue-400/20"
           : "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
@@ -779,7 +779,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     onSelectElement("table-header");
                   }
                 }}
-                className={`transition-all duration-150 ${
+                className={`${
                   onSelectElement ? "cursor-pointer" : ""
                 } ${
                   onSelectElement && selectedElement === "table-header"
@@ -825,7 +825,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   onSelectElement("table-body");
                 }
               }}
-              className={`transition-all duration-150 ${
+              className={`${
                 onSelectElement ? "cursor-pointer" : ""
               } ${
                 onSelectElement && selectedElement === "table-body"

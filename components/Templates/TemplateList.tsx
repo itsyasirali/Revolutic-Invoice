@@ -88,7 +88,6 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <LoadingSpinner size="lg" color="primary" />
-            <p className="text-xs text-slate-500 font-medium">Loading templates...</p>
           </div>
         ) : filteredTemplates.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

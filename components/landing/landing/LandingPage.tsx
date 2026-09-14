@@ -60,8 +60,8 @@ const LandingPage = () => {
                   className="w-full sm:w-auto h-14 px-8 rounded-full bg-primary hover:bg-primary/90 text-white font-bold text-base shadow-lg shadow-primary/30"
                   asChild
                 >
-                  <Link href="/demo" className="flex items-center gap-2">
-                    <span>Book a Product Demo</span>
+                  <Link href="/register" className="flex items-center gap-2">
+                    <span>Get Started Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
@@ -71,7 +71,7 @@ const LandingPage = () => {
                   className="w-full sm:w-auto h-14 px-8 rounded-full border-slate-700 bg-white/10 text-white hover:bg-white/20 font-semibold text-base"
                   asChild
                 >
-                  <Link href="/pricing">View Pricing Plans</Link>
+                  <Link href="/login">Sign In</Link>
                 </Button>
               </div>
 

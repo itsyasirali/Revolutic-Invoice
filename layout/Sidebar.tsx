@@ -48,7 +48,7 @@ const TEMPLATE_NAV_ITEMS: {
 
 // Regular menu items
 const MENU_ITEMS = [
-  { icon: Home, label: "Dashboard", path: "/" },
+  { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: Users, label: "Customers", path: "/customers" },
   { icon: Package, label: "Items", path: "/items" },
   { icon: ReceiptText, label: "Invoices", path: "/invoices" },

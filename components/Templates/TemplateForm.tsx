@@ -38,7 +38,7 @@ const ColorInput: React.FC<{
         type="color"
         value={getSafeHex(value)}
         onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 rounded-md border-2 border-gray-300 cursor-pointer shadow-sm hover:border-primary/50 transition-colors"
+        className="w-10 h-10 rounded-md border-2 border-gray-300 cursor-pointer shadow-sm hover:border-primary/50"
         title={value || "#000000"}
       />
       <input
@@ -52,7 +52,7 @@ const ColorInput: React.FC<{
           )
         }
         placeholder="#000000"
-        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono text-gray-900 uppercase focus:ring-2 focus:ring-primary/50 focus:border-primary/60 transition-all"
+        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono text-gray-900 uppercase focus:ring-2 focus:ring-primary/50 focus:border-primary/60"
       />
     </div>
   </div>
@@ -174,19 +174,19 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   return (
     <div
       id={id}
-      className={`border-b border-gray-200 transition-all duration-200 ${
+      className={`border-b border-gray-200 ${
         isSelected ? "bg-blue-50/50 ring-2 ring-primary/40 rounded-sm" : ""
       }`}
     >
       <button
         type="button"
         onClick={handleToggle}
-        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50"
       >
         <div className="flex items-center gap-2">
           {icon}
           <span
-            className={`text-sm transition-colors ${
+            className={`text-sm ${
               isSelected
                 ? "font-semibold text-primary"
                 : "font-medium text-gray-800"
@@ -197,7 +197,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </div>
         <ChevronRight
           size={16}
-          className={`text-gray-400 transition-transform duration-200 ${
+          className={`text-gray-400 ${
             isOpen ? "rotate-90 text-primary" : ""
           }`}
         />
@@ -633,7 +633,7 @@ const TemplateForm: React.FC = () => {
               >
                 <div className="space-y-4">
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-primary/50 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {branding.logoPreview ? (
@@ -934,7 +934,7 @@ const TemplateForm: React.FC = () => {
               <div className="px-4 py-3 border-b border-gray-200">
                 <button
                   onClick={addColumn}
-                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-primary/40 rounded-md text-primary hover:bg-primary/5 transition-colors"
+                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-primary/40 rounded-md text-primary hover:bg-primary/5"
                 >
                   <Plus size={16} />
                   <span className="text-sm font-medium">Add Column</span>
@@ -1323,7 +1323,7 @@ const TemplateForm: React.FC = () => {
 
       <main className="flex-1 bg-gray-100 overflow-auto flex justify-center items-start p-4">
         <div
-          className="transition-all duration-300 shadow-2xl bg-white flex flex-col"
+          className="shadow-2xl bg-white flex flex-col"
           style={{
             width: "100%",
             maxWidth: paperDims.width,

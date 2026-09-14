@@ -19,9 +19,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   const isPublicRoute =
     pathname === "/" ||
-    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/signup") ||
     pathname.startsWith("/about") ||
-    pathname.startsWith("/demo") ||
     pathname.startsWith("/billing") ||
     pathname.startsWith("/industries") ||
     pathname.startsWith("/resources") ||

@@ -1,20 +1,31 @@
 "use client";
 
 import React, { useState } from "react";
-import axios from "@/lib/axios";
+import { useAuth } from "@/context/AuthContext";
 
 interface UseAuthFormOptions {
   onLoginSuccess?: () => void;
+  initialMode?: "login" | "signup";
 }
 
-export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
-  const [isSignup, setIsSignup] = useState(false);
+export const useAuthForm = ({
+  onLoginSuccess,
+  initialMode = "login",
+}: UseAuthFormOptions = {}) => {
+  const { login, signup } = useAuth();
+
+  const [isSignup, setIsSignup] = useState(initialMode === "signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    setIsSignup(initialMode === "signup");
+    setError("");
+  }, [initialMode]);
 
   const resetForm = () => {
     setName("");
@@ -34,29 +45,15 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/auth/login", {
-        email: email.trim(),
-        password,
-      });
-
-      if (response.data?.user) {
-        if (response.data?.token) {
-          try {
-            localStorage.setItem("auth_token", response.data.token);
-          } catch {
-            // Ignore
-          }
-        }
+      const success = await login(email.trim(), password);
+      if (success) {
         resetForm();
         onLoginSuccess?.();
       } else {
         setError("Invalid credentials. Try again.");
       }
-    } catch (err: unknown) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.message || "Invalid credentials. Try again."
-        : "Login failed. Try again.";
-      setError(msg);
+    } catch {
+      setError("Invalid credentials. Try again.");
     } finally {
       setLoading(false);
     }
@@ -74,20 +71,16 @@ export const useAuthForm = ({ onLoginSuccess }: UseAuthFormOptions = {}) => {
     setLoading(true);
 
     try {
-      await axios.post("/auth/signup", {
-        name: name.trim(),
-        email: email.trim(),
-        password,
-      });
-
-      // Automatically Log in after signup
-      await handleLogin();
-    } catch (err: unknown) {
-      setError(
-        axios.isAxiosError(err)
-          ? err.response?.data?.message || "Signup failed. Try again."
-          : "Signup failed. Try again.",
-      );
+      const success = await signup(name.trim(), email.trim(), password);
+      if (success) {
+        resetForm();
+        onLoginSuccess?.();
+      } else {
+        setError("Signup failed. Try again.");
+      }
+    } catch {
+      setError("Signup failed. Try again.");
+    } finally {
       setLoading(false);
     }
   };

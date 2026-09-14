@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AuthProvider, useAuth, type User } from "@/context/AuthContext";
 import LoginSignupForm from "./auth";
 
@@ -14,18 +14,27 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const pathname = usePathname();
 
+  const router = useRouter();
+
   const isPublicRoute =
     pathname === "/" ||
-    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/signup") ||
     pathname.startsWith("/about") ||
-    pathname.startsWith("/demo") ||
     pathname.startsWith("/billing") ||
     pathname.startsWith("/industries") ||
     pathname.startsWith("/resources") ||
     pathname.startsWith("/blog") ||
     pathname.startsWith("/customers-stories");
 
-  // Public marketing pages are always accessible
+  React.useEffect(() => {
+    if (!loading && !user && !isPublicRoute) {
+      router.replace("/login");
+    }
+  }, [loading, user, isPublicRoute, router]);
+
+  // Public marketing and auth pages are always accessible
   if (isPublicRoute) {
     return <>{children}</>;
   }
@@ -35,9 +44,9 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
   }
 
-  // If unauthenticated and not loading on protected routes, render login form immediately
+  // If unauthenticated and not loading on protected routes, redirect to /login
   if (!loading && !user) {
-    return <LoginSignupForm onLoginSuccess={() => window.location.reload()} />;
+    return null;
   }
 
   // During any brief client session check (when initialUser was not passed),

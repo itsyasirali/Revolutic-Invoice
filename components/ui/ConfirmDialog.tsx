@@ -50,12 +50,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onCancel}
       />
 
       {/* Dialog Container */}
-      <div className="relative bg-white rounded-md shadow-2xl border border-slate-100 max-w-md w-full z-10 overflow-hidden animate-reveal">
+      <div className="relative bg-white rounded-md shadow-2xl border border-slate-100 max-w-md w-full z-10 overflow-hidden">
         {/* Header */}
         <div
           className={`flex items-start gap-4 p-6 ${bgColor} border-b border-slate-100`}

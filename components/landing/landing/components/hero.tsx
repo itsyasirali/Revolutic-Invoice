@@ -31,10 +31,10 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button
               size="lg"
-              className="w-full sm:w-auto text-base font-semibold h-14 px-8 rounded-full"
+              className="w-full sm:w-auto text-base font-semibold h-14 px-8 rounded-full shadow-lg shadow-primary/20"
               asChild
             >
-              <Link href="/auth">Get Started Free</Link>
+              <Link href="/register">Get Started Free</Link>
             </Button>
             <Button
               size="lg"
@@ -42,7 +42,7 @@ const Hero = () => {
               className="w-full sm:w-auto text-base font-semibold h-14 px-8 rounded-full"
               asChild
             >
-              <Link href="/demo">Book a Demo</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
           </div>
 

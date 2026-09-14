@@ -93,14 +93,14 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-blue-700 shadow-sm"
             >
               <Download size={16} />
               Download
             </button>
             <button
               onClick={onClose}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
             >
               Close
             </button>
@@ -110,7 +110,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         <div className="flex items-center gap-4 px-4 py-1.5 bg-gray-700 border-b border-gray-600">
           <button
             onClick={toggleSidebar}
-            className="p-1.5 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
+            className="p-1.5 text-gray-300 hover:text-white hover:bg-gray-600 rounded"
             title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
           >
             {sidebarOpen ? (
@@ -141,7 +141,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           <div className="flex items-center gap-1">
             <button
               onClick={onZoomOut}
-              className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
+              className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded"
             >
               <Minus size={16} />
             </button>
@@ -150,7 +150,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             </span>
             <button
               onClick={onZoomIn}
-              className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
+              className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded"
             >
               <Plus size={16} />
             </button>
@@ -159,10 +159,10 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           <div className="w-px h-5 bg-gray-600" />
 
           <div className="flex items-center gap-0.5">
-            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors">
+            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded">
               <RotateCcw size={16} />
             </button>
-            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors">
+            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded">
               <RotateCw size={16} />
             </button>
           </div>
@@ -170,7 +170,7 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           <div className="flex-1" />
 
           <div className="flex items-center gap-0.5">
-            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors">
+            <button className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded">
               <MoreVertical size={16} />
             </button>
           </div>
@@ -178,10 +178,10 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
         <div className="flex flex-1 overflow-hidden h-[50%]">
           {sidebarOpen && (
-            <div className="w-48 bg-gray-800 border-r border-gray-700 p-3 overflow-y-auto transition-all duration-300">
+            <div className="w-48 bg-gray-800 border-r border-gray-700 p-3 overflow-y-auto">
               <button
                 onClick={() => onPageChange(1)}
-                className={`w-full rounded-md overflow-hidden border-2 transition-colors ${
+                className={`w-full rounded-md overflow-hidden border-2 ${
                   currentPage === 1
                     ? "border-primary/60"
                     : "border-transparent hover:border-gray-600"
