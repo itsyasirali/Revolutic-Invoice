@@ -4,23 +4,30 @@ import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
 import type { Customer } from "@/types/customer";
 
-const fetchCustomersForUser = async (userId: number): Promise<Customer[]> => {
+const fetchCustomersForUser = async (
+  userId: number,
+  orgId?: number | null,
+): Promise<Customer[]> => {
   try {
     const db = await getDatabase();
     const customersRepository = db.getRepository(CustomerEntity);
     const invoicesRepository = db.getRepository(Invoice);
     const paymentsRepository = db.getRepository(Payment);
 
+    const whereScope = orgId
+      ? { organizationId: orgId }
+      : { userId };
+
     const [customers, invoices, payments] = await Promise.all([
       customersRepository.find({
-        where: { userId },
+        where: whereScope,
         order: { createdAt: "DESC" },
       }),
       invoicesRepository.find({
-        where: { userId },
+        where: whereScope,
       }),
       paymentsRepository.find({
-        where: { userId },
+        where: whereScope,
         order: { paymentDate: "DESC" },
       }),
     ]);

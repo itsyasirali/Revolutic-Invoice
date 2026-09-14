@@ -15,6 +15,12 @@ const setDefaultTemplate = async (
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
+        { status: 400 }
+      );
+    }
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -26,7 +32,7 @@ const setDefaultTemplate = async (
 
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
-    const scopeWhere = organizationId ? { organizationId } : { userId };
+    const scopeWhere = { organizationId };
 
     await templateRepo.update(scopeWhere, { isDefault: false });
     await templateRepo.update(

@@ -5,20 +5,19 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
-  Users,
-  Package,
+  User,
+  ShoppingBag,
   FileText,
-  DollarSign,
-  Clock,
+  Layout,
+  CircleArrowDown,
+  Bookmark,
+  Timer,
   BarChart3,
   ChevronLeft,
   ChevronRight,
-  Layout,
   Table as TableIcon,
   Sigma,
   StickyNote,
-  ReceiptText,
-  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -46,16 +45,16 @@ const TEMPLATE_NAV_ITEMS: {
   { id: "notes", icon: StickyNote, label: "Notes & Bank" },
 ];
 
-// Regular menu items
+// Regular menu items (previous list with updated screenshot icons & sizing)
 const MENU_ITEMS = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
-  { icon: Users, label: "Customers", path: "/customers" },
-  { icon: Package, label: "Items", path: "/items" },
-  { icon: ReceiptText, label: "Invoices", path: "/invoices" },
+  { icon: User, label: "Customers", path: "/customers" },
+  { icon: ShoppingBag, label: "Items", path: "/items" },
+  { icon: FileText, label: "Invoices", path: "/invoices" },
   { icon: Layout, label: "Invoice Templates", path: "/templates" },
-  { icon: DollarSign, label: "Payments", path: "/payments" },
-  { icon: Receipt, label: "Expenses", path: "/expenses" },
-  { icon: Clock, label: "Time Tracking", path: "/time-tracking" },
+  { icon: CircleArrowDown, label: "Payments", path: "/payments" },
+  { icon: Bookmark, label: "Expenses", path: "/expenses" },
+  { icon: Timer, label: "Time Tracking", path: "/time-tracking" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
 ];
 
@@ -90,14 +89,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-[#0B0F19] border-r border-slate-800 transition-all duration-300 ease-in-out z-40
+      className={`fixed top-0 left-0 h-full bg-[#1A1F37] border-r border-[#262C4D] transition-all duration-300 ease-in-out z-40
         ${isCollapsed ? "w-20" : "w-64"}
-        md:sticky md:top-0 md:h-screen flex flex-col justify-between shadow-2xl text-slate-300
+        md:sticky md:top-0 md:h-screen flex flex-col justify-between shadow-2xl text-slate-100
       `}
     >
       <div className="flex flex-col flex-1 min-h-0">
         {/* Brand / Logo Section */}
-        <div className="flex items-center px-6 py-5 border-b border-slate-800/80">
+        <div className="flex items-center px-6 py-5 border-b border-[#262C4D]">
           <Link href="/" className="flex items-center gap-3 w-full">
             {/* Logo Icon */}
             <div className="w-9 h-9 rounded-md flex items-center justify-center shrink-0 overflow-hidden shadow-md shadow-blue-600/20">
@@ -119,13 +118,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-800">
           {isTemplateRoute && isTemplateFormActive ? (
             // Template Form Navigation
             <>
               {!isCollapsed && (
                 <div className="px-3 py-1.5 mb-1">
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                     Template Settings
                   </span>
                 </div>
@@ -137,19 +136,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleTemplateNavClick(item.id)}
-                    className={`flex w-full cursor-pointer rounded-md px-3.5 py-2.5 text-xs transition-all
-                      ${isCollapsed ? "justify-center" : "items-center gap-3"}
+                    className={`flex w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all
+                      ${isCollapsed ? "justify-center" : "items-center gap-3.5"}
                       ${
                         isActive
-                          ? "bg-primary text-white font-semibold shadow-md shadow-blue-500/25"
-                          : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
+                          ? "bg-primary text-white shadow-sm"
+                          : "text-slate-100 hover:bg-white/10 hover:text-white"
                       }
                     `}
                     title={item.label}
                   >
                     <IconComp
-                      size={18}
-                      className={`shrink-0 ${isActive ? "text-white" : "text-slate-400"}`}
+                      size={20}
+                      className={`shrink-0 ${isActive ? "text-white" : "text-slate-200"}`}
                     />
                     {!isCollapsed && (
                       <span className="truncate">{item.label}</span>
@@ -163,9 +162,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             MENU_ITEMS.map((item) => {
               const IconComp = item.icon;
               const isActive =
-                item.path === "/"
-                  ? pathname === "/"
-                  : pathname === item.path || pathname.startsWith(item.path);
+                item.path === "/dashboard"
+                  ? pathname === "/dashboard" || pathname === "/"
+                  : pathname === item.path || pathname.startsWith(item.path + "/");
 
               return (
                 <Link
@@ -173,22 +172,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   href={item.path}
                   prefetch={true}
                   onClick={() => onMenuClick(item.label)}
-                  className={`flex w-full cursor-pointer rounded-md px-3.5 py-2.5 text-sm transition-all duration-150 group
-                    ${isCollapsed ? "justify-center" : "items-center gap-3"}
+                  className={`flex w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors duration-150 group
+                    ${isCollapsed ? "justify-center" : "items-center gap-3.5"}
                     ${
                       isActive
-                        ? "bg-primary text-white font-semibold shadow-md shadow-blue-500/25"
-                        : "text-slate-400 hover:bg-slate-800/70 hover:text-white font-medium"
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-slate-100 hover:bg-white/10 hover:text-white"
                     }
                   `}
                   title={item.label}
                 >
                   <IconComp
-                    size={18}
+                    size={20}
                     className={`shrink-0 transition-colors ${
                       isActive
                         ? "text-white"
-                        : "text-slate-400 group-hover:text-white"
+                        : "text-slate-200 group-hover:text-white"
                     }`}
                   />
                   {!isCollapsed && (
@@ -202,18 +201,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Sidebar: Collapse Toggle Only */}
-      <div className="p-3 border-t border-slate-800/80 bg-[#090D16]">
+      <div className="p-3 border-t border-[#262C4D] bg-[#161A2E]">
         <button
           onClick={() => onToggle(!isCollapsed)}
-          className="w-full flex items-center justify-center p-2 text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl transition-colors cursor-pointer text-xs"
+          className="w-full flex items-center justify-center p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-xs"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {!isCollapsed ? (
             <span className="flex items-center gap-1.5 text-xs font-medium">
-              <ChevronLeft size={15} />
+              <ChevronLeft size={16} />
             </span>
           ) : (
-            <ChevronRight size={15} />
+            <ChevronRight size={16} />
           )}
         </button>
       </div>

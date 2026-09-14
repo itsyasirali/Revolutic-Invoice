@@ -11,6 +11,12 @@ const batchUpdateItems = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
 
   try {
     const body: BatchUpdateItemPayload = await req.json();
@@ -29,15 +35,12 @@ const batchUpdateItems = async (req: NextRequest) => {
       );
     }
 
-    const parsedUserId = userId;
     const parsedItemIds = itemIds.map((id) => parseInt(id));
 
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
-    const updateFilter = orgId
-      ? { id: In(parsedItemIds), organizationId: orgId }
-      : { id: In(parsedItemIds), userId: parsedUserId };
+    const updateFilter = { id: In(parsedItemIds), organizationId: orgId };
 
     const result = await itemsRepository.update(updateFilter, { status });
 

@@ -15,6 +15,12 @@ const deleteCustomer = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
@@ -32,22 +38,18 @@ const deleteCustomer = async (
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
-    const userOrOrgFilter = orgId
-      ? { customerId, organizationId: orgId }
-      : { customerId, userId: parsedUserId };
+    const orgFilter = { customerId, organizationId: orgId };
 
     // Run customer lookup, invoice constraint check, and payment constraint check concurrently
     const [customer, invoiceCount, paymentCount] = await Promise.all([
       customersRepository.findOne({
-        where: orgId
-          ? { id: customerId, organizationId: orgId }
-          : { id: customerId, userId: parsedUserId },
+        where: { id: customerId, organizationId: orgId },
       }),
       invoiceRepo.count({
-        where: userOrOrgFilter,
+        where: orgFilter,
       }),
       paymentRepo.count({
-        where: userOrOrgFilter,
+        where: orgFilter,
       }),
     ]);
 

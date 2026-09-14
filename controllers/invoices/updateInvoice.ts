@@ -3,6 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { InvoiceItem } from "@/entities/InvoiceItem";
 import { Customer } from "@/entities/Customer";
+import { Template } from "@/entities/Template";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { calculateInvoiceTotals } from "@/utils/invoices/invoiceCalculations";
 import type { UpdateInvoicePayload } from "@/types/invoice";
@@ -16,10 +17,15 @@ const updateInvoice = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const invoiceId = Number(id);
 
     const body: UpdateInvoicePayload = await req.json();
@@ -29,12 +35,11 @@ const updateInvoice = async (
     const invoiceRepository = db.getRepository(Invoice);
     const invoiceItemRepository = db.getRepository(InvoiceItem);
     const customerRepository = db.getRepository(Customer);
+    const templateRepository = db.getRepository(Template);
 
     // Find invoice
     const invoice = await invoiceRepository.findOne({
-      where: orgId
-        ? { id: invoiceId, organizationId: orgId }
-        : { id: invoiceId, userId: parsedUserId },
+      where: { id: invoiceId, organizationId: orgId },
       relations: ["items"],
     });
 
@@ -48,14 +53,26 @@ const updateInvoice = async (
     // Verify customer if changing
     if (customerId) {
       const customer = await customerRepository.findOne({
-        where: orgId
-          ? { id: customerId, organizationId: orgId }
-          : { id: customerId, userId: parsedUserId },
+        where: { id: customerId, organizationId: orgId },
       });
 
       if (!customer) {
         return NextResponse.json(
-          { message: `Customer with ID ${customerId} not found for this user` },
+          { message: `Customer with ID ${customerId} not found in this organization` },
+          { status: 404 },
+        );
+      }
+    }
+
+    // Verify template if changing
+    if (templateId) {
+      const template = await templateRepository.findOne({
+        where: { id: templateId, organizationId: orgId },
+      });
+
+      if (!template) {
+        return NextResponse.json(
+          { message: `Template with ID ${templateId} not found in this organization` },
           { status: 404 },
         );
       }

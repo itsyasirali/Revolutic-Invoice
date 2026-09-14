@@ -15,7 +15,6 @@ const getInvoice = async (
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const invoiceId = Number(id);
 
     if (isNaN(invoiceId)) {
@@ -25,13 +24,18 @@ const getInvoice = async (
       );
     }
 
+    if (!orgId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
     const invoice = await invoiceRepository.findOne({
-      where: orgId
-        ? { id: invoiceId, organizationId: orgId }
-        : { id: invoiceId, userId: parsedUserId },
+      where: { id: invoiceId, organizationId: orgId },
       relations: ["customer", "template", "items", "items.item"],
     });
 

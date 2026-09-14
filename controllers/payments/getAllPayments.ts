@@ -10,9 +10,11 @@ const getAllPayments = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json({ payments: [] });
+  }
 
   try {
-    const parsedUserId = userId;
     const status = req.nextUrl.searchParams.get("status") || undefined;
     const customerIdParam = req.nextUrl.searchParams.get("customerId");
     const customerId = customerIdParam ? Number(customerIdParam) : undefined;
@@ -20,9 +22,7 @@ const getAllPayments = async (req: NextRequest) => {
     const db = await getDatabase();
     const paymentRepository = db.getRepository(Payment);
 
-    const where: FindOptionsWhere<Payment> = orgId
-      ? { organizationId: orgId }
-      : { userId: parsedUserId };
+    const where: FindOptionsWhere<Payment> = { organizationId: orgId };
 
     if (status) {
       where.status = status;

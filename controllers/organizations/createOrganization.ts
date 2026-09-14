@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Organization } from "@/entities/Organization";
 import { Template } from "@/entities/Template";
-import { getAuthUserId, getAuthToken, signAuthToken, AUTH_COOKIE_NAME, TOKEN_MAX_AGE_SECONDS } from "@/lib/session";
+import {
+  getAuthUserId,
+  getAuthToken,
+  signAuthToken,
+  AUTH_COOKIE_NAME,
+  ACTIVE_ORG_COOKIE_NAME,
+  TOKEN_MAX_AGE_SECONDS,
+} from "@/lib/session";
 
 import { CreateOrganizationPayload } from "@/types/organization";
 
@@ -90,6 +97,16 @@ const createOrganization = async (req: NextRequest) => {
       value: newToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: TOKEN_MAX_AGE_SECONDS,
+    });
+
+    response.cookies.set({
+      name: ACTIVE_ORG_COOKIE_NAME,
+      value: String(savedOrg.id),
+      httpOnly: false,
+      secure: false,
       sameSite: "lax",
       path: "/",
       maxAge: TOKEN_MAX_AGE_SECONDS,

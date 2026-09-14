@@ -4,7 +4,8 @@ import { getServerSessionUser } from "@/lib/session";
 
 const TemplatesPage = async () => {
   const user = await getServerSessionUser();
-  const templates = user?.id ? await fetchTemplatesForUser(Number(user.id)) : [];
+  const orgId = user?.organizationId ? Number(user.organizationId) : null;
+  const templates = user?.id ? await fetchTemplatesForUser(Number(user.id), orgId) : [];
 
   return <TemplateList initialTemplates={templates} />;
 };

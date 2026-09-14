@@ -62,6 +62,12 @@ const createTemplate = async (req: NextRequest) => {
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required to create templates" },
+        { status: 400 },
+      );
+    }
     const rawFields = await parseFields(req);
     const fields = sanitizeTemplateFields(rawFields);
 
@@ -69,14 +75,13 @@ const createTemplate = async (req: NextRequest) => {
     const templateRepo = db.getRepository(Template);
 
     if (fields.isDefault) {
-      const resetWhere = organizationId ? { organizationId } : { userId };
-      await templateRepo.update(resetWhere, { isDefault: false });
+      await templateRepo.update({ organizationId }, { isDefault: false });
     }
 
     const newTemplate = templateRepo.create({
       ...fields,
       userId,
-      organizationId: organizationId ?? undefined,
+      organizationId,
       templateName: (fields.templateName as string) || "Custom Template",
     } as unknown as Template);
 

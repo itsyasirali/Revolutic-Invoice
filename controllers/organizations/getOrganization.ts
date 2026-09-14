@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Organization } from "@/entities/Organization";
-import { getAuthUserId, getAuthOrgId } from "@/lib/session";
+import {
+  getAuthUserId,
+  getAuthOrgId,
+  ACTIVE_ORG_COOKIE_NAME,
+  TOKEN_MAX_AGE_SECONDS,
+} from "@/lib/session";
 import { OrganizationResponse } from "@/types/organization";
 
 const getOrganization = async (req: NextRequest) => {
@@ -42,7 +47,20 @@ const getOrganization = async (req: NextRequest) => {
       organizations,
     };
 
-    return NextResponse.json(responseBody);
+    const response = NextResponse.json(responseBody);
+    if (organization) {
+      response.cookies.set({
+        name: ACTIVE_ORG_COOKIE_NAME,
+        value: String(organization.id),
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: TOKEN_MAX_AGE_SECONDS,
+      });
+    }
+
+    return response;
   } catch (error: any) {
     console.error("Error fetching organization:", error);
     return NextResponse.json(

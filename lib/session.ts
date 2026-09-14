@@ -119,19 +119,62 @@ export const getAuthUserId = async (
   return parsed;
 };
 
+export const ACTIVE_ORG_COOKIE_NAME = "active_org_id";
+
 /**
- * Resolves the authenticated organization ID from the JWT.
- * Returns null if unauthenticated or org not yet set up.
+ * Resolves the authenticated organization ID from:
+ * 1. x-organization-id header (explicit API client override)
+ * 2. active_org_id cookie (switcher immediate state)
+ * 3. JWT token organizationId claim
+ * 4. Fallback: primary organization for the user from database
  */
 export const getAuthOrgId = async (
   req: NextRequest,
 ): Promise<number | null> => {
+  // 1. Check explicit header
+  const headerOrgId = req.headers.get("x-organization-id");
+  if (headerOrgId) {
+    const parsed = parseInt(headerOrgId, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+  }
+
+  // 2. Check active organization cookie
+  const cookieOrgId = req.cookies.get(ACTIVE_ORG_COOKIE_NAME)?.value;
+  if (cookieOrgId) {
+    const parsed = parseInt(cookieOrgId, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+  }
+
+  // 3. Check JWT token claim
   const token = await getAuthToken(req);
   const rawOrgId = token?.organizationId;
-  if (!rawOrgId) return null;
-  const parsed = parseInt(String(rawOrgId), 10);
-  if (Number.isNaN(parsed) || parsed <= 0) return null;
-  return parsed;
+  if (rawOrgId) {
+    const parsed = parseInt(String(rawOrgId), 10);
+    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+  }
+
+  // 4. DB Fallback: if user is authenticated but token lacks orgId, resolve from DB
+  const rawUserId = token?.id || token?.sub;
+  if (rawUserId) {
+    const userId = parseInt(String(rawUserId), 10);
+    if (!Number.isNaN(userId) && userId > 0) {
+      try {
+        const { getDatabase } = await import("@/lib/database");
+        const { Organization } = await import("@/entities/Organization");
+        const db = await getDatabase();
+        const orgRepo = db.getRepository(Organization);
+        const org = await orgRepo.findOne({
+          where: { userId },
+          order: { createdAt: "ASC" },
+        });
+        if (org?.id) return org.id;
+      } catch (err) {
+        console.error("Failed to fallback-resolve organization from DB:", err);
+      }
+    }
+  }
+
+  return null;
 };
 
 /**
@@ -143,7 +186,45 @@ export const getServerSessionUser = async (): Promise<AuthUserSession | null> =>
     const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (!token) return null;
-    return await verifyAuthToken(token);
+    const session = await verifyAuthToken(token);
+    if (!session) return null;
+
+    // Check if active_org_id cookie overrides or provides the active organization
+    const activeOrgCookie = cookieStore.get(ACTIVE_ORG_COOKIE_NAME)?.value;
+    if (activeOrgCookie) {
+      const parsedOrg = parseInt(activeOrgCookie, 10);
+      if (!Number.isNaN(parsedOrg) && parsedOrg > 0) {
+        session.organizationId = parsedOrg;
+        return session;
+      }
+    }
+
+    // Fallback: If session lacks organizationId, resolve from DB
+    if (!session.organizationId) {
+      const rawUserId = session.id || session.sub;
+      if (rawUserId) {
+        const userId = parseInt(String(rawUserId), 10);
+        if (!Number.isNaN(userId) && userId > 0) {
+          try {
+            const { getDatabase } = await import("@/lib/database");
+            const { Organization } = await import("@/entities/Organization");
+            const db = await getDatabase();
+            const orgRepo = db.getRepository(Organization);
+            const org = await orgRepo.findOne({
+              where: { userId },
+              order: { createdAt: "ASC" },
+            });
+            if (org?.id) {
+              session.organizationId = org.id;
+            }
+          } catch (err) {
+            console.error("Failed to resolve org for ServerSessionUser:", err);
+          }
+        }
+      }
+    }
+
+    return session;
   } catch {
     return null;
   }

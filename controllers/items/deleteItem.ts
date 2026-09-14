@@ -13,6 +13,12 @@ const deleteItem = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
@@ -23,7 +29,6 @@ const deleteItem = async (
         { status: 400 },
       );
     }
-    const parsedUserId = userId;
 
     const db = await getDatabase();
 
@@ -36,11 +41,10 @@ const deleteItem = async (
     );
 
     const itemsRepository = db.getRepository(Item);
-    const result = await itemsRepository.delete(
-      orgId
-        ? { id: parsedId, organizationId: orgId }
-        : { id: parsedId, userId: parsedUserId }
-    );
+    const result = await itemsRepository.delete({
+      id: parsedId,
+      organizationId: orgId,
+    });
 
     if (result.affected === 0) {
       return NextResponse.json(

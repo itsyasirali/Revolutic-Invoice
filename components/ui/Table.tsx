@@ -12,29 +12,29 @@ const variantTableClasses: Record<
   default: {
     table:
       "w-full bg-white border border-slate-200/80 rounded-t-md rounded-b-none overflow-hidden",
-    th: "bg-slate-50 border-b border-slate-200/80 text-slate-700 font-semibold text-xs uppercase tracking-wider",
-    td: "border-b border-slate-100 text-sm text-slate-700",
-    tr: "hover:bg-slate-50/60 transition-colors",
+    th: "bg-[#F8FAFC] border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider",
+    td: "border-b border-slate-100 text-[13px] text-slate-700",
+    tr: "hover:bg-slate-50/70 transition-colors",
   },
   striped: {
     table:
       "w-full bg-white border border-slate-200/80 rounded-t-xl rounded-b-none shadow-sm overflow-hidden",
-    th: "bg-slate-100 border-b border-slate-200 text-slate-800 font-semibold text-xs uppercase tracking-wider",
-    td: "border-b border-slate-100 text-sm text-slate-700",
+    th: "bg-slate-100/80 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider",
+    td: "border-b border-slate-100 text-[13px] text-slate-700",
     tr: "odd:bg-white even:bg-slate-50/80 hover:bg-slate-100/60 transition-colors",
   },
   bordered: {
     table:
       "w-full bg-white border-2 border-slate-300 rounded-t-xl rounded-b-none shadow-sm overflow-hidden",
-    th: "bg-slate-100 border-b-2 border-r border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider last:border-r-0",
-    td: "border-b border-r border-slate-200 text-sm text-slate-700 last:border-r-0",
+    th: "bg-slate-100 border-b-2 border-r border-slate-300 text-slate-600 font-bold text-[11px] uppercase tracking-wider last:border-r-0",
+    td: "border-b border-r border-slate-200 text-[13px] text-slate-700 last:border-r-0",
     tr: "hover:bg-slate-50 transition-colors",
   },
   compact: {
     table:
       "w-full bg-white border border-slate-200 rounded-t-lg rounded-b-none shadow-none overflow-hidden",
-    th: "bg-slate-50 border-b border-slate-200 text-slate-600 font-medium text-[11px] uppercase tracking-wider",
-    td: "border-b border-slate-100 text-xs text-slate-700 py-2.5",
+    th: "bg-slate-50 border-b border-slate-200 text-slate-500 font-medium text-[10px] uppercase tracking-wider",
+    td: "border-b border-slate-100 text-[12px] text-slate-700 py-1.5",
     tr: "hover:bg-slate-50/50 transition-colors",
   },
 };
@@ -73,7 +73,7 @@ export const Table = <T,>({
           <thead className={styles.th}>
             <tr>
               {showCheckbox && (
-                <th className="px-4 py-3.5 w-10 text-center shrink-0">
+                <th className="px-3.5 py-2 w-10 text-center shrink-0">
                   <Checkbox
                     checked={allSelected}
                     ref={(input) => {
@@ -87,7 +87,7 @@ export const Table = <T,>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3.5 ${
+                  className={`px-3.5 py-2 ${
                     column.align === "center"
                       ? "text-center"
                       : column.align === "right"
@@ -132,7 +132,7 @@ export const Table = <T,>({
               ))}
 
               {rowActions && (
-                <th className="px-4 py-3.5 text-center uppercase tracking-wider shrink-0">
+                <th className="px-3.5 py-2 text-center uppercase tracking-wider shrink-0">
                   Actions
                 </th>
               )}
@@ -153,7 +153,6 @@ export const Table = <T,>({
                 >
                   <div className="inline-flex flex-col items-center justify-center gap-2">
                     <LoadingSpinner size="md" color="primary" />
-                    <p className="text-xs text-slate-500 font-medium">Loading...</p>
                   </div>
                 </td>
               </tr>
@@ -192,7 +191,7 @@ export const Table = <T,>({
                   >
                     {showCheckbox && (
                       <td
-                        className="px-4 py-3 text-center"
+                        className="px-3.5 py-2 w-10 text-center shrink-0"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Checkbox
@@ -207,7 +206,7 @@ export const Table = <T,>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        className={`px-4 py-3.5 ${styles.td} ${
+                        className={`px-3.5 py-2 ${styles.td} ${
                           column.align === "center"
                             ? "text-center"
                             : column.align === "right"
@@ -225,7 +224,7 @@ export const Table = <T,>({
                     ))}
 
                     {rowActions && (
-                      <td className="px-4 py-3.5 text-center">
+                      <td className="px-3.5 py-2 text-center">
                         <div
                           className="inline-flex items-center justify-center gap-1"
                           onClick={(e) => e.stopPropagation()}

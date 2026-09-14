@@ -51,14 +51,68 @@ export const getDashboardData = async (
   userId: number,
   orgId?: number | null
 ): Promise<DashboardData> => {
+  if (!orgId) {
+    return {
+      kpis: {
+        totalInvoices: {
+          label: "Total Invoices",
+          amount: 0,
+          currency: "Rs",
+          changePercent: 0,
+          isIncrease: true,
+          periodLabel: "vs last period",
+        },
+        totalPayments: {
+          label: "Total Payments",
+          amount: 0,
+          currency: "Rs",
+          changePercent: 0,
+          isIncrease: true,
+          periodLabel: "vs last period",
+        },
+        pendingInvoices: {
+          label: "Pending Invoices",
+          amount: 0,
+          currency: "Rs",
+          changePercent: 0,
+          isIncrease: false,
+          periodLabel: "vs last period",
+        },
+        totalExpenses: {
+          label: "Total Expenses",
+          amount: 0,
+          currency: "Rs",
+          changePercent: 0,
+          isIncrease: true,
+          periodLabel: "vs last period",
+        },
+      },
+      revenueOverview: [],
+      salesOverview: {
+        totalSales: 0,
+        currency: "Rs",
+        segments: {
+          paid: { label: "Paid", amount: 0, percentage: 0, color: "#2563EB" },
+          partial: { label: "Partial", amount: 0, percentage: 0, color: "#06B6D4" },
+          unpaid: { label: "Unpaid", amount: 0, percentage: 0, color: "#F59E0B" },
+        },
+      },
+      recentInvoices: [],
+      monthlySummary: [
+        { label: "Income", value: "Rs 0", changePercent: 0, isPositive: true, type: "income" },
+        { label: "Expenses", value: "Rs 0", changePercent: 0, isPositive: true, type: "expenses" },
+        { label: "Net Profit", value: "Rs 0", changePercent: 0, isPositive: true, type: "netProfit" },
+        { label: "Invoices Paid", value: "0", changePercent: 0, isPositive: true, type: "invoicesPaid" },
+      ],
+    };
+  }
+
   try {
     const db = await getDatabase();
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
-    const whereScope = orgId
-      ? { organizationId: orgId }
-      : { userId };
+    const whereScope = { organizationId: orgId };
 
     const [invoices, payments] = await Promise.all([
       invoiceRepo.find({

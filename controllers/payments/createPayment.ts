@@ -12,6 +12,12 @@ const createPayment = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required to create a payment" },
+      { status: 400 },
+    );
+  }
 
   try {
     const parsedUserId = userId;
@@ -23,24 +29,22 @@ const createPayment = async (req: NextRequest) => {
     const invoiceRepo = db.getRepository(Invoice);
     const customerRepo = db.getRepository(Customer);
 
-    // Calculate payment number
+    // Calculate payment number scoped to organization
     const lastPayment = await paymentRepo.findOne({
-      where: orgId ? { organizationId: orgId } : { userId: parsedUserId },
+      where: { organizationId: orgId },
       order: { paymentNumber: "DESC" },
     });
     const nextPaymentNumber = (lastPayment?.paymentNumber || 0) + 1;
 
     const customerId = Number(body.customerId);
     const customer = await customerRepo.findOne({
-      where: orgId
-        ? { id: customerId, organizationId: orgId }
-        : { id: customerId, userId: parsedUserId },
+      where: { id: customerId, organizationId: orgId },
     });
 
     if (!customer) {
       return NextResponse.json(
-        { message: "Customer not found" },
-        { status: 400 }
+        { message: "Customer not found in this organization" },
+        { status: 400 },
       );
     }
 
@@ -49,7 +53,7 @@ const createPayment = async (req: NextRequest) => {
       paymentNumber: nextPaymentNumber,
       referenceNo: body.referenceNo || null,
       userId: parsedUserId,
-      organizationId: orgId || null,
+      organizationId: orgId,
       customerId,
       customerDisplayName:
         body.customerDisplayName || customer.displayName || customer.companyName,
@@ -81,9 +85,7 @@ const createPayment = async (req: NextRequest) => {
 
           // Update invoice state
           const targetInvoice = await invoiceRepo.findOne({
-            where: orgId
-              ? { id: invId, organizationId: orgId }
-              : { id: invId, userId: parsedUserId },
+            where: { id: invId, organizationId: orgId },
           });
 
           if (targetInvoice) {

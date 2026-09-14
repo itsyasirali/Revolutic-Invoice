@@ -4,7 +4,8 @@ import { getServerSessionUser } from "@/lib/session";
 
 const ItemsPage = async () => {
   const user = await getServerSessionUser();
-  const items = user?.id ? await fetchItemsForUser(Number(user.id)) : [];
+  const orgId = user?.organizationId ? Number(user.organizationId) : null;
+  const items = user?.id ? await fetchItemsForUser(Number(user.id), orgId) : [];
 
   return <ItemList initialItems={items} />;
 };

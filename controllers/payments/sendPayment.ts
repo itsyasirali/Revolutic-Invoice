@@ -18,19 +18,22 @@ const sendPayment = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const body = await req.json();
 
     const db = await getDatabase();
     const paymentRepo = db.getRepository(Payment);
 
     const payment = await paymentRepo.findOne({
-      where: orgId
-        ? { id: parseInt(id), organizationId: orgId }
-        : { id: parseInt(id), userId: parsedUserId },
+      where: { id: parseInt(id), organizationId: orgId },
       relations: [
         "customer",
         "template",

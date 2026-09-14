@@ -13,10 +13,15 @@ const deleteInvoice = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const invoiceId = Number(id);
 
     if (isNaN(invoiceId)) {
@@ -27,24 +32,24 @@ const deleteInvoice = async (
     }
 
     const db = await getDatabase();
-
-    // Remove any payment applications linked to this invoice first to prevent FK violation
-    const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
-    await paymentAppliedRepo.delete({ invoiceId });
-
     const invoiceRepository = db.getRepository(Invoice);
-    const result = await invoiceRepository.delete(
-      orgId
-        ? { id: invoiceId, organizationId: orgId }
-        : { id: invoiceId, userId: parsedUserId }
-    );
 
-    if (result.affected === 0) {
+    const existingInvoice = await invoiceRepository.findOne({
+      where: { id: invoiceId, organizationId: orgId },
+    });
+
+    if (!existingInvoice) {
       return NextResponse.json(
         { message: "Invoice not found or access denied" },
         { status: 404 },
       );
     }
+
+    // Remove any payment applications linked to this invoice first to prevent FK violation
+    const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
+    await paymentAppliedRepo.delete({ invoiceId });
+
+    await invoiceRepository.delete({ id: invoiceId, organizationId: orgId });
 
     return NextResponse.json({ message: "Invoice deleted successfully" });
   } catch (error: any) {

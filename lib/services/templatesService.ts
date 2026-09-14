@@ -4,13 +4,18 @@ import type { TemplateListItem } from "@/types/template";
 
 const fetchTemplatesForUser = async (
   userId: number,
+  orgId?: number | null,
 ): Promise<TemplateListItem[]> => {
   try {
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 
+    const whereScope = orgId
+      ? { organizationId: orgId }
+      : { userId };
+
     const templates = await templateRepo.find({
-      where: { userId },
+      where: whereScope,
       order: { isDefault: "DESC", createdAt: "DESC" },
     });
 

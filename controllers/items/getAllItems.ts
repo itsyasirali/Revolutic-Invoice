@@ -11,12 +11,14 @@ const getAllItems = async (req: NextRequest) => {
 
   try {
     const organizationId = await getAuthOrgId(req);
-    const scopeWhere = organizationId ? { organizationId } : { userId };
+    if (!organizationId) {
+      return NextResponse.json({ items: [] }, { status: 200 });
+    }
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
     const items = await itemsRepository.find({
-      where: scopeWhere,
+      where: { organizationId },
       order: { createdAt: "DESC" },
     });
 

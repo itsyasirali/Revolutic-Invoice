@@ -47,6 +47,13 @@ const createItem = async (req: NextRequest) => {
     }
 
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required to create items" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
@@ -56,7 +63,7 @@ const createItem = async (req: NextRequest) => {
       sellingPrice,
       description: description && String(description).trim() ? String(description).trim() : undefined,
       userId,
-      organizationId: organizationId ?? undefined,
+      organizationId,
       status: status || "Active",
     });
 

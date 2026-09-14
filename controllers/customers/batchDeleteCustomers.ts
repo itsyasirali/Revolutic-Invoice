@@ -14,6 +14,12 @@ const batchDeleteCustomers = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
 
   try {
     const body: BatchDeleteCustomerPayload = await req.json();
@@ -26,16 +32,13 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    const parsedUserId = userId;
     const parsedCustomerIds = customerIds.map((id) => parseInt(id));
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
     const docs = await customersRepository.find({
-      where: orgId
-        ? { id: In(parsedCustomerIds), organizationId: orgId }
-        : { id: In(parsedCustomerIds), userId: parsedUserId },
+      where: { id: In(parsedCustomerIds), organizationId: orgId },
       select: ["documents", "id"],
     });
 
@@ -62,9 +65,7 @@ const batchDeleteCustomers = async (req: NextRequest) => {
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
-    const checkFilter = orgId
-      ? { customerId: In(idsToDelete), organizationId: orgId }
-      : { customerId: In(idsToDelete), userId: parsedUserId };
+    const checkFilter = { customerId: In(idsToDelete), organizationId: orgId };
 
     const [invoiceCount, paymentCount] = await Promise.all([
       invoiceRepo.count({
@@ -93,11 +94,10 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    const result = await customersRepository.delete(
-      orgId
-        ? { id: In(idsToDelete), organizationId: orgId }
-        : { id: In(idsToDelete), userId: parsedUserId }
-    );
+    const result = await customersRepository.delete({
+      id: In(idsToDelete),
+      organizationId: orgId,
+    });
 
     return NextResponse.json({
       message: "Customers deleted successfully",

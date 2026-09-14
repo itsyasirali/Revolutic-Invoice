@@ -6,9 +6,15 @@ axios.defaults.baseURL = "/api";
 axios.defaults.withCredentials = true; // This is crucial for sending cookies
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
-// Add request interceptor for debugging
+// Add request interceptor
 axios.interceptors.request.use(
   (config) => {
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|;\s*)active_org_id=([^;]*)/);
+      if (match && match[1]) {
+        config.headers["x-organization-id"] = decodeURIComponent(match[1]);
+      }
+    }
     return config;
   },
   (error) => {

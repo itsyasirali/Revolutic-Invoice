@@ -15,6 +15,12 @@ const getTemplate = async (
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
+        { status: 400 }
+      );
+    }
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -26,9 +32,7 @@ const getTemplate = async (
 
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
-    const where = organizationId
-      ? { id: templateId, organizationId }
-      : { id: templateId, userId };
+    const where = { id: templateId, organizationId };
 
     const template = await templateRepo.findOne({ where });
 

@@ -20,21 +20,24 @@ const updateCustomer = async (
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
 
   try {
     const parsedId = parseInt(id, 10);
-
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
     const existingCustomer = await customersRepository.findOne({
-      where: orgId
-        ? { id: parsedId, organizationId: orgId }
-        : { id: parsedId, userId },
+      where: { id: parsedId, organizationId: orgId },
     });
     if (!existingCustomer) {
       return NextResponse.json(
-        { message: "Customer not found" },
+        { message: "Customer not found in this organization" },
         { status: 404 },
       );
     }

@@ -6,6 +6,7 @@ import {
   getAuthToken,
   signAuthToken,
   AUTH_COOKIE_NAME,
+  ACTIVE_ORG_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
 } from "@/lib/session";
 import { SwitchOrganizationPayload } from "@/types/organization";
@@ -64,6 +65,16 @@ const switchOrganization = async (req: NextRequest) => {
       name: AUTH_COOKIE_NAME,
       value: newToken,
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: TOKEN_MAX_AGE_SECONDS,
+    });
+
+    response.cookies.set({
+      name: ACTIVE_ORG_COOKIE_NAME,
+      value: String(targetOrg.id),
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",

@@ -4,7 +4,8 @@ import { getServerSessionUser } from "@/lib/session";
 
 const CustomersPage = async () => {
   const user = await getServerSessionUser();
-  const customers = user?.id ? await fetchCustomersForUser(Number(user.id)) : [];
+  const orgId = user?.organizationId ? Number(user.organizationId) : null;
+  const customers = user?.id ? await fetchCustomersForUser(Number(user.id), orgId) : [];
 
   return <CustomerList initialCustomers={customers} />;
 };

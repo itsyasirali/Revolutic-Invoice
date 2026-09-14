@@ -13,7 +13,10 @@ const getAllCustomers = async (req: NextRequest) => {
 
   try {
     const organizationId = await getAuthOrgId(req);
-    const scopeWhere = organizationId ? { organizationId } : { userId };
+    if (!organizationId) {
+      return NextResponse.json({ customers: [] }, { status: 200 });
+    }
+    const scopeWhere = { organizationId };
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);

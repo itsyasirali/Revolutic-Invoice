@@ -43,7 +43,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <div className={`px-2 sm:px-4 md:px-6 relative ${className}`}>
-      <div className="py-2 mx-auto">
+      <div className="py-1.5 mx-auto">
         <div
           className={`flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-150 ${
             actionBar
@@ -56,10 +56,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               <button
                 type="button"
                 onClick={handleBack}
-                className="p-2 hover:bg-slate-100 rounded-md transition-colors text-slate-500 hover:text-slate-900 cursor-pointer"
+                className="p-1.5 hover:bg-slate-100 rounded-md transition-colors text-slate-500 hover:text-slate-900 cursor-pointer"
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div className="flex flex-wrap items-center gap-3.5">
@@ -68,10 +68,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                   <button
                     type="button"
                     onClick={dropdown.onToggle}
-                    className="flex items-center gap-2 text-xl font-bold text-slate-900 hover:text-primary transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 text-[16px] sm:text-[17px] font-bold text-slate-900 hover:text-primary transition-colors cursor-pointer"
                   >
                     <span>{title}</span>
-                    <ChevronDown className="w-5 h-5 text-slate-400" />
+                    <ChevronDown className="w-4 h-4 text-primary stroke-[2.5]" />
                   </button>
 
                   {dropdown.isOpen && (
@@ -103,7 +103,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                   )}
                 </div>
               ) : (
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                <h1 className="text-[16px] sm:text-[17px] font-bold text-slate-900 tracking-tight">
                   {title}
                 </h1>
               )}

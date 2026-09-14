@@ -48,12 +48,19 @@ const createCustomer = async (req: NextRequest) => {
     const documentPaths = buildDocumentPaths(savedFiles);
 
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required to create customers" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
     const customer = customersRepository.create({
       userId,
-      organizationId: organizationId ?? undefined,
+      organizationId,
       customerType,
       companyName: companyName || undefined,
       displayName,

@@ -12,6 +12,9 @@ const getAllInvoices = async (req: NextRequest) => {
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json({ invoices: [] });
+    }
 
     const status = req.nextUrl.searchParams.get("status") || undefined;
     const customerIdParam = req.nextUrl.searchParams.get("customerId");
@@ -22,9 +25,7 @@ const getAllInvoices = async (req: NextRequest) => {
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
-    const where: FindOptionsWhere<Invoice> = organizationId
-      ? { organizationId }
-      : { userId };
+    const where: FindOptionsWhere<Invoice> = { organizationId };
 
     if (status) {
       where.status = status;

@@ -11,15 +11,14 @@ const getAllTemplates = async (req: NextRequest) => {
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json([]);
+    }
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 
-    const where = organizationId
-      ? { organizationId }
-      : { userId };
-
     const templates = await templateRepo.find({
-      where,
+      where: { organizationId },
       order: { isDefault: "DESC", createdAt: "DESC" },
     });
 

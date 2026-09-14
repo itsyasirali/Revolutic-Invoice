@@ -4,6 +4,7 @@ import type { Payment as PaymentType } from "@/types/payment";
 
 const fetchPaymentsForUser = async (
   userId: number,
+  orgId?: number | null,
 ): Promise<PaymentType[]> => {
   try {
     const db = await getDatabase();
@@ -14,11 +15,17 @@ const fetchPaymentsForUser = async (
       .leftJoinAndSelect("payment.customer", "customer")
       .leftJoinAndSelect("payment.template", "template")
       .leftJoinAndSelect("payment.appliedInvoices", "appliedInvoices")
-      .leftJoinAndSelect("appliedInvoices.invoice", "invoice")
-      .where("payment.userId = :userId", { userId })
-      .orderBy("payment.paymentDate", "DESC");
+      .leftJoinAndSelect("appliedInvoices.invoice", "invoice");
 
-    const payments = await queryBuilder.getMany();
+    if (orgId) {
+      queryBuilder.where("payment.organizationId = :orgId", { orgId });
+    } else {
+      queryBuilder.where("payment.userId = :userId", { userId });
+    }
+
+    const payments = await queryBuilder
+      .orderBy("payment.paymentDate", "DESC")
+      .getMany();
 
     return JSON.parse(JSON.stringify(payments));
   } catch (error) {

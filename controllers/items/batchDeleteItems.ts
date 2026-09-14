@@ -12,6 +12,12 @@ const batchDeleteItems = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
 
   try {
     const body: BatchDeleteItemPayload = await req.json();
@@ -24,7 +30,6 @@ const batchDeleteItems = async (req: NextRequest) => {
       );
     }
 
-    const parsedUserId = userId;
     const parsedItemIds = itemIds
       .map((id) => parseInt(String(id)))
       .filter((id) => !isNaN(id));
@@ -47,11 +52,10 @@ const batchDeleteItems = async (req: NextRequest) => {
     );
 
     const itemsRepository = db.getRepository(Item);
-    const result = await itemsRepository.delete(
-      orgId
-        ? { id: In(parsedItemIds), organizationId: orgId }
-        : { id: In(parsedItemIds), userId: parsedUserId }
-    );
+    const result = await itemsRepository.delete({
+      id: In(parsedItemIds),
+      organizationId: orgId,
+    });
 
     return NextResponse.json({
       message: "Items deleted successfully",

@@ -13,10 +13,15 @@ const deletePayment = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const paymentId = parseInt(id);
 
     if (isNaN(paymentId)) {
@@ -27,24 +32,24 @@ const deletePayment = async (
     }
 
     const db = await getDatabase();
+    const paymentRepo = db.getRepository(Payment);
+
+    const existingPayment = await paymentRepo.findOne({
+      where: { id: paymentId, organizationId: orgId },
+    });
+
+    if (!existingPayment) {
+      return NextResponse.json(
+        { message: "Payment not found or access denied" },
+        { status: 404 }
+      );
+    }
 
     // Delete applied invoice records first to ensure no constraint issues
     const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
     await paymentAppliedRepo.delete({ paymentId });
 
-    const paymentRepo = db.getRepository(Payment);
-    const result = await paymentRepo.delete(
-      orgId
-        ? { id: paymentId, organizationId: orgId }
-        : { id: paymentId, userId: parsedUserId }
-    );
-
-    if (result.affected === 0) {
-      return NextResponse.json(
-        { message: "Payment not found" },
-        { status: 404 }
-      );
-    }
+    await paymentRepo.delete({ id: paymentId, organizationId: orgId });
 
     return NextResponse.json({ message: "Payment deleted successfully" });
   } catch (error: any) {

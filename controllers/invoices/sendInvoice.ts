@@ -21,6 +21,12 @@ const sendInvoice = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
@@ -56,9 +62,7 @@ const sendInvoice = async (
 
     // Get invoice with populated relations
     const invoice = await invoiceRepository.findOne({
-      where: orgId
-        ? { id: invoiceId, organizationId: orgId }
-        : { id: invoiceId, userId: parsedUserId },
+      where: { id: invoiceId, organizationId: orgId },
       relations: ["customer", "template", "items", "items.item"],
     });
 

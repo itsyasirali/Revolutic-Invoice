@@ -11,11 +11,9 @@ const updatePayment = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const paymentId = parseInt(id);
 
     if (isNaN(paymentId)) {
@@ -27,13 +25,19 @@ const updatePayment = async (
 
     const body = await req.json();
 
+    const orgId = await getAuthOrgId(req);
+    if (!orgId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const paymentRepo = db.getRepository(Payment);
 
     const payment = await paymentRepo.findOne({
-      where: orgId
-        ? { id: paymentId, organizationId: orgId }
-        : { id: paymentId, userId: parsedUserId },
+      where: { id: paymentId, organizationId: orgId },
     });
 
     if (!payment) {

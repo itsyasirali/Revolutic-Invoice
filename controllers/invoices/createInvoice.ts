@@ -36,31 +36,36 @@ export const createInvoiceRecord = async (
   const customerRepository = db.getRepository(Customer);
   const templateRepository = db.getRepository(Template);
 
-  // Fetch customer and default template (if needed) concurrently
-  const [customer, defaultTemplate] = await Promise.all([
+  if (!orgId) {
+    throw new InvoiceOperationError(
+      "Active organization is required to create an invoice",
+      400,
+    );
+  }
+
+  // Fetch customer and template concurrently
+  const [customer, template] = await Promise.all([
     customerRepository.findOne({
-      where: orgId
-        ? { id: customerId, organizationId: orgId }
-        : { id: customerId, userId },
+      where: { id: customerId, organizationId: orgId },
     }),
-    !templateId
+    templateId
       ? templateRepository.findOne({
-          where: orgId
-            ? { organizationId: orgId, isDefault: true }
-            : { userId, isDefault: true },
+          where: { id: templateId, organizationId: orgId },
         })
-      : Promise.resolve(null),
+      : templateRepository.findOne({
+          where: { organizationId: orgId, isDefault: true },
+        }),
   ]);
 
   if (!customer) {
     throw new InvoiceOperationError(
-      `Customer with ID ${customerId} not found for this user`,
+      `Customer with ID ${customerId} not found in this organization`,
       404,
     );
   }
 
   // Get template (provided or default)
-  const finalTemplateId = templateId || defaultTemplate?.id;
+  const finalTemplateId = template?.id;
 
   // Calculate totals
   const calculatedData = calculateInvoiceTotals({
@@ -84,7 +89,7 @@ export const createInvoiceRecord = async (
         amount: Number(item.amount) || 0,
       })) || [],
     userId,
-    organizationId: orgId || null,
+    organizationId: orgId,
     customerId,
     templateId: finalTemplateId || null,
     status: "Draft",

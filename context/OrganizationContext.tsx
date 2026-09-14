@@ -39,6 +39,9 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
       const res = await axios.get("/organizations");
       const org = res.data?.organization ?? null;
       const orgs = res.data?.organizations ?? (org ? [org] : []);
+      if (typeof document !== "undefined" && org?.id) {
+        document.cookie = `active_org_id=${org.id}; path=/; max-age=2592000; SameSite=Lax`;
+      }
       setOrganization(org);
       setOrganizations(orgs);
       return org;
@@ -64,6 +67,9 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
         });
         const switchedOrg = res.data?.organization;
         if (switchedOrg) {
+          if (typeof document !== "undefined") {
+            document.cookie = `active_org_id=${switchedOrg.id}; path=/; max-age=2592000; SameSite=Lax`;
+          }
           setOrganization(switchedOrg);
           await refetchProfile({ silent: true });
           toast.success(`Switched active organization to ${switchedOrg.name}`, "Organization Switched");

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthOrgId, getAuthUserId } from "@/lib/session";
 import { sanitizeTemplateFields } from "@/utils/templates/sanitizeTemplateFields";
 import { uploadFileToCloudinary, deleteCloudinaryAsset } from "@/lib/cloudinary";
 
@@ -62,10 +62,16 @@ const updateTemplate = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const templateId = parseInt(id, 10);
 
     if (isNaN(templateId)) {
@@ -82,12 +88,12 @@ const updateTemplate = async (
     const templateRepo = db.getRepository(Template);
 
     const template = await templateRepo.findOne({
-      where: { id: templateId, userId: parsedUserId },
+      where: { id: templateId, organizationId: orgId },
     });
 
     if (!template) {
       return NextResponse.json(
-        { message: "Template not found" },
+        { message: "Template not found in this organization" },
         { status: 404 },
       );
     }
@@ -102,7 +108,7 @@ const updateTemplate = async (
     }
 
     if (fields.isDefault) {
-      await templateRepo.update({ userId: parsedUserId }, { isDefault: false });
+      await templateRepo.update({ organizationId: orgId }, { isDefault: false });
     }
 
     Object.assign(template, fields);

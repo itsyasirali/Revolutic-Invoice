@@ -15,12 +15,18 @@ const getPayment = async (
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
     const paymentId = parseInt(id);
 
     if (isNaN(paymentId)) {
       return NextResponse.json(
         { message: "Invalid payment ID" },
+        { status: 400 }
+      );
+    }
+
+    if (!orgId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
         { status: 400 }
       );
     }
@@ -35,17 +41,10 @@ const getPayment = async (
       .leftJoinAndSelect("payment.appliedInvoices", "appliedInvoices")
       .leftJoinAndSelect("appliedInvoices.invoice", "invoice");
 
-    if (orgId) {
-      qb.where("payment.id = :id AND payment.organizationId = :orgId", {
-        id: paymentId,
-        orgId,
-      });
-    } else {
-      qb.where("payment.id = :id AND payment.userId = :userId", {
-        id: paymentId,
-        userId: parsedUserId,
-      });
-    }
+    qb.where("payment.id = :id AND payment.organizationId = :orgId", {
+      id: paymentId,
+      orgId,
+    });
 
     const payment = await qb.getOne();
 

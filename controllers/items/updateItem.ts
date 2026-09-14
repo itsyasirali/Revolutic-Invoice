@@ -13,23 +13,26 @@ const updateItem = async (
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const orgId = await getAuthOrgId(req);
+  if (!orgId) {
+    return NextResponse.json(
+      { message: "Active organization is required" },
+      { status: 400 },
+    );
+  }
   const { id } = await params;
 
   try {
     const parsedId = parseInt(id);
-    const parsedUserId = userId;
 
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
     const existingItem = await itemsRepository.findOne({
-      where: orgId
-        ? { id: parsedId, organizationId: orgId }
-        : { id: parsedId, userId: parsedUserId },
+      where: { id: parsedId, organizationId: orgId },
     });
     if (!existingItem) {
       return NextResponse.json(
-        { message: "Item not found" },
+        { message: "Item not found in this organization" },
         { status: 404 },
       );
     }

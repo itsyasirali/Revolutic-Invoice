@@ -4,7 +4,8 @@ import { getServerSessionUser } from "@/lib/session";
 
 const InvoicesPage = async () => {
   const user = await getServerSessionUser();
-  const invoices = user?.id ? await fetchInvoicesForUser(Number(user.id)) : [];
+  const orgId = user?.organizationId ? Number(user.organizationId) : null;
+  const invoices = user?.id ? await fetchInvoicesForUser(Number(user.id), orgId) : [];
 
   return <InvoiceList initialInvoices={invoices} />;
 };

@@ -2,13 +2,20 @@ import { getDatabase } from "@/lib/database";
 import { Item as ItemEntity } from "@/entities/Item";
 import type { Item } from "@/types/item";
 
-const fetchItemsForUser = async (userId: number): Promise<Item[]> => {
+const fetchItemsForUser = async (
+  userId: number,
+  orgId?: number | null,
+): Promise<Item[]> => {
   try {
     const db = await getDatabase();
     const itemsRepository = db.getRepository(ItemEntity);
 
+    const whereScope = orgId
+      ? { organizationId: orgId }
+      : { userId };
+
     const items = await itemsRepository.find({
-      where: { userId },
+      where: whereScope,
       order: { createdAt: "DESC" },
     });
 

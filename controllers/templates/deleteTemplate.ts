@@ -16,6 +16,12 @@ const deleteTemplate = async (
 
   try {
     const organizationId = await getAuthOrgId(req);
+    if (!organizationId) {
+      return NextResponse.json(
+        { message: "Active organization is required" },
+        { status: 400 }
+      );
+    }
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -29,12 +35,10 @@ const deleteTemplate = async (
 
     // Unlink any payments referencing this template to prevent FK constraints
     const paymentRepo = db.getRepository(Payment);
-    await paymentRepo.update({ templateId }, { templateId: null as any });
+    await paymentRepo.update({ templateId, organizationId }, { templateId: null as any });
 
     const templateRepo = db.getRepository(Template);
-    const deleteWhere = organizationId
-      ? { id: templateId, organizationId }
-      : { id: templateId, userId };
+    const deleteWhere = { id: templateId, organizationId };
     const result = await templateRepo.delete(deleteWhere);
 
     if (result.affected === 0) {
