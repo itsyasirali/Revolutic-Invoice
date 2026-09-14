@@ -16,7 +16,7 @@ export const SetupButtons: React.FC<SetupButtonsProps> = ({
         <button
           type="submit"
           disabled={loading}
-          className="h-11 px-6 sm:px-7 rounded-lg bg-[#2563eb] hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm transition-colors shadow-2xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          className="h-11 px-6 sm:px-7 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/95 text-white font-medium text-sm transition-colors shadow-2xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>

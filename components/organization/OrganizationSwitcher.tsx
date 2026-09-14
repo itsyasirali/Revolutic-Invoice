@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Building2, ChevronDown, Check, Plus, Sparkles } from "lucide-react";
+import { ChevronDown, Check, Plus, Sparkles } from "lucide-react";
 import useOrganizationSwitcher from "@/hooks/organization/useOrganizationSwitcher";
 import { LoadingSpinner } from "@/components/ui";
 
@@ -31,15 +31,15 @@ const OrganizationSwitcher: React.FC = () => {
         disabled={isSwitching}
         className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none text-left ${
           isOpen
-            ? "bg-blue-50/90 border-blue-300 ring-2 ring-blue-500/20 shadow-xs"
+            ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20 shadow-xs"
             : "bg-white hover:bg-slate-50 border-slate-200/90 hover:border-slate-300 shadow-2xs"
         }`}
         aria-expanded={isOpen}
         aria-haspopup="true"
         title={organization?.name || "Select Organization"}
       >
-        <div className="w-6 h-6 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-primary shrink-0 group-hover:bg-blue-600/15 transition-colors">
-          <Building2 className="w-3.5 h-3.5 stroke-[2.2]" />
+        <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 text-xs font-bold text-primary group-hover:bg-primary/15 transition-colors">
+          {organization?.name?.charAt(0)?.toUpperCase() || "O"}
         </div>
 
         <div className="flex flex-col min-w-0 pr-0.5">
@@ -75,7 +75,7 @@ const OrganizationSwitcher: React.FC = () => {
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Organizations
               </span>
-              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-50 text-primary rounded-full border border-blue-200/60">
+              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary rounded-full border border-primary/20">
                 {organizations.length}
               </span>
             </div>
@@ -93,7 +93,7 @@ const OrganizationSwitcher: React.FC = () => {
                   onClick={() => handleSelectOrg(org.id)}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer ${
                     isActive
-                      ? "bg-blue-50/80 text-primary font-semibold"
+                      ? "bg-primary/10 text-primary font-semibold"
                       : "hover:bg-slate-50 text-slate-700"
                   }`}
                 >
@@ -135,13 +135,13 @@ const OrganizationSwitcher: React.FC = () => {
             <button
               type="button"
               onClick={handleAddNewOrg}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-primary hover:bg-blue-50/70 active:bg-blue-100 transition-colors cursor-pointer group"
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer group"
             >
-              <div className="w-6 h-6 rounded-lg bg-blue-100/70 text-primary flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                 <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               </div>
               <span>Add New Organization</span>
-              <Sparkles className="w-3.5 h-3.5 text-blue-400 ml-auto opacity-70 group-hover:opacity-100" />
+              <Sparkles className="w-3.5 h-3.5 text-primary/70 ml-auto opacity-70 group-hover:opacity-100" />
             </button>
           </div>
         </div>

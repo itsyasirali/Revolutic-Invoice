@@ -52,9 +52,23 @@ const OrganizationSetupPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f7fd] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden font-sans">
-      {/* Soft Blue Atmospheric Gradient Circles */}
-      <div className="w-[450px] h-[450px] rounded-full bg-blue-400/20 blur-3xl absolute -top-24 -right-24 pointer-events-none" />
-      <div className="w-[380px] h-[380px] rounded-full bg-blue-300/25 blur-3xl absolute -bottom-24 -left-24 pointer-events-none" />
+      {/* Atmosphere Background: Soft Glowing Aura + Crisp Corner Circles + Ambient Vertical Lines */}
+      <div className="w-125 h-125 rounded-full bg-primary/20 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
+      <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-primary absolute -top-20 -right-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
+      <div className="w-72 h-72 rounded-full bg-primary/20 absolute -top-24 -right-24 pointer-events-none" />
+
+      <div className="w-105 h-105 rounded-full bg-primary/15 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
+      <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-primary absolute -bottom-20 -left-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
+      <div className="w-64 h-64 rounded-full bg-primary/20 absolute -bottom-24 -left-24 pointer-events-none" />
+
+      {/* Subtle Vertical Atmospheric Grid Lines */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-around opacity-40">
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+      </div>
 
       {/* Main Card Container */}
       <div className="w-full max-w-[680px] bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative z-10">
@@ -80,7 +94,7 @@ const OrganizationSetupPage: React.FC = () => {
             <p className="text-sm text-slate-500">
               {isAddingNewOrg
                 ? "Set up a separate business profile, currency, and address for this workspace."
-                : "Enter your organization details to get started with Zoho Invoice."}
+                : "Enter your organization details to get started with Invoice Smarty."}
             </p>
           </div>
 
@@ -144,7 +158,7 @@ const OrganizationSetupPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowAddress((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 text-sm text-[#2563eb] hover:text-primary font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium transition-colors cursor-pointer"
             >
               {showAddress ? (
                 <ChevronUp className="w-4 h-4" />

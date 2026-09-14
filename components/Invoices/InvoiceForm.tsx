@@ -62,28 +62,50 @@ const InvoiceForm = () => {
     items.some((item) => item.name && item.name.trim() !== "");
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <PageHeader
-        title={isEditMode ? "Edit Invoice" : "New Invoice"}
-        onBack={handleCancel}
-      />
+    <div className="min-h-screen bg-[#f3f7fd] flex flex-col relative overflow-hidden font-sans">
+      {/* Atmosphere Background: Soft Glowing Aura + Crisp Corner Circles + Ambient Vertical Lines */}
+      <div className="w-[500px] h-[500px] rounded-full bg-primary/20 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
+      <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-primary absolute -top-20 -right-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
+      <div className="w-72 h-72 rounded-full bg-primary/20 absolute -top-24 -right-24 pointer-events-none" />
 
-      <InvoiceTemplateSelector
-        isOpen={showTemplateSelector}
-        onClose={() => setShowTemplateSelector(false)}
-        onSelect={(template) => handleInvoiceChange("templateId", template.id)}
-        currentTemplateId={invoiceData.templateId}
-      />
+      <div className="w-[420px] h-[420px] rounded-full bg-primary/15 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
+      <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-primary absolute -bottom-20 -left-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
+      <div className="w-64 h-64 rounded-full bg-primary/20 absolute -bottom-24 -left-24 pointer-events-none" />
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSaveAndSend();
-        }}
-        className="flex-1 flex flex-col"
-      >
-        <div className="flex-1 py-8 w-full">
-          <div className="flex flex-col gap-y-8">
+      {/* Subtle Vertical Atmospheric Grid Lines */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-around opacity-40">
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+        <div className="w-[1px] h-full bg-slate-200" />
+      </div>
+
+      <div className="relative z-10 flex flex-col flex-1">
+        <PageHeader
+          title={isEditMode ? "Edit Invoice" : "New Invoice"}
+          onBack={handleCancel}
+          className="bg-transparent"
+        />
+
+        <InvoiceTemplateSelector
+          isOpen={showTemplateSelector}
+          onClose={() => setShowTemplateSelector(false)}
+          onSelect={(template) => handleInvoiceChange("templateId", template.id)}
+          currentTemplateId={invoiceData.templateId}
+        />
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSaveAndSend();
+          }}
+          className="flex-1 flex flex-col px-3 sm:px-6 lg:px-8 pb-10"
+        >
+          <div className="flex-1 py-4 sm:py-6 w-full max-w-6xl mx-auto">
+            {/* Card Container */}
+            <div className="bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 p-6 sm:p-9">
+              <div className="flex flex-col gap-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
@@ -547,44 +569,46 @@ const InvoiceForm = () => {
                   </span>
                 </div>
               </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
-          <Button
-            type="button"
-            onClick={handleCancel}
-            variant="ghost"
-            size="md"
-            disabled={busy}
-          >
-            Cancel
-          </Button>
+          <div className="sticky bottom-0 bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-2xl py-4 px-6 flex items-center justify-start gap-3 z-40 max-w-6xl mx-auto w-full shadow-lg shadow-slate-900/5">
+            <Button
+              type="button"
+              onClick={handleCancel}
+              variant="ghost"
+              size="md"
+              disabled={busy}
+            >
+              Cancel
+            </Button>
 
-          <Button
-            type="button"
-            onClick={handleSaveDraft}
-            variant="secondary"
-            size="md"
-            disabled={busy || !isFormValid}
-            loading={saving || updating}
-          >
-            {saving || updating ? "Saving..." : "Save as Draft"}
-          </Button>
+            <Button
+              type="button"
+              onClick={handleSaveDraft}
+              variant="secondary"
+              size="md"
+              disabled={busy || !isFormValid}
+              loading={saving || updating}
+            >
+              {saving || updating ? "Saving..." : "Save as Draft"}
+            </Button>
 
-          <Button
-            type="button"
-            onClick={handlePreview}
-            variant="primary"
-            size="md"
-            disabled={busy || !isFormValid}
-            icon={<Eye className="w-4 h-4" />}
-          >
-            Preview
-          </Button>
-        </div>
-      </form>
+            <Button
+              type="button"
+              onClick={handlePreview}
+              variant="primary"
+              size="md"
+              disabled={busy || !isFormValid}
+              icon={<Eye className="w-4 h-4" />}
+            >
+              Preview
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

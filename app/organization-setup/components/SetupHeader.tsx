@@ -1,28 +1,35 @@
 import React from "react";
-import { X, FileText } from "lucide-react";
+import Image from "next/image";
+import { X } from "lucide-react";
 import type { SetupHeaderProps } from "@/types/organization";
 
 export const SetupHeader: React.FC<SetupHeaderProps> = ({
   onClose,
-  brandName = "Revolutic",
-  subBrand = "Invoice",
+  brandName = "Invoice",
+  subBrand = "Smarty",
   title = "Organization Setup",
 }) => {
   return (
     <div className="bg-[#f0f5fa] px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between border-b border-slate-200/80">
       {/* Brand & Section */}
       <div className="flex items-center gap-3">
-        {/* Invoice Icon Badge */}
-        <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-primary shadow-2xs">
-          <FileText className="w-5 h-5 stroke-[2.2]" />
+        {/* Invoice Smarty Logo Badge */}
+        <div className="w-10 h-10">
+          <Image
+            src="/assets/InvoiceSmartyIcon.png"
+            alt="Invoice Smarty"
+            width={28}
+            height={28}
+            className="w-10 h-10 object-contain rounded-md"
+          />
         </div>
 
         {/* Brand Text */}
         <div className="flex flex-col leading-none">
-          <span className="text-[11px] font-bold tracking-tight text-slate-700 uppercase">
+          <span className="text-[14px] font-bold tracking-tight text-slate-700 uppercase">
             {brandName}
           </span>
-          <span className="text-sm font-extrabold tracking-tight text-slate-900">
+          <span className="text-[14px] font-extrabold tracking-tight text-primary">
             {subBrand}
           </span>
         </div>
