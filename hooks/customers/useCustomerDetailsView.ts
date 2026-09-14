@@ -6,22 +6,33 @@ import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerFinancials } from "./useCustomerFinancials";
 
-export type CustomerTab = "overview" | "invoices" | "transactions";
+export type CustomerTab = "invoices" | "transactions";
 
 export const useCustomerDetailsView = () => {
   const router = useRouter();
   const { deleteCustomers, loading: deleteLoading } = useDeleteCustomer();
 
-  const { customer, primaryContact, loading: customerLoading } =
-    useCustomerDetails();
+  const {
+    customer,
+    primaryContact,
+    loading: customerLoading,
+  } = useCustomerDetails();
   const { financials, customerInvoices, customerTransactions } =
     useCustomerFinancials(customer);
 
-  const [activeTab, setActiveTab] = useState<CustomerTab>("overview");
+  const [activeTab, setActiveTab] = useState<CustomerTab>("invoices");
 
   const handleEdit = useCallback(() => {
     if (customer) {
       router.push(`/customers/edit/${customer.id}`);
+    }
+  }, [customer, router]);
+
+  const handleNewInvoice = useCallback(() => {
+    if (customer?.id) {
+      router.push(`/invoices/new?customerId=${customer.id}`);
+    } else {
+      router.push("/invoices/new");
     }
   }, [customer, router]);
 
@@ -62,6 +73,7 @@ export const useCustomerDetailsView = () => {
     activeTab,
     setActiveTab,
     handleEdit,
+    handleNewInvoice,
     handleDelete,
     handleBackClick,
     handleInvoiceClick,

@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 export interface PageHeaderProps {
   title: React.ReactNode;

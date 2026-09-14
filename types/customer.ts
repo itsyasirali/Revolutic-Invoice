@@ -12,7 +12,12 @@ export interface PaymentTransaction {
   paymentDate: string | Date;
   paymentNumber?: number;
   referenceNo?: string;
-  paymentMode: "Cash" | "Bank Transfer" | "Bank Remittance" | "Cheque" | "Other";
+  paymentMode:
+    | "Cash"
+    | "Bank Transfer"
+    | "Bank Remittance"
+    | "Cheque"
+    | "Other";
   amountReceived: number;
   bankCharges?: number;
   currency?: string;
@@ -68,7 +73,7 @@ export interface UIInvoiceListItem {
 
 // Customer financials type
 export interface CustomerFinancials {
-  customerKey: string;
+  customerKey?: string;
   remaining: number;
   received: number;
 }

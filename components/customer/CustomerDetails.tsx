@@ -1,24 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
+import Link from "next/link";
 import {
+  Home,
+  ChevronRight,
   Mail,
   Phone,
   FileText,
   MapPin,
-  MessageSquare,
-  User,
-  DollarSign,
+  Calendar,
+  Pencil,
+  Plus,
+  CheckCircle2,
   Clock,
-  CreditCard,
+  DollarSign,
 } from "lucide-react";
 import {
   Table,
   StatusBadge,
   Tabs,
-  EmptyState,
   CurrencyDisplay,
-  PageHeader,
+  Button,
 } from "@/components/ui";
 import type { UIInvoiceListItem, PaymentTransaction } from "@/types/customer";
 import type { TableColumn } from "@/types/common";
@@ -37,6 +40,8 @@ const CustomerDetails: React.FC = () => {
     activeTab,
     setActiveTab,
     handleBackClick,
+    handleEdit,
+    handleNewInvoice,
     handleInvoiceClick,
     handleTransactionClick,
   } = useCustomerDetailsView();
@@ -45,7 +50,6 @@ const CustomerDetails: React.FC = () => {
     {
       key: "invoice",
       label: "INVOICE NUMBER",
-
       render: (item) => (
         <span className="font-bold text-gray-900">{item.invoice}</span>
       ),
@@ -53,7 +57,6 @@ const CustomerDetails: React.FC = () => {
     {
       key: "date",
       label: "DATE",
-
       render: (item) => <span className="text-gray-600">{item.date}</span>,
     },
     {
@@ -99,7 +102,6 @@ const CustomerDetails: React.FC = () => {
     {
       key: "paymentDate",
       label: "DATE",
-
       render: (item) => {
         const date =
           typeof item.paymentDate === "string"
@@ -113,7 +115,6 @@ const CustomerDetails: React.FC = () => {
     {
       key: "paymentNumber",
       label: "PAYMENT #",
-
       render: (item) => (
         <span className="font-bold text-gray-900">
           {item.paymentNumber
@@ -149,6 +150,71 @@ const CustomerDetails: React.FC = () => {
     },
   ];
 
+  // Helper values
+  const customerInitials = useMemo(() => {
+    const name = customer?.displayName?.trim() || "";
+    if (!name) return "CU";
+    const parts = name.split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }, [customer?.displayName]);
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const customerIdDisplay = useMemo(() => {
+    if (!customer?.id) return "CUST-0001";
+    const str = String(customer.id);
+    if (str.toUpperCase().startsWith("CUST-")) return str;
+    if (/^\d+$/.test(str)) return `CUST-${str.padStart(4, "0")}`;
+    return `CUST-${str.slice(0, 6).toUpperCase()}`;
+  }, [customer?.id]);
+
+  const customerSince = useMemo(() => {
+    const dateVal = customer?.createdAt || customer?.updatedAt;
+    if (!dateVal) return "Jan 2026";
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return "Jan 2026";
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return "Jan 2026";
+    }
+  }, [customer?.createdAt, customer?.updatedAt]);
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const billingAddressLines = useMemo(() => {
+    if (!customer?.address) return ["No address provided"];
+    const lines = customer.address.split(/\r?\n/).filter(Boolean);
+    if (lines.length > 1) return lines;
+    const commaParts = customer.address
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (commaParts.length >= 2) return commaParts;
+    return [customer.address];
+  }, [customer?.address]);
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const customerLocation = useMemo(() => {
+    if (!customer?.address) return "Location not set";
+    const parts = customer.address
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) {
+      return parts.slice(-2).join(", ");
+    }
+    return parts[0] || "Location not set";
+  }, [customer?.address]);
+
+  const email = primaryContact?.email || customer?.email || "No email provided";
+  const phone = primaryContact?.phone || customer?.phone || "No phone provided";
+  const currency = customer?.currency || "PKR";
+
   if (loading && !customer) {
     return null;
   }
@@ -158,7 +224,6 @@ const CustomerDetails: React.FC = () => {
   }
 
   const tabs = [
-    { label: "Overview", value: "overview" },
     { label: "Invoices", value: "invoices", count: customerInvoices.length },
     {
       label: "Transactions",
@@ -168,242 +233,216 @@ const CustomerDetails: React.FC = () => {
   ];
 
   return (
-    <div className="">
-      <PageHeader
-        title={customer.displayName || ""}
-        showBackButton
-        onBack={handleBackClick}
-      />
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
+      {/* 1. Breadcrumb */}
+      <nav
+        className="flex items-center gap-2 text-sm text-slate-500"
+        aria-label="Breadcrumb"
+      >
+        <Link
+          href="/dashboard"
+          className="text-primary hover:text-primary/80 transition-colors flex items-center"
+          title="Dashboard"
+        >
+          <Home className="w-4 h-4" />
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <Link
+          href="/customers"
+          className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
+        >
+          Customers
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
+          {customer.displayName || "Customer Details"}
+        </span>
+      </nav>
 
-      <div className="space-y-6">
-        {/* Quick Stats Integrated */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-green-600 text-white transition-colors duration-300">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <div>
-                  <h5 className="text-gray-900 font-bold text-lg leading-tight">
-                    Received
-                  </h5>
-                  <span className="text-xs font-medium text-gray-500">
-                    Total Amount
-                  </span>
+      {/* 2. Customer Header Profile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Left: Avatar + Title + Status + Customer ID */}
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0 shadow-xs">
+            {customerInitials}
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                {customer.displayName || "Customer"}
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+              Customer ID: {customerIdDisplay}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center flex-col-reverse gap-3 shrink-0">
+          <Button
+            onClick={handleEdit}
+            variant="outline"
+            size="md"
+            icon={<Pencil className="w-4 h-4 text-slate-700" />}
+            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
+          >
+            Edit Customer
+          </Button>
+          <Button
+            onClick={handleNewInvoice}
+            variant="primary"
+            size="md"
+            icon={<Plus className="w-4 h-4" />}
+            className="font-medium rounded-lg shadow-xs"
+          >
+            New Invoice
+          </Button>
+        </div>
+      </div>
+
+      {/* 3. Overview Card (Customer Information + Financial Summary) */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Customer Information (Left Side) */}
+          <div className="lg:col-span-6 space-y-4">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Customer Information
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-1">
+              {/* Contact Details */}
+              <div>
+                <h3 className="text-xs font-semibold text-slate-800 mb-3">
+                  Contact Details
+                </h3>
+                <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate" title={email}>
+                      {email}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate">{phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate">{customerLocation}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-md bg-green-50/50 border border-green-100/50">
-                <span className="text-sm font-medium text-gray-600">
-                  Amount
-                </span>
-                <CurrencyDisplay
-                  amount={financials.received}
-                  currency={customer.currency}
-                  className="text-[15px] font-bold text-green-700"
-                />
+              {/* Billing Address */}
+              <div>
+                <h3 className="text-xs font-semibold text-slate-800 mb-3">
+                  Billing Address
+                </h3>
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5 leading-snug">
+                    {billingAddressLines.map((line, idx) => (
+                      <p key={idx} className="truncate sm:whitespace-normal">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Since */}
+              <div>
+                <h3 className="text-xs font-semibold text-slate-800 mb-3">
+                  Customer Since
+                </h3>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
+                  <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span>{customerSince}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-md border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md flex items-center justify-center bg-primary text-white transition-colors duration-300">
-                  <Clock className="w-5 h-5" />
+          {/* Financial Summary (Right Side) */}
+          <div className="lg:col-span-6 lg:border-l lg:border-slate-100 lg:pl-8 space-y-4">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Financial Summary
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              {/* Received */}
+              <div className="bg-[#f0fdf4] border border-emerald-100/90 rounded-md p-4 flex flex-col justify-between min-h-[130px]">
+                <div className="text-emerald-600">
+                  <CheckCircle2 className="w-6 h-6 stroke-[2.2]" />
                 </div>
-                <div>
-                  <h5 className="text-gray-900 font-bold text-lg leading-tight">
-                    Pending
-                  </h5>
-                  <span className="text-xs font-medium text-gray-500">
-                    Total Remaining
-                  </span>
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-slate-500">Received</p>
+                  <p className="text-base sm:text-lg font-bold text-emerald-700 mt-1 truncate">
+                    {currency}{" "}
+                    {Number(financials.received || 0).toLocaleString("en-US")}
+                  </p>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-md bg-primary/5 border border-primary/20">
-                <span className="text-sm font-medium text-gray-600">
-                  Amount
-                </span>
-                <CurrencyDisplay
-                  amount={financials.remaining}
-                  currency={customer.currency}
-                  className="text-[15px] font-bold text-primary"
-                />
+              {/* Remaining */}
+              <div className="bg-[#fffbeb] border border-amber-100/90 rounded-md p-4 flex flex-col justify-between min-h-[110px]">
+                <div className="text-amber-600">
+                  <Clock className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-slate-500">
+                    Remaining
+                  </p>
+                  <p className="text-base sm:text-lg font-bold text-amber-600 mt-1 truncate">
+                    {currency}{" "}
+                    {Number(financials.remaining || 0).toLocaleString("en-US")}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabs & Content */}
-        <div className="flex flex-col mt-4">
-          <div className="mb-4">
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={(value) => setActiveTab(value as CustomerTab)}
+      {/* 4. Tabs & Lists */}
+      <div className="flex flex-col mt-2">
+        <div className="mb-4">
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(value) => setActiveTab(value as CustomerTab)}
+          />
+        </div>
+
+        <div>
+          {activeTab === "invoices" && (
+            <Table
+              columns={invoiceColumns}
+              data={customerInvoices}
+              selectedIds={[]}
+              onSelectAll={() => {}}
+              onSelectRow={() => {}}
+              getRowId={(item) => item.id}
+              onRowClick={(item) => handleInvoiceClick(item.id)}
+              emptyMessage="No invoices found"
+              emptyIcon={FileText}
+              showCheckbox={false}
             />
-          </div>
+          )}
 
-          <div>
-            {activeTab === "overview" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
-                    <h3 className="text-sm font-medium text-gray-800 mb-4">
-                      General Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Customer Type
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {customer.customerType || "Individual"}
-                        </p>
-                      </div>
-                      <div className="p-4 bg-gray-50/50 rounded-md border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Currency
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {customer.currency || "USD"}
-                        </p>
-                      </div>
-                      <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-md border border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5" /> Address
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900 leading-relaxed">
-                          {customer.address || "No address provided"}
-                        </p>
-                      </div>
-                      {customer.remarks && (
-                        <div className="md:col-span-2 p-4 bg-gray-50/50 rounded-md border border-gray-100">
-                          <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
-                            <MessageSquare className="w-3.5 h-3.5" /> Remarks
-                          </p>
-                          <p className="text-sm text-gray-600 italic">
-                            &quot;{customer.remarks}&quot;
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sidebar - Contact Info */}
-                <div className="space-y-6">
-                  <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6">
-                    <h3 className="text-sm font-medium text-gray-800 mb-4 flex items-center gap-2">
-                      <User className="w-4 h-4 text-primary" /> Primary Contact
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 bg-primary/5/50 bg-gray-50 rounded-md border border-gray-100">
-                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
-                          <User className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase">
-                            Full Name
-                          </p>
-                          <p className="text-sm font-bold text-gray-900 truncate">
-                            {primaryContact.name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md border border-gray-100">
-                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
-                          <Mail className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase">
-                            Email Address
-                          </p>
-                          <p className="text-sm font-bold text-gray-900 truncate">
-                            {primaryContact.email}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md border border-gray-100">
-                        <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center shadow-sm">
-                          <Phone className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase">
-                            Mobile Number
-                          </p>
-                          <p className="text-sm font-bold text-gray-900">
-                            {primaryContact.phone}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "invoices" && (
-              <div className="">
-                {customerInvoices.length > 0 ? (
-                  <Table
-                    columns={invoiceColumns}
-                    data={customerInvoices}
-                    selectedIds={[]}
-                    onSelectAll={() => {}}
-                    onSelectRow={() => {}}
-                    getRowId={(item) => item.id}
-                    onRowClick={(item) => handleInvoiceClick(item.id)}
-                    emptyMessage="No invoices found"
-                    showCheckbox={false}
-                  />
-                ) : (
-                  <div className="py-20">
-                    <EmptyState
-                      icon={FileText}
-                      title="No Invoices"
-                      message="This customer doesn't have any invoices yet."
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "transactions" && (
-              <div className="">
-                {customerTransactions.length > 0 ? (
-                  <Table
-                    columns={transactionColumns}
-                    data={customerTransactions}
-                    selectedIds={[]}
-                    onSelectAll={() => {}}
-                    onSelectRow={() => {}}
-                    getRowId={(item) => item.id || item.id}
-                    onRowClick={(item) =>
-                      handleTransactionClick(item.id || item.id)
-                    }
-                    emptyMessage="No transactions found"
-                    showCheckbox={false}
-                  />
-                ) : (
-                  <div className="py-20">
-                    <EmptyState
-                      icon={DollarSign}
-                      title="No Transactions"
-                      message="No payment transactions found for this customer."
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {activeTab === "transactions" && (
+            <Table
+              columns={transactionColumns}
+              data={customerTransactions}
+              selectedIds={[]}
+              onSelectAll={() => {}}
+              onSelectRow={() => {}}
+              getRowId={(item) => item.id || item.id}
+              onRowClick={(item) => handleTransactionClick(item.id || item.id)}
+              emptyMessage="No transactions found"
+              emptyIcon={DollarSign}
+              showCheckbox={false}
+            />
+          )}
         </div>
       </div>
     </div>
