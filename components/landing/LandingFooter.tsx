@@ -37,18 +37,18 @@ const LandingFooter = () => {
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center p-1.5 shadow-sm">
+              <div className="relative w-9 h-9 flex items-center justify-center">
                 <Image
-                  src="/assets/SmartyIcon.png"
-                  alt="Revolutic "
+                  src="/assets/InvoiceSmartyIcon.png"
+                  alt="InvoiceSmarty"
                   width={36}
                   height={36}
-                  className="object-contain"
+                  className="w-full h-full object-contain rounded-md"
                 />
               </div>
               <div className="flex items-center tracking-tight text-xl font-extrabold text-white">
-                <span>Revolutic</span>
-                <span className="text-primary ml-1"></span>
+                <span>Invoice</span>
+                <span className="text-primary">Smarty</span>
               </div>
             </Link>
 
@@ -129,7 +129,9 @@ const LandingFooter = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Revolutic . All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} InvoiceSmarty. All rights reserved.
+          </p>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1">
               <Globe className="w-3.5 h-3.5 text-slate-400" />

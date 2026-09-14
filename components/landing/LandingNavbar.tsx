@@ -27,18 +27,18 @@ const LandingNavbar = () => {
         <div className="flex h-20 items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center p-1.5 shadow-sm group-hover:scale-105 transition-transform">
+            <div className="relative w-9 h-9 flex items-center justify-center">
               <Image
-                src="/assets/SmartyIcon.png"
-                alt="Revolutic "
+                src="/assets/InvoiceSmartyIcon.png"
+                alt="InvoiceSmarty"
                 width={36}
                 height={36}
-                className="object-contain"
+                className="w-full h-full object-contain rounded-md"
               />
             </div>
             <div className="flex items-center tracking-tight text-xl font-extrabold text-slate-900">
-              <span>Revolutic</span>
-              <span className="text-primary ml-1"></span>
+              <span>Invoice</span>
+              <span className="text-primary">Smarty</span>
             </div>
           </Link>
 

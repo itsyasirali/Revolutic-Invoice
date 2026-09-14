@@ -50,8 +50,8 @@ const LandingPage = () => {
                 Ready to transform your invoicing & billing?
               </h2>
               <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                Join thousands of businesses managing professional s, tracking
-                payments, and getting paid faster with Revolutic .
+                Join thousands of businesses managing professional invoices, tracking
+                payments, and getting paid faster with InvoiceSmarty.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
