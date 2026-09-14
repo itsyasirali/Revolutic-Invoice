@@ -9,9 +9,10 @@ import { toast } from "@/components/ui";
 import {
   INDUSTRIES,
   LOCATIONS,
-  PROVINCES,
   LANGUAGES,
-  TIMEZONES,
+  getStatesForCountry,
+  getTimezoneForCountry,
+  getCurrencyForCountry,
 } from "@/data/organizationSetupData";
 import type { UseOrganizationSetupReturn } from "@/types/organization";
 
@@ -29,10 +30,42 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   );
   const [industry, setIndustry] = useState(INDUSTRIES[0]);
   const [location, setLocation] = useState(LOCATIONS[0]);
-  const [province, setProvince] = useState(PROVINCES[0]);
-  const [currency, setCurrency] = useState("PKR");
+  const [provincesList, setProvincesList] = useState<string[]>(() =>
+    getStatesForCountry(LOCATIONS[0]),
+  );
+  const [province, setProvince] = useState(() => {
+    const states = getStatesForCountry(LOCATIONS[0]);
+    return states[0] || "";
+  });
+  const [currency, setCurrency] = useState(() =>
+    getCurrencyForCountry(LOCATIONS[0]),
+  );
   const [language, setLanguage] = useState(LANGUAGES[0]);
-  const [timeZone, setTimeZone] = useState(TIMEZONES[0]);
+  const [timeZone, setTimeZone] = useState(() =>
+    getTimezoneForCountry(LOCATIONS[0]),
+  );
+
+  // When location changes, auto-select country's currency, state/province, and timezone
+  const handleLocationChange = useCallback((newLocation: string) => {
+    setLocation(newLocation);
+
+    // 1. Auto-select Currency
+    const autoCurrency = getCurrencyForCountry(newLocation);
+    if (autoCurrency) {
+      setCurrency(autoCurrency);
+    }
+
+    // 2. Auto-select State / Province
+    const newStates = getStatesForCountry(newLocation);
+    setProvincesList(newStates);
+    setProvince(newStates[0] || "");
+
+    // 3. Auto-select Time Zone
+    const autoTimezone = getTimezoneForCountry(newLocation);
+    if (autoTimezone) {
+      setTimeZone(autoTimezone);
+    }
+  }, []);
 
   // Optional Address toggle & fields
   const [showAddress, setShowAddress] = useState(false);
@@ -145,8 +178,10 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
     setIndustry,
     location,
     setLocation,
+    handleLocationChange,
     province,
     setProvince,
+    provincesList,
     currency,
     setCurrency,
     language,

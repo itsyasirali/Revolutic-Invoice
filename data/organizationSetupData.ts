@@ -1,5 +1,14 @@
 import type { SetupSelectOption } from "@/types/organization";
-import { COUNTRY_NAMES, UNIQUE_CURRENCIES } from "./countries";
+import {
+  COUNTRY_NAMES,
+  UNIQUE_CURRENCIES,
+  GLOBAL_TIMEZONES,
+  getStatesForCountry,
+  getTimezoneForCountry,
+  getCurrencyForCountry,
+} from "./countries";
+
+export { getStatesForCountry, getTimezoneForCountry, getCurrencyForCountry };
 
 export const INDUSTRIES: string[] = [
   "Web Development",
@@ -17,17 +26,8 @@ export const INDUSTRIES: string[] = [
 // Derived directly from the countries dataset
 export const LOCATIONS: string[] = [...COUNTRY_NAMES, "Other"];
 
-export const PROVINCES: string[] = [
-  "State/Province",
-  "Punjab",
-  "Sindh",
-  "Khyber Pakhtunkhwa",
-  "Balochistan",
-  "Islamabad Capital Territory",
-  "Gilgit-Baltistan",
-  "Azad Kashmir",
-  "Other",
-];
+// Default initial provinces (for Pakistan)
+export const PROVINCES: string[] = getStatesForCountry("Pakistan");
 
 // Derived directly from the countries dataset
 export const CURRENCIES: SetupSelectOption[] = UNIQUE_CURRENCIES.map((c) => ({
@@ -44,12 +44,4 @@ export const LANGUAGES: string[] = [
   "German",
 ];
 
-export const TIMEZONES: string[] = [
-  "(GMT 5:00) Pakistan Time (Asia/Karachi)",
-  "(GMT 0:00) Greenwich Mean Time (Europe/London)",
-  "(GMT -5:00) Eastern Time (US & Canada)",
-  "(GMT -8:00) Pacific Time (US & Canada)",
-  "(GMT +4:00) Gulf Standard Time (Asia/Dubai)",
-  "(GMT +3:00) Arabian Standard Time (Asia/Riyadh)",
-  "(GMT +1:00) Central European Time (Europe/Paris)",
-];
+export const TIMEZONES: string[] = GLOBAL_TIMEZONES;

@@ -61,8 +61,10 @@ export interface UseOrganizationSetupReturn {
   setIndustry: (val: string) => void;
   location: string;
   setLocation: (val: string) => void;
+  handleLocationChange: (val: string) => void;
   province: string;
   setProvince: (val: string) => void;
+  provincesList: string[];
   currency: string;
   setCurrency: (val: string) => void;
   language: string;

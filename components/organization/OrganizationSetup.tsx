@@ -9,9 +9,7 @@ import { useOrganizationSetup } from "@/hooks/organization/useOrganizationSetup"
 import {
   INDUSTRIES,
   LOCATIONS,
-  PROVINCES,
   CURRENCIES,
-  LANGUAGES,
   TIMEZONES,
 } from "@/data/organizationSetupData";
 
@@ -22,13 +20,12 @@ export const OrganizationSetup: React.FC = () => {
     industry,
     setIndustry,
     location,
-    setLocation,
+    handleLocationChange,
     province,
     setProvince,
+    provincesList,
     currency,
     setCurrency,
-    language,
-    setLanguage,
     timeZone,
     setTimeZone,
     showAddress,
@@ -58,17 +55,8 @@ export const OrganizationSetup: React.FC = () => {
       <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-primary absolute -bottom-20 -left-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
       <div className="w-64 h-64 rounded-full bg-primary/20 absolute -bottom-24 -left-24 pointer-events-none" />
 
-      {/* Subtle Vertical Atmospheric Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-around opacity-40">
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-      </div>
-
       {/* Main Card Container */}
-      <div className="w-full max-w-[680px] bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative z-10">
+      <div className="w-full max-w-170 bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative z-10">
         {/* Header Bar */}
         <div className="bg-[#f0f5fa] px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between border-b border-slate-200/80">
           <div className="flex items-center gap-3">
@@ -133,6 +121,7 @@ export const OrganizationSetup: React.FC = () => {
           {/* Organization Name */}
           <Input
             label="Organization Name"
+            placeholder="Organization Name"
             required
             value={organizationName}
             onChange={(e) => setOrganizationName(e.target.value)}
@@ -163,14 +152,14 @@ export const OrganizationSetup: React.FC = () => {
               required
               options={LOCATIONS}
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => handleLocationChange(e.target.value)}
               fullWidth
               searchable
             />
 
             <Select
               label="State/Province"
-              options={PROVINCES}
+              options={provincesList}
               value={province}
               onChange={(e) => setProvince(e.target.value)}
               fullWidth
@@ -227,7 +216,7 @@ export const OrganizationSetup: React.FC = () => {
             )}
           </div>
 
-          {/* Currency & Language Row */}
+          {/* Currency & Time Zone Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <Select
               label="Currency"
@@ -240,26 +229,15 @@ export const OrganizationSetup: React.FC = () => {
             />
 
             <Select
-              label="Language"
+              label="Time Zone"
               required
-              options={LANGUAGES}
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              options={TIMEZONES}
+              value={timeZone}
+              onChange={(e) => setTimeZone(e.target.value)}
               fullWidth
               searchable
             />
           </div>
-
-          {/* Time Zone */}
-          <Select
-            label="Time Zone"
-            required
-            options={TIMEZONES}
-            value={timeZone}
-            onChange={(e) => setTimeZone(e.target.value)}
-            fullWidth
-            searchable
-          />
 
           {/* Divider */}
           <div className="border-t border-slate-200/80 pt-2" />
@@ -268,9 +246,11 @@ export const OrganizationSetup: React.FC = () => {
           <div className="space-y-2.5 text-[13px] text-slate-600">
             <p className="font-semibold text-slate-800 text-sm">Note:</p>
             <ul className="space-y-1.5 list-disc list-outside pl-4 leading-relaxed">
-              <li>You can update some of these preferences from Settings anytime.</li>
               <li>
-                The language you select on this page will be the default language for the following features even if you change the language later:
+                You can update some of these preferences from Settings anytime.
+              </li>
+              <li>
+                Default preferences will be applied for the following features:
               </li>
             </ul>
 
