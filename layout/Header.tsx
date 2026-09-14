@@ -32,7 +32,11 @@ import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
 
 const getSearchConfig = (pathname: string) => {
-  if (pathname === "/" || pathname.startsWith("/customers")) {
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/customers")
+  ) {
     return {
       type: "customers",
       placeholder: "Search customers...",
@@ -67,7 +71,11 @@ const getSearchConfig = (pathname: string) => {
       basePath: "/templates",
     };
   }
-  return null;
+  return {
+    type: "customers",
+    placeholder: "Search customers...",
+    basePath: "/customers",
+  };
 };
 
 const HeaderSearch = () => {
@@ -88,6 +96,8 @@ const HeaderSearch = () => {
               (c: any) =>
                 (c.displayName || "").toLowerCase().includes(lower) ||
                 (c.companyName || "").toLowerCase().includes(lower) ||
+                (c.email || "").toLowerCase().includes(lower) ||
+                (c.phone || "").toLowerCase().includes(lower) ||
                 (c.contacts?.[0]?.email || "").toLowerCase().includes(lower) ||
                 (c.contacts?.[0]?.contact || "").toLowerCase().includes(lower),
             )

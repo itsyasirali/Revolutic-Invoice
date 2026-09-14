@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Mail, Phone, Info, Plus, X } from "lucide-react";
+import { Mail, Phone, Info, X } from "lucide-react";
 import type { ContactsSectionProps, Contact } from "@/types/customer";
 import { useContacts } from "@/hooks/customers/useContacts";
 import { Input, Button } from "@/components/ui";
@@ -14,18 +14,17 @@ const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
     <div className="w-full">
       <div className="flex xs:flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
             Contacts
           </h2>
-          <Info className="w-4 h-4 text-gray-400" />
+          <Info className="w-4 h-4 text-slate-400" />
         </div>
         <Button
           type="button"
           onClick={addContact}
-          variant="ghost"
+          variant="primary"
           size="sm"
-          icon={<Plus className="w-4 h-4" />}
-          className="text-primary hover:bg-primary/5"
+          className="font-medium shadow-xs"
         >
           Add Contact
         </Button>
@@ -35,8 +34,25 @@ const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
         {contacts.map((row: Contact, idx: number) => (
           <div
             key={idx}
-            className="p-6 border border-gray-100 rounded-md bg-white shadow-sm relative group"
+            className="p-5 sm:p-6 border border-slate-200/90 rounded-lg bg-white shadow-xs"
           >
+            {contacts.length > 1 && (
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Contact #{idx + 1}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeContact(idx)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50/80 hover:bg-red-100/80 border border-red-200/70 rounded-md transition-colors cursor-pointer"
+                  title="Remove Contact"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Remove
+                </button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Input
                 type="text"
@@ -82,17 +98,6 @@ const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
                 fullWidth
               />
             </div>
-
-            {contacts.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeContact(idx)}
-                className="absolute -top-2 -right-2 p-1.5 bg-white border border-gray-100 text-gray-400 hover:text-red-500 rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-all"
-                title="Remove Contact"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
           </div>
         ))}
       </div>

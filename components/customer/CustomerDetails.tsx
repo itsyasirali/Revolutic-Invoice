@@ -284,7 +284,6 @@ const CustomerDetails: React.FC = () => {
             onClick={handleEdit}
             variant="outline"
             size="md"
-            icon={<Pencil className="w-4 h-4 text-slate-700" />}
             className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
           >
             Edit Customer
@@ -293,7 +292,6 @@ const CustomerDetails: React.FC = () => {
             onClick={handleNewInvoice}
             variant="primary"
             size="md"
-            icon={<Plus className="w-4 h-4" />}
             className="font-medium rounded-lg shadow-xs"
           >
             New Invoice

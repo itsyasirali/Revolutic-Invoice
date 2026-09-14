@@ -5,11 +5,11 @@ import type { TextareaProps } from "@/types/common";
 
 const variantClasses = {
   default:
-    "bg-white border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-md shadow-sm",
+    "bg-white border border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary rounded-md shadow-2xs hover:border-slate-400",
   outline:
-    "bg-transparent border-2 border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-md",
+    "bg-transparent border-2 border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary rounded-md hover:border-slate-400",
   filled:
-    "bg-slate-100 border border-slate-200 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-md",
+    "bg-slate-100 border border-slate-200 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary rounded-md",
 };
 
 const resizeClasses = {

@@ -55,7 +55,7 @@ const CustomerForm: React.FC = () => {
       />
 
       <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 py-8 max-w-3xl">
+        <div className="flex-1 py-8 px-4">
           <div className="flex flex-col gap-y-6">
             {/* Customer Type */}
             <div>
@@ -164,8 +164,8 @@ const CustomerForm: React.FC = () => {
                               ? String(doc.url)
                               : `/${String(doc.url).replace(/^\//, "")}`
                             : String(doc).startsWith("http")
-                            ? String(doc)
-                            : `/${String(doc).replace(/^\//, "")}`
+                              ? String(doc)
+                              : `/${String(doc).replace(/^\//, "")}`
                         }
                         target="_blank"
                         rel="noopener noreferrer"
