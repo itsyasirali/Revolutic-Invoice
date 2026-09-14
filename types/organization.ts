@@ -54,39 +54,6 @@ export interface SetupSelectOption {
   label: string;
 }
 
-export interface SetupHeaderProps {
-  onClose?: () => void;
-  brandName?: string;
-  subBrand?: string;
-  title?: string;
-}
-
-export interface SetupFormFieldProps {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-  className?: string;
-  error?: string;
-}
-
-export interface SetupButtonsProps {
-  loading?: boolean;
-  onBack?: () => void;
-  submitText?: string;
-  backText?: string;
-}
-
-export interface SetupInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
-}
-
-export interface SetupSelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  options: (string | SetupSelectOption)[];
-  error?: boolean;
-}
-
 export interface UseOrganizationSetupReturn {
   organizationName: string;
   setOrganizationName: (val: string) => void;

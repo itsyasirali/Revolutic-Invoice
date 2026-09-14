@@ -274,9 +274,12 @@ const InvoiceForm = () => {
                       onChange={(e) => handleTermsChange(e.target.value)}
                       fullWidth
                       options={[
+                        { label: "Due end of next month", value: "Due end of next month" },
+                        { label: "Due end of the month", value: "Due end of the month" },
                         { label: "Due on Receipt", value: "Due on Receipt" },
                         { label: "Net 15", value: "Net 15" },
                         { label: "Net 30", value: "Net 30" },
+                        { label: "Net 45", value: "Net 45" },
                         { label: "Net 60", value: "Net 60" },
                       ]}
                     />

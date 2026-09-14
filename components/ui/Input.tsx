@@ -6,19 +6,19 @@ import { X } from "lucide-react";
 
 const variantClasses: Record<InputVariant, string> = {
   default:
-    "bg-white border border-slate-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-md shadow-sm",
+    "bg-white border border-slate-300 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary rounded-md shadow-2xs hover:border-slate-400",
   outline:
-    "bg-transparent border-2 border-slate-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-md",
+    "bg-transparent border-2 border-slate-300 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary rounded-md hover:border-slate-400",
   filled:
-    "bg-slate-100 border border-slate-200 focus-within:bg-white focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-md",
+    "bg-slate-100 border border-slate-200 focus-within:bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary rounded-md",
   flushed:
     "bg-transparent border-b-2 border-slate-300 focus-within:border-primary rounded-none shadow-none px-0",
 };
 
 const sizeClasses: Record<InputSize, string> = {
-  sm: "py-1.5 px-3 text-xs",
-  md: "py-2 px-3.5 text-sm",
-  lg: "py-2.5 px-4 text-base",
+  sm: "h-9 text-xs",
+  md: "h-11 text-sm",
+  lg: "h-12 text-base",
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -27,6 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       variant = "default",
       inputSize = "md",
       label,
+      labelClassName,
       error,
       helperText,
       leftIcon: LeftIcon,
@@ -49,7 +50,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
     const hasValue = value !== undefined && value !== "" && value !== null;
     const errorContainerClass = error
-      ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-200"
+      ? "border-red-400 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500"
       : "";
 
     const widthClass = fullWidth ? "w-full" : "w-auto";
@@ -59,7 +60,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && showLabel && (
           <label
             htmlFor={inputId}
-            className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+            className={
+              labelClassName ||
+              "block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+            }
           >
             {label}
             {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -67,16 +71,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         <div
-          className={`relative flex items-center transition-all duration-200 ${variantClasses[variant]} ${errorContainerClass} ${disabled ? "opacity-60 bg-slate-100 cursor-not-allowed" : ""}`}
+          className={`relative flex items-center transition-all duration-200 ${variantClasses[variant]} ${sizeClasses[inputSize]} ${errorContainerClass} ${disabled ? "opacity-60 bg-slate-100 cursor-not-allowed" : ""}`}
         >
           {prefix && (
-            <div className="pl-3 pr-1 text-slate-500 font-medium select-none text-sm shrink-0">
+            <div className="pl-3.5 pr-1 text-slate-500 font-medium select-none text-sm shrink-0">
               {prefix}
             </div>
           )}
 
           {LeftIcon && (
-            <div className="pl-3 text-slate-400 shrink-0">
+            <div className="pl-3.5 text-slate-400 shrink-0">
               <LeftIcon className="w-4 h-4" />
             </div>
           )}
@@ -86,7 +90,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             value={value}
             disabled={disabled}
-            className={`w-full bg-transparent text-slate-900 placeholder:text-slate-400 outline-none transition-colors ${sizeClasses[inputSize]} ${className}`}
+            className={`w-full h-full bg-transparent text-slate-800 placeholder:text-slate-400 outline-none transition-colors px-3.5 ${LeftIcon ? "pl-2" : ""} ${prefix ? "pl-1" : ""} ${className}`}
             {...props}
           />
 
@@ -101,13 +105,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
 
           {RightIcon && (
-            <div className="pr-3 text-slate-400 shrink-0">
+            <div className="pr-3.5 text-slate-400 shrink-0">
               <RightIcon className="w-4 h-4" />
             </div>
           )}
 
           {suffix && (
-            <div className="pr-3 pl-1 text-slate-500 font-medium select-none text-sm shrink-0">
+            <div className="pr-3.5 pl-1 text-slate-500 font-medium select-none text-sm shrink-0">
               {suffix}
             </div>
           )}

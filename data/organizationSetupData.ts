@@ -1,4 +1,5 @@
 import type { SetupSelectOption } from "@/types/organization";
+import { COUNTRY_NAMES, UNIQUE_CURRENCIES } from "./countries";
 
 export const INDUSTRIES: string[] = [
   "Web Development",
@@ -13,19 +14,8 @@ export const INDUSTRIES: string[] = [
   "Other",
 ];
 
-export const LOCATIONS: string[] = [
-  "Pakistan",
-  "United States",
-  "United Kingdom",
-  "United Arab Emirates",
-  "Saudi Arabia",
-  "Canada",
-  "Australia",
-  "Germany",
-  "France",
-  "India",
-  "Other",
-];
+// Derived directly from the countries dataset
+export const LOCATIONS: string[] = [...COUNTRY_NAMES, "Other"];
 
 export const PROVINCES: string[] = [
   "State/Province",
@@ -39,16 +29,11 @@ export const PROVINCES: string[] = [
   "Other",
 ];
 
-export const CURRENCIES: SetupSelectOption[] = [
-  { value: "PKR", label: "PKR - Pakistani Rupee" },
-  { value: "USD", label: "USD - United States Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "AED", label: "AED - UAE Dirham" },
-  { value: "SAR", label: "SAR - Saudi Riyal" },
-];
+// Derived directly from the countries dataset
+export const CURRENCIES: SetupSelectOption[] = UNIQUE_CURRENCIES.map((c) => ({
+  value: c.value,
+  label: c.label,
+}));
 
 export const LANGUAGES: string[] = [
   "English",

@@ -25,6 +25,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
     variant?: InputVariant;
     inputSize?: InputSize;
     label?: string;
+    labelClassName?: string;
     error?: string;
     helperText?: string;
     leftIcon?: LucideIcon;
@@ -72,17 +73,22 @@ export interface SelectOption {
 export type SelectVariant = 'default' | 'filled' | 'outline';
 export type SelectSize = 'sm' | 'md' | 'lg';
 
-export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
+export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'> {
     variant?: SelectVariant;
     selectSize?: SelectSize;
     label?: string;
-    error?: string;
+    labelClassName?: string;
+    error?: string | boolean;
     helperText?: string;
-    options: SelectOption[];
+    options: (string | SelectOption)[];
     placeholder?: string;
     fullWidth?: boolean;
     showLabel?: boolean;
     leftIcon?: LucideIcon;
+    searchable?: boolean;
+    searchPlaceholder?: string;
+    onChange?: (e: any) => void;
+    onValueChange?: (value: string) => void;
 }
 
 // Textarea Component Types

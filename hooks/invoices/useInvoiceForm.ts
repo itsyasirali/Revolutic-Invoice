@@ -355,14 +355,24 @@ export const useInvoiceForm = () => {
 
   const calculateDueDate = (terms: string, invoiceDate: string): string => {
     const date = new Date(invoiceDate);
+    if (isNaN(date.getTime())) return invoiceDate;
+
     if (terms === "Due on Receipt") {
       return invoiceDate;
     } else if (terms === "Net 15") {
       date.setDate(date.getDate() + 15);
     } else if (terms === "Net 30") {
       date.setDate(date.getDate() + 30);
+    } else if (terms === "Net 45") {
+      date.setDate(date.getDate() + 45);
     } else if (terms === "Net 60") {
       date.setDate(date.getDate() + 60);
+    } else if (terms === "Due end of the month") {
+      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      return endOfMonth.toISOString().split("T")[0];
+    } else if (terms === "Due end of next month") {
+      const endOfNextMonth = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+      return endOfNextMonth.toISOString().split("T")[0];
     }
     return date.toISOString().split("T")[0];
   };
