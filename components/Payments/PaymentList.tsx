@@ -49,7 +49,6 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "paymentDate",
         label: "DATE",
-        sortable: true,
         render: (p: Payment) => (
           <span className="text-gray-900">
             {new Date(p.paymentDate).toLocaleDateString(undefined, {
@@ -63,7 +62,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "paymentNumber",
         label: "PAYMENT#",
-        sortable: true,
+
         render: (p: Payment) => (
           <span className="text-primary font-bold">
             {p.paymentNumber || ""}
@@ -73,7 +72,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "referenceNo",
         label: "REFERENCE NUMBER",
-        sortable: true,
+
         render: (p: Payment) => (
           <span className="text-gray-900">{p.referenceNo || ""}</span>
         ),
@@ -81,7 +80,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "customerDisplayName",
         label: "CUSTOMER NAME",
-        sortable: true,
+
         render: (p: Payment) => (
           <span className="text-gray-900">{p.customerDisplayName || ""}</span>
         ),
@@ -89,7 +88,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "paymentMode",
         label: "MODE",
-        sortable: true,
+
         render: (p: Payment) => (
           <span className="text-gray-900">{p.paymentMode || ""}</span>
         ),
@@ -97,7 +96,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       {
         key: "amountReceived",
         label: "AMOUNT",
-        sortable: true,
+
         render: (p: Payment) => (
           <span className="text-gray-900 font-bold">
             {(p.amountReceived ?? 0).toLocaleString("en-US", {
@@ -150,7 +149,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
             onClick={handleNew}
             disabled={busy}
             variant="primary"
-            size="md"
+            size="sm"
           >
             New Payment
           </Button>

@@ -35,7 +35,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col pb-8 bg-white">
       <PageHeader title="My Account & Profile" />
 
       <AlertModal

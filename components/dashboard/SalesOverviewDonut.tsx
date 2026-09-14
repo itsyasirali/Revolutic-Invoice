@@ -9,7 +9,7 @@ interface SalesOverviewDonutProps {
 }
 
 const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
-  const { totalSales, segments } = data;
+  const { totalSales, segments, currency = "Rs" } = data;
 
   const isAllZero = totalSales === 0;
 
@@ -65,7 +65,7 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
             {!isAllZero && (
               <Tooltip
                 formatter={(value) => [
-                  `Rs ${Number(value || 0).toLocaleString()}`,
+                  `${currency} ${Number(value || 0).toLocaleString()}`,
                   "Amount",
                 ]}
                 contentStyle={{
@@ -86,7 +86,7 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
             Total Sales
           </span>
           <span className="text-lg font-bold text-slate-900 leading-tight">
-            Rs {totalSales.toLocaleString()}
+            {currency} {totalSales.toLocaleString()}
           </span>
         </div>
       </div>
@@ -100,7 +100,7 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
             <span className="font-semibold text-slate-700">Paid </span>
             <span className="text-slate-400">{segments.paid.percentage}%</span>
             <span className="block text-[10px] text-slate-500 font-medium">
-              Rs {segments.paid.amount.toLocaleString()}
+              {currency} {segments.paid.amount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -114,7 +114,7 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
               {segments.partial.percentage}%
             </span>
             <span className="block text-[10px] text-slate-500 font-medium">
-              Rs {segments.partial.amount.toLocaleString()}
+              {currency} {segments.partial.amount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -128,7 +128,7 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
               {segments.unpaid.percentage}%
             </span>
             <span className="block text-[10px] text-slate-500 font-medium">
-              Rs {segments.unpaid.amount.toLocaleString()}
+              {currency} {segments.unpaid.amount.toLocaleString()}
             </span>
           </div>
         </div>

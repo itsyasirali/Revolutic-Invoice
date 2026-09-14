@@ -45,7 +45,7 @@ const CustomerDetails: React.FC = () => {
     {
       key: "invoice",
       label: "INVOICE NUMBER",
-      sortable: true,
+
       render: (item) => (
         <span className="font-bold text-gray-900">{item.invoice}</span>
       ),
@@ -53,7 +53,7 @@ const CustomerDetails: React.FC = () => {
     {
       key: "date",
       label: "DATE",
-      sortable: true,
+
       render: (item) => <span className="text-gray-600">{item.date}</span>,
     },
     {
@@ -99,7 +99,7 @@ const CustomerDetails: React.FC = () => {
     {
       key: "paymentDate",
       label: "DATE",
-      sortable: true,
+
       render: (item) => {
         const date =
           typeof item.paymentDate === "string"
@@ -113,7 +113,7 @@ const CustomerDetails: React.FC = () => {
     {
       key: "paymentNumber",
       label: "PAYMENT #",
-      sortable: true,
+
       render: (item) => (
         <span className="font-bold text-gray-900">
           {item.paymentNumber

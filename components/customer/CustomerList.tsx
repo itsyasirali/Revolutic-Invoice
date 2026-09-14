@@ -151,7 +151,7 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
             onClick={handleNew}
             disabled={loading}
             variant="primary"
-            size="md"
+            size="sm"
           >
             New Customer
           </Button>

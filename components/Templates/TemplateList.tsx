@@ -7,7 +7,13 @@ import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useTemplateActions from "@/hooks/templates/useTemplateActions";
 import useTemplatePreview from "@/hooks/templates/useTemplatePreview";
 import useCloneTemplate from "@/hooks/templates/useCloneTemplate";
-import { Button, ConfirmDialog, EmptyState, PageHeader, LoadingSpinner } from "@/components/ui";
+import {
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  PageHeader,
+  LoadingSpinner,
+} from "@/components/ui";
 import TemplateCard from "./TemplateCard";
 import TemplatePreviewModal from "./TemplatePreviewModal";
 import type { TemplateListItem } from "@/types/template";
@@ -69,7 +75,7 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="pb-8">
       <PageHeader
         title="PDF Templates"
         actions={
@@ -77,7 +83,7 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
             onClick={handleNew}
             disabled={loading}
             variant="primary"
-            size="md"
+            size="sm"
           >
             New Template
           </Button>

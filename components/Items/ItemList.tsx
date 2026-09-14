@@ -132,7 +132,7 @@ const ItemList = ({ initialItems }: ItemListProps) => {
             onClick={handleNew}
             disabled={loading}
             variant="primary"
-            size="md"
+            size="sm"
           >
             New Item
           </Button>

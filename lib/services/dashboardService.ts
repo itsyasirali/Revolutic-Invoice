@@ -1,6 +1,7 @@
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
+import { Organization } from "@/entities/Organization";
 import type {
   DashboardData,
   DashboardInvoice,
@@ -10,30 +11,57 @@ import type {
   SalesOverviewData,
 } from "@/types/dashboard";
 
-const getCurrencyRates = async () => {
+import { getCurrencySymbol } from "@/data/countries/countries";
+export { getCurrencySymbol };
+
+const getCurrencyRates = async (baseCurrency: string = "PKR") => {
+  const base = (baseCurrency || "PKR").toUpperCase().trim();
   try {
-    const res = await fetch("https://api.exchangerate-api.com/v4/latest/PKR", {
+    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${base}`, {
       next: { revalidate: 3600 },
     });
+    if (!res.ok) throw new Error("Rates fetch failed");
     const data = await res.json();
-    const rates: Record<string, number> = {};
-    Object.keys(data.rates).forEach((cur) => {
-      rates[cur] = 1 / data.rates[cur];
-    });
-    rates.PKR = 1;
-    return rates;
+    return (data.rates || {}) as Record<string, number>;
   } catch {
-    return { PKR: 1, USD: 278, EUR: 305, GBP: 355 };
+    // Relative fallback rates referenced to USD
+    const usdRates: Record<string, number> = {
+      USD: 1,
+      PKR: 278,
+      EUR: 0.92,
+      GBP: 0.79,
+      CAD: 1.36,
+      AUD: 1.52,
+      INR: 83.5,
+      AED: 3.67,
+      SAR: 3.75,
+      JPY: 155,
+      CNY: 7.23,
+      CHF: 0.91,
+      SGD: 1.35,
+    };
+    const baseInUsd = usdRates[base] || 1;
+    const rates: Record<string, number> = {};
+    Object.keys(usdRates).forEach((cur) => {
+      rates[cur] = usdRates[cur] / baseInUsd;
+    });
+    rates[base] = 1;
+    return rates;
   }
 };
 
-const convertToPKR = (
+const convertToOrgCurrency = (
   amount: number,
-  currency: string,
-  rates: Record<string, number>
+  sourceCurrency: string,
+  targetCurrency: string,
+  rates: Record<string, number>,
 ) => {
-  const cur = currency?.toUpperCase() || "PKR";
-  return amount * (rates[cur] || 1);
+  const src = (sourceCurrency || targetCurrency || "PKR").toUpperCase().trim();
+  const tgt = (targetCurrency || "PKR").toUpperCase().trim();
+  if (src === tgt) return amount;
+  const rate = rates[src];
+  if (!rate || rate <= 0) return amount;
+  return amount / rate;
 };
 
 const formatShortDate = (dateVal: string | Date | undefined) => {
@@ -47,70 +75,92 @@ const formatShortDate = (dateVal: string | Date | undefined) => {
   });
 };
 
+const buildEmptyDashboardData = (currencySymbol: string): DashboardData => ({
+  kpis: {
+    totalInvoices: {
+      label: "Total Invoices",
+      amount: 0,
+      currency: currencySymbol,
+      changePercent: 0,
+      isIncrease: true,
+      periodLabel: "vs last period",
+    },
+    totalPayments: {
+      label: "Total Payments",
+      amount: 0,
+      currency: currencySymbol,
+      changePercent: 0,
+      isIncrease: true,
+      periodLabel: "vs last period",
+    },
+    pendingInvoices: {
+      label: "Pending Invoices",
+      amount: 0,
+      currency: currencySymbol,
+      changePercent: 0,
+      isIncrease: false,
+      periodLabel: "vs last period",
+    },
+    totalExpenses: {
+      label: "Total Expenses",
+      amount: 0,
+      currency: currencySymbol,
+      changePercent: 0,
+      isIncrease: true,
+      periodLabel: "vs last period",
+    },
+  },
+  revenueOverview: [],
+  salesOverview: {
+    totalSales: 0,
+    currency: currencySymbol,
+    segments: {
+      paid: { label: "Paid", amount: 0, percentage: 0, color: "#2563EB" },
+      partial: { label: "Partial", amount: 0, percentage: 0, color: "#06B6D4" },
+      unpaid: { label: "Unpaid", amount: 0, percentage: 0, color: "#F59E0B" },
+    },
+  },
+  recentInvoices: [],
+  monthlySummary: [
+    { label: "Income", value: `${currencySymbol} 0`, changePercent: 0, isPositive: true, type: "income" },
+    { label: "Expenses", value: `${currencySymbol} 0`, changePercent: 0, isPositive: true, type: "expenses" },
+    { label: "Net Profit", value: `${currencySymbol} 0`, changePercent: 0, isPositive: true, type: "netProfit" },
+    { label: "Invoices Paid", value: "0", changePercent: 0, isPositive: true, type: "invoicesPaid" },
+  ],
+});
+
 export const getDashboardData = async (
   userId: number,
-  orgId?: number | null
+  orgId?: number | null,
 ): Promise<DashboardData> => {
-  if (!orgId) {
-    return {
-      kpis: {
-        totalInvoices: {
-          label: "Total Invoices",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-        totalPayments: {
-          label: "Total Payments",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-        pendingInvoices: {
-          label: "Pending Invoices",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: false,
-          periodLabel: "vs last period",
-        },
-        totalExpenses: {
-          label: "Total Expenses",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-      },
-      revenueOverview: [],
-      salesOverview: {
-        totalSales: 0,
-        currency: "Rs",
-        segments: {
-          paid: { label: "Paid", amount: 0, percentage: 0, color: "#2563EB" },
-          partial: { label: "Partial", amount: 0, percentage: 0, color: "#06B6D4" },
-          unpaid: { label: "Unpaid", amount: 0, percentage: 0, color: "#F59E0B" },
-        },
-      },
-      recentInvoices: [],
-      monthlySummary: [
-        { label: "Income", value: "Rs 0", changePercent: 0, isPositive: true, type: "income" },
-        { label: "Expenses", value: "Rs 0", changePercent: 0, isPositive: true, type: "expenses" },
-        { label: "Net Profit", value: "Rs 0", changePercent: 0, isPositive: true, type: "netProfit" },
-        { label: "Invoices Paid", value: "0", changePercent: 0, isPositive: true, type: "invoicesPaid" },
-      ],
-    };
-  }
+  let orgCurrency = "PKR";
+  let orgSymbol = "Rs";
 
   try {
     const db = await getDatabase();
+    const orgRepo = db.getRepository(Organization);
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
+
+    // Resolve active organization and its configured currency
+    if (orgId) {
+      const organization = await orgRepo.findOne({ where: { id: orgId } });
+      if (organization?.currency) {
+        orgCurrency = organization.currency.toUpperCase().trim();
+        orgSymbol = getCurrencySymbol(orgCurrency);
+      }
+    } else {
+      // If no orgId is specified, check if user has a primary organization
+      const firstOrg = await orgRepo.findOne({
+        where: { userId },
+        order: { createdAt: "ASC" },
+      });
+      if (firstOrg?.currency) {
+        orgCurrency = firstOrg.currency.toUpperCase().trim();
+        orgSymbol = getCurrencySymbol(orgCurrency);
+      }
+      return buildEmptyDashboardData(orgSymbol);
+    }
 
     const whereScope = { organizationId: orgId };
 
@@ -126,7 +176,8 @@ export const getDashboardData = async (
       }).catch(() => []),
     ]);
 
-    const rates = await getCurrencyRates();
+    // Fetch exchange rates relative to the organization's currency
+    const rates = await getCurrencyRates(orgCurrency);
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -164,48 +215,56 @@ export const getDashboardData = async (
       const received = Number(inv.received ?? 0);
       const remaining = Math.max(0, total - received);
 
-      const totalPKR = convertToPKR(total, inv.currency || "PKR", rates);
-      const receivedPKR = convertToPKR(received, inv.currency || "PKR", rates);
-      const remainingPKR = convertToPKR(remaining, inv.currency || "PKR", rates);
+      const totalConverted = convertToOrgCurrency(total, inv.currency || orgCurrency, orgCurrency, rates);
+      const receivedConverted = convertToOrgCurrency(received, inv.currency || orgCurrency, orgCurrency, rates);
+      const remainingConverted = convertToOrgCurrency(remaining, inv.currency || orgCurrency, orgCurrency, rates);
 
-      totalInvoicesAmount += totalPKR;
-      totalPaymentsAmount += receivedPKR;
-      pendingInvoicesAmount += remainingPKR;
+      totalInvoicesAmount += totalConverted;
+      totalPaymentsAmount += receivedConverted;
+      pendingInvoicesAmount += remainingConverted;
 
       const invDate = new Date(inv.invoiceDate || inv.createdAt);
       if (!isNaN(invDate.getTime())) {
         if (invDate >= thirtyDaysAgo && invDate <= now) {
-          currentPeriodInvoices += totalPKR;
-          currentPeriodPayments += receivedPKR;
-          currentPeriodPending += remainingPKR;
+          currentPeriodInvoices += totalConverted;
+          currentPeriodPayments += receivedConverted;
+          currentPeriodPending += remainingConverted;
         } else if (invDate >= sixtyDaysAgo && invDate < thirtyDaysAgo) {
-          previousPeriodInvoices += totalPKR;
-          previousPeriodPayments += receivedPKR;
-          previousPeriodPending += remainingPKR;
+          previousPeriodInvoices += totalConverted;
+          previousPeriodPayments += receivedConverted;
+          previousPeriodPending += remainingConverted;
         }
 
         if (invDate.getFullYear() === currentYear && invDate.getMonth() === currentMonth) {
-          thisMonthIncome += receivedPKR;
+          thisMonthIncome += receivedConverted;
           if (status === "paid") thisMonthPaidCount += 1;
         } else if (invDate.getFullYear() === prevYear && invDate.getMonth() === prevMonth) {
-          prevMonthIncome += receivedPKR;
+          prevMonthIncome += receivedConverted;
           if (status === "paid") prevMonthPaidCount += 1;
         }
       }
 
       if (status === "paid") {
-        paidSum += totalPKR;
+        paidSum += totalConverted;
       } else if (status === "partially paid" || status === "partial") {
-        partialSum += remainingPKR;
-        paidSum += receivedPKR;
+        partialSum += remainingConverted;
+        paidSum += receivedConverted;
       } else {
-        unpaidSum += remainingPKR;
+        unpaidSum += remainingConverted;
       }
     });
 
     if (payments && payments.length > 0) {
       const recordedPayments = payments.reduce((acc, p) => {
-        return acc + convertToPKR(Number(p.amountReceived || 0), p.currency || "PKR", rates);
+        return (
+          acc +
+          convertToOrgCurrency(
+            Number(p.amountReceived || 0),
+            p.currency || orgCurrency,
+            orgCurrency,
+            rates,
+          )
+        );
       }, 0);
       if (recordedPayments > totalPaymentsAmount) {
         totalPaymentsAmount = recordedPayments;
@@ -231,7 +290,7 @@ export const getDashboardData = async (
       totalInvoices: {
         label: "Total Invoices",
         amount: Math.round(totalInvoicesAmount),
-        currency: "Rs",
+        currency: orgSymbol,
         changePercent: invoicesTrend.percent,
         isIncrease: invoicesTrend.isIncrease,
         periodLabel: "vs last period",
@@ -239,7 +298,7 @@ export const getDashboardData = async (
       totalPayments: {
         label: "Total Payments",
         amount: Math.round(totalPaymentsAmount),
-        currency: "Rs",
+        currency: orgSymbol,
         changePercent: paymentsTrend.percent,
         isIncrease: paymentsTrend.isIncrease,
         periodLabel: "vs last period",
@@ -247,7 +306,7 @@ export const getDashboardData = async (
       pendingInvoices: {
         label: "Pending Invoices",
         amount: Math.round(pendingInvoicesAmount),
-        currency: "Rs",
+        currency: orgSymbol,
         changePercent: pendingTrend.percent,
         isIncrease: pendingTrend.isIncrease,
         periodLabel: "vs last period",
@@ -255,7 +314,7 @@ export const getDashboardData = async (
       totalExpenses: {
         label: "Total Expenses",
         amount: 0,
-        currency: "Rs",
+        currency: orgSymbol,
         changePercent: 0,
         isIncrease: true,
         periodLabel: "vs last period",
@@ -274,7 +333,12 @@ export const getDashboardData = async (
       invoices.forEach((inv) => {
         const invDate = new Date(inv.invoiceDate || inv.createdAt);
         if (!isNaN(invDate.getTime()) && invDate.getMonth() === mIdx && invDate.getFullYear() === mYr) {
-          monthSales += convertToPKR(Number(inv.total || 0), inv.currency || "PKR", rates);
+          monthSales += convertToOrgCurrency(
+            Number(inv.total || 0),
+            inv.currency || orgCurrency,
+            orgCurrency,
+            rates,
+          );
         }
       });
 
@@ -291,7 +355,7 @@ export const getDashboardData = async (
 
     const salesOverview: SalesOverviewData = {
       totalSales,
-      currency: "Rs",
+      currency: orgSymbol,
       segments: {
         paid: {
           label: "Paid",
@@ -314,7 +378,7 @@ export const getDashboardData = async (
       },
     };
 
-    // Real Recent Invoices: pure real data only, zero dummy entries
+    // Real Recent Invoices
     const recentInvoices: DashboardInvoice[] = invoices.slice(0, 5).map((inv, idx) => {
       let statusNormalized: "Paid" | "Partial" | "Unpaid" | "Overdue" | "Draft" = "Paid";
       const st = String(inv.status || "").toLowerCase();
@@ -335,7 +399,7 @@ export const getDashboardData = async (
         date: formatShortDate(inv.invoiceDate || inv.createdAt),
         status: statusNormalized,
         amount: Number(inv.total || 0),
-        currency: inv.currency || "PKR",
+        currency: inv.currency || orgCurrency,
       };
     });
 
@@ -343,21 +407,21 @@ export const getDashboardData = async (
     const monthlySummary: MonthlySummaryMetric[] = [
       {
         label: "Income",
-        value: `Rs ${Math.round(thisMonthIncome).toLocaleString()}`,
+        value: `${orgSymbol} ${Math.round(thisMonthIncome).toLocaleString()}`,
         changePercent: monthIncomeTrend.percent,
         isPositive: monthIncomeTrend.isIncrease,
         type: "income",
       },
       {
         label: "Expenses",
-        value: "Rs 0",
+        value: `${orgSymbol} 0`,
         changePercent: 0,
         isPositive: true,
         type: "expenses",
       },
       {
         label: "Net Profit",
-        value: `Rs ${Math.round(thisMonthIncome).toLocaleString()}`,
+        value: `${orgSymbol} ${Math.round(thisMonthIncome).toLocaleString()}`,
         changePercent: monthIncomeTrend.percent,
         isPositive: monthIncomeTrend.isIncrease,
         type: "netProfit",
@@ -380,59 +444,7 @@ export const getDashboardData = async (
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    return {
-      kpis: {
-        totalInvoices: {
-          label: "Total Invoices",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-        totalPayments: {
-          label: "Total Payments",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-        pendingInvoices: {
-          label: "Pending Invoices",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: false,
-          periodLabel: "vs last period",
-        },
-        totalExpenses: {
-          label: "Total Expenses",
-          amount: 0,
-          currency: "Rs",
-          changePercent: 0,
-          isIncrease: true,
-          periodLabel: "vs last period",
-        },
-      },
-      revenueOverview: [],
-      salesOverview: {
-        totalSales: 0,
-        currency: "Rs",
-        segments: {
-          paid: { label: "Paid", amount: 0, percentage: 0, color: "#2563EB" },
-          partial: { label: "Partial", amount: 0, percentage: 0, color: "#06B6D4" },
-          unpaid: { label: "Unpaid", amount: 0, percentage: 0, color: "#F59E0B" },
-        },
-      },
-      recentInvoices: [],
-      monthlySummary: [
-        { label: "Income", value: "Rs 0", changePercent: 0, isPositive: true, type: "income" },
-        { label: "Expenses", value: "Rs 0", changePercent: 0, isPositive: true, type: "expenses" },
-        { label: "Net Profit", value: "Rs 0", changePercent: 0, isPositive: true, type: "netProfit" },
-        { label: "Invoices Paid", value: "0", changePercent: 0, isPositive: true, type: "invoicesPaid" },
-      ],
-    };
+    return buildEmptyDashboardData(orgSymbol);
   }
 };
 

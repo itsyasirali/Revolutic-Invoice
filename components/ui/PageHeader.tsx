@@ -24,26 +24,16 @@ export interface PageHeaderProps {
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
-  showBackButton = false,
-  onBack,
   actions,
   className = "",
   dropdown,
   actionBar,
 }) => {
-  const router = useRouter();
 
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      router.back();
-    }
-  };
 
   return (
     <div className={`px-2 sm:px-4 md:px-6 relative ${className}`}>
-      <div className="py-1.5 mx-auto">
+      <div className="">
         <div
           className={`flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-150 ${
             actionBar
@@ -52,16 +42,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           }`}
         >
           <div className="flex items-center gap-3.5">
-            {showBackButton && (
-              <button
-                type="button"
-                onClick={handleBack}
-                className="p-1.5 hover:bg-slate-100 rounded-md transition-colors text-slate-500 hover:text-slate-900 cursor-pointer"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-            )}
             <div className="flex flex-wrap items-center gap-3.5">
               {dropdown ? (
                 <div className="relative">

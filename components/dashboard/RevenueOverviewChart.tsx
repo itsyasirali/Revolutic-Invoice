@@ -14,6 +14,7 @@ import type { RevenuePoint } from "@/types/dashboard";
 
 interface RevenueOverviewChartProps {
   data: RevenuePoint[];
+  currency?: string;
 }
 
 interface CustomTooltipProps {
@@ -24,9 +25,10 @@ interface CustomTooltipProps {
     color: string;
   }>;
   label?: string;
+  currency?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, label, currency = "Rs" }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-xl border border-slate-100 text-xs min-w-[130px] animate-reveal">
@@ -46,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
               <span className="text-slate-500">{entry.name}</span>
             </div>
             <span className="font-bold text-slate-800">
-              Rs {entry.value.toLocaleString()}
+              {currency} {entry.value.toLocaleString()}
             </span>
           </div>
         ))}
@@ -56,7 +58,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   return null;
 };
 
-const RevenueOverviewChart = ({ data }: RevenueOverviewChartProps) => {
+const RevenueOverviewChart = ({ data, currency = "Rs" }: RevenueOverviewChartProps) => {
   return (
     <div className="bg-white rounded-md p-5 border border-slate-200/80 shadow-[0_2px_12px_rgb(0,0,0,0.03)] flex flex-col justify-between h-full">
       {/* Chart Header */}
@@ -116,9 +118,9 @@ const RevenueOverviewChart = ({ data }: RevenueOverviewChartProps) => {
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#94A3B8", fontSize: 11 }}
-              tickFormatter={(v) => `Rs ${v.toLocaleString()}`}
+              tickFormatter={(v) => `${currency} ${v.toLocaleString()}`}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip currency={currency} />} />
             <Area
               name="Income"
               type="monotone"

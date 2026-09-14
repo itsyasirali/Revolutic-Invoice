@@ -2019,3 +2019,16 @@ export const getCurrencyByCountry = (countryName: string): string => {
   const match = getCountryByName(countryName);
   return match ? match.currency : "PKR";
 };
+
+export const getCurrencySymbol = (currencyCode?: string): string => {
+  if (!currencyCode) return "₨";
+  const code = currencyCode.trim().toUpperCase();
+  const option = UNIQUE_CURRENCIES.find(
+    (c) => c.code.toUpperCase() === code || c.value.toUpperCase() === code,
+  );
+  if (option?.symbol) return option.symbol;
+  const match = countries.find((c) => c.currency.toUpperCase() === code);
+  return match?.currency_symbol || currencyCode;
+};
+
+export const getCurrencySymbolByCode = getCurrencySymbol;

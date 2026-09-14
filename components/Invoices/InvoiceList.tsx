@@ -126,7 +126,7 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
             onClick={handleNew}
             disabled={loading}
             variant="primary"
-            size="md"
+            size="sm"
           >
             New Invoice
           </Button>

@@ -31,8 +31,9 @@ const MiniBarChart = ({ color }: { color: string }) => {
 };
 
 const MetricCards = ({ kpis }: MetricCardsProps) => {
-  const formatAmount = (num: number) => {
-    return `Rs ${num.toLocaleString(undefined, {
+  const formatAmount = (num: number, currency?: string) => {
+    const symbol = currency || kpis.totalInvoices.currency || "Rs";
+    return `${symbol} ${num.toLocaleString(undefined, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     })}`;
@@ -41,7 +42,7 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
   const cards = [
     {
       label: kpis.totalInvoices.label,
-      value: formatAmount(kpis.totalInvoices.amount),
+      value: formatAmount(kpis.totalInvoices.amount, kpis.totalInvoices.currency),
       change: `${kpis.totalInvoices.changePercent}%`,
       isUp: kpis.totalInvoices.isIncrease,
       period: kpis.totalInvoices.periodLabel,
@@ -51,7 +52,7 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
     },
     {
       label: kpis.totalPayments.label,
-      value: formatAmount(kpis.totalPayments.amount),
+      value: formatAmount(kpis.totalPayments.amount, kpis.totalPayments.currency),
       change: `${kpis.totalPayments.changePercent}%`,
       isUp: kpis.totalPayments.isIncrease,
       period: kpis.totalPayments.periodLabel,
@@ -61,7 +62,7 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
     },
     {
       label: kpis.pendingInvoices.label,
-      value: formatAmount(kpis.pendingInvoices.amount),
+      value: formatAmount(kpis.pendingInvoices.amount, kpis.pendingInvoices.currency),
       change: `${kpis.pendingInvoices.changePercent}%`,
       isUp: kpis.pendingInvoices.isIncrease,
       period: kpis.pendingInvoices.periodLabel,
@@ -71,7 +72,7 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
     },
     {
       label: kpis.totalExpenses.label,
-      value: formatAmount(kpis.totalExpenses.amount),
+      value: formatAmount(kpis.totalExpenses.amount, kpis.totalExpenses.currency),
       change: `${kpis.totalExpenses.changePercent}%`,
       isUp: kpis.totalExpenses.isIncrease,
       period: kpis.totalExpenses.periodLabel,

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { FileText, ArrowRight, Plus } from "lucide-react";
 import type { DashboardInvoice } from "@/types/dashboard";
+import { getCurrencySymbol } from "@/data/countries/countries";
 
 interface RecentInvoicesTableProps {
   invoices: DashboardInvoice[];
@@ -113,7 +114,7 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
                     </span>
                   </td>
                   <td className="py-3 text-right font-bold text-slate-900">
-                    Rs {inv.amount.toLocaleString()}
+                    {getCurrencySymbol(inv.currency)} {inv.amount.toLocaleString()}
                   </td>
                 </tr>
               ))}

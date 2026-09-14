@@ -32,7 +32,10 @@ export const DashboardMain = async () => {
       {/* Middle Row: Revenue Area Chart (66%), Sales Donut (34%) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-8 min-h-85">
-          <RevenueOverviewChart data={dashboardData.revenueOverview} />
+          <RevenueOverviewChart
+            data={dashboardData.revenueOverview}
+            currency={dashboardData.kpis.totalInvoices.currency}
+          />
         </div>
         <div className="lg:col-span-4 min-h-85">
           <SalesOverviewDonut data={dashboardData.salesOverview} />
