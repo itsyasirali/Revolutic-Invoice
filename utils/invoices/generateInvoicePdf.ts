@@ -4,6 +4,7 @@ import fs from "fs";
 import { Template } from "@/entities/Template";
 import { Invoice } from "@/entities/Invoice";
 import { Customer } from "@/entities/Customer";
+import { Organization } from "@/entities/Organization";
 
 export interface InvoiceItemPdf {
   title?: string;
@@ -39,10 +40,11 @@ export interface ExtendedCustomer extends Partial<Customer> {
 
 interface ExtendedInvoice extends Omit<
   Invoice,
-  "customer" | "template" | "items" | "previousRemaining"
+  "customer" | "template" | "items" | "previousRemaining" | "organization"
 > {
   customer?: ExtendedCustomer;
   template?: Template;
+  organization?: Partial<Organization>;
   items?: InvoiceItemPdf[];
   currentReceivables?: number;
   customerDisplayName?: string;
@@ -137,39 +139,99 @@ export const generateInvoicePDF = (
       let logoBuffer: Buffer | undefined;
 
       const fetchLogo = async () => {
-        if (template?.logoUrl) {
-          if (template.logoUrl.startsWith("http")) {
+        // Determine candidate logo URL from template or organization
+        let candidateLogoUrl: string | undefined = undefined;
+        const shouldShowLogo =
+          template?.showLogo !== false &&
+          String(template?.showLogo) !== "false";
+
+        if (shouldShowLogo) {
+          candidateLogoUrl =
+            template?.logoUrl ||
+            (template as any)?.branding?.logoPreview ||
+            invoice.organization?.logoUrl ||
+            undefined;
+        }
+
+        if (shouldShowLogo && candidateLogoUrl && typeof candidateLogoUrl === "string") {
+          const trimmedLogo = candidateLogoUrl.trim();
+
+          if (trimmedLogo.startsWith("data:")) {
             try {
-              const response = await fetch(template.logoUrl);
+              const commaIndex = trimmedLogo.indexOf(",");
+              const base64Data =
+                commaIndex !== -1 ? trimmedLogo.slice(commaIndex + 1) : trimmedLogo;
+              logoBuffer = Buffer.from(base64Data, "base64");
+            } catch (err) {
+              console.error("Failed to parse base64 logo for PDF:", err);
+            }
+          } else if (
+            trimmedLogo.startsWith("http://") ||
+            trimmedLogo.startsWith("https://")
+          ) {
+            try {
+              // If Cloudinary URL, convert any format (.webp, .jpg, .jpeg, .avif, .svg, .gif, .bmp, .tiff) to .png directly
+              let fetchUrl = trimmedLogo;
+              if (fetchUrl.includes("cloudinary.com")) {
+                fetchUrl = fetchUrl.replace(
+                  /\.(webp|jpg|jpeg|avif|svg|gif|bmp|tiff)(\?.*)?$/i,
+                  ".png$2",
+                );
+              }
+
+              const response = await fetch(fetchUrl);
               if (response.ok) {
                 const arrayBuffer = await response.arrayBuffer();
                 logoBuffer = Buffer.from(arrayBuffer);
               }
             } catch (error) {
-              console.error("Failed to fetch remote logo:", error);
+              console.error("Failed to fetch remote logo for PDF:", error);
             }
           } else {
             try {
-              const relativePath = template.logoUrl.startsWith("/")
-                ? template.logoUrl.slice(1)
-                : template.logoUrl;
-              const localPath = path.join(
-                /*turbopackIgnore: true*/ process.cwd(),
-                relativePath,
-              );
-              if (fs.existsSync(localPath)) {
-                logoBuffer = fs.readFileSync(localPath);
+              const cleanPath = trimmedLogo.replace(/^\/+/, "");
+              const candidatePaths = [
+                path.join(process.cwd(), "public", cleanPath),
+                path.join(process.cwd(), cleanPath),
+                path.resolve(cleanPath),
+              ];
+              for (const p of candidatePaths) {
+                if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+                  logoBuffer = fs.readFileSync(p);
+                  break;
+                }
               }
             } catch (e) {
-              console.error("Error reading local logo:", e);
+              console.error("Error reading local logo for PDF:", e);
             }
           }
         }
 
-        if (logoBuffer) {
+        if (shouldShowLogo && logoBuffer && logoBuffer.length > 0) {
           try {
-            doc.image(logoBuffer, 35, 30, {
-              fit: [150, 60],
+            // PDFKit only supports PNG and JPEG. Convert buffer (e.g. WebP) to PNG using sharp:
+            try {
+              const sharpModule = await import("sharp");
+              const sharp = sharpModule.default || sharpModule;
+              logoBuffer = await sharp(logoBuffer).png().toBuffer();
+            } catch (convErr) {
+              console.warn("Could not convert image buffer to PNG with sharp:", convErr);
+            }
+
+            const logoWidth = Number(template?.logoWidth) || 150;
+            const logoHeight = Number(template?.logoHeight) || 60;
+            const logoMarginTop = Number(template?.logoMarginTop) || 0;
+            const logoY = 30 + logoMarginTop;
+
+            let logoX = 35;
+            if (template?.logoPosition === "center") {
+              logoX = (doc.page.width - logoWidth) / 2;
+            } else if (template?.logoPosition === "right") {
+              logoX = doc.page.width - 35 - logoWidth;
+            }
+
+            doc.image(logoBuffer, logoX, logoY, {
+              fit: [logoWidth, logoHeight],
             });
             logoDrawn = true;
           } catch (error) {
@@ -177,7 +239,10 @@ export const generateInvoicePDF = (
           }
         }
 
-        const brandName = template?.brandName ?? "";
+        const brandName =
+          template?.brandName ||
+          invoice.organization?.name ||
+          "";
         const tagline = template?.tagline ?? "";
 
         if (!logoDrawn) {
@@ -373,7 +438,7 @@ export const generateInvoicePDF = (
         }
 
         const tableTop = Math.max(180, currentY + 25);
-        const tableHeight = 25;
+        const tableHeight = 22;
         const showTableHeader =
           template?.showTableHeader !== false &&
           String(template?.showTableHeader) !== "false";
@@ -538,8 +603,10 @@ export const generateInvoicePDF = (
             .font("Helvetica-Bold")
             .fillColor(tableHeaderTextColor);
 
+          const headerTextY = tableTop + (tableHeight - tableFontSize) / 2 - 1.5;
+
           finalColumns.forEach((col: ColumnConfig) => {
-            doc.text(col.label || "", (col.x || 35) + 5, tableTop + 7, {
+            doc.text(col.label || "", (col.x || 35) + 5, headerTextY, {
               width: (col.w || 50) - 10,
               align: col.align || "left",
               lineBreak: false,
@@ -552,6 +619,7 @@ export const generateInvoicePDF = (
 
         itemsToShow.forEach((item: InvoiceItemPdf, index: number) => {
           const itemRowHeight = 22;
+          const rowTextY = yPosition + (itemRowHeight - baseFontSize) / 2 - 1.5;
 
           if (template?.alternateRowColors !== false && index % 2 === 1) {
             doc
@@ -612,7 +680,7 @@ export const generateInvoicePDF = (
                 value = "";
             }
 
-            doc.text(value, col.x ? col.x + 5 : 40, yPosition + 6, {
+            doc.text(value, col.x ? col.x + 5 : 40, rowTextY, {
               width: col.w ? col.w - 10 : 40,
               align: col.align || "left",
               ellipsis: true,
@@ -716,8 +784,9 @@ export const generateInvoicePDF = (
           );
         yPosition += 22;
 
+        const balanceBoxHeight = 26;
         doc
-          .rect(360, yPosition, 200, 30)
+          .rect(360, yPosition, 200, balanceBoxHeight)
           .fillAndStroke(accentColor, accentColor);
         doc
           .fontSize(labelFontSize)
@@ -726,7 +795,7 @@ export const generateInvoicePDF = (
           .text(
             template?.balanceDueLabel ?? "",
             370,
-            yPosition + 9,
+            yPosition + (balanceBoxHeight - labelFontSize) / 2 - 1.5,
             {
               lineBreak: false,
             },
@@ -735,11 +804,16 @@ export const generateInvoicePDF = (
           .fontSize(labelFontSize + 2)
           .font("Helvetica-Bold")
           .fillColor(balanceDueTextColor)
-          .text(formatCurrency(totalBalanceDue), 480, yPosition + 8, {
-            width: 75,
-            align: "right",
-            lineBreak: false,
-          });
+          .text(
+            formatCurrency(totalBalanceDue),
+            480,
+            yPosition + (balanceBoxHeight - (labelFontSize + 2)) / 2 - 1.5,
+            {
+              width: 75,
+              align: "right",
+              lineBreak: false,
+            },
+          );
 
         yPosition += 40;
 
@@ -812,6 +886,7 @@ export const generateInvoicePDF = (
 
       fetchLogo().catch((err) => {
         console.error("Error in PDF generation process:", err);
+        reject(err);
       });
     } catch (error) {
       reject(error);

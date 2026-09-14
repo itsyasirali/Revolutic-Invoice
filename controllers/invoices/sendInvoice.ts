@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
+import { Template } from "@/entities/Template";
+import { Organization } from "@/entities/Organization";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { generateInvoicePDF } from "@/utils/invoices/generateInvoicePdf";
 import {
@@ -59,11 +61,13 @@ const sendInvoice = async (
 
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
+    const templateRepository = db.getRepository(Template);
+    const organizationRepository = db.getRepository(Organization);
 
     // Get invoice with populated relations
     const invoice = await invoiceRepository.findOne({
       where: { id: invoiceId, organizationId: orgId },
-      relations: ["customer", "template", "items", "items.item"],
+      relations: ["customer", "template", "items", "items.item", "organization"],
     });
 
     if (!invoice) {
@@ -71,6 +75,36 @@ const sendInvoice = async (
         { message: "Invoice not found or access denied" },
         { status: 404 },
       );
+    }
+
+    // Fallback: If invoice has no template, use client-provided template or org default template
+    if (!invoice.template) {
+      const clientTemplate = (invoiceData as any)?.template;
+      if (clientTemplate) {
+        invoice.template = clientTemplate as unknown as Template;
+      } else {
+        let defaultTemplate = await templateRepository.findOne({
+          where: { organizationId: orgId, isDefault: true },
+        });
+        if (!defaultTemplate) {
+          defaultTemplate = await templateRepository.findOne({
+            where: { organizationId: orgId },
+          });
+        }
+        if (defaultTemplate) {
+          invoice.template = defaultTemplate;
+        }
+      }
+    }
+
+    // Fallback: If organization relation was not populated, fetch organization directly
+    if (!invoice.organization && orgId) {
+      const org = await organizationRepository.findOne({
+        where: { id: orgId },
+      });
+      if (org) {
+        invoice.organization = org;
+      }
     }
 
     // Generate PDF if required

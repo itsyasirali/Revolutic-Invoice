@@ -793,25 +793,27 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 <tr
                   style={{
                     backgroundColor: tableHeaderBgColor,
+                    height: "32px",
                   }}
                 >
                   {enabledColumns.map((col) => (
                     <th
                       key={col.key}
-                      className="p-0"
-                      style={{ width: `${col.width}px` }}
+                      style={{
+                        width: `${col.width}px`,
+                        height: "32px",
+                        lineHeight: "normal",
+                        padding: "0 12px",
+                        textAlign: col.align,
+                        verticalAlign: "middle",
+                        color: tableHeaderTextColor,
+                        fontSize: `${data.tableFontSize || 10}pt`,
+                        fontWeight: "bold",
+                        backgroundColor: tableHeaderBgColor,
+                        boxSizing: "border-box",
+                      }}
                     >
-                      <div
-                        className="font-bold block"
-                        style={{
-                          padding: "7px 9px",
-                          textAlign: col.align,
-                          color: tableHeaderTextColor,
-                          fontSize: `${data.tableFontSize || 10}pt`,
-                        }}
-                      >
-                        {col.label}
-                      </div>
+                      {col.label}
                     </th>
                   ))}
                 </tr>
@@ -846,25 +848,25 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                         ? tableAltRowColor
                         : tableRowColor,
                     borderBottom: `1px solid ${tableBorderColor}`,
+                    height: "32px",
                   }}
                 >
                   {enabledColumns.map((col) => (
                     <td
                       key={col.key}
-                      className="p-0"
-                      style={{ width: `${col.width}px` }}
+                      style={{
+                        width: `${col.width}px`,
+                        height: "32px",
+                        lineHeight: "normal",
+                        padding: "0 12px",
+                        textAlign: col.align,
+                        verticalAlign: "middle",
+                        fontSize: `${data.tableFontSize || 10}pt`,
+                        color: textColor,
+                        boxSizing: "border-box",
+                      }}
                     >
-                      <div
-                        className="block"
-                        style={{
-                          padding: "10px 12px",
-                          fontSize: `${data.tableFontSize || 10}pt`,
-                          color: textColor,
-                          textAlign: col.align,
-                        }}
-                      >
-                        {getCellValue(item, col.key)}
-                      </div>
+                      {getCellValue(item, col.key)}
                     </td>
                   ))}
                 </tr>
@@ -1041,12 +1043,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               <div
                 id="balance-due-box"
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
                   backgroundColor: accentColor,
-                  padding: "10px 14px",
+                  minHeight: "36px",
+                  padding: "0 14px",
                   marginTop: "4px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
                 <span
@@ -1054,6 +1058,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     fontSize: `${data.labelFontSize || 11}pt`,
                     fontWeight: "bold",
                     color: balanceDueTextColor,
+                    lineHeight: "normal",
                   }}
                 >
                   {data.balanceDueLabel ?? ""}
@@ -1063,6 +1068,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     fontSize: `${data.labelFontSize || 13}pt`,
                     fontWeight: "bold",
                     color: balanceDueTextColor,
+                    lineHeight: "normal",
                   }}
                 >
                   {formatCurrency(activeInvoice.total)}

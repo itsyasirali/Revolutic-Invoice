@@ -201,9 +201,7 @@ ${companyName}`;
         bcc: emailData.bcc,
         message: emailData.message,
         attachPDF: emailData.attachPDF,
-        ...(targetId === "draft" || targetId === "preview"
-          ? { invoiceData: invoice }
-          : {}),
+        invoiceData: invoice,
       });
 
       alert("Invoice sent successfully");
