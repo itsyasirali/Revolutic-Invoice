@@ -18,7 +18,7 @@ export class Organization {
   @Column()
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   industry!: string | null;
 
   @Column({ nullable: true })
