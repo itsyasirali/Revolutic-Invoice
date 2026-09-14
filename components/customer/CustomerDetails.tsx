@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Home,
@@ -30,6 +30,12 @@ import useCustomerDetailsView, {
 } from "@/hooks/customers/useCustomerDetailsView";
 
 const CustomerDetails: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     customer,
     primaryContact,
@@ -215,7 +221,7 @@ const CustomerDetails: React.FC = () => {
   const phone = primaryContact?.phone || customer?.phone || "No phone provided";
   const currency = customer?.currency || "PKR";
 
-  if (loading && !customer) {
+  if (!mounted || (loading && !customer)) {
     return null;
   }
 

@@ -2,7 +2,13 @@
 
 import React from "react";
 import { Info } from "lucide-react";
-import { Input, Textarea, Button, AlertModal, PageHeader } from "@/components/ui";
+import {
+  Input,
+  Textarea,
+  Button,
+  AlertModal,
+  PageHeader,
+} from "@/components/ui";
 import useItemFormView from "@/hooks/items/useItemFormView";
 
 const ItemForm: React.FC = () => {
@@ -32,7 +38,7 @@ const ItemForm: React.FC = () => {
       />
 
       <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 py-8 max-w-3xl">
+        <div className="flex-1 py-8 px-4 max-w-3xl">
           <div className="flex flex-col gap-y-6">
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
@@ -49,7 +55,9 @@ const ItemForm: React.FC = () => {
                     onChange={() => setItemType("Goods")}
                     className="w-5 h-5 text-primary border-gray-300 focus:ring-primary/20"
                   />
-                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">Goods</span>
+                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">
+                    Goods
+                  </span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                   <input
@@ -60,7 +68,9 @@ const ItemForm: React.FC = () => {
                     onChange={() => setItemType("Service")}
                     className="w-5 h-5 text-primary border-gray-300 focus:ring-primary/20"
                   />
-                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">Service</span>
+                  <span className="text-base font-medium text-gray-700 group-hover:text-gray-900">
+                    Service
+                  </span>
                 </label>
               </div>
             </div>

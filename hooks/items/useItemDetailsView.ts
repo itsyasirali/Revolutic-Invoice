@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useDeleteItems from "./useItemsDelete";
 import type { Item } from "@/types/item";
 import { getNavState } from "@/lib/clientNavState";
+import axios from "@/lib/axios";
 
 export const useItemDetailsView = () => {
   const params = useParams<{ id?: string }>();
@@ -20,11 +21,44 @@ export const useItemDetailsView = () => {
     hideConfirmDialog,
   } = useDeleteItems();
 
-  // Same sessionStorage-backed nav state substitute for react-router's
-  // location.state used across the customers module — the item is looked
-  // up under the `item:${id}` key written by useItemActions.
-  const item = useMemo<Item | null>(() => {
-    return (id ? getNavState<Item>(`item:${id}`) : undefined) ?? null;
+  const [item, setItem] = useState<Item | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    const navItem = getNavState<Item>(`item:${id}`);
+    if (navItem) {
+      setItem(navItem);
+      setLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+    axios
+      .get("/items")
+      .then((res) => {
+        if (isCancelled) return;
+        const found = (res.data?.items || []).find(
+          (i: any) => String(i.id) === String(id),
+        );
+        if (found) {
+          setItem(found);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch item:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) setLoading(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [id]);
 
   const handleEdit = useCallback(() => {
@@ -48,7 +82,7 @@ export const useItemDetailsView = () => {
   return {
     item,
     id,
-    loading: deleteLoading,
+    loading: loading || deleteLoading,
     handleEdit,
     handleDelete,
     handleBackClick,

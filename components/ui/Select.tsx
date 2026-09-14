@@ -98,9 +98,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const filteredOptions = useMemo(() => {
       if (!searchTerm.trim()) return normalizedOptions;
       const lower = searchTerm.toLowerCase();
-      return normalizedOptions.filter((opt) =>
-        opt.label.toLowerCase().includes(lower),
-      );
+      return normalizedOptions.filter((opt) => {
+        const matchLabel = opt.label.toLowerCase().includes(lower);
+        const matchDesc =
+          typeof opt.description === "string" &&
+          opt.description.toLowerCase().includes(lower);
+        return matchLabel || matchDesc;
+      });
     }, [normalizedOptions, searchTerm]);
 
     // Handle outside clicks
@@ -290,6 +294,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 filteredOptions.map((option) => {
                   const isSelected =
                     String(option.value) === String(currentValue);
+                  const hasDetails = Boolean(
+                    option.avatar ||
+                      option.subtitle ||
+                      option.description ||
+                      option.icon,
+                  );
 
                   return (
                     <div
@@ -307,7 +317,49 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                             : "text-slate-700 hover:bg-slate-100 active:bg-slate-200"
                       }`}
                     >
-                      <span className="truncate">{option.label}</span>
+                      {hasDetails ? (
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {option.avatar ? (
+                            <div className="shrink-0">{option.avatar}</div>
+                          ) : option.icon ? (
+                            <div
+                              className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                                isSelected
+                                  ? "bg-white/20 text-white"
+                                  : "bg-primary/10 text-primary"
+                              }`}
+                            >
+                              <option.icon className="w-4 h-4" />
+                            </div>
+                          ) : null}
+
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className={`truncate text-sm ${
+                                isSelected
+                                  ? "text-white font-semibold"
+                                  : "text-slate-900 font-medium"
+                              }`}
+                            >
+                              {option.label}
+                            </div>
+                            {(option.subtitle || option.description) && (
+                              <div
+                                className={`text-xs truncate mt-0.5 flex items-center gap-1.5 ${
+                                  isSelected
+                                    ? "text-white/90"
+                                    : "text-slate-500"
+                                }`}
+                              >
+                                {option.subtitle || option.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="truncate">{option.label}</span>
+                      )}
+
                       {isSelected && (
                         <Check className="w-4 h-4 text-white shrink-0 ml-2" />
                       )}

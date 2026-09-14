@@ -1,20 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import {
-  Search,
-  Settings,
-  ChevronDown,
-  X,
-  Eye,
-  Info,
-} from "lucide-react";
+import { Settings, X, Eye, Info, Mail, Tag } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
-import { Button, PageHeader, Input, Select, LoadingSpinner } from "@/components/ui";
+import { Button, PageHeader, Input, Select } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import type { InvoiceCustomer } from "@/types/invoice";
+import type { SelectOption } from "@/types/common";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -23,21 +17,14 @@ const InvoiceForm = () => {
     isEditMode,
     items,
     invoiceData,
-    customerDropdownOpen,
-    customerSearchTerm,
-    itemDropdownOpen,
     isSubmitting,
     filteredCustomers,
-    customerDropdownRef,
-    itemDropdownRefs,
     customersLoading,
     itemsLoading,
     saving,
     updating,
+    customers,
     itemsData,
-    setCustomerDropdownOpen,
-    setCustomerSearchTerm,
-    setItemDropdownOpen,
     selectCustomer,
     selectItem,
     updateItem,
@@ -56,56 +43,169 @@ const InvoiceForm = () => {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const busy = isSubmitting || saving || updating;
 
+  const customerOptions: SelectOption[] = useMemo(() => {
+    const list =
+      customers && customers.length > 0 ? customers : filteredCustomers;
+    const opts: SelectOption[] = list.map((customer) => {
+      const name =
+        customer.displayName || customer.companyName || "Unnamed Customer";
+      const email = customer.contacts?.[0]?.email || "";
+      const initial = (name || "?").trim().charAt(0).toUpperCase();
+
+      return {
+        label: name,
+        value: String(customer.id),
+        description: email,
+        avatar: (
+          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 font-bold flex items-center justify-center text-sm shrink-0">
+            {initial}
+          </div>
+        ),
+        subtitle: email ? (
+          <span className="flex items-center gap-1.5">
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            <span>{email}</span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5 opacity-80">
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            <span>No email provided</span>
+          </span>
+        ),
+      };
+    });
+
+    if (
+      invoiceData.customerId &&
+      !opts.some((opt) => opt.value === String(invoiceData.customerId))
+    ) {
+      const name = invoiceData.customerName || "Selected Customer";
+      const email = invoiceData.customerEmail || "";
+      const initial = (name || "?").trim().charAt(0).toUpperCase();
+
+      opts.unshift({
+        label: name,
+        value: String(invoiceData.customerId),
+        description: email,
+        avatar: (
+          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 font-bold flex items-center justify-center text-sm shrink-0">
+            {initial}
+          </div>
+        ),
+        subtitle: email ? (
+          <span className="flex items-center gap-1.5">
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            <span>{email}</span>
+          </span>
+        ) : undefined,
+      });
+    }
+
+    return opts;
+  }, [
+    customers,
+    filteredCustomers,
+    invoiceData.customerId,
+    invoiceData.customerName,
+    invoiceData.customerEmail,
+  ]);
+
+  const getItemOptions = (
+    currentItemId?: string,
+    currentItemRowId?: number,
+  ): SelectOption[] => {
+    const opts: SelectOption[] = itemsData
+      .filter(
+        (invItem) =>
+          String(invItem.id) === String(currentItemId) ||
+          !items.some(
+            (i) => i.itemId === String(invItem.id) && i.id !== currentItemRowId,
+          ),
+      )
+      .map((invItem) => {
+        const name = invItem.name || "Unnamed Item";
+        const initial = (name || "?").trim().charAt(0).toUpperCase();
+        const priceStr =
+          invItem.sellingPrice !== undefined
+            ? `${invItem.sellingPrice} ${invoiceData.currency}`
+            : "";
+        const unitStr = invItem.unit ? ` | ${invItem.unit}` : "";
+
+        return {
+          label: name,
+          value: String(invItem.id),
+          description: `${priceStr}${unitStr}`,
+          avatar: (
+            <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 font-bold flex items-center justify-center text-sm shrink-0">
+              {initial}
+            </div>
+          ),
+          subtitle: priceStr ? (
+            <span className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                {priceStr}
+                {unitStr}
+              </span>
+            </span>
+          ) : undefined,
+        };
+      });
+
+    if (
+      currentItemId &&
+      !opts.some((opt) => opt.value === String(currentItemId))
+    ) {
+      const matched = itemsData.find(
+        (it) => String(it.id) === String(currentItemId),
+      );
+      const name = matched ? matched.name : "Selected Item";
+      const initial = (name || "?").trim().charAt(0).toUpperCase();
+
+      opts.unshift({
+        label: name,
+        value: String(currentItemId),
+        avatar: (
+          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-white font-bold flex items-center justify-center text-sm shrink-0">
+            {initial}
+          </div>
+        ),
+        description: "",
+        subtitle: undefined,
+      });
+    }
+
+    return opts;
+  };
+
   const isFormValid =
     invoiceData.customerId &&
     items.length > 0 &&
     items.some((item) => item.name && item.name.trim() !== "");
 
   return (
-    <div className="min-h-screen bg-[#f3f7fd] flex flex-col relative overflow-hidden font-sans">
-      {/* Atmosphere Background: Soft Glowing Aura + Crisp Corner Circles + Ambient Vertical Lines */}
-      <div className="w-[500px] h-[500px] rounded-full bg-primary/20 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
-      <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-primary absolute -top-20 -right-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
-      <div className="w-72 h-72 rounded-full bg-primary/20 absolute -top-24 -right-24 pointer-events-none" />
+    <div className="flex flex-col min-h-screen bg-white">
+      <PageHeader
+        title={isEditMode ? "Edit Invoice" : "New Invoice"}
+        onBack={handleCancel}
+      />
 
-      <div className="w-[420px] h-[420px] rounded-full bg-primary/15 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
-      <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-primary absolute -bottom-20 -left-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
-      <div className="w-64 h-64 rounded-full bg-primary/20 absolute -bottom-24 -left-24 pointer-events-none" />
+      <InvoiceTemplateSelector
+        isOpen={showTemplateSelector}
+        onClose={() => setShowTemplateSelector(false)}
+        onSelect={(template) => handleInvoiceChange("templateId", template.id)}
+        currentTemplateId={invoiceData.templateId}
+      />
 
-      {/* Subtle Vertical Atmospheric Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-around opacity-40">
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-        <div className="w-[1px] h-full bg-slate-200" />
-      </div>
-
-      <div className="relative z-10 flex flex-col flex-1">
-        <PageHeader
-          title={isEditMode ? "Edit Invoice" : "New Invoice"}
-          onBack={handleCancel}
-          className="bg-transparent"
-        />
-
-        <InvoiceTemplateSelector
-          isOpen={showTemplateSelector}
-          onClose={() => setShowTemplateSelector(false)}
-          onSelect={(template) => handleInvoiceChange("templateId", template.id)}
-          currentTemplateId={invoiceData.templateId}
-        />
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSaveAndSend();
-          }}
-          className="flex-1 flex flex-col px-3 sm:px-6 lg:px-8 pb-10"
-        >
-          <div className="flex-1 py-4 sm:py-6 w-full max-w-6xl mx-auto">
-            {/* Card Container */}
-            <div className="bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 p-6 sm:p-9">
-              <div className="flex flex-col gap-y-8">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSaveAndSend();
+        }}
+        className="flex-1 flex flex-col"
+      >
+        <div className="flex-1 py-8 px-4">
+          <div className="flex flex-col gap-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
@@ -115,106 +215,37 @@ const InvoiceForm = () => {
 
                 <div>
                   <div className="grid grid-cols-1 gap-4">
-                    <div className="relative" ref={customerDropdownRef}>
-                      <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">
-                        Customer
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="Select or add a customer"
-                          value={
-                            isEditMode
-                              ? customerSearchTerm || invoiceData.customerName
-                              : customerSearchTerm
-                          }
-                          onChange={(e) => {
-                            if (!isEditMode) {
-                              setCustomerSearchTerm(e.target.value);
-                              setCustomerDropdownOpen(true);
-                            }
-                          }}
-                          onFocus={() => {
-                            if (!isEditMode) setCustomerDropdownOpen(true);
-                          }}
-                          disabled={isEditMode}
-                          className={`w-full pl-3 pr-3 py-3 text-sm border border-gray-200 rounded-md transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                            isEditMode
-                              ? "bg-gray-50 text-gray-500 cursor-not-allowed"
-                              : "bg-white"
-                          }`}
-                        />
-                        {!isEditMode && (
-                          <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                        )}
-                      </div>
-
-                      {customerDropdownOpen && !isEditMode && (
-                        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="sticky top-0 bg-gray-50/80 backdrop-blur-md border-b border-gray-100 p-3">
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                              <input
-                                type="text"
-                                placeholder="Search customers..."
-                                value={customerSearchTerm}
-                                onChange={(e) =>
-                                  setCustomerSearchTerm(e.target.value)
-                                }
-                                className="w-full pl-9 pr-4 py-2 text-sm bg-white border-gray-200 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                                autoFocus
-                              />
-                            </div>
-                          </div>
-
-                          {customersLoading ? (
-                            <div className="p-8 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
-                              <LoadingSpinner size="sm" color="primary" />
-                              <span>Loading customers...</span>
-                            </div>
-                          ) : filteredCustomers.length === 0 ? (
-                            <div className="p-8 text-center text-sm text-gray-500">
-                              No customers found
-                            </div>
-                          ) : (
-                            <div className="py-1">
-                              {filteredCustomers.map((customer) => (
-                                <button
-                                  key={customer.id}
-                                  type="button"
-                                  onClick={() =>
-                                    selectCustomer(customer as InvoiceCustomer)
-                                  }
-                                  className="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors border-b border-gray-50 last:border-b-0 group"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-                                      {(
-                                        customer.displayName ||
-                                        customer.companyName ||
-                                        "?"
-                                      )
-                                        .charAt(0)
-                                        .toUpperCase()}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-semibold text-sm text-gray-900 truncate">
-                                        {customer.displayName ||
-                                          customer.companyName}
-                                      </div>
-                                      <div className="text-xs text-gray-500 truncate">
-                                        {customer.contacts?.[0]?.email ||
-                                          "No email provided"}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <Select
+                      label="Customer"
+                      value={
+                        invoiceData.customerId
+                          ? String(invoiceData.customerId)
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const list =
+                          customers && customers.length > 0
+                            ? customers
+                            : filteredCustomers;
+                        const found = list.find(
+                          (c) => String(c.id) === selectedId,
+                        );
+                        if (found) {
+                          selectCustomer(found as InvoiceCustomer);
+                        }
+                      }}
+                      options={customerOptions}
+                      placeholder={
+                        customersLoading
+                          ? "Loading customers..."
+                          : "Select a customer"
+                      }
+                      disabled={isEditMode}
+                      searchable
+                      searchPlaceholder="Search customers..."
+                      fullWidth
+                    />
 
                     <Input
                       label="Email"
@@ -274,9 +305,18 @@ const InvoiceForm = () => {
                       onChange={(e) => handleTermsChange(e.target.value)}
                       fullWidth
                       options={[
-                        { label: "Due end of next month", value: "Due end of next month" },
-                        { label: "Due end of the month", value: "Due end of the month" },
-                        { label: "Due on Receipt", value: "Due on Receipt" },
+                        {
+                          label: "Due end of next month",
+                          value: "Due end of next month",
+                        },
+                        {
+                          label: "Due end of the month",
+                          value: "Due end of the month",
+                        },
+                        {
+                          label: "Due on Receipt",
+                          value: "Due on Receipt",
+                        },
                         { label: "Net 15", value: "Net 15" },
                         { label: "Net 30", value: "Net 30" },
                         { label: "Net 45", value: "Net 45" },
@@ -324,7 +364,6 @@ const InvoiceForm = () => {
                     <div className="col-span-2 text-center">Qty</div>
                     <div className="col-span-2 text-right">Rate</div>
                     <div className="col-span-2 text-right">Amount</div>
-                    <div className="col-span-1 text-right">Action</div>
                   </div>
                 </div>
 
@@ -332,82 +371,45 @@ const InvoiceForm = () => {
                   {items.map((item) => (
                     <div key={item.id} className="p-6">
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                        <div
-                          className="md:col-span-5 relative"
-                          ref={(el) => {
-                            itemDropdownRefs.current[item.id] = el;
-                          }}
-                        >
-                          <input
-                            type="text"
-                            placeholder="Search or type item..."
-                            value={item.name}
-                            readOnly
-                            onClick={() =>
-                              setItemDropdownOpen((prev) => ({
-                                ...prev,
-                                [item.id]: !prev[item.id],
-                              }))
-                            }
-                            className="w-full px-4 py-2.5 text-sm border border-gray-400 rounded-md cursor-pointer bg-white font-medium"
-                          />
-                          {itemDropdownOpen[item.id] && (
-                            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                              {itemsLoading ? (
-                                <div className="p-6 flex flex-col items-center justify-center gap-2 text-xs text-slate-500">
-                                  <LoadingSpinner size="sm" color="primary" />
-                                  <span>Loading items...</span>
-                                </div>
-                              ) : itemsData.length === 0 ? (
-                                <div className="p-4 text-center text-sm text-gray-500">
-                                  No items available
-                                </div>
-                              ) : (
-                                <div className="py-1">
-                                  {itemsData
-                                    .filter(
-                                      (invItem) =>
-                                        !items.some(
-                                          (i) =>
-                                            i.itemId === String(invItem.id) &&
-                                            i.id !== item.id,
-                                        ),
+                        <div className="md:col-span-5">
+                          <Select
+                            showLabel={false}
+                            value={
+                              item.itemId
+                                ? String(item.itemId)
+                                : itemsData.find((it) => it.name === item.name)
+                                      ?.id
+                                  ? String(
+                                      itemsData.find(
+                                        (it) => it.name === item.name,
+                                      )?.id,
                                     )
-                                    .map((invItem) => (
-                                      <button
-                                        key={invItem.id}
-                                        type="button"
-                                        onClick={() =>
-                                          selectItem(
-                                            item.id,
-                                            invItem as unknown as Parameters<
-                                              typeof selectItem
-                                            >[1],
-                                          )
-                                        }
-                                        className="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors border-b border-gray-50 last:border-b-0"
-                                      >
-                                        <div className="font-semibold text-sm text-gray-900">
-                                          {invItem.name}
-                                        </div>
-                                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                                          <span className="font-medium text-primary">
-                                            {invItem.sellingPrice}{" "}
-                                            {invoiceData.currency}
-                                          </span>
-                                          {invItem.unit && (
-                                            <span className="text-gray-300">
-                                              |
-                                            </span>
-                                          )}
-                                          <span>{invItem.unit}</span>
-                                        </div>
-                                      </button>
-                                    ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                  : ""
+                            }
+                            onChange={(e) => {
+                              const selectedId = e.target.value;
+                              const found = itemsData.find(
+                                (it) => String(it.id) === selectedId,
+                              );
+                              if (found) {
+                                selectItem(
+                                  item.id,
+                                  found as unknown as Parameters<
+                                    typeof selectItem
+                                  >[1],
+                                );
+                              }
+                            }}
+                            options={getItemOptions(item.itemId, item.id)}
+                            placeholder={
+                              itemsLoading
+                                ? "Loading items..."
+                                : "Select an item"
+                            }
+                            searchable
+                            searchPlaceholder="Search items..."
+                            fullWidth
+                          />
                         </div>
 
                         <div className="md:col-span-2">
@@ -428,7 +430,7 @@ const InvoiceForm = () => {
                                 );
                               }
                             }}
-                            className="w-full px-3 py-2.5 text-sm border border-gray-400 rounded-md text-center bg-gray-50"
+                            className="w-full h-11 px-3 py-2 text-sm border border-slate-300 rounded-md text-center bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                           />
                         </div>
 
@@ -441,7 +443,7 @@ const InvoiceForm = () => {
                             inputMode="decimal"
                             value={item.rate}
                             readOnly
-                            className="w-full px-3 py-2.5 text-sm border border-gray-400 rounded-md text-right bg-gray-50"
+                            className="w-full h-11 px-3 py-2 text-sm border border-slate-200 rounded-md text-right bg-slate-50 text-slate-700"
                           />
                         </div>
 
@@ -449,20 +451,22 @@ const InvoiceForm = () => {
                           <div className="text-xs text-gray-400 md:hidden uppercase font-bold mb-1">
                             Total
                           </div>
-                          <div className="w-full px-3 py-2.5 text-sm border border-gray-400 rounded-md text-right bg-gray-50 font-bold text-gray-900">
+                          <div className="w-full h-11 px-3 py-2 text-sm border border-slate-200 rounded-md text-right bg-slate-50 font-bold text-gray-900 flex items-center justify-end">
                             {item.amount.toFixed(2)}
                           </div>
                         </div>
 
-                        <div className="md:col-span-1 flex items-center justify-end">
-                          <button
-                            type="button"
-                            onClick={() => deleteItem(item.id)}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
-                            title="Remove line"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
+                        <div className="md:col-span-1 flex items-center justify-end h-11">
+                          {items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => deleteItem(item.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+                              title="Remove line"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -572,46 +576,45 @@ const InvoiceForm = () => {
                   </span>
                 </div>
               </div>
-                </div>
-              </div>
             </div>
           </div>
+        </div>
 
-          <div className="sticky bottom-0 bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-2xl py-4 px-6 flex items-center justify-start gap-3 z-40 max-w-6xl mx-auto w-full shadow-lg shadow-slate-900/5">
-            <Button
-              type="button"
-              onClick={handleCancel}
-              variant="ghost"
-              size="md"
-              disabled={busy}
-            >
-              Cancel
-            </Button>
+        {/* Sticky Action Footer */}
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-gray-100 py-4 px-4 flex justify-start gap-3 z-10">
+          <Button
+            type="button"
+            onClick={handleCancel}
+            variant="ghost"
+            size="md"
+            disabled={busy}
+          >
+            Cancel
+          </Button>
 
-            <Button
-              type="button"
-              onClick={handleSaveDraft}
-              variant="secondary"
-              size="md"
-              disabled={busy || !isFormValid}
-              loading={saving || updating}
-            >
-              {saving || updating ? "Saving..." : "Save as Draft"}
-            </Button>
+          <Button
+            type="button"
+            onClick={handleSaveDraft}
+            variant="secondary"
+            size="md"
+            disabled={busy || !isFormValid}
+            loading={saving || updating}
+          >
+            {saving || updating ? "Saving..." : "Save as Draft"}
+          </Button>
 
-            <Button
-              type="button"
-              onClick={handlePreview}
-              variant="primary"
-              size="md"
-              disabled={busy || !isFormValid}
-              icon={<Eye className="w-4 h-4" />}
-            >
-              Preview
-            </Button>
-          </div>
-        </form>
-      </div>
+          <Button
+            type="button"
+            onClick={handlePreview}
+            variant="primary"
+            size="md"
+            disabled={busy || !isFormValid}
+            icon={<Eye className="w-4 h-4" />}
+          >
+            Preview
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };

@@ -68,6 +68,8 @@ export interface SelectOption {
     disabled?: boolean;
     description?: string;
     icon?: LucideIcon;
+    subtitle?: React.ReactNode;
+    avatar?: React.ReactNode;
 }
 
 export type SelectVariant = 'default' | 'filled' | 'outline';
