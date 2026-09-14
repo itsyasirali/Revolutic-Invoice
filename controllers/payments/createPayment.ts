@@ -4,13 +4,14 @@ import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Invoice } from "@/entities/Invoice";
 import { Customer } from "@/entities/Customer";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const createPayment = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const parsedUserId = userId;
@@ -24,14 +25,16 @@ const createPayment = async (req: NextRequest) => {
 
     // Calculate payment number
     const lastPayment = await paymentRepo.findOne({
-      where: { userId: parsedUserId },
+      where: orgId ? { organizationId: orgId } : { userId: parsedUserId },
       order: { paymentNumber: "DESC" },
     });
     const nextPaymentNumber = (lastPayment?.paymentNumber || 0) + 1;
 
     const customerId = Number(body.customerId);
     const customer = await customerRepo.findOne({
-      where: { id: customerId, userId: parsedUserId },
+      where: orgId
+        ? { id: customerId, organizationId: orgId }
+        : { id: customerId, userId: parsedUserId },
     });
 
     if (!customer) {
@@ -46,6 +49,7 @@ const createPayment = async (req: NextRequest) => {
       paymentNumber: nextPaymentNumber,
       referenceNo: body.referenceNo || null,
       userId: parsedUserId,
+      organizationId: orgId || null,
       customerId,
       customerDisplayName:
         body.customerDisplayName || customer.displayName || customer.companyName,
@@ -77,7 +81,9 @@ const createPayment = async (req: NextRequest) => {
 
           // Update invoice state
           const targetInvoice = await invoiceRepo.findOne({
-            where: { id: invId, userId: parsedUserId },
+            where: orgId
+              ? { id: invId, organizationId: orgId }
+              : { id: invId, userId: parsedUserId },
           });
 
           if (targetInvoice) {

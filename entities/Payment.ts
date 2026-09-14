@@ -13,6 +13,7 @@ import type { User } from "./User";
 import type { Customer } from "./Customer";
 import type { Template } from "./Template";
 import type { PaymentAppliedInvoice } from "./PaymentAppliedInvoice";
+import type { Organization } from "./Organization";
 
 @Entity("payments")
 export class Payment {
@@ -34,6 +35,13 @@ export class Payment {
 
   @Column()
   userId!: number;
+
+  @ManyToOne("organizations", { nullable: true })
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column({ nullable: true })
+  organizationId!: number;
 
   @ManyToOne("customers")
   @JoinColumn({ name: "customerId" })

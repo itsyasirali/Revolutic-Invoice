@@ -9,6 +9,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import type { User } from "./User";
+import type { Organization } from "./Organization";
 
 @Entity("customers")
 export class Customer {
@@ -53,6 +54,13 @@ export class Customer {
 
   @Column()
   userId!: number;
+
+  @ManyToOne("organizations", { nullable: true })
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column({ nullable: true })
+  organizationId!: number;
 
   @CreateDateColumn()
   createdAt!: Date;

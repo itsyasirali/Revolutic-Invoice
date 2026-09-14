@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getInvoice = async (
   req: NextRequest,
@@ -11,6 +11,7 @@ const getInvoice = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -28,7 +29,9 @@ const getInvoice = async (
     const invoiceRepository = db.getRepository(Invoice);
 
     const invoice = await invoiceRepository.findOne({
-      where: { id: invoiceId, userId: parsedUserId },
+      where: orgId
+        ? { id: invoiceId, organizationId: orgId }
+        : { id: invoiceId, userId: parsedUserId },
       relations: ["customer", "template", "items", "items.item"],
     });
 

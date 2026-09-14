@@ -9,6 +9,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import type { User } from "./User";
+import type { Organization } from "./Organization";
 
 @Entity("templates")
 export class Template {
@@ -188,6 +189,13 @@ export class Template {
 
   @Column()
   userId!: number; // For performance/easier access
+
+  @ManyToOne("organizations", { nullable: true })
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column({ nullable: true })
+  organizationId!: number;
 
   @CreateDateColumn()
   createdAt!: Date;

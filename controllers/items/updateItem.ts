@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { UpdateItemPayload } from "@/types/item";
 
 const updateItem = async (
@@ -12,6 +12,7 @@ const updateItem = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -21,11 +22,10 @@ const updateItem = async (
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
-    // Unlike customers' update (which never filters by userId), the
-    // original ItemsUpdateService scopes the lookup by userId too — an
-    // ownership check preserved here.
     const existingItem = await itemsRepository.findOne({
-      where: { id: parsedId, userId: parsedUserId },
+      where: orgId
+        ? { id: parsedId, organizationId: orgId }
+        : { id: parsedId, userId: parsedUserId },
     });
     if (!existingItem) {
       return NextResponse.json(

@@ -10,6 +10,14 @@ export interface User {
   lastName?: string | null;
   email: string;
   companyName?: string | null;
+  organizationId?: number | null;
+  organization?: {
+    id: number;
+    name: string;
+    currency?: string;
+    industry?: string;
+    fiscalYear?: string;
+  } | null;
 }
 
 interface AuthContextType {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const setDefaultTemplate = async (
   req: NextRequest,
@@ -14,7 +14,7 @@ const setDefaultTemplate = async (
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -26,10 +26,11 @@ const setDefaultTemplate = async (
 
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
+    const scopeWhere = organizationId ? { organizationId } : { userId };
 
-    await templateRepo.update({ userId: parsedUserId }, { isDefault: false });
+    await templateRepo.update(scopeWhere, { isDefault: false });
     await templateRepo.update(
-      { id: templateId, userId: parsedUserId },
+      { id: templateId, ...scopeWhere },
       { isDefault: true }
     );
 

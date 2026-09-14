@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getTemplate = async (
   req: NextRequest,
@@ -14,7 +14,7 @@ const getTemplate = async (
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -26,10 +26,11 @@ const getTemplate = async (
 
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
+    const where = organizationId
+      ? { id: templateId, organizationId }
+      : { id: templateId, userId };
 
-    const template = await templateRepo.findOne({
-      where: { id: templateId, userId: parsedUserId },
-    });
+    const template = await templateRepo.findOne({ where });
 
     if (!template) {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
@@ -19,6 +19,7 @@ const updateCustomer = async (
   if (!userId) {
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const parsedId = parseInt(id, 10);
@@ -27,7 +28,9 @@ const updateCustomer = async (
     const customersRepository = db.getRepository(Customer);
 
     const existingCustomer = await customersRepository.findOne({
-      where: { id: parsedId, userId },
+      where: orgId
+        ? { id: parsedId, organizationId: orgId }
+        : { id: parsedId, userId },
     });
     if (!existingCustomer) {
       return NextResponse.json(

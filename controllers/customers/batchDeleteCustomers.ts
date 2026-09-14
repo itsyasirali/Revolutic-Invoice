@@ -4,7 +4,7 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 import { BatchDeleteCustomerPayload } from "@/types/customer";
 
@@ -13,6 +13,7 @@ const batchDeleteCustomers = async (req: NextRequest) => {
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const body: BatchDeleteCustomerPayload = await req.json();
@@ -32,7 +33,9 @@ const batchDeleteCustomers = async (req: NextRequest) => {
     const customersRepository = db.getRepository(Customer);
 
     const docs = await customersRepository.find({
-      where: { id: In(parsedCustomerIds), userId: parsedUserId },
+      where: orgId
+        ? { id: In(parsedCustomerIds), organizationId: orgId }
+        : { id: In(parsedCustomerIds), userId: parsedUserId },
       select: ["documents", "id"],
     });
 
@@ -59,12 +62,16 @@ const batchDeleteCustomers = async (req: NextRequest) => {
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
+    const checkFilter = orgId
+      ? { customerId: In(idsToDelete), organizationId: orgId }
+      : { customerId: In(idsToDelete), userId: parsedUserId };
+
     const [invoiceCount, paymentCount] = await Promise.all([
       invoiceRepo.count({
-        where: { customerId: In(idsToDelete), userId: parsedUserId },
+        where: checkFilter,
       }),
       paymentRepo.count({
-        where: { customerId: In(idsToDelete), userId: parsedUserId },
+        where: checkFilter,
       }),
     ]);
 
@@ -86,10 +93,11 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    const result = await customersRepository.delete({
-      id: In(idsToDelete),
-      userId: parsedUserId,
-    });
+    const result = await customersRepository.delete(
+      orgId
+        ? { id: In(idsToDelete), organizationId: orgId }
+        : { id: In(idsToDelete), userId: parsedUserId }
+    );
 
     return NextResponse.json({
       message: "Customers deleted successfully",

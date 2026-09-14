@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { sanitizeTemplateFields } from "@/utils/templates/sanitizeTemplateFields";
 import { uploadFileToCloudinary } from "@/lib/cloudinary";
 
@@ -61,7 +61,7 @@ const createTemplate = async (req: NextRequest) => {
   }
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
     const rawFields = await parseFields(req);
     const fields = sanitizeTemplateFields(rawFields);
 
@@ -69,12 +69,14 @@ const createTemplate = async (req: NextRequest) => {
     const templateRepo = db.getRepository(Template);
 
     if (fields.isDefault) {
-      await templateRepo.update({ userId: parsedUserId }, { isDefault: false });
+      const resetWhere = organizationId ? { organizationId } : { userId };
+      await templateRepo.update(resetWhere, { isDefault: false });
     }
 
     const newTemplate = templateRepo.create({
       ...fields,
-      userId: parsedUserId,
+      userId,
+      organizationId: organizationId ?? undefined,
       templateName: (fields.templateName as string) || "Custom Template",
     } as unknown as Template);
 

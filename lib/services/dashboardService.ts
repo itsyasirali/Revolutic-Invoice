@@ -47,20 +47,27 @@ const formatShortDate = (dateVal: string | Date | undefined) => {
   });
 };
 
-export const getDashboardData = async (userId: number): Promise<DashboardData> => {
+export const getDashboardData = async (
+  userId: number,
+  orgId?: number | null
+): Promise<DashboardData> => {
   try {
     const db = await getDatabase();
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
+    const whereScope = orgId
+      ? { organizationId: orgId }
+      : { userId };
+
     const [invoices, payments] = await Promise.all([
       invoiceRepo.find({
-        where: { userId },
+        where: whereScope,
         relations: ["customer"],
         order: { createdAt: "DESC" },
       }),
       paymentRepo.find({
-        where: { userId },
+        where: whereScope,
         order: { createdAt: "DESC" },
       }).catch(() => []),
     ]);

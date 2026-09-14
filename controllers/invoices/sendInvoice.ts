@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { generateInvoicePDF } from "@/utils/invoices/generateInvoicePdf";
 import {
   createMailTransporter,
@@ -20,6 +20,7 @@ const sendInvoice = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -45,6 +46,7 @@ const sendInvoice = async (
       const newInvoice = await createInvoiceRecord(
         parsedUserId,
         invoiceData as CreateInvoicePayload,
+        orgId,
       );
       invoiceId = Number(newInvoice.id);
     }
@@ -54,7 +56,9 @@ const sendInvoice = async (
 
     // Get invoice with populated relations
     const invoice = await invoiceRepository.findOne({
-      where: { id: invoiceId, userId: parsedUserId },
+      where: orgId
+        ? { id: invoiceId, organizationId: orgId }
+        : { id: invoiceId, userId: parsedUserId },
       relations: ["customer", "template", "items", "items.item"],
     });
 

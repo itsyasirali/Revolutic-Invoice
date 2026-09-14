@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const updatePayment = async (
   req: NextRequest,
@@ -11,6 +11,7 @@ const updatePayment = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -30,7 +31,9 @@ const updatePayment = async (
     const paymentRepo = db.getRepository(Payment);
 
     const payment = await paymentRepo.findOne({
-      where: { id: paymentId, userId: parsedUserId },
+      where: orgId
+        ? { id: paymentId, organizationId: orgId }
+        : { id: paymentId, userId: parsedUserId },
     });
 
     if (!payment) {

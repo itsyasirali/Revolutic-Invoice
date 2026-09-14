@@ -44,21 +44,6 @@ const signup = async (req: NextRequest) => {
     });
     const savedUser = await usersRepository.save(newUser);
 
-    const defaultTemplate = templatesRepository.create({
-      userId: savedUser.id,
-      templateName: "Standard Template",
-      isDefault: true,
-      margins: {
-        top: 0.7,
-        bottom: 0.7,
-        left: 0.55,
-        right: 0.4,
-      },
-      fontSize: 8,
-      labelFontSize: 8,
-    });
-    await templatesRepository.save(defaultTemplate);
-
     const sessionPayload = {
       id: savedUser.id.toString(),
       name: savedUser.name || null,
@@ -66,6 +51,7 @@ const signup = async (req: NextRequest) => {
       companyName: savedUser.companyName || null,
       firstName: savedUser.firstName || null,
       lastName: savedUser.lastName || null,
+      organizationId: null,
     };
 
     const token = await signAuthToken(sessionPayload);
@@ -77,6 +63,7 @@ const signup = async (req: NextRequest) => {
           id: savedUser.id,
           name: savedUser.name,
           email: savedUser.email,
+          organizationId: null,
         },
         token,
       },

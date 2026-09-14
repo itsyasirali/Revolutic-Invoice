@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { BatchUpdateItemPayload } from "@/types/item";
 
 const batchUpdateItems = async (req: NextRequest) => {
@@ -10,6 +10,7 @@ const batchUpdateItems = async (req: NextRequest) => {
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const body: BatchUpdateItemPayload = await req.json();
@@ -34,10 +35,11 @@ const batchUpdateItems = async (req: NextRequest) => {
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
-    const result = await itemsRepository.update(
-      { id: In(parsedItemIds), userId: parsedUserId },
-      { status },
-    );
+    const updateFilter = orgId
+      ? { id: In(parsedItemIds), organizationId: orgId }
+      : { id: In(parsedItemIds), userId: parsedUserId };
+
+    const result = await itemsRepository.update(updateFilter, { status });
 
     return NextResponse.json({
       message: "Status updated",

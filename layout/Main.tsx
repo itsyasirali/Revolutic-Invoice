@@ -29,7 +29,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     pathname.startsWith("/blog") ||
     pathname.startsWith("/customers-stories");
 
-  if (isPublicRoute) {
+  const isOrganizationSetup = pathname === "/organization-setup";
+
+  if (isPublicRoute || isOrganizationSetup) {
     return (
       <TemplateFormProvider>
         <ToastContainer />

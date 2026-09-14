@@ -3,7 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { Customer } from "@/entities/Customer";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { calculateInvoiceTotals } from "@/utils/invoices/invoiceCalculations";
 import type { CreateInvoicePayload } from "@/types/invoice";
 
@@ -27,6 +27,7 @@ export class InvoiceOperationError extends Error {
 export const createInvoiceRecord = async (
   userId: number,
   payload: CreateInvoicePayload,
+  orgId?: number | null,
 ): Promise<Invoice> => {
   const { customerId, templateId, items, ...invoiceData } = payload;
 
@@ -38,10 +39,16 @@ export const createInvoiceRecord = async (
   // Fetch customer and default template (if needed) concurrently
   const [customer, defaultTemplate] = await Promise.all([
     customerRepository.findOne({
-      where: { id: customerId, userId },
+      where: orgId
+        ? { id: customerId, organizationId: orgId }
+        : { id: customerId, userId },
     }),
     !templateId
-      ? templateRepository.findOne({ where: { userId, isDefault: true } })
+      ? templateRepository.findOne({
+          where: orgId
+            ? { organizationId: orgId, isDefault: true }
+            : { userId, isDefault: true },
+        })
       : Promise.resolve(null),
   ]);
 
@@ -77,6 +84,7 @@ export const createInvoiceRecord = async (
         amount: Number(item.amount) || 0,
       })) || [],
     userId,
+    organizationId: orgId || null,
     customerId,
     templateId: finalTemplateId || null,
     status: "Draft",
@@ -104,10 +112,11 @@ const createInvoice = async (req: NextRequest) => {
   }
 
   try {
+    const orgId = await getAuthOrgId(req);
     const body: CreateInvoicePayload = await req.json();
     const parsedUserId = userId;
 
-    const result = await createInvoiceRecord(parsedUserId, body);
+    const result = await createInvoiceRecord(parsedUserId, body, orgId);
 
     return NextResponse.json(
       { message: "Invoice created successfully", ...result },

@@ -11,6 +11,7 @@ import { getServerSessionUser } from "@/lib/session";
 export const DashboardMain = async () => {
   const user = await getServerSessionUser();
   const userId = user?.id ? Number(user.id) : 1;
+  const orgId = user?.organizationId ? Number(user.organizationId) : undefined;
   const userName =
     user?.name ||
     (user?.firstName
@@ -18,7 +19,7 @@ export const DashboardMain = async () => {
       : null) ||
     "Ahmad Shahzad";
 
-  const dashboardData = await getDashboardData(userId);
+  const dashboardData = await getDashboardData(userId, orgId);
 
   return (
     <div className="w-full px-2 sm:px-4 md:px-6 space-y-6 pb-12 animate-fade-in">

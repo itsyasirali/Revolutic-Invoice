@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
+import { Organization } from "@/entities/Organization";
 import { LoginPayload } from "@/types/auth";
 import {
   AUTH_COOKIE_NAME,
@@ -22,6 +23,7 @@ const login = async (req: NextRequest) => {
 
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
+    const orgRepository = db.getRepository(Organization);
 
     const user = await usersRepository.findOneBy({ email: email.trim().toLowerCase() });
     if (!user || !user.password) {
@@ -39,6 +41,12 @@ const login = async (req: NextRequest) => {
       );
     }
 
+    // Fetch user's organization (if any)
+    const organization = await orgRepository.findOne({
+      where: { userId: user.id },
+      order: { createdAt: "ASC" },
+    });
+
     const sessionPayload = {
       id: user.id.toString(),
       name:
@@ -49,6 +57,7 @@ const login = async (req: NextRequest) => {
       companyName: user.companyName,
       firstName: user.firstName,
       lastName: user.lastName,
+      organizationId: organization?.id ?? null,
     };
 
     const token = await signAuthToken(sessionPayload);
@@ -60,9 +69,11 @@ const login = async (req: NextRequest) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          companyName: user.companyName,
+          companyName: organization?.name || user.companyName,
           firstName: user.firstName,
           lastName: user.lastName,
+          organizationId: organization?.id ?? null,
+          organization: organization ?? null,
         },
         token,
       },

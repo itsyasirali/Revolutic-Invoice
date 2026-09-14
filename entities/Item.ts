@@ -9,6 +9,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import type { User } from "./User";
+import type { Organization } from "./Organization";
 
 @Entity("items")
 export class Item {
@@ -37,6 +38,13 @@ export class Item {
 
   @Column()
   userId!: number;
+
+  @ManyToOne("organizations", { nullable: true })
+  @JoinColumn({ name: "organizationId" })
+  organization!: Organization;
+
+  @Column({ nullable: true })
+  organizationId!: number;
 
   @CreateDateColumn()
   createdAt!: Date;

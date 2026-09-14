@@ -3,7 +3,7 @@ import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
 import { InvoiceItem } from "@/entities/InvoiceItem";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { BatchDeleteItemPayload } from "@/types/item";
 
 const batchDeleteItems = async (req: NextRequest) => {
@@ -11,6 +11,7 @@ const batchDeleteItems = async (req: NextRequest) => {
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const body: BatchDeleteItemPayload = await req.json();
@@ -46,10 +47,11 @@ const batchDeleteItems = async (req: NextRequest) => {
     );
 
     const itemsRepository = db.getRepository(Item);
-    const result = await itemsRepository.delete({
-      id: In(parsedItemIds),
-      userId: parsedUserId,
-    });
+    const result = await itemsRepository.delete(
+      orgId
+        ? { id: In(parsedItemIds), organizationId: orgId }
+        : { id: In(parsedItemIds), userId: parsedUserId }
+    );
 
     return NextResponse.json({
       message: "Items deleted successfully",

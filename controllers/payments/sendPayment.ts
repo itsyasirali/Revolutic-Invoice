@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import {
   createMailTransporter,
   getMailFromName,
@@ -17,6 +17,7 @@ const sendPayment = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -27,7 +28,9 @@ const sendPayment = async (
     const paymentRepo = db.getRepository(Payment);
 
     const payment = await paymentRepo.findOne({
-      where: { id: parseInt(id), userId: parsedUserId },
+      where: orgId
+        ? { id: parseInt(id), organizationId: orgId }
+        : { id: parseInt(id), userId: parsedUserId },
       relations: [
         "customer",
         "template",

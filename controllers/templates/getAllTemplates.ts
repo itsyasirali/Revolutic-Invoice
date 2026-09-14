@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getAllTemplates = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -10,12 +10,16 @@ const getAllTemplates = async (req: NextRequest) => {
   }
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 
+    const where = organizationId
+      ? { organizationId }
+      : { userId };
+
     const templates = await templateRepo.find({
-      where: { userId: parsedUserId },
+      where,
       order: { isDefault: "DESC", createdAt: "DESC" },
     });
 

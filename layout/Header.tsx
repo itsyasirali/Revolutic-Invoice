@@ -14,9 +14,11 @@ import {
   FileText,
   DollarSign,
   Layout,
+  Building2,
 } from "lucide-react";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
+import { useOrganization } from "@/context/OrganizationContext";
 import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
@@ -216,6 +218,7 @@ const HeaderSearch = () => {
 const Header = () => {
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
+  const { organization } = useOrganization();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -271,7 +274,15 @@ const Header = () => {
       </Suspense>
 
       {/* Right Side Actions */}
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+        {/* Organization Badge */}
+        {organization && (
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs font-semibold text-blue-900 shadow-2xs">
+            <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="truncate max-w-[150px]">{organization.name}</span>
+          </div>
+        )}
+
         {/* Notification Bell */}
         <div className="relative" ref={notificationRef}>
           <button
@@ -339,6 +350,12 @@ const Header = () => {
                 <p className="text-[11px] text-slate-400 truncate">
                   {userEmail}
                 </p>
+                {organization?.name && (
+                  <p className="text-[10px] font-semibold text-blue-600 truncate mt-1 flex items-center gap-1">
+                    <Building2 className="w-3 h-3 shrink-0" />
+                    <span>{organization.name}</span>
+                  </p>
+                )}
               </div>
 
               <div className="py-1">

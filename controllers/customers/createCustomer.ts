@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
@@ -47,11 +47,13 @@ const createCustomer = async (req: NextRequest) => {
       : [];
     const documentPaths = buildDocumentPaths(savedFiles);
 
+    const organizationId = await getAuthOrgId(req);
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
     const customer = customersRepository.create({
       userId,
+      organizationId: organizationId ?? undefined,
       customerType,
       companyName: companyName || undefined,
       displayName,

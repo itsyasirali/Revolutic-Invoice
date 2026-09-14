@@ -3,7 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { InvoiceItem } from "@/entities/InvoiceItem";
 import { Customer } from "@/entities/Customer";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { calculateInvoiceTotals } from "@/utils/invoices/invoiceCalculations";
 import type { UpdateInvoicePayload } from "@/types/invoice";
 
@@ -15,6 +15,7 @@ const updateInvoice = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -31,7 +32,9 @@ const updateInvoice = async (
 
     // Find invoice
     const invoice = await invoiceRepository.findOne({
-      where: { id: invoiceId, userId: parsedUserId },
+      where: orgId
+        ? { id: invoiceId, organizationId: orgId }
+        : { id: invoiceId, userId: parsedUserId },
       relations: ["items"],
     });
 
@@ -45,7 +48,9 @@ const updateInvoice = async (
     // Verify customer if changing
     if (customerId) {
       const customer = await customerRepository.findOne({
-        where: { id: customerId, userId: parsedUserId },
+        where: orgId
+          ? { id: customerId, organizationId: orgId }
+          : { id: customerId, userId: parsedUserId },
       });
 
       if (!customer) {

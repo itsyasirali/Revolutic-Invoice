@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { FindOptionsWhere } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getAllPayments = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const parsedUserId = userId;
@@ -19,7 +20,9 @@ const getAllPayments = async (req: NextRequest) => {
     const db = await getDatabase();
     const paymentRepository = db.getRepository(Payment);
 
-    const where: FindOptionsWhere<Payment> = { userId: parsedUserId };
+    const where: FindOptionsWhere<Payment> = orgId
+      ? { organizationId: orgId }
+      : { userId: parsedUserId };
 
     if (status) {
       where.status = status;

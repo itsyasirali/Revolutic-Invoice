@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FindOptionsWhere } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getAllInvoices = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -11,7 +11,7 @@ const getAllInvoices = async (req: NextRequest) => {
   }
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
 
     const status = req.nextUrl.searchParams.get("status") || undefined;
     const customerIdParam = req.nextUrl.searchParams.get("customerId");
@@ -22,7 +22,9 @@ const getAllInvoices = async (req: NextRequest) => {
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
-    const where: FindOptionsWhere<Invoice> = { userId: parsedUserId };
+    const where: FindOptionsWhere<Invoice> = organizationId
+      ? { organizationId }
+      : { userId };
 
     if (status) {
       where.status = status;

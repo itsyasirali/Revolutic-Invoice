@@ -3,7 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getAllCustomers = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -12,7 +12,8 @@ const getAllCustomers = async (req: NextRequest) => {
   }
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
+    const scopeWhere = organizationId ? { organizationId } : { userId };
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
@@ -21,14 +22,14 @@ const getAllCustomers = async (req: NextRequest) => {
 
     const [customers, invoices, payments] = await Promise.all([
       customersRepository.find({
-        where: { userId: parsedUserId },
+        where: scopeWhere,
         order: { createdAt: "DESC" },
       }),
       invoicesRepository.find({
-        where: { userId: parsedUserId },
+        where: scopeWhere,
       }),
       paymentsRepository.find({
-        where: { userId: parsedUserId },
+        where: scopeWhere,
         order: { paymentDate: "DESC" },
       }),
     ]);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getAllItems = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -10,13 +10,13 @@ const getAllItems = async (req: NextRequest) => {
   }
 
   try {
-    const parsedUserId = userId;
-
+    const organizationId = await getAuthOrgId(req);
+    const scopeWhere = organizationId ? { organizationId } : { userId };
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
     const items = await itemsRepository.find({
-      where: { userId: parsedUserId },
+      where: scopeWhere,
       order: { createdAt: "DESC" },
     });
 

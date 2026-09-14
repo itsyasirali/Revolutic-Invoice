@@ -11,14 +11,24 @@ const SignupPage = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      if (user.organizationId || user.organization) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/organization-setup");
+      }
     }
   }, [user, loading, router]);
 
   return (
     <LoginSignupForm
       initialMode="signup"
-      onLoginSuccess={() => router.push("/dashboard")}
+      onLoginSuccess={() => {
+        if (user?.organizationId || user?.organization) {
+          router.push("/dashboard");
+        } else {
+          router.push("/organization-setup");
+        }
+      }}
     />
   );
 };

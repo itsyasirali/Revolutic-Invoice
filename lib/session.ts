@@ -12,6 +12,7 @@ export interface AuthUserSession {
   companyName?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  organizationId?: number | null;
   [key: string]: unknown;
 }
 
@@ -115,6 +116,21 @@ export const getAuthUserId = async (
     return null;
   }
 
+  return parsed;
+};
+
+/**
+ * Resolves the authenticated organization ID from the JWT.
+ * Returns null if unauthenticated or org not yet set up.
+ */
+export const getAuthOrgId = async (
+  req: NextRequest,
+): Promise<number | null> => {
+  const token = await getAuthToken(req);
+  const rawOrgId = token?.organizationId;
+  if (!rawOrgId) return null;
+  const parsed = parseInt(String(rawOrgId), 10);
+  if (Number.isNaN(parsed) || parsed <= 0) return null;
   return parsed;
 };
 

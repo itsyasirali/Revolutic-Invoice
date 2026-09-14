@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/session";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
+import { Organization } from "@/entities/Organization";
 
 const getMe = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -13,10 +14,16 @@ const getMe = async (req: NextRequest) => {
   try {
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
+    const orgRepository = db.getRepository(Organization);
 
-    const user = await usersRepository.findOne({
-      where: { id: userId },
-    });
+    const [user, org] = await Promise.all([
+      usersRepository.findOne({
+        where: { id: userId },
+      }),
+      orgRepository.findOne({
+        where: { userId },
+      }),
+    ]);
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -27,9 +34,11 @@ const getMe = async (req: NextRequest) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        companyName: user.companyName,
+        companyName: org?.name || user.companyName,
         firstName: user.firstName,
         lastName: user.lastName,
+        organizationId: org?.id || null,
+        organization: org || null,
       },
     });
   } catch (error) {

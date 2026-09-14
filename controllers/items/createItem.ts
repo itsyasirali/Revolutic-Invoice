@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/entities/Item";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { CreateItemPayload } from "@/types/item";
 
 const createItem = async (req: NextRequest) => {
@@ -46,6 +46,7 @@ const createItem = async (req: NextRequest) => {
       );
     }
 
+    const organizationId = await getAuthOrgId(req);
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
@@ -55,6 +56,7 @@ const createItem = async (req: NextRequest) => {
       sellingPrice,
       description: description && String(description).trim() ? String(description).trim() : undefined,
       userId,
+      organizationId: organizationId ?? undefined,
       status: status || "Active",
     });
 

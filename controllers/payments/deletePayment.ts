@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const deletePayment = async (
   req: NextRequest,
@@ -12,6 +12,7 @@ const deletePayment = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -32,10 +33,11 @@ const deletePayment = async (
     await paymentAppliedRepo.delete({ paymentId });
 
     const paymentRepo = db.getRepository(Payment);
-    const result = await paymentRepo.delete({
-      id: paymentId,
-      userId: parsedUserId,
-    });
+    const result = await paymentRepo.delete(
+      orgId
+        ? { id: paymentId, organizationId: orgId }
+        : { id: paymentId, userId: parsedUserId }
+    );
 
     if (result.affected === 0) {
       return NextResponse.json(

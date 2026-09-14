@@ -20,6 +20,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         companyName: sessionUser.companyName,
         firstName: sessionUser.firstName,
         lastName: sessionUser.lastName,
+        organizationId: sessionUser.organizationId ?? null,
       }
     : null;
 

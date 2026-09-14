@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthProvider, useAuth, type User } from "@/context/AuthContext";
-import LoginSignupForm from "./auth";
+import { OrganizationProvider, useOrganization } from "@/context/OrganizationContext";
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -11,9 +11,9 @@ interface AuthWrapperProps {
 }
 
 const AuthContent = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { hasOrganization, loading: orgLoading } = useOrganization();
   const pathname = usePathname();
-
   const router = useRouter();
 
   const isPublicRoute =
@@ -29,35 +29,60 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     pathname.startsWith("/customers-stories");
 
   React.useEffect(() => {
-    if (!loading && !user && !isPublicRoute) {
+    if (!authLoading && !user && !isPublicRoute) {
       router.replace("/login");
+      return;
     }
-  }, [loading, user, isPublicRoute, router]);
+
+    // If authenticated on a protected route and has no org yet
+    if (
+      !authLoading &&
+      !orgLoading &&
+      user &&
+      !hasOrganization &&
+      pathname !== "/organization-setup" &&
+      !isPublicRoute
+    ) {
+      router.replace("/organization-setup");
+      return;
+    }
+
+    // If already has org and tries to visit organization-setup
+    if (
+      !authLoading &&
+      !orgLoading &&
+      user &&
+      hasOrganization &&
+      pathname === "/organization-setup"
+    ) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, orgLoading, user, hasOrganization, isPublicRoute, pathname, router]);
 
   // Public marketing and auth pages are always accessible
   if (isPublicRoute) {
     return <>{children}</>;
   }
 
-  // If user is authenticated, render immediately with ZERO delay
+  // If unauthenticated and not loading on protected routes, redirect to /login
+  if (!authLoading && !user) {
+    return null;
+  }
+
+  // If user is authenticated, render
   if (user) {
     return <>{children}</>;
   }
 
-  // If unauthenticated and not loading on protected routes, redirect to /login
-  if (!loading && !user) {
-    return null;
-  }
-
-  // During any brief client session check (when initialUser was not passed),
-  // render the layout shell immediately rather than a blank screen
   return <>{children}</>;
 };
 
 export const AuthWrapper = ({ children, initialUser }: AuthWrapperProps) => {
   return (
     <AuthProvider initialUser={initialUser}>
-      <AuthContent>{children}</AuthContent>
+      <OrganizationProvider>
+        <AuthContent>{children}</AuthContent>
+      </OrganizationProvider>
     </AuthProvider>
   );
 };

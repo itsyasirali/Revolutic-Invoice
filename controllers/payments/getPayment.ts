@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const getPayment = async (
   req: NextRequest,
@@ -11,6 +11,7 @@ const getPayment = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -27,17 +28,26 @@ const getPayment = async (
     const db = await getDatabase();
     const paymentRepository = db.getRepository(Payment);
 
-    const payment = await paymentRepository
+    const qb = paymentRepository
       .createQueryBuilder("payment")
       .leftJoinAndSelect("payment.customer", "customer")
       .leftJoinAndSelect("payment.template", "template")
       .leftJoinAndSelect("payment.appliedInvoices", "appliedInvoices")
-      .leftJoinAndSelect("appliedInvoices.invoice", "invoice")
-      .where("payment.id = :id AND payment.userId = :userId", {
+      .leftJoinAndSelect("appliedInvoices.invoice", "invoice");
+
+    if (orgId) {
+      qb.where("payment.id = :id AND payment.organizationId = :orgId", {
+        id: paymentId,
+        orgId,
+      });
+    } else {
+      qb.where("payment.id = :id AND payment.userId = :userId", {
         id: paymentId,
         userId: parsedUserId,
-      })
-      .getOne();
+      });
+    }
+
+    const payment = await qb.getOne();
 
     if (!payment) {
       return NextResponse.json(

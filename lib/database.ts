@@ -9,6 +9,7 @@ import { InvoiceItem } from "@/entities/InvoiceItem";
 import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Template } from "@/entities/Template";
+import { Organization } from "@/entities/Organization";
 
 const globalForDb = globalThis as unknown as {
   dataSource?: DataSource;
@@ -44,6 +45,7 @@ const ENTITIES = [
   Payment,
   PaymentAppliedInvoice,
   Template,
+  Organization,
 ];
 
 // Ensure entity class names are preserved in production builds to prevent TypeORM
@@ -57,6 +59,7 @@ const ENTITIES = [
   [Payment, "Payment"],
   [PaymentAppliedInvoice, "PaymentAppliedInvoice"],
   [Template, "Template"],
+  [Organization, "Organization"],
 ].forEach(([cls, name]) => {
   try {
     Object.defineProperty(cls, "name", { value: name, configurable: true });

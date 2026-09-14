@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { BatchUpdateCustomerPayload } from "@/types/customer";
 
 const batchUpdateCustomers = async (req: NextRequest) => {
@@ -10,6 +10,7 @@ const batchUpdateCustomers = async (req: NextRequest) => {
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
 
   try {
     const body: BatchUpdateCustomerPayload = await req.json();
@@ -34,10 +35,11 @@ const batchUpdateCustomers = async (req: NextRequest) => {
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
 
-    const result = await customersRepository.update(
-      { id: In(parsedCustomerIds), userId: parsedUserId },
-      { status },
-    );
+    const updateFilter = orgId
+      ? { id: In(parsedCustomerIds), organizationId: orgId }
+      : { id: In(parsedCustomerIds), userId: parsedUserId };
+
+    const result = await customersRepository.update(updateFilter, { status });
 
     return NextResponse.json({
       message: "Status updated",

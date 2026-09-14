@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const deleteTemplate = async (
   req: NextRequest,
@@ -15,7 +15,7 @@ const deleteTemplate = async (
   const { id } = await params;
 
   try {
-    const parsedUserId = userId;
+    const organizationId = await getAuthOrgId(req);
     const templateId = parseInt(id);
 
     if (isNaN(templateId)) {
@@ -32,10 +32,10 @@ const deleteTemplate = async (
     await paymentRepo.update({ templateId }, { templateId: null as any });
 
     const templateRepo = db.getRepository(Template);
-    const result = await templateRepo.delete({
-      id: templateId,
-      userId: parsedUserId,
-    });
+    const deleteWhere = organizationId
+      ? { id: templateId, organizationId }
+      : { id: templateId, userId };
+    const result = await templateRepo.delete(deleteWhere);
 
     if (result.affected === 0) {
       return NextResponse.json(

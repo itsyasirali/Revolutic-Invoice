@@ -3,7 +3,7 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
-import { getAuthUserId } from "@/lib/session";
+import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 
 const deleteCustomer = async (
@@ -14,6 +14,7 @@ const deleteCustomer = async (
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const orgId = await getAuthOrgId(req);
   const { id } = await params;
 
   try {
@@ -31,16 +32,22 @@ const deleteCustomer = async (
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
+    const userOrOrgFilter = orgId
+      ? { customerId, organizationId: orgId }
+      : { customerId, userId: parsedUserId };
+
     // Run customer lookup, invoice constraint check, and payment constraint check concurrently
     const [customer, invoiceCount, paymentCount] = await Promise.all([
       customersRepository.findOne({
-        where: { id: customerId, userId: parsedUserId },
+        where: orgId
+          ? { id: customerId, organizationId: orgId }
+          : { id: customerId, userId: parsedUserId },
       }),
       invoiceRepo.count({
-        where: { customerId, userId: parsedUserId },
+        where: userOrOrgFilter,
       }),
       paymentRepo.count({
-        where: { customerId, userId: parsedUserId },
+        where: userOrOrgFilter,
       }),
     ]);
 
@@ -78,10 +85,11 @@ const deleteCustomer = async (
       }
     }
 
-    const result = await customersRepository.delete({
-      id: customerId,
-      userId: parsedUserId,
-    });
+    const result = await customersRepository.delete(
+      orgId
+        ? { id: customerId, organizationId: orgId }
+        : { id: customerId, userId: parsedUserId }
+    );
 
     if (result.affected === 0) {
       return NextResponse.json(
