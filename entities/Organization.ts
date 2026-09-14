@@ -21,19 +21,19 @@ export class Organization {
   @Column({ type: "varchar", nullable: true })
   industry!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   businessLocation!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   stateProvince!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   streetAddress!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   city!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   zipCode!: string | null;
 
   @Column({ type: "text", nullable: true })
@@ -48,16 +48,16 @@ export class Organization {
   @Column({ default: "(GMT 5:00) Pakistan Time (Asia/Karachi)" })
   timeZone!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   email!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   phone!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   logoUrl!: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   website!: string | null;
 
   // Owner
