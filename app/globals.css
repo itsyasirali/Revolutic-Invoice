@@ -198,6 +198,12 @@
   }
 }
 
+/* Prevent Tailwind preflight block img from shifting text down in html2canvas */
+#pdf-print-area img {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
 /* Consistent autofill background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

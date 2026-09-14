@@ -603,7 +603,7 @@ export const generateInvoicePDF = (
             .font("Helvetica-Bold")
             .fillColor(tableHeaderTextColor);
 
-          const headerTextY = tableTop + (tableHeight - tableFontSize) / 2 - 1.5;
+          const headerTextY = tableTop + (tableHeight - tableFontSize) / 2 - 3.5;
 
           finalColumns.forEach((col: ColumnConfig) => {
             doc.text(col.label || "", (col.x || 35) + 5, headerTextY, {
@@ -619,7 +619,7 @@ export const generateInvoicePDF = (
 
         itemsToShow.forEach((item: InvoiceItemPdf, index: number) => {
           const itemRowHeight = 22;
-          const rowTextY = yPosition + (itemRowHeight - baseFontSize) / 2 - 1.5;
+          const rowTextY = yPosition + (itemRowHeight - baseFontSize) / 2 - 3.5;
 
           if (template?.alternateRowColors !== false && index % 2 === 1) {
             doc
@@ -795,7 +795,7 @@ export const generateInvoicePDF = (
           .text(
             template?.balanceDueLabel ?? "",
             370,
-            yPosition + (balanceBoxHeight - labelFontSize) / 2 - 1.5,
+            yPosition + (balanceBoxHeight - labelFontSize) / 2 - 4.5,
             {
               lineBreak: false,
             },
@@ -807,7 +807,7 @@ export const generateInvoicePDF = (
           .text(
             formatCurrency(totalBalanceDue),
             480,
-            yPosition + (balanceBoxHeight - (labelFontSize + 2)) / 2 - 1.5,
+            yPosition + (balanceBoxHeight - (labelFontSize + 2)) / 2 - 4.5,
             {
               width: 75,
               align: "right",

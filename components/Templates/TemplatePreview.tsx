@@ -254,8 +254,6 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const grayText = staticTextColor;
   const darkText = staticTextColor;
 
-
-
   const branding = {
     brandName: data.branding?.brandName ?? data.brandName ?? "",
     tagline: data.branding?.tagline ?? data.tagline ?? "",
@@ -284,7 +282,13 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       align: "center",
       enabled: true,
     },
-    { key: "rate", label: data.rateLabel ?? "", width: 60, align: "right", enabled: true },
+    {
+      key: "rate",
+      label: data.rateLabel ?? "",
+      width: 60,
+      align: "right",
+      enabled: true,
+    },
     {
       key: "amount",
       label: data.amountLabel ?? "",
@@ -363,7 +367,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     terms: "Net 30",
     client: {
       name: "Rob & Joe Traders",
-      address: "4141 Hacienda Drive, Pleasanton, 94588 CA, USA"
+      address: "4141 Hacienda Drive, Pleasanton, 94588 CA, USA",
     },
     items: [
       {
@@ -439,8 +443,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           invoice.remaining !== undefined
             ? Number(invoice.remaining)
             : invoice.total !== undefined
-            ? Number(invoice.total) + Number(invoice.previousRemaining || 0)
-            : DUMMY_INVOICE_DATA.total,
+              ? Number(invoice.total) + Number(invoice.previousRemaining || 0)
+              : DUMMY_INVOICE_DATA.total,
         currency: invoice.currency ?? DUMMY_INVOICE_DATA.currency,
         notes: invoice.notes ?? DUMMY_INVOICE_DATA.notes,
       }
@@ -638,7 +642,9 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                         color: invoiceDateLabelColor,
                       }}
                     >
-                      {data.invoiceDateLabel ? `${data.invoiceDateLabel} :` : ""}
+                      {data.invoiceDateLabel
+                        ? `${data.invoiceDateLabel} :`
+                        : ""}
                     </span>
                   </SelectableElement>
                   <SelectableElement
@@ -779,21 +785,20 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     onSelectElement("table-header");
                   }
                 }}
-                className={`${
-                  onSelectElement ? "cursor-pointer" : ""
-                } ${
+                className={`${onSelectElement ? "cursor-pointer" : ""} ${
                   onSelectElement && selectedElement === "table-header"
                     ? "outline outline-2 outline-blue-500 outline-offset-1 ring-2 ring-blue-400/20"
                     : onSelectElement
-                    ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
-                    : ""
+                      ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
+                      : ""
                 }`}
-                title={onSelectElement ? "Click to edit Table Header" : undefined}
+                title={
+                  onSelectElement ? "Click to edit Table Header" : undefined
+                }
               >
                 <tr
                   style={{
                     backgroundColor: tableHeaderBgColor,
-                    height: "32px",
                   }}
                 >
                   {enabledColumns.map((col) => (
@@ -801,9 +806,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       key={col.key}
                       style={{
                         width: `${col.width}px`,
-                        height: "32px",
-                        lineHeight: "normal",
-                        padding: "0 12px",
+                        padding: "2px 12px 15px 12px",
                         textAlign: col.align,
                         verticalAlign: "middle",
                         color: tableHeaderTextColor,
@@ -811,6 +814,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                         fontWeight: "bold",
                         backgroundColor: tableHeaderBgColor,
                         boxSizing: "border-box",
+                        lineHeight: 1.2,
                       }}
                     >
                       {col.label}
@@ -827,14 +831,12 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   onSelectElement("table-body");
                 }
               }}
-              className={`${
-                onSelectElement ? "cursor-pointer" : ""
-              } ${
+              className={`${onSelectElement ? "cursor-pointer" : ""} ${
                 onSelectElement && selectedElement === "table-body"
                   ? "outline outline-2 outline-blue-500 outline-offset-1 ring-2 ring-blue-400/20"
                   : onSelectElement
-                  ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
-                  : ""
+                    ? "hover:outline hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
+                    : ""
               }`}
               title={onSelectElement ? "Click to edit Table Body" : undefined}
             >
@@ -848,7 +850,6 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                         ? tableAltRowColor
                         : tableRowColor,
                     borderBottom: `1px solid ${tableBorderColor}`,
-                    height: "32px",
                   }}
                 >
                   {enabledColumns.map((col) => (
@@ -856,14 +857,13 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       key={col.key}
                       style={{
                         width: `${col.width}px`,
-                        height: "32px",
-                        lineHeight: "normal",
-                        padding: "0 12px",
+                        padding: "2px 12px 8px 12px",
                         textAlign: col.align,
                         verticalAlign: "middle",
                         fontSize: `${data.tableFontSize || 10}pt`,
                         color: textColor,
                         boxSizing: "border-box",
+                        lineHeight: 1.2,
                       }}
                     >
                       {getCellValue(item, col.key)}
@@ -1044,8 +1044,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 id="balance-due-box"
                 style={{
                   backgroundColor: accentColor,
-                  minHeight: "36px",
-                  padding: "0 14px",
+                  padding: "2px 14px 15px 14px",
                   marginTop: "4px",
                   boxSizing: "border-box",
                   display: "flex",
@@ -1058,7 +1057,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     fontSize: `${data.labelFontSize || 11}pt`,
                     fontWeight: "bold",
                     color: balanceDueTextColor,
-                    lineHeight: "normal",
+                    lineHeight: 1.2,
                   }}
                 >
                   {data.balanceDueLabel ?? ""}
@@ -1068,7 +1067,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     fontSize: `${data.labelFontSize || 13}pt`,
                     fontWeight: "bold",
                     color: balanceDueTextColor,
-                    lineHeight: "normal",
+                    lineHeight: 1.2,
                   }}
                 >
                   {formatCurrency(activeInvoice.total)}

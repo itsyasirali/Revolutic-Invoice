@@ -211,7 +211,21 @@ export const useInvoicePreview = () => {
         image: { type: "jpeg" as const, quality: 0.98 },
         html2canvas: {
           scale: 2,
+          useCORS: true,
           logging: false,
+          scrollY: 0,
+          windowWidth: 1200,
+          onclone: (clonedDoc: Document) => {
+            const area = clonedDoc.getElementById("pdf-print-area");
+            if (area) {
+              const imgs = area.querySelectorAll("img");
+              imgs.forEach((img: Element) => {
+                const htmlImg = img as HTMLImageElement;
+                htmlImg.style.display = "inline-block";
+                htmlImg.style.verticalAlign = "middle";
+              });
+            }
+          },
         },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
       };
