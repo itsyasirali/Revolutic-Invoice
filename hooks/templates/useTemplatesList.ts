@@ -56,8 +56,14 @@ const useTemplatesList = (
 
       setTemplates(listItems);
     } catch (err: any) {
-      console.error("Error fetching templates:", err);
-      setError(err.response?.data?.message || "Failed to fetch templates");
+      // 404 means the user simply has no templates yet — treat as empty list
+      if (err?.response?.status === 404) {
+        setTemplates([]);
+        setError(null);
+      } else {
+        console.error("Error fetching templates:", err);
+        setError(err.response?.data?.message || "Failed to fetch templates");
+      }
     } finally {
       setLoading(false);
     }
