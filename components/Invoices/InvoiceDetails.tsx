@@ -14,7 +14,6 @@ import {
   Clock,
   CheckCircle2,
   DollarSign,
-  Edit,
   Eye,
   Send,
 } from "lucide-react";
@@ -31,7 +30,7 @@ const InvoiceDetails: React.FC = () => {
     setMounted(true);
   }, []);
 
-  const { invoice, handleEdit, handleSend } = useInvoicePreview();
+  const { invoice, handleSend } = useInvoicePreview();
 
   const handlePreviewPdf = () => {
     if (invoice) {
@@ -264,15 +263,6 @@ const InvoiceDetails: React.FC = () => {
         {/* Right: Actions */}
         <div className="flex items-center flex-col flex-wrap gap-3 shrink-0">
           <Button
-            onClick={handlePreviewPdf}
-            variant="outline"
-            size="md"
-            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
-            icon={<Eye className="w-4 h-4" />}
-          >
-            Preview PDF
-          </Button>
-          <Button
             onClick={handleSend}
             variant="primary"
             size="md"
@@ -282,13 +272,13 @@ const InvoiceDetails: React.FC = () => {
             Send Invoice
           </Button>
           <Button
-            onClick={handleEdit}
+            onClick={handlePreviewPdf}
             variant="outline"
             size="md"
             className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Eye className="w-4 h-4" />}
           >
-            Edit Invoice
+            Preview PDF
           </Button>
         </div>
       </div>

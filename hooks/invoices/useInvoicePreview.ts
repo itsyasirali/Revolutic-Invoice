@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import type { TemplateListItem } from "@/types/template";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useUpdateInvoice from "./useUpdateInvoice";
@@ -267,6 +267,27 @@ export const useInvoicePreview = () => {
   };
 
   const templateData = activeTemplate?.raw || activeTemplate;
+
+  // Auto-download support: navigate to preview?download=1 to trigger PDF download
+  const searchParams = useSearchParams();
+  const hasTriggeredDownload = useRef(false);
+
+  useEffect(() => {
+    if (
+      searchParams?.get("download") === "1" &&
+      invoice &&
+      templateData &&
+      !hasTriggeredDownload.current
+    ) {
+      hasTriggeredDownload.current = true;
+      // Give the template a moment to render into #pdf-print-area
+      const timer = setTimeout(async () => {
+        await handleDownloadPDF();
+        router.back();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, invoice, templateData]);
 
   return {
     invoice,

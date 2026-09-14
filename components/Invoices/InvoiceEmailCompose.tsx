@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Send, X, Plus, Check, Download } from "lucide-react";
 import useInvoiceEmail from "@/hooks/invoices/useInvoiceEmail";
 import { Button, PageHeader } from "@/components/ui";
@@ -9,6 +9,7 @@ import { Button, PageHeader } from "@/components/ui";
 const InvoiceEmailCompose: React.FC = () => {
   const params = useParams();
   const id = params?.id as string;
+  const router = useRouter();
 
   const {
     invoice,
@@ -28,15 +29,11 @@ const InvoiceEmailCompose: React.FC = () => {
   } = useInvoiceEmail(id || "");
 
   if (loading) {
-    return (
-      null
-    );
+    return null;
   }
 
   if (!invoice && !loading) {
-    return (
-      null
-    );
+    return null;
   }
 
   return (
@@ -58,11 +55,6 @@ const InvoiceEmailCompose: React.FC = () => {
 
       <div className="flex-1 overflow-auto">
         <div className="bg-white overflow-hidden">
-          <div className="flex items-center px-6 py-4 border-b border-gray-100">
-            <span className="w-20 text-sm font-medium text-gray-500">From</span>
-            <span className="text-sm text-gray-900">{emailData.from}</span>
-          </div>
-
           <div className="relative flex items-start px-6 py-4 border-b border-gray-100 min-h-[64px]">
             <span className="w-20 text-sm font-medium text-gray-500 pt-1.5">
               To
@@ -257,13 +249,19 @@ const InvoiceEmailCompose: React.FC = () => {
             </div>
 
             {emailData.attachPDF && (
-              <div 
-                onClick={() => window.open(`/invoices/preview/${invoice?.id || invoice?._id || id}`, '_blank')}
-                className="mt-3 ml-8 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg max-w-sm cursor-pointer hover:border-primary transition-colors group"
-                title="Click to view/download PDF"
+              <div
+                className="mt-5 flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg max-w-sm"
               >
-                <div className="relative p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors flex items-center justify-center">
-                  <svg className="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="relative p-2 bg-red-50 rounded-lg flex items-center justify-center">
+                  <svg
+                    className="w-7 h-7 text-red-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
@@ -272,14 +270,21 @@ const InvoiceEmailCompose: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <p className="text-sm font-medium text-gray-700 truncate group-hover:text-primary transition-colors">
+                  <p className="text-sm font-medium text-gray-700 truncate">
                     Invoice-{invoice?.invoiceNumber || "Draft"}.pdf
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">PDF Document</p>
                 </div>
-                <div className="p-2 text-gray-400 group-hover:text-primary transition-colors">
+                <button
+                  type="button"
+                  title="Download PDF"
+                  onClick={() =>
+                    router.push(`/invoices/preview/${invoice?.id || invoice?._id || id}?download=1`)
+                  }
+                  className="p-2 text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                >
                   <Download size={18} />
-                </div>
+                </button>
               </div>
             )}
           </div>

@@ -38,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       fullWidth = false,
       icon,
-      iconPosition = "left",
+      iconPosition = "right",
       rounded = false,
       asChild = false,
       children,

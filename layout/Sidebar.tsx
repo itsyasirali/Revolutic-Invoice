@@ -18,6 +18,7 @@ import {
   Table as TableIcon,
   Sigma,
   StickyNote,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -50,7 +51,7 @@ const MENU_ITEMS = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: User, label: "Customers", path: "/customers" },
   { icon: ShoppingBag, label: "Items", path: "/items" },
-  { icon: FileText, label: "Invoices", path: "/invoices" },
+  { icon: ScrollText, label: "Invoices", path: "/invoices" },
   { icon: Layout, label: "Invoice Templates", path: "/templates" },
   { icon: CircleArrowDown, label: "Payments", path: "/payments" },
   { icon: Bookmark, label: "Expenses", path: "/expenses" },
