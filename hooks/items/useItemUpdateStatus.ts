@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import axios from "@/lib/axios";
+import { invalidateItems } from "@/lib/swr";
 
 type AlertState = {
   show: boolean;
@@ -38,6 +39,7 @@ const useUpdateItemStatus = () => {
           items: selectedIds.map(String),
         });
 
+        await invalidateItems();
         // Success alert suppressed as per user request
         refetch();
       } catch (err: unknown) {

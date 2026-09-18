@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
+import { invalidateCustomers } from "@/lib/swr";
 
 type AlertState = {
   show: boolean;
@@ -43,6 +44,7 @@ const useDeleteCustomer = () => {
         data: { customers: selectedIds.map(String) },
       });
 
+      await invalidateCustomers();
       if (refetch) refetch();
     } catch (err: unknown) {
       const error = err as {

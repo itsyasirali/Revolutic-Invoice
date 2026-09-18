@@ -1,36 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import useSWR from "swr";
 import axios from "@/lib/axios";
+import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Payment, UpdatePaymentPayload, UsePaymentsReturn } from "@/types/payment";
 
+type PaymentsApiResponse = {
+  payments?: Payment[];
+};
+
 const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
-  const [payments, setPayments] = useState<Payment[]>(initialPayments || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [mutating, setMutating] = useState(false);
   const [mutateError, setMutateError] = useState<string | null>(null);
 
-  const fetchPayments = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await axios.get(`/payments`);
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    mutate,
+  } = useSWR<PaymentsApiResponse | Payment[]>(SWR_KEYS.payments, swrFetcher, {
+    fallbackData: initialPayments ? { payments: initialPayments } : undefined,
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  });
 
-      if (res.status === 200) {
-        const payload = Array.isArray(res.data)
-          ? res.data
-          : res.data?.payments ?? [];
-        setPayments(payload);
-      } else {
-        setError("Failed to fetch payments");
-      }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to fetch payments");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const payments: Payment[] = useMemo(() => {
+    if (!data) return initialPayments || [];
+    return Array.isArray(data)
+      ? data
+      : Array.isArray(data?.payments)
+        ? data.payments
+        : initialPayments || [];
+  }, [data, initialPayments]);
 
   const updatePayment = useCallback(
     async (paymentId: string, payload: UpdatePaymentPayload) => {
@@ -41,11 +43,7 @@ const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
         const res = await axios.put(`/payments/${paymentId}`, payload);
 
         if (res.status === 200 && res.data?.payment) {
-          setPayments((prev) =>
-            prev.map((payment) =>
-              payment.id === paymentId ? res.data.payment : payment
-            )
-          );
+          await mutate();
         }
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Failed to update payment";
@@ -55,42 +53,43 @@ const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
         setMutating(false);
       }
     },
-    []
+    [mutate]
   );
 
-  const deletePayments = useCallback(async (paymentIds: string[]) => {
-    if (!paymentIds.length) return;
-    try {
-      setMutating(true);
-      setMutateError(null);
+  const deletePayments = useCallback(
+    async (paymentIds: string[]) => {
+      if (!paymentIds.length) return;
+      try {
+        setMutating(true);
+        setMutateError(null);
 
-      await Promise.all(
-        paymentIds.map((id) => axios.delete(`/payments/${id}`))
-      );
+        await Promise.all(
+          paymentIds.map((id) => axios.delete(`/payments/${id}`))
+        );
 
-      setPayments((prev) =>
-        prev.filter((payment) => !paymentIds.includes(payment.id))
-      );
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || "Failed to delete payment(s)";
-      setMutateError(msg);
-      throw new Error(msg);
-    } finally {
-      setMutating(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (initialPayments === undefined) {
-      fetchPayments();
-    }
-  }, [fetchPayments, initialPayments]);
+        await mutate();
+      } catch (err: any) {
+        const msg = err?.response?.data?.message || "Failed to delete payment(s)";
+        setMutateError(msg);
+        throw new Error(msg);
+      } finally {
+        setMutating(false);
+      }
+    },
+    [mutate]
+  );
 
   return {
     payments,
-    loading,
-    error,
-    refetch: fetchPayments,
+    loading: isLoading,
+    error: swrError
+      ? swrError?.response?.data?.message ||
+        swrError?.message ||
+        "Failed to fetch payments"
+      : null,
+    refetch: async () => {
+      await mutate();
+    },
     updatePayment,
     deletePayments,
     mutating,

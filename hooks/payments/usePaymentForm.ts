@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "@/lib/axios";
+import { invalidatePayments } from "@/lib/swr";
 import useCustomers from "@/hooks/customers/useCustomers";
 import usePaymentActions from "./usePaymentActions";
 import type {
@@ -272,10 +273,14 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
 
       if (isEditMode && id) {
         await axios.put(`/payments/${id}`, payload);
+        await invalidatePayments();
+        router.refresh();
         router.push("/payments");
       } else {
         const response = await axios.post(`/payments`, payload);
         if (response.data) {
+          await invalidatePayments();
+          router.refresh();
           router.push("/payments");
         }
       }
@@ -330,10 +335,12 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
 
       if (isEditMode && id) {
         await axios.put(`/payments/${id}`, payload);
+        await invalidatePayments();
       } else {
         const response = await axios.post(`/payments`, payload);
         paymentId =
           response.data.id || response.data.payment?.id;
+        await invalidatePayments();
       }
 
       if (paymentId) {

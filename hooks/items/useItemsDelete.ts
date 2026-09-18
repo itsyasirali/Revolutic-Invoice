@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
+import { invalidateItems } from "@/lib/swr";
 
 type AlertState = {
   show: boolean;
@@ -53,6 +54,7 @@ const useDeleteItems = () => {
         message: `Successfully deleted ${selectedIds.length} item(s)`,
       });
 
+      await invalidateItems();
       if (refetch) refetch();
     } catch (err: unknown) {
       const error = err as {

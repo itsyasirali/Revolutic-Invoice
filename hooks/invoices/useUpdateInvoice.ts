@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "@/lib/axios";
+import { invalidateInvoices } from "@/lib/swr";
 
 interface UpdateInvoicePayload {
   invoiceNumber?: string;
@@ -45,6 +46,7 @@ const useUpdateInvoice = () => {
       const response = await axios.put(`/invoices/${id}`, data);
       setLoading(false);
       if (response.status === 200) {
+        await invalidateInvoices();
         return response.data;
       }
       return null;

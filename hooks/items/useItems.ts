@@ -1,43 +1,39 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import axios from "@/lib/axios";
+import useSWR from "swr";
+import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Item } from "@/types/item";
 
+type ItemsApiResponse = {
+  items?: Item[];
+};
+
 const useItemsData = (initialItems?: Item[]) => {
-  const [items, setItems] = useState<Item[]>(initialItems || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isLoading, isValidating, mutate } = useSWR<
+    ItemsApiResponse | Item[]
+  >(SWR_KEYS.items, swrFetcher, {
+    fallbackData: initialItems ? { items: initialItems } : undefined,
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  });
 
-  const fetchItems = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`/items`);
-      if (response.status === 200) {
-        // Backend returns { items: [...] }
-        setItems(response.data.items || []);
-      }
-    } catch (err: unknown) {
-      console.error("Failed to fetch items:", err);
-      const error = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        error.response?.data?.message || error.message || "Failed to fetch items";
-      setError(String(message));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const items: Item[] = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.items)
+      ? data.items
+      : initialItems || [];
 
-  useEffect(() => {
-    if (initialItems === undefined) {
-      fetchItems();
-    }
-  }, [fetchItems, initialItems]);
+  const errorMessage = error
+    ? error?.response?.data?.message || error?.message || "Failed to fetch items"
+    : null;
 
-  return { items, loading, error, refetch: fetchItems };
+  return {
+    items,
+    loading: isLoading,
+    isValidating,
+    error: errorMessage,
+    refetch: () => mutate(),
+  };
 };
 
 export default useItemsData;

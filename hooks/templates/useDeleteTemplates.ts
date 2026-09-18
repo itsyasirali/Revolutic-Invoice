@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "@/lib/axios";
+import { invalidateTemplates } from "@/lib/swr";
 import type { UseDeleteTemplatesReturn } from "@/types/template";
 
 const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
@@ -41,6 +42,7 @@ const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
         message: `${confirmDialog.selectedIds.length} template(s) deleted successfully`,
       });
 
+      await invalidateTemplates();
       setConfirmDialog({ show: false, selectedIds: [] });
     } catch (err: any) {
       console.error("Error deleting templates:", err);

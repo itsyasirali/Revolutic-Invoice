@@ -56,6 +56,7 @@ export const useItemFormView = () => {
 
       const success = await handleSubmit(payload);
       if (success) {
+        router.refresh();
         router.push("/items");
       }
     },

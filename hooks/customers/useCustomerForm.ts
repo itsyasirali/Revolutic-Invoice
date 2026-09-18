@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import axios from "@/lib/axios";
+import { invalidateCustomers } from "@/lib/swr";
 import type { Customer, MaybeFile } from "@/types/customer";
 import { useAlert } from "./useAlert";
 
@@ -83,6 +84,7 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
         });
 
         if (response.status === 200 || response.status === 201) {
+          await invalidateCustomers();
           // Success alert suppressed as per user request
         }
 

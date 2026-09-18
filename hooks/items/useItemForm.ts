@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "@/lib/axios";
+import { invalidateItems } from "@/lib/swr";
 import type { ItemFormData } from "@/types/item";
 
 type ItemType = "Goods" | "Service";
@@ -54,6 +55,7 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
         : await axios.post(`/items`, payload);
 
       if (res.status === 200 || res.status === 201) {
+        await invalidateItems();
         return true;
       }
 

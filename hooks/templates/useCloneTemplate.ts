@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import axios from "@/lib/axios";
+import { invalidateTemplates } from "@/lib/swr";
 import type { TemplateListItem, AlertState } from "@/types/template";
 
 export interface UseCloneTemplateReturn {
@@ -39,6 +40,7 @@ const useCloneTemplate = (
         delete (clonePayload as any).updatedAt;
 
         await axios.post(`/templates`, clonePayload);
+        await invalidateTemplates();
 
         setAlert({
           show: true,

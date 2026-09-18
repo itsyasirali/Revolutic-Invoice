@@ -2,24 +2,21 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import axios from "@/lib/axios";
+import useSWR from "swr";
+import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type {
   Template,
   TemplateListItem,
   UseTemplatesListReturn,
 } from "@/types/template";
 
+type TemplatesApiResponse = {
+  templates?: Template[];
+};
+
 const useTemplatesList = (
   initialTemplates?: TemplateListItem[],
 ): UseTemplatesListReturn => {
-  const [templates, setTemplates] = useState<TemplateListItem[]>(
-    initialTemplates || [],
-  );
-  const [loading, setLoading] = useState<boolean>(
-    initialTemplates ? false : true,
-  );
-  const [error, setError] = useState<string | null>(null);
-
   const searchParams = useSearchParams();
   const urlSearch = searchParams?.get("search") || "";
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
@@ -28,52 +25,40 @@ const useTemplatesList = (
     setSearchTerm(urlSearch);
   }, [urlSearch]);
 
-  const fetchTemplates = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    mutate,
+  } = useSWR<TemplatesApiResponse | Template[]>(SWR_KEYS.templates, swrFetcher, {
+    fallbackData: initialTemplates
+      ? initialTemplates.map((t) => t.raw || t)
+      : undefined,
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  });
 
-      const response = await axios.get(`/templates`);
+  const templates: TemplateListItem[] = useMemo(() => {
+    if (!data) return initialTemplates || [];
+    const rawData = data;
+    const templatesData: Template[] = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray((rawData as any)?.templates)
+        ? (rawData as any).templates
+        : [];
 
-      const rawData = response.data;
-      const templatesData: Template[] = Array.isArray(rawData)
-        ? rawData
-        : Array.isArray(rawData?.templates)
-          ? rawData.templates
-          : [];
-
-      const listItems: TemplateListItem[] = templatesData.map((template) => ({
-        id: (template.id ?? "").toString(),
-        name: template.templateName || "Untitled Template",
-        paperSize: template.paperSize || "A4",
-        orientation: template.orientation || "portrait",
-        isDefault: Boolean(template.isDefault),
-        createdAt: template.createdAt
-          ? new Date(template.createdAt).toLocaleDateString()
-          : "",
-        raw: template,
-      }));
-
-      setTemplates(listItems);
-    } catch (err: any) {
-      // 404 means the user simply has no templates yet — treat as empty list
-      if (err?.response?.status === 404) {
-        setTemplates([]);
-        setError(null);
-      } else {
-        console.error("Error fetching templates:", err);
-        setError(err.response?.data?.message || "Failed to fetch templates");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (initialTemplates === undefined) {
-      fetchTemplates();
-    }
-  }, [initialTemplates]);
+    return templatesData.map((template) => ({
+      id: (template.id ?? "").toString(),
+      name: template.templateName || "Untitled Template",
+      paperSize: template.paperSize || "A4",
+      orientation: template.orientation || "portrait",
+      isDefault: Boolean(template.isDefault),
+      createdAt: template.createdAt
+        ? new Date(template.createdAt).toLocaleDateString()
+        : "",
+      raw: template,
+    }));
+  }, [data, initialTemplates]);
 
   const filteredTemplates = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
@@ -84,15 +69,26 @@ const useTemplatesList = (
       (template) =>
         template.name.toLowerCase().includes(query) ||
         (template.paperSize || "").toLowerCase().includes(query) ||
-        (template.orientation || "").toLowerCase().includes(query)
+        (template.orientation || "").toLowerCase().includes(query),
     );
   }, [templates, searchTerm]);
 
+  const error =
+    swrError?.response?.status === 404
+      ? null
+      : swrError
+        ? swrError.response?.data?.message ||
+          swrError.message ||
+          "Failed to fetch templates"
+        : null;
+
   return {
     templates,
-    loading,
+    loading: isLoading,
     error,
-    refetch: fetchTemplates,
+    refetch: async () => {
+      await mutate();
+    },
     searchTerm,
     setSearchTerm,
     filteredTemplates,

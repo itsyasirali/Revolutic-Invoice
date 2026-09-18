@@ -524,11 +524,13 @@ export const useInvoiceForm = () => {
     if (isEditMode && id) {
       const result = await updateInvoice(id, payload);
       if (result) {
+        router.refresh();
         router.push("/invoices");
       }
     } else {
       const result = await saveDraft(payload);
       if (result) {
+        router.refresh();
         router.push("/invoices");
       }
     }

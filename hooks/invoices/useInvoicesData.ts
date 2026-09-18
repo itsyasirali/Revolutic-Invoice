@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import axios from "@/lib/axios";
+import { useCallback, useMemo } from "react";
+import useSWR from "swr";
+import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 
 type RawDoc = any;
 
@@ -100,46 +101,44 @@ export default function useInvoicesList(
   filters: ListFilters = {},
   initialInvoices?: any[],
 ) {
-  const [items, setItems] = useState<UIInvoiceListItem[]>(
-    initialInvoices ? initialInvoices.map(mapDoc) : [],
-  );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [rawInvoices, setRawInvoices] = useState<RawDoc[]>(
-    initialInvoices || [],
-  );
-
-  const fetchList = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params = new URLSearchParams();
-      if (filters.status) params.set("status", filters.status);
-      if (filters.customerId) params.set("customerId", filters.customerId);
-      if (filters.startDate) params.set("startDate", filters.startDate);
-      if (filters.endDate) params.set("endDate", filters.endDate);
-      const qs = params.toString();
-      const url = `/invoices${qs ? `?${qs}` : ""}`;
-
-      const res = await axios.get(url);
-      const data = res.data;
-      const docs: RawDoc[] = Array.isArray(data) ? data : data?.invoices ?? [];
-      setRawInvoices(docs);
-      setItems(docs.map(mapDoc));
-    } catch (e: any) {
-      setError(e?.message || "Failed to load invoices");
-      setRawInvoices([]);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
+  const qs = useMemo(() => {
+    const params = new URLSearchParams();
+    if (filters.status) params.set("status", filters.status);
+    if (filters.customerId) params.set("customerId", filters.customerId);
+    if (filters.startDate) params.set("startDate", filters.startDate);
+    if (filters.endDate) params.set("endDate", filters.endDate);
+    const str = params.toString();
+    return str ? `?${str}` : "";
   }, [filters.status, filters.customerId, filters.startDate, filters.endDate]);
 
-  useEffect(() => {
-    if (initialInvoices === undefined) {
-      fetchList();
-    }
-  }, [fetchList, initialInvoices]);
+  const swrKey = `${SWR_KEYS.invoices}${qs}`;
+
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useSWR(swrKey, swrFetcher, {
+    fallbackData: initialInvoices
+      ? Array.isArray(initialInvoices)
+        ? initialInvoices
+        : { invoices: initialInvoices }
+      : undefined,
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  });
+
+  const rawInvoices: RawDoc[] = useMemo(() => {
+    if (!data) return initialInvoices || [];
+    return Array.isArray(data)
+      ? data
+      : (data as any)?.invoices ?? initialInvoices ?? [];
+  }, [data, initialInvoices]);
+
+  const items: UIInvoiceListItem[] = useMemo(() => {
+    return rawInvoices.map(mapDoc);
+  }, [rawInvoices]);
 
   const customerFinancials = useMemo(() => {
     const map = new Map<string, CustomerFinancials>();
@@ -237,9 +236,14 @@ export default function useInvoicesList(
   return {
     items,
     rawInvoices,
-    loading,
-    error,
-    refetch: fetchList,
+    loading: isLoading,
+    isValidating,
+    error: swrError
+      ? swrError?.response?.data?.message ||
+        swrError?.message ||
+        "Failed to load invoices"
+      : "",
+    refetch: () => mutate(),
     customerFinancials,
     getCustomerFinancials,
     currencyStats,

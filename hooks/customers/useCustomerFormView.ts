@@ -47,6 +47,7 @@ export const useCustomerFormView = () => {
         customer || undefined,
         existingFiles,
       );
+      router.refresh();
       router.push("/customers");
     },
     [customer, existingFiles, handleSubmit, router],

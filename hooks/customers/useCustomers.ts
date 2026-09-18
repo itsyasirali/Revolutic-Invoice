@@ -1,22 +1,20 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import axios from "@/lib/axios";
+import useSWR from "swr";
+import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Customer } from "@/types/customer";
+
+type CustomersApiResponse = {
+  customers?: Customer[];
+};
 
 const useCustomerData = (
   options: { fetchOnMount?: boolean; initialCustomers?: Customer[] } = {
     fetchOnMount: true,
   },
 ) => {
-  const [customers, setCustomers] = useState<Customer[]>(
-    options.initialCustomers || [],
-  );
-  // Initialize loading to true only if we don't have initialCustomers and are going to fetch on mount
-  const [loading, setLoading] = useState(
-    options.initialCustomers ? false : (options.fetchOnMount ?? true),
-  );
   const [statusFilter, setStatusFilter] = useState("All");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -29,28 +27,26 @@ const useCustomerData = (
     setSearchQuery(urlSearch);
   }, [urlSearch]);
 
-  const fetchCustomers = useCallback(async (isInitialFetch = false) => {
-    // Only set loading to true if it's not the initial fetch (since it's already true)
-    if (!isInitialFetch) {
-      setLoading(true);
-    }
-    try {
-      const response = await axios.get(`/customers`);
-      setCustomers(response.data.customers || []);
-    } catch (error) {
-      console.error("Failed to fetch customers:", error);
-      setCustomers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const shouldFetch = options.fetchOnMount ?? true;
 
-  useEffect(() => {
-    if (options.initialCustomers === undefined && options.fetchOnMount) {
-      // Execute as a microtask to avoid synchronous execution warnings
-      Promise.resolve().then(() => fetchCustomers(true));
-    }
-  }, [fetchCustomers, options.fetchOnMount, options.initialCustomers]);
+  const { data, isLoading, isValidating, mutate } = useSWR<
+    CustomersApiResponse | Customer[]
+  >(shouldFetch ? SWR_KEYS.customers : null, swrFetcher, {
+    fallbackData: options.initialCustomers
+      ? { customers: options.initialCustomers }
+      : undefined,
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  });
+
+  const customers: Customer[] = useMemo(() => {
+    if (!data) return options.initialCustomers || [];
+    return Array.isArray(data)
+      ? data
+      : Array.isArray(data?.customers)
+        ? data.customers
+        : options.initialCustomers || [];
+  }, [data, options.initialCustomers]);
 
   const filteredCustomers = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -71,8 +67,9 @@ const useCustomerData = (
 
   return {
     customers,
-    loading,
-    refetch: fetchCustomers,
+    loading: isLoading,
+    isValidating,
+    refetch: () => mutate(),
     statusFilter,
     setStatusFilter,
     dropdownOpen,

@@ -287,10 +287,8 @@ export const OrganizationSetup: React.FC = () => {
                     <LoadingSpinner size="xs" color="white" />
                     <span>Saving...</span>
                   </>
-                ) : isAddingNewOrg ? (
-                  "Create Organization"
                 ) : (
-                  "Get Started"
+                  "Create Organization"
                 )}
               </button>
 

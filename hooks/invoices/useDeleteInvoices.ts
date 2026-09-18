@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
+import { invalidateInvoices } from "@/lib/swr";
 
 type AlertState = {
   show: boolean;
@@ -52,6 +53,7 @@ const useDeleteInvoices = () => {
         message: `Successfully deleted ${selectedIds.length} invoice(s)`,
       });
 
+      await invalidateInvoices();
       if (refetch) refetch();
     } catch (err: any) {
       const msg =

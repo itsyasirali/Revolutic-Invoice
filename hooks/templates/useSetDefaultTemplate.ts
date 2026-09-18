@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "@/lib/axios";
+import { invalidateTemplates } from "@/lib/swr";
 import type { UseSetDefaultTemplateReturn } from "@/types/template";
 
 const useSetDefaultTemplate = (): UseSetDefaultTemplateReturn => {
@@ -20,6 +21,7 @@ const useSetDefaultTemplate = (): UseSetDefaultTemplateReturn => {
     try {
       setLoading(true);
       await axios.put(`/templates/${id}/set-default`);
+      await invalidateTemplates();
       setAlert({
         show: true,
         type: "success",

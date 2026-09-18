@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import axios from "@/lib/axios";
+import { invalidateInvoices } from "@/lib/swr";
 
 export type CreateInvoicePayload = any;
 type CreateResp = any;
@@ -21,6 +22,7 @@ const useCreateInvoice = () => {
           sendNow,
         });
         setLast(res.data);
+        await invalidateInvoices();
         return res.data;
       } catch (err: any) {
         const msg =

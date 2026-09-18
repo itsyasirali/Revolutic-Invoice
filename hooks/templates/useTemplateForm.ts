@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "@/lib/axios";
+import { invalidateTemplates } from "@/lib/swr";
 import type {
   TemplateFormData,
   UseTemplateFormReturn,
@@ -504,6 +505,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             },
           });
         }
+        await invalidateTemplates();
         setAlert({
           show: true,
           type: "success",
@@ -513,6 +515,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         });
 
         setTimeout(() => {
+          router.refresh();
           router.push("/templates");
         }, 1500);
       } catch (err: unknown) {
