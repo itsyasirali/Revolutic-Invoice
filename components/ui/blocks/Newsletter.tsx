@@ -1,21 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import { CheckCircle2 } from "lucide-react";
+import useNewsletterForm from "@/hooks/resources/useNewsletterForm";
 
 const Newsletter = () => {
-  const [subscribed, setSubscribed] = useState(false);
-  const [email, setEmail] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setSubscribed(true);
-      setEmail("");
-    }
-  };
+  const { subscribed, email, setEmail, handleSubmit } = useNewsletterForm();
 
   return (
     <section className="py-16">

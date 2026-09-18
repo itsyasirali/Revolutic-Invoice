@@ -144,6 +144,31 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
     onValueChange?: (value: string) => void;
 }
 
+export interface UseSelectProps {
+    options: (string | number | SelectOption)[];
+    value?: string | number | readonly string[];
+    defaultValue?: string | number | readonly string[];
+    onChange?: (e: any) => void;
+    onValueChange?: (value: string) => void;
+    name?: string;
+    selectId?: string;
+    searchable?: boolean;
+}
+
+export interface UseSelectReturn {
+    normalizedOptions: SelectOption[];
+    isOpen: boolean;
+    toggleOpen: () => void;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+    containerRef: React.RefObject<HTMLDivElement | null>;
+    searchInputRef: React.RefObject<HTMLInputElement | null>;
+    selectedOption: SelectOption | undefined;
+    filteredOptions: SelectOption[];
+    currentValue: string;
+    handleSelect: (optionVal: string | number) => void;
+}
+
 // Textarea Component Types
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
     variant?: 'default' | 'filled' | 'outline';
@@ -393,5 +418,29 @@ export interface SearchDropdownProps {
     dropdownWidth?: string;
     emptyMessage?: string;
     autoFocus?: boolean;
+}
+
+export interface UseSearchDropdownProps {
+    value?: string;
+    onChange?: (value: string) => void;
+    onSearch?: (query: string) => Promise<SearchResultItem[]> | SearchResultItem[];
+    items?: SearchResultItem[];
+    onSelect?: (item: SearchResultItem) => void;
+}
+
+export interface UseSearchDropdownReturn {
+    query: string;
+    results: SearchResultItem[];
+    loading: boolean;
+    isOpen: boolean;
+    activeIndex: number;
+    setActiveIndex: (index: number) => void;
+    containerRef: React.RefObject<HTMLDivElement | null>;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleFocus: () => void;
+    handleClear: () => void;
+    handleItemSelect: (item: SearchResultItem) => void;
+    handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 

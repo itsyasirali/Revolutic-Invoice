@@ -499,6 +499,17 @@ export interface CollapsibleSectionProps {
   isSelected?: boolean;
 }
 
+export interface UseCollapsibleSectionProps {
+  defaultOpen?: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
+}
+
+export interface UseCollapsibleSectionReturn {
+  isOpen: boolean;
+  handleToggle: () => void;
+}
+
 export interface PaperDimensions {
   width: string;
   height: string;
@@ -516,6 +527,38 @@ export interface UseTemplateFormViewReturn extends UseTemplateFormReturn {
   handlePreviewSelection: (elementId: string) => void;
 }
 
+export interface TemplateCardMenuItem {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+  variant?: "danger";
+}
+
+export interface UseTemplateCardProps {
+  template: TemplateListItem;
+  mode?: "manage" | "select";
+  selected?: boolean;
+  onClick?: (template: TemplateListItem) => void;
+  onSetActive: (id: string) => void;
+  onPreview: (template: TemplateListItem) => void;
+  onClone?: (template: TemplateListItem) => void;
+  onDelete?: (id: string) => void;
+}
+
+export interface UseTemplateCardReturn {
+  isHovered: boolean;
+  isMenuOpen: boolean;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  isSelectMode: boolean;
+  selectionBorderClass: string;
+  handleCardClick: () => void;
+  handleMouseEnter: () => void;
+  handleMouseLeave: () => void;
+  toggleMenu: () => void;
+  menuItems: TemplateCardMenuItem[];
+  handleMenuItemClick: (item: TemplateCardMenuItem) => void;
+}
+
 export interface TemplateCardProps {
   template: TemplateListItem;
   index: number;
@@ -531,6 +574,36 @@ export interface TemplateCardProps {
 
 export interface TemplateListProps {
   initialTemplates?: TemplateListItem[];
+}
+
+export interface UseTemplateListPageReturn {
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+  filteredTemplates: TemplateListItem[];
+  handleEdit: (id: string, template?: any) => void;
+  handleSetDefault: (id: string) => Promise<void>;
+  handleDeleteFromCard: (id: string) => void;
+  confirmDialog: { show: boolean; selectedIds: string[] };
+  confirmDelete: () => Promise<void>;
+  hideConfirmDialog: () => void;
+  previewOpen: boolean;
+  previewTemplate: TemplateListItem | null;
+  zoomLevel: number;
+  currentPage: number;
+  openPreview: (template: TemplateListItem) => void;
+  closePreview: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  setCurrentPage: (page: number) => void;
+  cloneTemplate: (template: TemplateListItem) => Promise<void>;
+  handleNew: () => void;
+}
+
+export interface UseTemplatePreviewModalReturn {
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
+  handleDownload: (template: TemplateListItem) => Promise<void>;
 }
 
 export interface TemplatePreviewModalProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
@@ -21,6 +21,11 @@ export const useCustomerDetailsView = () => {
     useCustomerFinancials(customer);
 
   const [activeTab, setActiveTab] = useState<CustomerTab>("invoices");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleEdit = useCallback(() => {
     if (customer) {
@@ -62,6 +67,79 @@ export const useCustomerDetailsView = () => {
     [router],
   );
 
+  const customerInitials = useMemo(() => {
+    const name = customer?.displayName?.trim() || "";
+    if (!name) return "CU";
+    const parts = name.split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }, [customer?.displayName]);
+
+  const customerIdDisplay = useMemo(() => {
+    if (!customer?.id) return "CUST-0001";
+    const str = String(customer.id);
+    if (str.toUpperCase().startsWith("CUST-")) return str;
+    if (/^\d+$/.test(str)) return `CUST-${str.padStart(4, "0")}`;
+    return `CUST-${str.slice(0, 6).toUpperCase()}`;
+  }, [customer?.id]);
+
+  const customerSince = useMemo(() => {
+    const dateVal = customer?.createdAt || customer?.updatedAt;
+    if (!dateVal) return "Jan 2026";
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return "Jan 2026";
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return "Jan 2026";
+    }
+  }, [customer?.createdAt, customer?.updatedAt]);
+
+  const billingAddressLines = useMemo(() => {
+    if (!customer?.address) return ["No address provided"];
+    const lines = customer.address.split(/\r?\n/).filter(Boolean);
+    if (lines.length > 1) return lines;
+    const commaParts = customer.address
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (commaParts.length >= 2) return commaParts;
+    return [customer.address];
+  }, [customer?.address]);
+
+  const customerLocation = useMemo(() => {
+    if (!customer?.address) return "Location not set";
+    const parts = customer.address
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) {
+      return parts.slice(-2).join(", ");
+    }
+    return parts[0] || "Location not set";
+  }, [customer?.address]);
+
+  const email = primaryContact?.email || customer?.email || "No email provided";
+  const phone = primaryContact?.phone || customer?.phone || "No phone provided";
+  const currency = customer?.currency || "PKR";
+
+  const tabs = useMemo(
+    () => [
+      { label: "Invoices", value: "invoices", count: customerInvoices.length },
+      {
+        label: "Transactions",
+        value: "transactions",
+        count: customerTransactions.length,
+      },
+    ],
+    [customerInvoices.length, customerTransactions.length],
+  );
+
   return {
     customer,
     primaryContact,
@@ -72,6 +150,16 @@ export const useCustomerDetailsView = () => {
     customerTransactions,
     activeTab,
     setActiveTab,
+    mounted,
+    customerInitials,
+    customerIdDisplay,
+    customerSince,
+    billingAddressLines,
+    customerLocation,
+    email,
+    phone,
+    currency,
+    tabs,
     handleEdit,
     handleNewInvoice,
     handleDelete,

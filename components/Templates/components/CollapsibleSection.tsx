@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { ChevronRight } from "lucide-react";
 import type { CollapsibleSectionProps } from "@/types/template";
+import useCollapsibleSection from "@/hooks/templates/useCollapsibleSection";
 
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
@@ -12,24 +13,11 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   id,
   isSelected = false,
 }) => {
-  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
-
-  useEffect(() => {
-    if (defaultOpen) {
-      setInternalIsOpen(true);
-    }
-  }, [defaultOpen]);
-
-  const isOpen =
-    controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
-
-  const handleToggle = () => {
-    if (onToggle) {
-      onToggle();
-    } else {
-      setInternalIsOpen(!internalIsOpen);
-    }
-  };
+  const { isOpen, handleToggle } = useCollapsibleSection({
+    defaultOpen,
+    isOpen: controlledIsOpen,
+    onToggle,
+  });
 
   return (
     <div

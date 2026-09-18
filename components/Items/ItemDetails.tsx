@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   Home,
@@ -13,31 +13,8 @@ import {
 import useItemDetailsView from "@/hooks/items/useItemDetailsView";
 
 const ItemDetails: React.FC = () => {
-  const { item, loading } = useItemDetailsView();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const itemInitials = useMemo(() => {
-    const name = item?.name?.trim() || "";
-    if (!name) return "IT";
-    const parts = name.split(/\s+/);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  }, [item?.name]);
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const itemIdDisplay = useMemo(() => {
-    if (!item?.id) return "ITEM-0001";
-    const str = String(item.id);
-    if (str.toUpperCase().startsWith("ITEM-")) return str;
-    if (/^\d+$/.test(str)) return `ITEM-${str.padStart(4, "0")}`;
-    return `ITEM-${str.slice(0, 6).toUpperCase()}`;
-  }, [item?.id]);
+  const { item, loading, mounted, itemInitials, itemIdDisplay } =
+    useItemDetailsView();
 
   if (!mounted || (loading && !item)) {
     return null;

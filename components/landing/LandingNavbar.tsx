@@ -1,23 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import { Menu, X, ArrowRight, LayoutDashboard } from "lucide-react";
-
-const NAV_LINKS = [
-  { label: "Features", href: "/#features" },
-  { label: "Industries", href: "/industries" },
-  { label: "Customers", href: "/customers-stories" },
-  { label: "Resources", href: "/resources" },
-  { label: "About", href: "/about" },
-];
+import useLandingNavbar from "@/hooks/landing/useLandingNavbar";
 
 const LandingNavbar = () => {
-  const { user } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, navLinks, mobileMenuOpen, toggleMobileMenu, closeMobileMenu } =
+    useLandingNavbar();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 transition-all">
@@ -42,7 +34,7 @@ const LandingNavbar = () => {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -96,7 +88,7 @@ const LandingNavbar = () => {
           <div className="flex md:hidden">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
               aria-label="Toggle navigation menu"
             >
@@ -114,11 +106,11 @@ const LandingNavbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200/80 bg-white px-6 py-6 space-y-4 shadow-xl animate-slide-up">
           <div className="flex flex-col space-y-3">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
                 className="text-base font-semibold text-slate-700 hover:text-primary py-2 transition-colors"
               >
                 {link.label}
@@ -137,7 +129,7 @@ const LandingNavbar = () => {
               >
                 <Link
                   href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   className="flex items-center justify-center gap-2"
                 >
                   <LayoutDashboard className="w-4 h-4" />
@@ -155,7 +147,7 @@ const LandingNavbar = () => {
                 >
                   <Link
                     href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     Sign In
                   </Link>
@@ -169,7 +161,7 @@ const LandingNavbar = () => {
                 >
                   <Link
                     href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className="flex items-center justify-center gap-2"
                   >
                     <span>Start Free</span>

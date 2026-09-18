@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   Home,
@@ -30,21 +30,24 @@ import useCustomerDetailsView, {
 } from "@/hooks/customers/useCustomerDetailsView";
 
 const CustomerDetails: React.FC = () => {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const {
     customer,
-    primaryContact,
     loading,
     financials,
     customerInvoices,
     customerTransactions,
     activeTab,
     setActiveTab,
+    mounted,
+    customerInitials,
+    customerIdDisplay,
+    customerSince,
+    billingAddressLines,
+    customerLocation,
+    email,
+    phone,
+    currency,
+    tabs,
     handleBackClick,
     handleEdit,
     handleNewInvoice,
@@ -156,71 +159,6 @@ const CustomerDetails: React.FC = () => {
     },
   ];
 
-  // Helper values
-  const customerInitials = useMemo(() => {
-    const name = customer?.displayName?.trim() || "";
-    if (!name) return "CU";
-    const parts = name.split(/\s+/);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  }, [customer?.displayName]);
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const customerIdDisplay = useMemo(() => {
-    if (!customer?.id) return "CUST-0001";
-    const str = String(customer.id);
-    if (str.toUpperCase().startsWith("CUST-")) return str;
-    if (/^\d+$/.test(str)) return `CUST-${str.padStart(4, "0")}`;
-    return `CUST-${str.slice(0, 6).toUpperCase()}`;
-  }, [customer?.id]);
-
-  const customerSince = useMemo(() => {
-    const dateVal = customer?.createdAt || customer?.updatedAt;
-    if (!dateVal) return "Jan 2026";
-    try {
-      const d = new Date(dateVal);
-      if (isNaN(d.getTime())) return "Jan 2026";
-      return d.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return "Jan 2026";
-    }
-  }, [customer?.createdAt, customer?.updatedAt]);
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const billingAddressLines = useMemo(() => {
-    if (!customer?.address) return ["No address provided"];
-    const lines = customer.address.split(/\r?\n/).filter(Boolean);
-    if (lines.length > 1) return lines;
-    const commaParts = customer.address
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (commaParts.length >= 2) return commaParts;
-    return [customer.address];
-  }, [customer?.address]);
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const customerLocation = useMemo(() => {
-    if (!customer?.address) return "Location not set";
-    const parts = customer.address
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (parts.length >= 2) {
-      return parts.slice(-2).join(", ");
-    }
-    return parts[0] || "Location not set";
-  }, [customer?.address]);
-
-  const email = primaryContact?.email || customer?.email || "No email provided";
-  const phone = primaryContact?.phone || customer?.phone || "No phone provided";
-  const currency = customer?.currency || "PKR";
-
   if (!mounted || (loading && !customer)) {
     return null;
   }
@@ -228,15 +166,6 @@ const CustomerDetails: React.FC = () => {
   if (!customer) {
     return null;
   }
-
-  const tabs = [
-    { label: "Invoices", value: "invoices", count: customerInvoices.length },
-    {
-      label: "Transactions",
-      value: "transactions",
-      count: customerTransactions.length,
-    },
-  ];
 
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">

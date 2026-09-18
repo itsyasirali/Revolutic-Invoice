@@ -69,6 +69,7 @@ export const useInvoiceForm = () => {
     [key: number]: boolean;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const itemDropdownRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
@@ -726,6 +727,17 @@ export const useInvoiceForm = () => {
     router.push("/invoices");
   };
 
+  const openTemplateSelector = () => setShowTemplateSelector(true);
+  const closeTemplateSelector = () => setShowTemplateSelector(false);
+
+  const busy = isSubmitting || saving || updating;
+
+  const isFormValid = !!(
+    invoiceData.customerId &&
+    items.length > 0 &&
+    items.some((item) => item.name && item.name.trim() !== "")
+  );
+
   const filteredCustomers = customers.filter((customer) => {
     const searchLower = customerSearchTerm.toLowerCase();
     const displayName = (
@@ -757,6 +769,11 @@ export const useInvoiceForm = () => {
     updating,
     customers,
     itemsData,
+    showTemplateSelector,
+    openTemplateSelector,
+    closeTemplateSelector,
+    busy,
+    isFormValid,
     setCustomerDropdownOpen,
     setCustomerSearchTerm,
     setItemDropdownOpen,

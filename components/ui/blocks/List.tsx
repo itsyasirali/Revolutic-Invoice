@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Container from "@/components/layout/container";
 import Card from "@/components/ui/blocks/ResourceCard";
 import Button from "@/components/ui/Button";
 import type { ListProps } from "@/types/resource";
+import useResourceList from "@/hooks/resources/useResourceList";
 
 const List = ({
   title,
@@ -13,23 +14,14 @@ const List = ({
   categories,
   baseRoute,
 }: ListProps) => {
-  const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [visibleCount, setVisibleCount] = useState(6);
-
-  // Filter out the featured post from the grid if it's currently at the top
-  const regularItems = items.filter((item) => !item.featured);
-
-  const filteredItems =
-    activeCategory === "All"
-      ? regularItems
-      : regularItems.filter((item) => item.category === activeCategory);
-
-  const displayedItems = filteredItems.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredItems.length;
-
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 6);
-  };
+  const {
+    activeCategory,
+    handleCategoryChange,
+    displayedItems,
+    filteredItems,
+    hasMore,
+    handleLoadMore,
+  } = useResourceList({ items });
 
   return (
     <section className="py-16 md:py-24">
@@ -46,10 +38,7 @@ const List = ({
           {categories.map((category) => (
             <button
               key={category}
-              onClick={() => {
-                setActiveCategory(category);
-                setVisibleCount(6); // Reset pagination on filter change
-              }}
+              onClick={() => handleCategoryChange(category)}
               className={`px-5 py-2.5 cursor-pointer rounded-md text-sm font-semibold transition-all duration-300 ${
                 activeCategory === category
                   ? "bg-primary text-white"

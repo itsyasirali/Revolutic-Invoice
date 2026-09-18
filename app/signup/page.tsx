@@ -1,34 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import React from "react";
 import LoginSignupForm from "@/components/auth/auth";
+import useAuthRedirect from "@/hooks/auth/useAuthRedirect";
 
 const SignupPage = () => {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && user) {
-      if (user.organizationId || user.organization) {
-        router.replace("/dashboard");
-      } else {
-        router.replace("/organization-setup");
-      }
-    }
-  }, [user, loading, router]);
+  const { initialMode, handleLoginSuccess } = useAuthRedirect("signup");
 
   return (
     <LoginSignupForm
-      initialMode="signup"
-      onLoginSuccess={() => {
-        if (user?.organizationId || user?.organization) {
-          router.push("/dashboard");
-        } else {
-          router.push("/organization-setup");
-        }
-      }}
+      initialMode={initialMode}
+      onLoginSuccess={handleLoginSuccess}
     />
   );
 };

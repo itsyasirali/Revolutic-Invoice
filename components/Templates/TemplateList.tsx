@@ -1,12 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { FileText } from "lucide-react";
-import useTemplatesList from "@/hooks/templates/useTemplatesList";
-import useTemplateActions from "@/hooks/templates/useTemplateActions";
-import useTemplatePreview from "@/hooks/templates/useTemplatePreview";
-import useCloneTemplate from "@/hooks/templates/useCloneTemplate";
+import useTemplateListPage from "@/hooks/templates/useTemplateListPage";
 import {
   Button,
   ConfirmDialog,
@@ -19,23 +15,19 @@ import TemplatePreviewModal from "./TemplatePreviewModal";
 import type { TemplateListProps } from "@/types/template";
 
 const TemplateList = ({ initialTemplates }: TemplateListProps) => {
-  const router = useRouter();
-  const { loading, error, refetch, filteredTemplates } =
-    useTemplatesList(initialTemplates);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
   const {
-    handleDelete,
+    loading,
+    error,
+    refetch,
+    filteredTemplates,
     handleEdit,
     handleSetDefault,
+    handleDeleteFromCard,
     confirmDialog,
     confirmDelete,
     hideConfirmDialog,
-  } = useTemplateActions({ selectedIds, setSelectedIds, refetch });
-
-  const {
-    isOpen: previewOpen,
-    selectedTemplate: previewTemplate,
+    previewOpen,
+    previewTemplate,
     zoomLevel,
     currentPage,
     openPreview,
@@ -43,18 +35,9 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
     zoomIn,
     zoomOut,
     setCurrentPage,
-  } = useTemplatePreview();
-
-  const { cloneTemplate } = useCloneTemplate(refetch);
-
-  const handleDeleteFromCard = (id: string) => {
-    setSelectedIds([id]);
-    handleDelete([id]);
-  };
-
-  const handleNew = () => {
-    router.push("/templates/new");
-  };
+    cloneTemplate,
+    handleNew,
+  } = useTemplateListPage({ initialTemplates });
 
   if (error) {
     return (

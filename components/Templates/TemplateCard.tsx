@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Pencil, Settings, Eye, Copy, Trash2, CheckCircle } from "lucide-react";
+import React from "react";
+import { Pencil, Settings, CheckCircle } from "lucide-react";
 import type { TemplateCardProps } from "@/types/template";
+import useTemplateCard from "@/hooks/templates/useTemplateCard";
 import TemplatePreview from "./TemplatePreview";
 import { Badge, IconButton } from "@/components/ui";
 
@@ -18,84 +19,27 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
   selected = false,
   onClick,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const isSelectMode = mode === "select";
-
-  const selectionBorderClass = selected
-    ? "ring-4 ring-blue-500 ring-offset-2"
-    : isSelectMode
-      ? "hover:ring-2 hover:ring-blue-300 ring-offset-1 cursor-pointer"
-      : "";
-
-  const handleCardClick = () => {
-    if (isSelectMode && onClick) {
-      onClick(template);
-    }
-  };
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-    if (isMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isMenuOpen]);
-
-  // Close menu when card loses hover
-  useEffect(() => {
-    if (!isHovered) setIsMenuOpen(false);
-  }, [isHovered]);
-
-  interface MenuItem {
-    icon: React.ElementType;
-    label: string;
-    onClick: () => void;
-    variant?: "danger";
-  }
-
-  const menuItems: MenuItem[] = [
-    ...(template.isDefault
-      ? []
-      : [
-          {
-            icon: CheckCircle,
-            label: "Set as Default",
-            onClick: () => onSetActive(template.id),
-          },
-        ]),
-    {
-      icon: Eye,
-      label: "Preview",
-      onClick: () => onPreview(template),
-    },
-    ...(onClone
-      ? [
-          {
-            icon: Copy,
-            label: "Clone",
-            onClick: () => onClone(template),
-          },
-        ]
-      : []),
-    ...(onDelete
-      ? [
-          {
-            icon: Trash2,
-            label: "Delete",
-            onClick: () => onDelete(template.id),
-            variant: "danger" as const,
-          },
-        ]
-      : []),
-  ];
+  const {
+    isHovered,
+    isMenuOpen,
+    menuRef,
+    selectionBorderClass,
+    handleCardClick,
+    handleMouseEnter,
+    handleMouseLeave,
+    toggleMenu,
+    menuItems,
+    handleMenuItemClick,
+  } = useTemplateCard({
+    template,
+    mode,
+    selected,
+    onClick,
+    onSetActive,
+    onPreview,
+    onClone,
+    onDelete,
+  });
 
   return (
     <div
@@ -106,8 +50,8 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         width: "calc(210mm * 0.35)",
         animationDelay: `${index * 100}ms`,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleCardClick}
     >
       <div
@@ -151,7 +95,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
                 variant="secondary"
                 size="lg"
                 label="Template Options"
-                onClick={() => setIsMenuOpen((prev) => !prev)}
+                onClick={toggleMenu}
               />
 
               {isMenuOpen && (
@@ -166,11 +110,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
                             ? "text-red-500 hover:bg-red-50"
                             : "text-slate-700"
                         }`}
-                        onClick={() => {
-                          item.onClick();
-                          setIsMenuOpen(false);
-                          setIsHovered(false);
-                        }}
+                        onClick={() => handleMenuItemClick(item)}
                       >
                         <Icon size={15} />
                         {item.label}

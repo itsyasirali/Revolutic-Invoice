@@ -1,16 +1,13 @@
 "use client";
 
-import * as React from "react";
 import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import { CheckCircle2 } from "lucide-react";
-
-import { solutionData, solutionTabs, SolutionTab } from "@/data/landing/solutionData";;
+import { solutionTabs } from "@/data/landing/solutionData";
+import useSolutionsTabs from "@/hooks/landing/useSolutionsTabs";
 
 const Solutions = () => {
-  const [activeTab, setActiveTab] = React.useState<SolutionTab>("Sales");
-
-  const currentData = solutionData[activeTab];
+  const { activeTab, setActiveTab, currentData } = useSolutionsTabs();
 
   return (
     <section className="py-24">

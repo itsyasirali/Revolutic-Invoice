@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuthForm } from "@/hooks/auth/useAuthForm";
+import useLoginSignupForm from "@/hooks/auth/useLoginSignupForm";
 import { Eye, EyeOff } from "lucide-react";
 import AuthSlideIllustration from "@/components/auth/AuthSlideIllustration";
 import type { LoginSignupFormProps } from "@/types/auth";
@@ -13,13 +12,6 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
   onLoginSuccess,
   initialMode = "login",
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-
   const {
     isSignup,
     name,
@@ -33,63 +25,16 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     setPassword,
     setConfirmPassword,
     handleSubmit,
-    toggleMode,
     handleKeyPress,
-  } = useAuthForm({ onLoginSuccess, initialMode });
-
-  const handleToggle = () => {
-    toggleMode();
-    if (pathname === "/login") {
-      router.push("/register");
-    } else if (pathname === "/register" || pathname === "/signup") {
-      router.push("/login");
-    }
-  };
-
-  const slides = [
-    {
-      id: "automation",
-      title: "Automated Invoicing",
-      description:
-        "Create recurring schedules, generate customized PDF invoices, and automatically send reminders to clients.",
-      buttonText: "Explore features",
-      link: "/#features",
-    },
-    {
-      id: "payments",
-      title: "Instant Global Payments",
-      description:
-        "Accept payments seamlessly worldwide with automated reconciliation, card processing, and zero payment delays.",
-      buttonText: "Payment methods",
-      link: "/#features",
-    },
-    {
-      id: "clients",
-      title: "Client & Vendor Management",
-      description:
-        "Centralize customer records, manage billing profiles, and track outstanding balances in one organized dashboard.",
-      buttonText: "Client tools",
-      link: "/#how-it-works",
-    },
-    {
-      id: "analytics",
-      title: "Real-time Tracking & Analytics",
-      description:
-        "Monitor paid vs pending invoices, analyze monthly cash flow, and export clean financial reports anytime.",
-      buttonText: "View analytics",
-      link: "/#how-it-works",
-    },
-  ];
-
-  // Automatic slide rotation every 4.5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % slides.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-
+    showPassword,
+    showConfirmPassword,
+    activeSlide,
+    setActiveSlide,
+    slides,
+    handleToggle,
+    togglePasswordVisibility,
+    toggleConfirmPasswordVisibility,
+  } = useLoginSignupForm({ onLoginSuccess, initialMode });
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
@@ -194,7 +139,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={togglePasswordVisibility}
                   className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
                   aria-label="Toggle password visibility"
                 >
@@ -220,7 +165,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   />
                   <button
                     type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    onClick={toggleConfirmPasswordVisibility}
                     className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
                     aria-label="Toggle confirm password visibility"
                   >

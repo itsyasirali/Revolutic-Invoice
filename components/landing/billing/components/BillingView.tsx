@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { CreditCard, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import plans from "@/data/pricing/plans";
+import useBillingView from "@/hooks/landing/useBillingView";
 
 const BillingView = () => {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const { isAnnual, selectMonthly, selectAnnual } = useBillingView();
   return (
     <div className="flex-1 flex flex-col h-full bg-slate-50 overflow-y-auto p-8">
       {/* Header */}
@@ -115,7 +116,7 @@ const BillingView = () => {
 
       <div className="flex items-center justify-center gap-3 bg-slate-50 p-1.5 rounded-full w-fit mx-auto border border-slate-200 shadow-sm mt-12 mb-20">
         <button
-          onClick={() => setIsAnnual(false)}
+          onClick={selectMonthly}
           className={`px-6 py-2 rounded-full cursor-pointer text-base font-semibold transition-all ${
             !isAnnual
               ? "bg-white text-slate-900 shadow-sm"
@@ -125,7 +126,7 @@ const BillingView = () => {
           Monthly
         </button>
         <button
-          onClick={() => setIsAnnual(true)}
+          onClick={selectAnnual}
           className={`px-6 py-2 rounded-full cursor-pointer text-base font-semibold transition-all flex items-center gap-2 ${
             isAnnual
               ? "bg-white text-slate-900 shadow-sm"

@@ -1,50 +1,16 @@
 "use client";
 
-import * as React from "react";
 import Container from "@/components/layout/container";
 import { ArrowLeft, ArrowRight, ArrowRightIcon } from "lucide-react";
 import industries from "@/data/industries/industries";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
+import useIndustriesScroller from "@/hooks/landing/useIndustriesScroller";
 
 const Industries = () => {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [isAtStart, setIsAtStart] = React.useState(true);
-  const [isAtEnd, setIsAtEnd] = React.useState(false);
-
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      // Increased tolerance to 40px to account for CSS scroll-snap offsets
-      setIsAtStart(scrollLeft <= 40);
-      setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 40);
-    }
-  };
-
-  React.useEffect(() => {
-    handleScroll();
-    const timeout = setTimeout(handleScroll, 200);
-    window.addEventListener("resize", handleScroll);
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, []);
-
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      const cardWidth = scrollRef.current.firstElementChild?.clientWidth || 320;
-      scrollRef.current.scrollBy({ left: -(cardWidth + 16), behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      const cardWidth = scrollRef.current.firstElementChild?.clientWidth || 320;
-      scrollRef.current.scrollBy({ left: cardWidth + 16, behavior: "smooth" });
-    }
-  };
+  const { scrollRef, isAtStart, isAtEnd, handleScroll, scrollLeft, scrollRight } =
+    useIndustriesScroller();
 
   return (
     <section className="py-24">

@@ -54,6 +54,26 @@ export interface ResourceCardProps {
   baseRoute: string;
 }
 
+export interface UseResourceListProps {
+  items: ResourceItem[];
+}
+
+export interface UseResourceListReturn {
+  activeCategory: string;
+  handleCategoryChange: (category: string) => void;
+  displayedItems: ResourceItem[];
+  filteredItems: ResourceItem[];
+  hasMore: boolean;
+  handleLoadMore: () => void;
+}
+
+export interface UseNewsletterFormReturn {
+  subscribed: boolean;
+  email: string;
+  setEmail: (email: string) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+}
+
 export interface ResourceDetailPageProps {
   params: Promise<{ slug: string }>;
 }

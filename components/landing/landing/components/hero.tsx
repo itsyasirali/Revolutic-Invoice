@@ -1,15 +1,14 @@
 "use client";
 
-import * as React from "react";
 import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { X, Minus, Expand } from "lucide-react";
-import chatData from "@/data/landing/chatData";
+import useHeroChatDemo from "@/hooks/landing/useHeroChatDemo";
 
 const Hero = () => {
-  const [activeChatId, setActiveChatId] = React.useState(chatData[0].id);
-  const activeChat = chatData.find((c) => c.id === activeChatId) || chatData[0];
+  const { chatData, activeChatId, activeChat, setActiveChatId } =
+    useHeroChatDemo();
 
   return (
     <section className="relative overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useDeleteItems from "./useItemsDelete";
 import type { Item } from "@/types/item";
@@ -23,6 +23,11 @@ export const useItemDetailsView = () => {
 
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -79,10 +84,31 @@ export const useItemDetailsView = () => {
     router.push("/items");
   }, [router]);
 
+  const itemInitials = useMemo(() => {
+    const name = item?.name?.trim() || "";
+    if (!name) return "IT";
+    const parts = name.split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }, [item?.name]);
+
+  const itemIdDisplay = useMemo(() => {
+    if (!item?.id) return "ITEM-0001";
+    const str = String(item.id);
+    if (str.toUpperCase().startsWith("ITEM-")) return str;
+    if (/^\d+$/.test(str)) return `ITEM-${str.padStart(4, "0")}`;
+    return `ITEM-${str.slice(0, 6).toUpperCase()}`;
+  }, [item?.id]);
+
   return {
     item,
     id,
+    mounted,
     loading: loading || deleteLoading,
+    itemInitials,
+    itemIdDisplay,
     handleEdit,
     handleDelete,
     handleBackClick,

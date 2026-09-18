@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Settings, X, Eye, Info, Mail, Tag } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
@@ -38,10 +38,12 @@ const InvoiceForm = () => {
     handleSaveAndSend,
     calculateTotal,
     calculateSubtotal,
+    showTemplateSelector,
+    openTemplateSelector,
+    closeTemplateSelector,
+    busy,
+    isFormValid,
   } = useInvoiceForm();
-
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-  const busy = isSubmitting || saving || updating;
 
   const customerOptions: SelectOption[] = useMemo(() => {
     const list =
@@ -178,11 +180,6 @@ const InvoiceForm = () => {
     return opts;
   };
 
-  const isFormValid =
-    invoiceData.customerId &&
-    items.length > 0 &&
-    items.some((item) => item.name && item.name.trim() !== "");
-
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
@@ -192,7 +189,7 @@ const InvoiceForm = () => {
 
       <InvoiceTemplateSelector
         isOpen={showTemplateSelector}
-        onClose={() => setShowTemplateSelector(false)}
+        onClose={closeTemplateSelector}
         onSelect={(template) => handleInvoiceChange("templateId", template.id)}
         currentTemplateId={invoiceData.templateId}
       />
@@ -295,7 +292,7 @@ const InvoiceForm = () => {
                       />
                       <Settings
                         className="absolute right-3 top-[34px] w-4 h-4 text-gray-400 cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => setShowTemplateSelector(true)}
+                        onClick={openTemplateSelector}
                       />
                     </div>
 
