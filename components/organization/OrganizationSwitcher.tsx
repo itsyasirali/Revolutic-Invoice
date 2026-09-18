@@ -110,7 +110,9 @@ export const OrganizationSwitcher: React.FC = () => {
             >
               {/* Header Row: Organizations | Manage | Close */}
               <div className="bg-[#f8fafc] px-5 py-4 border-b border-slate-200/80 flex items-center justify-between shrink-0">
-                <h3 className="text-base font-bold text-slate-900">Organizations</h3>
+                <h3 className="text-base font-bold text-slate-900">
+                  Organizations
+                </h3>
 
                 <div className="flex items-center gap-2">
                   <button
@@ -153,15 +155,13 @@ export const OrganizationSwitcher: React.FC = () => {
                       type="button"
                       onClick={() => handleSelectOrg(org.id)}
                       className={`w-full flex items-center justify-between px-5 py-3.5 border-b border-slate-100/80 transition-colors cursor-pointer text-left group ${
-                        isActive
-                          ? "bg-slate-50/50"
-                          : "hover:bg-slate-50/70"
+                        isActive ? "bg-slate-50/50" : "hover:bg-slate-50/70"
                       }`}
                     >
                       <div className="flex items-center gap-3.5 min-w-0 pr-3">
                         {/* Organization Avatar Box with Theme Background Color and First Letter */}
                         <div
-                          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-base font-bold text-white shadow-xs ${theme.avatar}`}
+                          className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-base font-bold text-white shadow-xs ${theme.avatar}`}
                         >
                           {org.name?.charAt(0)?.toUpperCase() || "O"}
                         </div>
@@ -208,7 +208,7 @@ export const OrganizationSwitcher: React.FC = () => {
               </div>
             </div>
           </>,
-          document.body
+          document.body,
         )}
 
       {/* Confirmation Dialog on Org Switch */}
