@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Template } from "@/entities/Template";
 import { Payment } from "@/entities/Payment";
+import { Invoice } from "@/entities/Invoice";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 
 const deleteTemplate = async (
@@ -33,9 +34,31 @@ const deleteTemplate = async (
 
     const db = await getDatabase();
 
-    // Unlink any payments referencing this template to prevent FK constraints
+    const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
-    await paymentRepo.update({ templateId, organizationId }, { templateId: null as any });
+
+    const [linkedInvoiceCount, linkedPaymentCount] = await Promise.all([
+      invoiceRepo.count({ where: { templateId, organizationId } }),
+      paymentRepo.count({ where: { templateId, organizationId } }),
+    ]);
+
+    if (linkedInvoiceCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete template: ${linkedInvoiceCount} invoice(s) are using this template. Please delete or reassign those invoices first.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    if (linkedPaymentCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete template: ${linkedPaymentCount} payment(s) are using this template. Please delete or reassign those payments first.`,
+        },
+        { status: 400 },
+      );
+    }
 
     const templateRepo = db.getRepository(Template);
     const deleteWhere = { id: templateId, organizationId };

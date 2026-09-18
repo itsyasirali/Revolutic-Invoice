@@ -49,7 +49,7 @@ const useDeleteItems = () => {
         data: { items: selectedIds.map(String) },
       });
 
-      toast.success(
+      toast.error(
         selectedIds.length > 1
           ? "Items deleted successfully"
           : "Item deleted successfully",

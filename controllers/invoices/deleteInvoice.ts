@@ -45,9 +45,19 @@ const deleteInvoice = async (
       );
     }
 
-    // Remove any payment applications linked to this invoice first to prevent FK violation
     const paymentAppliedRepo = db.getRepository(PaymentAppliedInvoice);
-    await paymentAppliedRepo.delete({ invoiceId });
+    const linkedPaymentCount = await paymentAppliedRepo.count({
+      where: { invoiceId },
+    });
+
+    if (linkedPaymentCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete invoice: ${linkedPaymentCount} payment(s) are linked to this invoice. Please delete the associated payments first.`,
+        },
+        { status: 400 },
+      );
+    }
 
     await invoiceRepository.delete({ id: invoiceId, organizationId: orgId });
 

@@ -46,7 +46,7 @@ const useDeleteCustomer = () => {
       });
 
       await invalidateCustomers();
-      toast.success(
+      toast.error(
         selectedIds.length > 1
           ? "Customers deleted successfully"
           : "Customer deleted successfully",

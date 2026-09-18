@@ -43,13 +43,20 @@ const batchDeleteItems = async (req: NextRequest) => {
 
     const db = await getDatabase();
 
-    // Safely unlink any existing invoice line items so invoices retain their text snapshot
-    // without failing Postgres foreign key constraint
     const invoiceItemRepo = db.getRepository(InvoiceItem);
-    await invoiceItemRepo.update(
-      { itemId: In(parsedItemIds) },
-      { itemId: null },
-    );
+    const linkedCount = await invoiceItemRepo.count({
+      where: { itemId: In(parsedItemIds) },
+    });
+
+    if (linkedCount > 0) {
+      return NextResponse.json(
+        {
+          message:
+            "Items which are a part of other transactions cannot be deleted. Instead, mark them as inactive.",
+        },
+        { status: 400 },
+      );
+    }
 
     const itemsRepository = db.getRepository(Item);
     const result = await itemsRepository.delete({

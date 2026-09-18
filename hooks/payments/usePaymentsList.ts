@@ -134,7 +134,7 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
     if (!confirmDialog.selectedIds.length) return;
     try {
       await deletePayments(confirmDialog.selectedIds);
-      toast.success(
+      toast.error(
         confirmDialog.selectedIds.length > 1
           ? "Payments deleted successfully"
           : "Payment deleted successfully",

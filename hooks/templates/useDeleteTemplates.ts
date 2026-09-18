@@ -37,7 +37,7 @@ const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
         await axios.delete(`/templates/${id}`);
       }
 
-      toast.success(
+      toast.error(
         confirmDialog.selectedIds.length > 1
           ? "Templates deleted successfully"
           : "Template deleted successfully",

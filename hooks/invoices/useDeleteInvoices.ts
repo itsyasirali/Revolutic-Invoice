@@ -48,7 +48,7 @@ const useDeleteInvoices = () => {
         await axios.delete(`/invoices/${id}`);
       }
 
-      toast.success(
+      toast.error(
         selectedIds.length > 1
           ? "Invoices deleted successfully"
           : "Invoice deleted successfully",
