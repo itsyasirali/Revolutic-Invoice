@@ -19,7 +19,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-success text-white hover:bg-success/90 focus:ring-success/40 shadow-sm border border-transparent",
   warning:
     "bg-warning text-white hover:bg-warning/90 focus:ring-warning/40 shadow-sm border border-transparent",
-  link: "bg-transparent text-primary hover:underline hover:text-primary/80 focus:ring-primary/30 border border-transparent p-0 shadow-none",
+  link: "bg-transparent text-primary hover:underline hover:text-primary/80 border-none p-0 shadow-none focus:ring-0 focus:outline-none",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -49,12 +49,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    const baseClasses =
-      "inline-flex items-center justify-center font-sans tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] cursor-pointer";
-    const borderRadiusClass = rounded ? "rounded-md" : "rounded-sm";
+    const isLink = variant === "link";
+    const baseClasses = isLink
+      ? "inline-flex items-center justify-center font-sans tracking-wide transition-colors focus:outline-none cursor-pointer"
+      : "inline-flex items-center justify-center font-sans tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] cursor-pointer";
+    const borderRadiusClass = isLink ? "" : (rounded ? "rounded-md" : "rounded-sm");
     const widthClass = fullWidth ? "w-full" : "";
+    const sizeStyle = isLink ? "" : sizeClasses[size];
     const combinedClasses =
-      `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${borderRadiusClass} ${widthClass} ${className}`.trim();
+      `${baseClasses} ${variantClasses[variant]} ${sizeStyle} ${borderRadiusClass} ${widthClass} ${className}`.trim();
 
     if (
       asChild &&

@@ -48,7 +48,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
       {/* Main Auth Container Card */}
       <div className="relative z-10 w-full max-w-4xl bg-white rounded-md shadow-2xl shadow-slate-300/40 border border-slate-100 flex flex-col md:flex-row overflow-hidden min-h-[34rem]">
         {/* ================= LEFT COLUMN: FORM ================= */}
-        <div className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 flex flex-col justify-between">
+        <div className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
           <div>
             {/* Logo */}
             <Link
@@ -182,17 +182,19 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
               {/* Sub-links row */}
               {!isSignup && (
                 <div className="flex items-center justify-between text-xs pt-0.5">
-                  <Button
+                  <button
                     type="button"
                     onClick={handleToggle}
-                    variant="link"
-                    className="text-xs font-medium"
+                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                   >
                     Sign in using email OTP
-                  </Button>
-                  <Button type="button" variant="link" className="text-xs font-medium">
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                  >
                     Forgot Password?
-                  </Button>
+                  </button>
                 </div>
               )}
 
@@ -211,7 +213,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
           </div>
 
           {/* Bottom actions */}
-          <div className="mt-8 pt-4 space-y-3">
+          <div className="mt-3 space-y-3">
             {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-slate-200" />
@@ -255,14 +257,16 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             {/* Toggle Sign In / Sign Up */}
             <p className="text-center text-xs text-slate-500">
               {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-              <Button
-                type="button"
-                onClick={handleToggle}
-                variant="link"
-                className="text-xs font-semibold"
+              <Link
+                href={isSignup ? "/login" : "/register"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleToggle();
+                }}
+                className="text-primary hover:underline hover:text-primary/80 font-semibold ml-1 inline-block cursor-pointer focus:outline-none transition-colors"
               >
                 {isSignup ? "Sign In" : "Sign Up"}
-              </Button>
+              </Link>
             </p>
           </div>
         </div>
