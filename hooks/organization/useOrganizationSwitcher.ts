@@ -79,6 +79,11 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
     router.push("/organization-setup?new=true");
   }, [router]);
 
+  const handleManageOrgs = useCallback(() => {
+    setIsOpen(false);
+    router.push("/organizations");
+  }, [router]);
+
   return {
     organization,
     organizations,
@@ -89,6 +94,7 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
     setIsOpen,
     handleSelectOrg,
     handleAddNewOrg,
+    handleManageOrgs,
     pendingOrg,
     confirmSwitch,
     cancelSwitch,

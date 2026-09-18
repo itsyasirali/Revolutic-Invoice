@@ -1,3 +1,5 @@
+export const MAX_ORGANIZATIONS_PER_USER = 5;
+
 export interface OrganizationData {
   id: number;
   name: string;
@@ -84,6 +86,7 @@ export interface UseOrganizationSetupReturn {
   error: string | null;
   userName: string;
   isAddingNewOrg: boolean;
+  limitReached: boolean;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleBack: () => void;
 }
@@ -98,6 +101,7 @@ export interface UseOrganizationSwitcherReturn {
   setIsOpen: (val: boolean | ((prev: boolean) => boolean)) => void;
   handleSelectOrg: (orgId: number) => void;
   handleAddNewOrg: () => void;
+  handleManageOrgs: () => void;
   pendingOrg: OrganizationData | null;
   confirmSwitch: () => Promise<void>;
   cancelSwitch: () => void;

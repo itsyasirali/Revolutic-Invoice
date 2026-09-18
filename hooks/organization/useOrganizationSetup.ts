@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -14,15 +14,32 @@ import {
   getTimezoneForCountry,
   getCurrencyForCountry,
 } from "@/data/organizationSetupData";
+import { MAX_ORGANIZATIONS_PER_USER } from "@/types/organization";
 import type { UseOrganizationSetupReturn } from "@/types/organization";
 
 export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
   const { user, refetchProfile, logout } = useAuth();
-  const { organization, hasOrganization, refreshOrganizations, setOrganization } =
-    useOrganization();
+  const {
+    organization,
+    organizations,
+    hasOrganization,
+    refreshOrganizations,
+    setOrganization,
+  } = useOrganization();
 
   const isAddingNewOrg = hasOrganization;
+  const limitReached = isAddingNewOrg && organizations.length >= MAX_ORGANIZATIONS_PER_USER;
+
+  useEffect(() => {
+    if (limitReached) {
+      toast.error(
+        `You can create up to ${MAX_ORGANIZATIONS_PER_USER} organizations. Delete an existing organization first.`,
+        "Limit Reached",
+      );
+      router.replace(organization?.slug ? `/${organization.slug}/dashboard` : "/organizations");
+    }
+  }, [limitReached, organization?.slug, router]);
 
   // Form State
   const [organizationName, setOrganizationName] = useState(
@@ -81,6 +98,13 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+
+      if (limitReached) {
+        setError(
+          `You can create up to ${MAX_ORGANIZATIONS_PER_USER} organizations. Delete an existing organization first.`,
+        );
+        return;
+      }
 
       if (!organizationName.trim()) {
         setError("Organization Name is required");
@@ -156,6 +180,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
       language,
       timeZone,
       isAddingNewOrg,
+      limitReached,
       setOrganization,
       refreshOrganizations,
       refetchProfile,
@@ -200,6 +225,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
     error,
     userName,
     isAddingNewOrg,
+    limitReached,
     handleSubmit,
     handleBack,
   };

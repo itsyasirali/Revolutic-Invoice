@@ -40,20 +40,16 @@ export const OrganizationSetup: React.FC = () => {
     error,
     userName,
     isAddingNewOrg,
+    limitReached,
     handleSubmit,
     handleBack,
   } = useOrganizationSetup();
 
   return (
-    <div className="min-h-screen bg-[#f3f7fd] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden font-sans">
-      {/* Atmosphere Background: Soft Glowing Aura + Crisp Corner Circles + Ambient Vertical Lines */}
-      <div className="w-125 h-125 rounded-full bg-primary/20 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
-      <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-primary absolute -top-20 -right-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
-      <div className="w-72 h-72 rounded-full bg-primary/20 absolute -top-24 -right-24 pointer-events-none" />
-
-      <div className="w-105 h-105 rounded-full bg-primary/15 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
-      <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-primary absolute -bottom-20 -left-20 pointer-events-none opacity-90 shadow-2xl shadow-primary/30" />
-      <div className="w-64 h-64 rounded-full bg-primary/20 absolute -bottom-24 -left-24 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-indigo-50 to-purple-100 flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden font-sans">
+      {/* Atmosphere Background: Soft Glowing Aura */}
+      <div className="w-125 h-125 rounded-full bg-primary/15 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
+      <div className="w-105 h-105 rounded-full bg-purple-300/25 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
 
       {/* Main Card Container */}
       <div className="w-full max-w-170 bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative z-10">
@@ -279,7 +275,7 @@ export const OrganizationSetup: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || limitReached}
                 className="h-11 px-6 sm:px-7 rounded-md bg-primary hover:bg-primary/90 active:bg-primary/95 text-white font-medium text-sm transition-colors shadow-2xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (

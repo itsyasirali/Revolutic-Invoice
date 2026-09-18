@@ -15,6 +15,8 @@ import {
 
 import { CreateOrganizationPayload } from "@/types/organization";
 
+export const MAX_ORGANIZATIONS_PER_USER = 5;
+
 const createOrganization = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
   if (!userId) {
@@ -36,6 +38,16 @@ const createOrganization = async (req: NextRequest) => {
     const db = await getDatabase();
     const orgRepo = db.getRepository(Organization);
     const templateRepo = db.getRepository(Template);
+
+    const existingOrgCount = await orgRepo.count({ where: { userId } });
+    if (existingOrgCount >= MAX_ORGANIZATIONS_PER_USER) {
+      return NextResponse.json(
+        {
+          message: `You can create up to ${MAX_ORGANIZATIONS_PER_USER} organizations. Please delete an existing organization before creating a new one.`,
+        },
+        { status: 400 },
+      );
+    }
 
     // Prevent duplicate organization names for the same user
     const existingSameName = await orgRepo.findOne({
