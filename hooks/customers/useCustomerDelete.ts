@@ -63,11 +63,6 @@ const useDeleteCustomer = () => {
         error.message ||
         "Failed to delete customers";
       toast.error(msg, "Delete Failed");
-      setAlert({
-        show: true,
-        type: "error",
-        message: msg,
-      });
     } finally {
       setLoading(false);
       hideConfirmDialog();

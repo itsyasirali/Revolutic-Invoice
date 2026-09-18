@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "@/components/ui/Toast";
 
 // Configure axios defaults
 axios.defaults.baseURL = "/api";
@@ -29,20 +28,12 @@ axios.interceptors.response.use(
   },
   (error) => {
     // Handle specific error cases
-    const errorMessage =
-      error.response?.data?.message || error.message || "An error occurred";
-
     if (error.response?.status === 404) {
       console.error("Resource not found (404)");
     } else if (error.response?.status === 401) {
       console.error("Unauthorized (401)");
     } else if (error.response?.status === 500) {
       console.error("Internal Server Error (500):", error.response?.data);
-    }
-
-    // Show non-blocking toast notification to user instead of alert()
-    if (error.response?.status !== 401) {
-      toast.error(errorMessage, "API Error");
     }
 
     return Promise.reject(error);

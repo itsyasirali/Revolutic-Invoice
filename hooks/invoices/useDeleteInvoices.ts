@@ -54,11 +54,6 @@ const useDeleteInvoices = () => {
           : "Invoice deleted successfully",
         "Deleted"
       );
-      setAlert({
-        show: true,
-        type: "success",
-        message: `Successfully deleted ${selectedIds.length} invoice(s)`,
-      });
 
       await invalidateInvoices();
       if (refetch) refetch();
@@ -68,11 +63,6 @@ const useDeleteInvoices = () => {
         err.message ||
         "Failed to delete invoices";
       toast.error(msg, "Delete Failed");
-      setAlert({
-        show: true,
-        type: "error",
-        message: msg,
-      });
     } finally {
       setLoading(false);
       hideConfirmDialog();

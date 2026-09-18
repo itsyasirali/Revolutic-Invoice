@@ -66,11 +66,6 @@ const useDeleteItems = () => {
       const msg =
         error.response?.data?.message || error.message || "Failed to delete items";
       toast.error(msg, "Delete Failed");
-      setAlert({
-        show: true,
-        type: "error",
-        message: msg,
-      });
     } finally {
       setLoading(false);
       hideConfirmDialog();

@@ -162,7 +162,7 @@ ${companyName}`;
 
   const handleSend = async () => {
     if (emailData.to.length === 0) {
-      alert("Please add at least one recipient");
+      toast.error("Please add at least one recipient", "Send Failed");
       return;
     }
 

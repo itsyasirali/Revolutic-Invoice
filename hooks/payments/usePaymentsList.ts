@@ -140,20 +140,10 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
           : "Payment deleted successfully",
         "Deleted"
       );
-      setAlert({
-        show: true,
-        type: "success",
-        message: "Payments deleted successfully",
-      });
       setSelectedIds([]);
       hideConfirmDialog();
     } catch (error: any) {
       toast.error(error?.message || "Failed to delete payments", "Delete Failed");
-      setAlert({
-        show: true,
-        type: "error",
-        message: error?.message || "Failed to delete payments",
-      });
       hideConfirmDialog();
     }
   }, [confirmDialog.selectedIds, deletePayments, hideConfirmDialog]);
