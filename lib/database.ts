@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { Pool } from "pg";
 import { User } from "@/entities/User";
 import { Customer } from "@/entities/Customer";
 import { Item } from "@/entities/Item";
@@ -14,7 +13,6 @@ import { Organization } from "@/entities/Organization";
 const globalForDb = globalThis as unknown as {
   dataSource?: DataSource;
   dataSourceInitPromise?: Promise<DataSource>;
-  pgPool?: Pool;
 };
 
 const getSslConfig = (connectionUrl?: string) => {
@@ -192,32 +190,5 @@ export const getDatabase = async (): Promise<DataSource> => {
   }
 
   return globalForDb.dataSourceInitPromise;
-};
-
-export const getPgPool = (): Pool => {
-  if (!globalForDb.pgPool) {
-    const connectionUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-    const ssl = getSslConfig(connectionUrl);
-
-    if (connectionUrl) {
-      globalForDb.pgPool = new Pool({
-        connectionString: connectionUrl,
-        ssl: ssl || undefined,
-        connectionTimeoutMillis: 10000,
-      });
-    } else {
-      globalForDb.pgPool = new Pool({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        ssl: ssl || undefined,
-        connectionTimeoutMillis: 10000,
-      });
-    }
-  }
-
-  return globalForDb.pgPool;
 };
 

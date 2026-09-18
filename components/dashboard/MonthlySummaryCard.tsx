@@ -6,7 +6,7 @@ import {
   Wallet,
   Receipt,
   TrendingUp,
-  FileCheck,
+  ScrollText,
   ArrowUpRight,
 } from "lucide-react";
 import type { MonthlySummaryMetric } from "@/types/dashboard";
@@ -36,7 +36,7 @@ const MonthlySummaryCard = ({ metrics }: MonthlySummaryCardProps) => {
       case "invoicesPaid":
       default:
         return {
-          icon: FileCheck,
+          icon: ScrollText,
           bg: "bg-purple-50 text-purple-600",
         };
     }
@@ -70,7 +70,7 @@ const MonthlySummaryCard = ({ metrics }: MonthlySummaryCardProps) => {
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-9 h-9 rounded-xl ${config.bg} flex items-center justify-center shrink-0`}
+                  className={`w-9 h-9 rounded-md ${config.bg} flex items-center justify-center shrink-0`}
                 >
                   <IconComp className="w-4 h-4" />
                 </div>

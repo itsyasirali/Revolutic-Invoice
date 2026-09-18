@@ -51,7 +51,7 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
       period: kpis.totalInvoices.periodLabel,
       icon: ScrollText,
       iconBg: "bg-primary",
-      sparkColor: "#1E6BFF",
+      sparkColor: "#1AA3FF",
     },
     {
       label: kpis.totalPayments.label,
