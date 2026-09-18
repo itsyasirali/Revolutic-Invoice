@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import type {
   UseSearchDropdownProps,
   UseSearchDropdownReturn,

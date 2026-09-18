@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Organization } from "@/entities/Organization";
 import { Template } from "@/entities/Template";
+import { generateUniqueSlug } from "@/lib/slugify";
 import {
   getAuthUserId,
   getAuthToken,
   signAuthToken,
   AUTH_COOKIE_NAME,
   ACTIVE_ORG_COOKIE_NAME,
+  ACTIVE_ORG_SLUG_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
 } from "@/lib/session";
 
@@ -46,9 +48,12 @@ const createOrganization = async (req: NextRequest) => {
       );
     }
 
+    const slug = await generateUniqueSlug(orgRepo, trimmedName);
+
     // Create the organization
     const org = orgRepo.create({
       name: trimmedName,
+      slug,
       userId,
       industry: body.industry || "Web Development",
       businessLocation: body.businessLocation || "Pakistan",
@@ -111,6 +116,18 @@ const createOrganization = async (req: NextRequest) => {
       path: "/",
       maxAge: TOKEN_MAX_AGE_SECONDS,
     });
+
+    if (savedOrg.slug) {
+      response.cookies.set({
+        name: ACTIVE_ORG_SLUG_COOKIE_NAME,
+        value: savedOrg.slug,
+        httpOnly: false,
+        secure: false,
+        sameSite: "lax",
+        path: "/",
+        maxAge: TOKEN_MAX_AGE_SECONDS,
+      });
+    }
 
     return response;
   } catch (error: any) {

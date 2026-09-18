@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
 import type { UsePaymentActionsReturn } from "@/types/payment";
 import { setNavState } from "@/lib/clientNavState";

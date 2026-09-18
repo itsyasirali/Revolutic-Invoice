@@ -1,6 +1,7 @@
 export interface OrganizationData {
   id: number;
   name: string;
+  slug?: string | null;
   industry?: string | null;
   businessLocation?: string | null;
   stateProvince?: string | null;
@@ -95,7 +96,10 @@ export interface UseOrganizationSwitcherReturn {
   isOpen: boolean;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
   setIsOpen: (val: boolean | ((prev: boolean) => boolean)) => void;
-  handleSelectOrg: (orgId: number) => Promise<void>;
+  handleSelectOrg: (orgId: number) => void;
   handleAddNewOrg: () => void;
+  pendingOrg: OrganizationData | null;
+  confirmSwitch: () => Promise<void>;
+  cancelSwitch: () => void;
 }
 

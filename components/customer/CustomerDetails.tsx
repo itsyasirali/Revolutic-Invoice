@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
   Home,
   ChevronRight,

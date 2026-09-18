@@ -18,6 +18,10 @@ export class Organization {
   @Column()
   name!: string;
 
+  // Nullable so schema sync doesn't fail against pre-existing rows; backfilled lazily on read.
+  @Column({ type: "varchar", nullable: true, unique: true })
+  slug!: string | null;
+
   @Column({ type: "varchar", nullable: true })
   industry!: string | null;
 

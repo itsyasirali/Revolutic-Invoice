@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useInvoicePreview from "./useInvoicePreview";
 import type { Invoice } from "@/types/invoice";
 import type { BadgeVariant } from "@/types/common";

@@ -4,7 +4,7 @@ import React from "react";
 import type { DashboardHeaderProps } from "@/types/dashboard";
 
 const DashboardHeader = ({
-  userName = "Ahmad Shahzad",
+  userName = "",
 }: DashboardHeaderProps) => {
   const getGreeting = () => {
     const hour = new Date().getHours();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import type { UIInvoiceListItem } from "./useInvoicesData";
 import { setNavState } from "@/lib/clientNavState";
 

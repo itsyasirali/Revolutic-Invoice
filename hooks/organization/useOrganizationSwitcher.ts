@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useOrganization } from "@/context/OrganizationContext";
-import type { UseOrganizationSwitcherReturn } from "@/types/organization";
+import type { OrganizationData, UseOrganizationSwitcherReturn } from "@/types/organization";
 
 const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     organization,
     organizations,
@@ -16,6 +17,7 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
   } = useOrganization();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [pendingOrg, setPendingOrg] = useState<OrganizationData | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click or Escape key
@@ -46,16 +48,31 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
   }, [isOpen]);
 
   const handleSelectOrg = useCallback(
-    async (orgId: number) => {
+    (orgId: number) => {
       if (orgId === organization?.id || isSwitching) {
         setIsOpen(false);
         return;
       }
-      await switchOrganization(orgId);
+      const target = organizations.find((o) => o.id === orgId) || null;
       setIsOpen(false);
+      setPendingOrg(target);
     },
-    [organization?.id, isSwitching, switchOrganization],
+    [organization?.id, isSwitching, organizations],
   );
+
+  const confirmSwitch = useCallback(async () => {
+    if (!pendingOrg) return;
+    const switchedOrg = await switchOrganization(pendingOrg.id);
+    setPendingOrg(null);
+    if (switchedOrg?.slug) {
+      const rest = pathname.replace(/^\/[^/]+/, "") || "/dashboard";
+      router.push(`/${switchedOrg.slug}${rest}`);
+    }
+  }, [pendingOrg, switchOrganization, pathname, router]);
+
+  const cancelSwitch = useCallback(() => {
+    setPendingOrg(null);
+  }, []);
 
   const handleAddNewOrg = useCallback(() => {
     setIsOpen(false);
@@ -72,6 +89,9 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
     setIsOpen,
     handleSelectOrg,
     handleAddNewOrg,
+    pendingOrg,
+    confirmSwitch,
+    cancelSwitch,
   };
 };
 

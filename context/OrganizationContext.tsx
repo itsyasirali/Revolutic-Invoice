@@ -16,7 +16,7 @@ interface OrganizationContextType {
   isSwitching: boolean;
   hasOrganization: boolean;
   fetchOrganization: () => Promise<OrganizationData | null>;
-  switchOrganization: (orgId: number) => Promise<boolean>;
+  switchOrganization: (orgId: number) => Promise<OrganizationData | null>;
   refreshOrganizations: () => Promise<void>;
   setOrganization: React.Dispatch<React.SetStateAction<OrganizationData | null>>;
   setOrganizations: React.Dispatch<React.SetStateAction<OrganizationData[]>>;
@@ -41,6 +41,9 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
       const orgs = res.data?.organizations ?? (org ? [org] : []);
       if (typeof document !== "undefined" && org?.id) {
         document.cookie = `active_org_id=${org.id}; path=/; max-age=2592000; SameSite=Lax`;
+        if (org.slug) {
+          document.cookie = `active_org_slug=${org.slug}; path=/; max-age=2592000; SameSite=Lax`;
+        }
       }
       setOrganization(org);
       setOrganizations(orgs);
@@ -59,7 +62,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [fetchOrganization]);
 
   const switchOrganization = useCallback(
-    async (orgId: number): Promise<boolean> => {
+    async (orgId: number): Promise<OrganizationData | null> => {
       try {
         setIsSwitching(true);
         const res = await axios.post("/organizations/switch", {
@@ -69,21 +72,22 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
         if (switchedOrg) {
           if (typeof document !== "undefined") {
             document.cookie = `active_org_id=${switchedOrg.id}; path=/; max-age=2592000; SameSite=Lax`;
+            if (switchedOrg.slug) {
+              document.cookie = `active_org_slug=${switchedOrg.slug}; path=/; max-age=2592000; SameSite=Lax`;
+            }
           }
           setOrganization(switchedOrg);
           await refetchProfile({ silent: true });
           toast.success(`Switched active organization to ${switchedOrg.name}`, "Organization Switched");
           // Re-fetch organization list to ensure state sync
           await fetchOrganization();
-          // Reload page data so all dashboard/data components reload for new organization
-          window.location.reload();
-          return true;
+          return switchedOrg;
         }
-        return false;
+        return null;
       } catch (err: any) {
         const errorMsg = err?.response?.data?.message || "Failed to switch organization";
         toast.error(errorMsg, "Switch Failed");
-        return false;
+        return null;
       } finally {
         setIsSwitching(false);
       }

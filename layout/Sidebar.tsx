@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { OrgLink } from "@/components/organization/OrgLink";
 import {
   Home,
   User,
@@ -68,10 +69,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { activeNav, setActiveNav, isTemplateFormActive } =
     useTemplateFormContext();
 
+  // Strip the leading /{orgSlug} segment so nav comparisons match the literal item paths below
+  const routePath = pathname.replace(/^\/[^/]+/, "") || "/dashboard";
+
   // Check if we're on a template form route
   const isTemplateRoute =
-    pathname.startsWith("/templates/new") ||
-    pathname.startsWith("/templates/edit");
+    routePath.startsWith("/templates/new") ||
+    routePath.startsWith("/templates/edit");
 
   useEffect(() => {
     const handleResize = () => {
@@ -164,11 +168,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               const IconComp = item.icon;
               const isActive =
                 item.path === "/dashboard"
-                  ? pathname === "/dashboard" || pathname === "/"
-                  : pathname === item.path || pathname.startsWith(item.path + "/");
+                  ? routePath === "/dashboard" || routePath === "/"
+                  : routePath === item.path || routePath.startsWith(item.path + "/");
 
               return (
-                <Link
+                <OrgLink
                   key={item.label}
                   href={item.path}
                   prefetch={true}
@@ -194,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {!isCollapsed && (
                     <span className="truncate">{item.label}</span>
                   )}
-                </Link>
+                </OrgLink>
               );
             })
           )}

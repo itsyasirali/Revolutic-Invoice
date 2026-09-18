@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronDown, Plus, Sparkles } from "lucide-react";
 import useOrganizationSwitcher from "@/hooks/organization/useOrganizationSwitcher";
-import { LoadingSpinner } from "@/components/ui";
+import { ConfirmDialog, LoadingSpinner } from "@/components/ui";
 
 export const OrganizationSwitcher: React.FC = () => {
   const {
@@ -16,6 +16,9 @@ export const OrganizationSwitcher: React.FC = () => {
     setIsOpen,
     handleSelectOrg,
     handleAddNewOrg,
+    pendingOrg,
+    confirmSwitch,
+    cancelSwitch,
   } = useOrganizationSwitcher();
 
   if (!organization && !loading) {
@@ -124,6 +127,19 @@ export const OrganizationSwitcher: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {pendingOrg && (
+        <ConfirmDialog
+          isOpen
+          type="info"
+          title="Switch Organization"
+          message={`Switch your active organization to "${pendingOrg.name}"?`}
+          confirmText="Switch Organization"
+          cancelText="Cancel"
+          onConfirm={confirmSwitch}
+          onCancel={cancelSwitch}
+        />
       )}
     </div>
   );

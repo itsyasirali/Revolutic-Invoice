@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import type { TemplateListItem } from "@/types/template";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useUpdateInvoice from "./useUpdateInvoice";

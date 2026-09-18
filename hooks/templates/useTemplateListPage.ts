@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useTemplatesList from "./useTemplatesList";
 import useTemplateActions from "./useTemplateActions";
 import useTemplatePreview from "./useTemplatePreview";

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Organization } from "@/entities/Organization";
+import { generateUniqueSlug } from "@/lib/slugify";
 import {
   getAuthUserId,
   getAuthOrgId,
   ACTIVE_ORG_COOKIE_NAME,
+  ACTIVE_ORG_SLUG_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
 } from "@/lib/session";
 import { OrganizationResponse } from "@/types/organization";
@@ -33,6 +35,14 @@ const getOrganization = async (req: NextRequest) => {
       return NextResponse.json(responseBody, { status: 200 });
     }
 
+    // Self-heal: backfill slugs for organizations created before the slug column existed
+    for (const org of organizations) {
+      if (!org.slug) {
+        org.slug = await generateUniqueSlug(orgRepo, org.name);
+        await orgRepo.save(org);
+      }
+    }
+
     const activeOrgId = await getAuthOrgId(req);
     let organization = activeOrgId
       ? organizations.find((o) => o.id === activeOrgId) || null
@@ -58,6 +68,17 @@ const getOrganization = async (req: NextRequest) => {
         path: "/",
         maxAge: TOKEN_MAX_AGE_SECONDS,
       });
+      if (organization.slug) {
+        response.cookies.set({
+          name: ACTIVE_ORG_SLUG_COOKIE_NAME,
+          value: organization.slug,
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: TOKEN_MAX_AGE_SECONDS,
+        });
+      }
     }
 
     return response;

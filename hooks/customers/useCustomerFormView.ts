@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerForm as useDomainCustomerForm } from "./useCustomerForm";
 

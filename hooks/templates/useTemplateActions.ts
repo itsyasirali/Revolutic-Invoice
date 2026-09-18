@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteTemplates from "./useDeleteTemplates";
 import useSetDefaultTemplate from "./useSetDefaultTemplate";
 import type {

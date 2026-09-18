@@ -120,6 +120,8 @@ export const getAuthUserId = async (
 };
 
 export const ACTIVE_ORG_COOKIE_NAME = "active_org_id";
+// UX-only cookie read by middleware.ts to redirect legacy bare paths; never used for authorization.
+export const ACTIVE_ORG_SLUG_COOKIE_NAME = "active_org_slug";
 
 /**
  * Resolves the authenticated organization ID from:

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import { useItemForm as useDomainItemForm } from "./useItemForm";
 import type { ItemFormData } from "@/types/item";
 import { getNavState } from "@/lib/clientNavState";

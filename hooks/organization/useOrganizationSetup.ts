@@ -19,7 +19,7 @@ import type { UseOrganizationSetupReturn } from "@/types/organization";
 export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
   const { user, refetchProfile, logout } = useAuth();
-  const { hasOrganization, refreshOrganizations, setOrganization } =
+  const { organization, hasOrganization, refreshOrganizations, setOrganization } =
     useOrganization();
 
   const isAddingNewOrg = hasOrganization;
@@ -129,7 +129,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
           isAddingNewOrg ? "Organization Created" : "Setup Complete",
         );
 
-        router.push("/dashboard");
+        router.push(savedOrg?.slug ? `/${savedOrg.slug}/dashboard` : "/organization-setup");
         router.refresh();
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -165,11 +165,11 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
 
   const handleBack = useCallback(() => {
     if (isAddingNewOrg) {
-      router.push("/dashboard");
+      router.push(organization?.slug ? `/${organization.slug}/dashboard` : "/organization-setup");
     } else {
       logout();
     }
-  }, [isAddingNewOrg, router, logout]);
+  }, [isAddingNewOrg, organization?.slug, router, logout]);
 
   return {
     organizationName,

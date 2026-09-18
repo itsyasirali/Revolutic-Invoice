@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { OrgLink } from "@/components/organization/OrgLink";
 import {
   Bell,
   ChevronDown,
@@ -31,11 +32,11 @@ import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
 
-const getSearchConfig = (pathname: string) => {
+const getSearchConfig = (routePath: string) => {
   if (
-    pathname === "/" ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/customers")
+    routePath === "/" ||
+    routePath.startsWith("/dashboard") ||
+    routePath.startsWith("/customers")
   ) {
     return {
       type: "customers",
@@ -43,28 +44,28 @@ const getSearchConfig = (pathname: string) => {
       basePath: "/customers",
     };
   }
-  if (pathname.startsWith("/items")) {
+  if (routePath.startsWith("/items")) {
     return {
       type: "items",
       placeholder: "Search items...",
       basePath: "/items",
     };
   }
-  if (pathname.startsWith("/invoices")) {
+  if (routePath.startsWith("/invoices")) {
     return {
       type: "invoices",
       placeholder: "Search invoices...",
       basePath: "/invoices",
     };
   }
-  if (pathname.startsWith("/payments")) {
+  if (routePath.startsWith("/payments")) {
     return {
       type: "payments",
       placeholder: "Search payments...",
       basePath: "/payments",
     };
   }
-  if (pathname.startsWith("/templates")) {
+  if (routePath.startsWith("/templates")) {
     return {
       type: "templates",
       placeholder: "Search templates...",
@@ -80,7 +81,9 @@ const getSearchConfig = (pathname: string) => {
 
 const HeaderSearch = () => {
   const pathname = usePathname();
-  const searchConfig = useMemo(() => getSearchConfig(pathname), [pathname]);
+  // Strip the leading /{orgSlug} segment before matching against the routePath prefixes above
+  const routePath = pathname.replace(/^\/[^/]+/, "") || "/dashboard";
+  const searchConfig = useMemo(() => getSearchConfig(routePath), [routePath]);
 
   const handleSearch = useCallback(
     async (searchTerm: string): Promise<SearchResultItem[]> => {
@@ -390,22 +393,22 @@ const Header = () => {
                   <Building2 className="w-3.5 h-3.5" />
                   <span>Add Organization</span>
                 </Link>
-                <Link
+                <OrgLink
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
                   className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
                 >
                   <UserIcon className="w-3.5 h-3.5" />
                   <span>My Account</span>
-                </Link>
-                <Link
+                </OrgLink>
+                <OrgLink
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
                   className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>Settings</span>
-                </Link>
+                </OrgLink>
               </div>
 
               <div className="border-t border-slate-100 pt-1">

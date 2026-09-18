@@ -8,7 +8,7 @@ import type { AuthWrapperProps } from "@/types/auth";
 
 const AuthContent = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
-  const { hasOrganization, loading: orgLoading } = useOrganization();
+  const { organization, hasOrganization, loading: orgLoading } = useOrganization();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -55,11 +55,12 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
       user &&
       hasOrganization &&
       pathname === "/organization-setup" &&
-      !isCreatingNewOrg
+      !isCreatingNewOrg &&
+      organization?.slug
     ) {
-      router.replace("/dashboard");
+      router.replace(`/${organization.slug}/dashboard`);
     }
-  }, [authLoading, orgLoading, user, hasOrganization, isPublicRoute, pathname, router]);
+  }, [authLoading, orgLoading, user, hasOrganization, organization?.slug, isPublicRoute, pathname, router]);
 
   // Public marketing and auth pages are always accessible
   if (isPublicRoute) {

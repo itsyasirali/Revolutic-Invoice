@@ -7,6 +7,7 @@ import {
   signAuthToken,
   AUTH_COOKIE_NAME,
   ACTIVE_ORG_COOKIE_NAME,
+  ACTIVE_ORG_SLUG_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
 } from "@/lib/session";
 import { SwitchOrganizationPayload } from "@/types/organization";
@@ -80,6 +81,18 @@ const switchOrganization = async (req: NextRequest) => {
       path: "/",
       maxAge: TOKEN_MAX_AGE_SECONDS,
     });
+
+    if (targetOrg.slug) {
+      response.cookies.set({
+        name: ACTIVE_ORG_SLUG_COOKIE_NAME,
+        value: targetOrg.slug,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: TOKEN_MAX_AGE_SECONDS,
+      });
+    }
 
     return response;
   } catch (error: any) {

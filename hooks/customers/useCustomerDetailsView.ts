@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerFinancials } from "./useCustomerFinancials";
