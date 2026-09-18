@@ -8,7 +8,6 @@ import React, {
   Suspense,
   useCallback,
 } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { OrgLink } from "@/components/organization/OrgLink";
 import {
@@ -22,11 +21,9 @@ import {
   FileText,
   DollarSign,
   Layout,
-  Building2,
 } from "lucide-react";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
-import { useOrganization } from "@/context/OrganizationContext";
 import OrganizationSwitcher from "@/components/organization/OrganizationSwitcher";
 import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
@@ -245,7 +242,6 @@ const HeaderSearch = () => {
 const Header = () => {
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
-  const { organization } = useOrganization();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -376,23 +372,9 @@ const Header = () => {
                 <p className="text-[11px] text-slate-400 truncate">
                   {userEmail}
                 </p>
-                {organization?.name && (
-                  <p className="text-[10px] font-semibold text-primary truncate mt-1 flex items-center gap-1">
-                    <Building2 className="w-3 h-3 shrink-0" />
-                    <span>{organization.name}</span>
-                  </p>
-                )}
               </div>
 
               <div className="py-1">
-                <Link
-                  href="/organization-setup?new=true"
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-blue-50/70 hover:text-primary"
-                >
-                  <Building2 className="w-3.5 h-3.5" />
-                  <span>Add Organization</span>
-                </Link>
                 <OrgLink
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
