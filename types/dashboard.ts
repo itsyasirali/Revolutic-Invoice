@@ -51,7 +51,16 @@ export interface DashboardInvoice {
   invoiceNumber: string;
   customerName: string;
   date: string;
-  status: "Paid" | "Partial" | "Unpaid" | "Overdue" | "Draft";
+  status:
+    | "Paid"
+    | "Sent"
+    | "Partially Paid"
+    | "Partial"
+    | "Unpaid"
+    | "Overdue"
+    | "Draft"
+    | "Cancelled"
+    | string;
   amount: number;
   currency: string;
 }

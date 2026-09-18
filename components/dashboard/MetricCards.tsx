@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-  FileText,
+  ScrollText,
   Wallet,
   Clock,
   MinusCircle,
@@ -42,17 +42,23 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
   const cards = [
     {
       label: kpis.totalInvoices.label,
-      value: formatAmount(kpis.totalInvoices.amount, kpis.totalInvoices.currency),
+      value: formatAmount(
+        kpis.totalInvoices.amount,
+        kpis.totalInvoices.currency,
+      ),
       change: `${kpis.totalInvoices.changePercent}%`,
       isUp: kpis.totalInvoices.isIncrease,
       period: kpis.totalInvoices.periodLabel,
-      icon: FileText,
+      icon: ScrollText,
       iconBg: "bg-primary",
       sparkColor: "#1E6BFF",
     },
     {
       label: kpis.totalPayments.label,
-      value: formatAmount(kpis.totalPayments.amount, kpis.totalPayments.currency),
+      value: formatAmount(
+        kpis.totalPayments.amount,
+        kpis.totalPayments.currency,
+      ),
       change: `${kpis.totalPayments.changePercent}%`,
       isUp: kpis.totalPayments.isIncrease,
       period: kpis.totalPayments.periodLabel,
@@ -62,7 +68,10 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
     },
     {
       label: kpis.pendingInvoices.label,
-      value: formatAmount(kpis.pendingInvoices.amount, kpis.pendingInvoices.currency),
+      value: formatAmount(
+        kpis.pendingInvoices.amount,
+        kpis.pendingInvoices.currency,
+      ),
       change: `${kpis.pendingInvoices.changePercent}%`,
       isUp: kpis.pendingInvoices.isIncrease,
       period: kpis.pendingInvoices.periodLabel,
@@ -72,7 +81,10 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
     },
     {
       label: kpis.totalExpenses.label,
-      value: formatAmount(kpis.totalExpenses.amount, kpis.totalExpenses.currency),
+      value: formatAmount(
+        kpis.totalExpenses.amount,
+        kpis.totalExpenses.currency,
+      ),
       change: `${kpis.totalExpenses.changePercent}%`,
       isUp: kpis.totalExpenses.isIncrease,
       period: kpis.totalExpenses.periodLabel,

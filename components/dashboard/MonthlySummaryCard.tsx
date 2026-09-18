@@ -21,7 +21,7 @@ const MonthlySummaryCard = ({ metrics }: MonthlySummaryCardProps) => {
       case "income":
         return {
           icon: Wallet,
-          bg: "bg-blue-50 text-[#1E6BFF]",
+          bg: "bg-blue-50 text-primary",
         };
       case "expenses":
         return {
@@ -46,7 +46,7 @@ const MonthlySummaryCard = ({ metrics }: MonthlySummaryCardProps) => {
     <div className="bg-white rounded-md p-5 border border-slate-200/80 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-9 h-9 rounded-md bg-blue-50 text-[#1E6BFF] flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-md bg-blue-50 text-primary flex items-center justify-center shrink-0">
           <BarChart3 className="w-5 h-5" />
         </div>
         <div>

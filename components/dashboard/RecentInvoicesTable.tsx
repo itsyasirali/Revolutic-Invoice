@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { FileText, ArrowRight, Plus } from "lucide-react";
+import { ScrollText, ArrowRight, Plus } from "lucide-react";
 import type { DashboardInvoice } from "@/types/dashboard";
 import { getCurrencySymbol } from "@/data/countries/countries";
 
@@ -12,16 +12,21 @@ interface RecentInvoicesTableProps {
 
 const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
   const getStatusBadge = (status: DashboardInvoice["status"]) => {
-    switch (status) {
-      case "Paid":
+    const s = String(status || "").toLowerCase().trim();
+    switch (s) {
+      case "paid":
         return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "Partial":
+      case "sent":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "partial":
+      case "partially paid":
         return "bg-amber-50 text-amber-800 border-amber-200";
-      case "Unpaid":
+      case "overdue":
+      case "unpaid":
         return "bg-rose-50 text-rose-700 border-rose-200";
-      case "Overdue":
-        return "bg-rose-50 text-rose-700 border-rose-200";
-      case "Draft":
+      case "cancelled":
+        return "bg-slate-100 text-slate-500 border-slate-200";
+      case "draft":
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
@@ -32,8 +37,8 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <span className="w-8 h-8 rounded-md bg-blue-50 text-[#1E6BFF] flex items-center justify-center">
-            <FileText className="w-4 h-4" />
+          <span className="w-8 h-8 rounded-md bg-blue-50 text-primary flex items-center justify-center">
+            <ScrollText className="w-4 h-4" />
           </span>
           <h2 className="text-base font-bold text-slate-900 tracking-tight">
             Recent Invoices
@@ -42,7 +47,7 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
 
         <Link
           href="/invoices"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E6BFF] hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary transition-colors"
         >
           <span>View All</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -53,7 +58,7 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
       {invoices.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center py-2 text-center">
           <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mb-3">
-            <FileText className="w-6 h-6" />
+            <ScrollText className="w-6 h-6" />
           </div>
           <p className="text-sm font-semibold text-slate-800">
             No invoices yet
@@ -95,7 +100,7 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
                   <td className="py-3 font-semibold text-slate-800">
                     <Link
                       href={`/invoices`}
-                      className="hover:text-[#1E6BFF] transition-colors"
+                      className="hover:text-primary transition-colors"
                     >
                       {inv.invoiceNumber}
                     </Link>
@@ -114,7 +119,8 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
                     </span>
                   </td>
                   <td className="py-3 text-right font-bold text-slate-900">
-                    {getCurrencySymbol(inv.currency)} {inv.amount.toLocaleString()}
+                    {getCurrencySymbol(inv.currency)}{" "}
+                    {inv.amount.toLocaleString()}
                   </td>
                 </tr>
               ))}

@@ -380,13 +380,19 @@ export const getDashboardData = async (
 
     // Real Recent Invoices
     const recentInvoices: DashboardInvoice[] = invoices.slice(0, 5).map((inv, idx) => {
-      let statusNormalized: "Paid" | "Partial" | "Unpaid" | "Overdue" | "Draft" = "Paid";
-      const st = String(inv.status || "").toLowerCase();
-      if (st.includes("paid") && !st.includes("part")) statusNormalized = "Paid";
-      else if (st.includes("part")) statusNormalized = "Partial";
-      else if (st.includes("overdue")) statusNormalized = "Overdue";
-      else if (st.includes("draft")) statusNormalized = "Draft";
-      else statusNormalized = "Unpaid";
+      let actualStatus = inv.status || "Draft";
+      const st = String(actualStatus).toLowerCase();
+
+      if (
+        st === "overdue" ||
+        (inv.dueDate &&
+          new Date(inv.dueDate) < new Date() &&
+          st !== "paid" &&
+          st !== "draft" &&
+          st !== "cancelled")
+      ) {
+        actualStatus = "Overdue";
+      }
 
       return {
         id: inv.id,
@@ -397,7 +403,7 @@ export const getDashboardData = async (
           inv.customer?.companyName ||
           "Customer",
         date: formatShortDate(inv.invoiceDate || inv.createdAt),
-        status: statusNormalized,
+        status: actualStatus,
         amount: Number(inv.total || 0),
         currency: inv.currency || orgCurrency,
       };
