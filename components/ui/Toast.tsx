@@ -24,7 +24,14 @@ const toastStyles: Record<ToastType, string> = {
   success: "bg-white border-emerald-200 text-slate-800 shadow-emerald-500/10",
   error: "bg-white border-rose-200 text-slate-800 shadow-rose-500/10",
   warning: "bg-white border-amber-200 text-slate-800 shadow-amber-500/10",
-  info: "bg-white border-primary/20 text-slate-800 shadow-primary/10",
+  info: "bg-white border-slate-200 text-slate-800 shadow-primary/10",
+};
+
+const progressColors: Record<ToastType, string> = {
+  success: "bg-emerald-500",
+  error: "bg-rose-500",
+  warning: "bg-amber-500",
+  info: "bg-primary",
 };
 
 export const ToastContainer: React.FC = () => {
@@ -33,32 +40,44 @@ export const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+    <div className="fixed top-4 right-4 z-[110] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
       {toasts.map((item) => (
         <div
           key={item.id}
-          className={`pointer-events-auto flex items-start gap-3 p-4 rounded-md border shadow-lg backdrop-blur-sm transition-all duration-300 animate-slide-up ${toastStyles[item.type]}`}
+          className={`pointer-events-auto relative overflow-hidden flex flex-col rounded-lg border shadow-xl backdrop-blur-sm transition-all duration-300 animate-slide-up ${toastStyles[item.type]}`}
           role="alert"
         >
-          {toastIcons[item.type]}
-          <div className="flex-1 min-w-0">
-            {item.title && (
-              <h4 className="text-xs font-bold uppercase tracking-wider mb-0.5 text-slate-900">
-                {item.title}
-              </h4>
-            )}
-            <p className="text-sm font-medium text-slate-700 leading-snug break-words">
-              {item.message}
-            </p>
+          <div className="flex items-start gap-3 p-4">
+            {toastIcons[item.type]}
+            <div className="flex-1 min-w-0">
+              {item.title && (
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-0.5 text-slate-900">
+                  {item.title}
+                </h4>
+              )}
+              <p className="text-sm font-medium text-slate-600 leading-snug break-words">
+                {item.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => removeToast(item.id)}
+              className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              aria-label="Close notification"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => removeToast(item.id)}
-            className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
-            aria-label="Close notification"
-          >
-            <X className="w-4 h-4" />
-          </button>
+
+          {/* Progress Bar Line at Bottom */}
+          <div className="w-full bg-slate-100/90 h-1 overflow-hidden">
+            <div
+              className={`h-full ${progressColors[item.type]}`}
+              style={{
+                animation: `toastProgress ${item.duration || 2000}ms linear forwards`,
+              }}
+            />
+          </div>
         </div>
       ))}
     </div>
