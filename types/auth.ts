@@ -30,10 +30,6 @@ export interface AuthWrapperProps {
   initialUser?: User | null;
 }
 
-export interface AuthSlideIllustrationProps {
-  slideId: string;
-}
-
 export interface LoginSignupFormProps {
   onLoginSuccess?: () => void;
   initialMode?: "login" | "signup";

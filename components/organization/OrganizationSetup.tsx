@@ -46,10 +46,7 @@ export const OrganizationSetup: React.FC = () => {
   } = useOrganizationSetup();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-indigo-50 to-purple-100 flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden font-sans">
-      {/* Atmosphere Background: Soft Glowing Aura */}
-      <div className="w-125 h-125 rounded-full bg-primary/15 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
-      <div className="w-105 h-105 rounded-full bg-purple-300/25 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-[#e3f1fe] via-[#f0f8fe] to-[#d9effd] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative font-sans">
 
       {/* Main Card Container */}
       <div className="w-full max-w-170 bg-white rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative z-10">

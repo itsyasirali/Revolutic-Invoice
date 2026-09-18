@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import useLoginSignupForm from "@/hooks/auth/useLoginSignupForm";
 import { Eye, EyeOff } from "lucide-react";
-import AuthSlideIllustration from "@/components/auth/AuthSlideIllustration";
+import AuthHeroPanel from "@/components/auth/AuthHeroPanel";
 import type { LoginSignupFormProps } from "@/types/auth";
 import { Button, Input } from "@/components/ui";
 
@@ -29,9 +29,6 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     handleKeyPress,
     showPassword,
     showConfirmPassword,
-    activeSlide,
-    setActiveSlide,
-    slides,
     handleToggle,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
@@ -271,49 +268,14 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
           </div>
         </div>
 
-        {/* ================= RIGHT COLUMN: DYNAMIC GRAPHIC & CAROUSEL ================= */}
-        <div className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 border-t md:border-t-0 md:border-l border-slate-100 flex flex-col items-center justify-between text-center bg-white">
-          {/* Dynamic Illustration based on active slide */}
-          <div className="my-2 transition-all duration-300">
-            <AuthSlideIllustration slideId={slides[activeSlide].id} />
-          </div>
-
-          {/* Text Info */}
-          <div className="space-y-2 mt-4 max-w-70">
-            <h3 className="font-bold text-slate-900 text-base">
-              {slides[activeSlide].title}
-            </h3>
-            <p className="text-xs text-slate-500 leading-relaxed min-h-9">
-              {slides[activeSlide].description}
-            </p>
-          </div>
-
-          {/* Action Button */}
-          <div className="mt-4">
-            <Link
-              href={slides[activeSlide].link}
-              className="inline-block text-xs font-semibold text-primary bg-sky-50 hover:bg-sky-100 px-5 py-2 rounded-full transition-colors"
-            >
-              {slides[activeSlide].buttonText}
-            </Link>
-          </div>
-
-          {/* Carousel Pagination Dots */}
-          <div className="flex items-center justify-center gap-1.5 mt-6">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setActiveSlide(index)}
-                aria-label={`Go to slide ${index + 1}`}
-                className={`transition-all duration-300 cursor-pointer ${
-                  activeSlide === index
-                    ? "w-5 h-1.5 bg-primary rounded-full"
-                    : "w-1.5 h-1.5 bg-slate-200 rounded-full hover:bg-slate-300"
-                }`}
-              />
-            ))}
-          </div>
+        {/* ================= RIGHT COLUMN: MARKETING HERO ================= */}
+        <div
+          className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 border-t md:border-t-0 md:border-l border-white/20 flex items-center relative overflow-hidden bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/assets/authbg.png')" }}
+        >
+          {/* Ambient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/15 via-transparent to-white/10 pointer-events-none" />
+          <AuthHeroPanel />
         </div>
       </div>
     </div>
