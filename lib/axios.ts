@@ -8,6 +8,14 @@ axios.defaults.headers.common["Content-Type"] = "application/json";
 // Add request interceptor
 axios.interceptors.request.use(
   (config) => {
+    if (typeof window !== "undefined") {
+      try {
+        const token = localStorage.getItem("auth_token");
+        if (token && !config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch {}
+    }
     if (typeof document !== "undefined") {
       const match = document.cookie.match(/(?:^|;\s*)active_org_id=([^;]*)/);
       if (match && match[1]) {

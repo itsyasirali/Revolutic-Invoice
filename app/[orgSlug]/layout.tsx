@@ -6,7 +6,7 @@ import Sidebar from "@/layout/Sidebar";
 import Header from "@/layout/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useOrganization } from "@/context/OrganizationContext";
-import { ConfirmDialog, LoadingSpinner, toast } from "@/components/ui";
+import { ConfirmDialog, toast } from "@/components/ui";
 
 const swapOrgSlug = (pathname: string, slug: string) =>
   pathname.replace(/^\/[^/]+/, `/${slug}`);
@@ -66,13 +66,6 @@ const OrgLayout = ({ children }: { children: React.ReactNode }) => {
     router,
   ]);
 
-  if (loading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-white text-slate-800">

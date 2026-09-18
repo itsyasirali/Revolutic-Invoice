@@ -45,6 +45,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [loading, setLoading] = useState<boolean>(initialUser === undefined);
   const [error, setError] = useState<string | null>(null);
 
+  // After hydration, restore user from localStorage if not provided via initialUser
+  useEffect(() => {
+    if (!initialUser && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("auth_user");
+        if (stored) {
+          setUser(JSON.parse(stored));
+        }
+      } catch {}
+    }
+  }, [initialUser]);
+
+  // Sync user changes to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        if (user) {
+          localStorage.setItem("auth_user", JSON.stringify(user));
+        } else if (!loading) {
+          localStorage.removeItem("auth_user");
+        }
+      } catch {}
+    }
+  }, [user, loading]);
+
+  const hasInitializedRef = React.useRef(false);
+
   const fetchProfile = useCallback(async (opts?: { silent?: boolean }) => {
     try {
       if (!opts?.silent) setLoading(true);
@@ -62,12 +89,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setError(err.response?.data?.message || "Failed to load session");
       }
     } finally {
-      if (!opts?.silent) setLoading(false);
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (initialUser === undefined) {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    if (initialUser) {
+      fetchProfile({ silent: true });
+    } else {
       fetchProfile();
     }
   }, [fetchProfile, initialUser]);
