@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   Building2,
   Plus,
@@ -66,19 +67,34 @@ export const OrganizationsList: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-indigo-50/60 to-purple-50 pb-8 relative overflow-hidden">
-      <div className="w-[420px] h-[420px] rounded-full bg-primary/25 blur-3xl absolute -top-40 -right-40 pointer-events-none" />
-      <div className="w-[340px] h-[340px] rounded-full bg-purple-300/30 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-indigo-50 to-purple-100 pb-8 relative overflow-hidden font-sans">
+      <div className="w-125 h-125 rounded-full bg-primary/15 blur-3xl absolute -top-32 -right-32 pointer-events-none" />
+      <div className="w-105 h-105 rounded-full bg-purple-300/25 blur-3xl absolute -bottom-32 -left-32 pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10">
+              <Image
+                src="/assets/InvoiceSmartyIcon.png"
+                alt="Invoice Smarty"
+                width={28}
+                height={28}
+                className="w-10 h-10 object-contain rounded-md"
+              />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-[14px] font-bold tracking-tight text-slate-700 uppercase">
+                Invoice
+              </span>
+              <span className="text-[14px] font-extrabold tracking-tight text-primary">
+                Smarty
+              </span>
+            </div>
+            <div className="h-6 w-[1.5px] bg-slate-300 mx-1 sm:mx-2" />
+            <span className="text-sm sm:text-base font-semibold text-slate-800 tracking-tight">
               Organizations
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              View, switch, or remove the organizations on your account.
-            </p>
+            </span>
           </div>
 
           {canAddMore ? (
@@ -106,7 +122,7 @@ export const OrganizationsList: React.FC = () => {
             return (
               <div
                 key={org.id}
-                className={`group relative flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${
+                className={`group relative flex flex-col sm:flex-row sm:items-center gap-4 rounded-md bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${
                   isActive ? "ring-2 ring-primary/50" : "ring-1 ring-slate-100"
                 }`}
               >
