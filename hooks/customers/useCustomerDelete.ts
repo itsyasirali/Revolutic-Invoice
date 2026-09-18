@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
 import { invalidateCustomers } from "@/lib/swr";
+import { toast } from "@/components/ui";
 
 type AlertState = {
   show: boolean;
@@ -45,6 +46,12 @@ const useDeleteCustomer = () => {
       });
 
       await invalidateCustomers();
+      toast.success(
+        selectedIds.length > 1
+          ? "Customers deleted successfully"
+          : "Customer deleted successfully",
+        "Deleted"
+      );
       if (refetch) refetch();
     } catch (err: unknown) {
       const error = err as {
@@ -55,6 +62,7 @@ const useDeleteCustomer = () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to delete customers";
+      toast.error(msg, "Delete Failed");
       setAlert({
         show: true,
         type: "error",

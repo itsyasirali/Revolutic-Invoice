@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
 import { invalidateItems } from "@/lib/swr";
+import { toast } from "@/components/ui";
 
 type AlertState = {
   show: boolean;
@@ -48,11 +49,12 @@ const useDeleteItems = () => {
         data: { items: selectedIds.map(String) },
       });
 
-      setAlert({
-        show: true,
-        type: "success",
-        message: `Successfully deleted ${selectedIds.length} item(s)`,
-      });
+      toast.success(
+        selectedIds.length > 1
+          ? "Items deleted successfully"
+          : "Item deleted successfully",
+        "Deleted"
+      );
 
       await invalidateItems();
       if (refetch) refetch();
@@ -63,6 +65,7 @@ const useDeleteItems = () => {
       };
       const msg =
         error.response?.data?.message || error.message || "Failed to delete items";
+      toast.error(msg, "Delete Failed");
       setAlert({
         show: true,
         type: "error",

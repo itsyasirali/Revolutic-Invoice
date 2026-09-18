@@ -13,6 +13,7 @@ import type {
   TableColumnSetting,
 } from "@/types/template";
 import { getNavState } from "@/lib/clientNavState";
+import { toast } from "@/components/ui";
 
 const DEFAULT_COLUMNS: TableColumn[] = [
   { key: "index", label: "#", width: 30, align: "left", enabled: true },
@@ -507,12 +508,12 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           });
         }
         await invalidateTemplates();
+        const successMsg = `Template ${effectiveId ? "updated" : "created"} successfully`;
+        toast.success(successMsg, effectiveId ? "Template Updated" : "Template Created");
         setAlert({
           show: true,
           type: "success",
-          message: `Template ${
-            effectiveId ? "updated" : "created"
-          } successfully`,
+          message: successMsg,
         });
 
         setTimeout(() => {
@@ -527,6 +528,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
             ? err.message
             : "Failed to save template";
 
+        toast.error(errorMessage || "Failed to save template", "Error");
         setAlert({
           show: true,
           type: "error",

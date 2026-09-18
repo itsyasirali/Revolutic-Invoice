@@ -61,11 +61,6 @@ const PaymentEmailCompose: React.FC = () => {
 
       <div className="flex-1 overflow-auto">
         <div className="bg-white overflow-hidden">
-          <div className="flex items-center px-6 py-4 border-b border-gray-100">
-            <span className="w-20 text-sm font-medium text-gray-500">From</span>
-            <span className="text-sm text-gray-900">{emailData.from}</span>
-          </div>
-
           <div className="relative flex items-start px-6 py-4 border-b border-gray-100 min-h-[64px]">
             <span className="w-20 text-sm font-medium text-gray-500 pt-1.5">
               To
@@ -87,7 +82,7 @@ const PaymentEmailCompose: React.FC = () => {
               ))}
 
               {activeField === "to" ? (
-                <div className="flex items-center gap-2 min-w-[200px]">
+                <div className="flex items-center gap-2 min-w-50">
                   <input
                     autoFocus
                     type="email"

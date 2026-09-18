@@ -13,6 +13,7 @@ import type {
   CustomerOption,
 } from "@/types/payment";
 import { getNavState } from "@/lib/clientNavState";
+import { toast } from "@/components/ui";
 
 export const usePaymentForm = (): UsePaymentFormReturn => {
   const params = useParams();
@@ -275,18 +276,21 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
       if (isEditMode && id) {
         await axios.put(`/payments/${id}`, payload);
         await invalidatePayments();
+        toast.success("Payment updated successfully", "Payment Updated");
         router.refresh();
         router.push("/payments");
       } else {
         const response = await axios.post(`/payments`, payload);
         if (response.data) {
           await invalidatePayments();
+          toast.success("Payment draft saved successfully", "Draft Saved");
           router.refresh();
           router.push("/payments");
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving draft:", error);
+      toast.error(error.response?.data?.message || "Failed to save draft", "Error");
     } finally {
       setIsSaving(false);
     }
@@ -337,11 +341,13 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
       if (isEditMode && id) {
         await axios.put(`/payments/${id}`, payload);
         await invalidatePayments();
+        toast.success("Payment updated successfully", "Payment Updated");
       } else {
         const response = await axios.post(`/payments`, payload);
         paymentId =
           response.data.id || response.data.payment?.id;
         await invalidatePayments();
+        toast.success("Payment recorded successfully", "Payment Recorded");
       }
 
       if (paymentId) {
@@ -351,8 +357,9 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
           appliedInvoices: appliedInvoicesPayload,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in handleSaveAndSend:", error);
+      toast.error(error.response?.data?.message || "Failed to record payment", "Error");
     } finally {
       setIsSubmitting(false);
     }

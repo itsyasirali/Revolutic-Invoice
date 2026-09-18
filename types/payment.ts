@@ -141,7 +141,9 @@ export interface CustomerOption {
   email?: string;
   companyName?: string;
   currency?: string;
-  contacts?: Array<{ email?: string; contact?: string }>;
+  contacts?: Array<{ email?: string; contact?: string; phone?: string }>;
+  phone?: string;
+  address?: string;
 }
 
 // Hook Return Types

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "@/lib/axios";
 import { invalidateItems } from "@/lib/swr";
 import type { ItemFormData } from "@/types/item";
+import { toast } from "@/components/ui";
 
 type ItemType = "Goods" | "Service";
 
@@ -56,6 +57,12 @@ export const useItemForm = (initialData?: ItemFormData | null) => {
 
       if (res.status === 200 || res.status === 201) {
         await invalidateItems();
+        toast.success(
+          initialData?.id
+            ? "Item updated successfully"
+            : "Item created successfully",
+          initialData?.id ? "Item Updated" : "Item Created"
+        );
         return true;
       }
 

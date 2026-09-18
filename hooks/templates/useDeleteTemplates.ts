@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "@/lib/axios";
 import { invalidateTemplates } from "@/lib/swr";
 import type { UseDeleteTemplatesReturn } from "@/types/template";
+import { toast } from "@/components/ui";
 
 const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,12 @@ const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
         await axios.delete(`/templates/${id}`);
       }
 
+      toast.success(
+        confirmDialog.selectedIds.length > 1
+          ? "Templates deleted successfully"
+          : "Template deleted successfully",
+        "Deleted"
+      );
       setAlert({
         show: true,
         type: "success",
@@ -46,10 +53,12 @@ const useDeleteTemplates = (): UseDeleteTemplatesReturn => {
       setConfirmDialog({ show: false, selectedIds: [] });
     } catch (err: any) {
       console.error("Error deleting templates:", err);
+      const msg = err.response?.data?.message || "Failed to delete templates";
+      toast.error(msg, "Delete Failed");
       setAlert({
         show: true,
         type: "error",
-        message: err.response?.data?.message || "Failed to delete templates",
+        message: msg,
       });
     } finally {
       setLoading(false);

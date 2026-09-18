@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import axios from "@/lib/axios";
 import { invalidateInvoices } from "@/lib/swr";
+import { toast } from "@/components/ui";
 
 type AlertState = {
   show: boolean;
@@ -47,6 +48,12 @@ const useDeleteInvoices = () => {
         await axios.delete(`/invoices/${id}`);
       }
 
+      toast.success(
+        selectedIds.length > 1
+          ? "Invoices deleted successfully"
+          : "Invoice deleted successfully",
+        "Deleted"
+      );
       setAlert({
         show: true,
         type: "success",
@@ -60,6 +67,7 @@ const useDeleteInvoices = () => {
         err?.response?.data?.message ||
         err.message ||
         "Failed to delete invoices";
+      toast.error(msg, "Delete Failed");
       setAlert({
         show: true,
         type: "error",

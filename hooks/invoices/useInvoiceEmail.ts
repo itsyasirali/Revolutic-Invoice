@@ -5,6 +5,7 @@ import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { getNavState } from "@/lib/clientNavState";
+import { toast } from "@/components/ui";
 
 export interface EmailData {
   from: string;
@@ -204,11 +205,11 @@ ${companyName}`;
         invoiceData: invoice,
       });
 
-      alert("Invoice sent successfully");
+      toast.success("Invoice sent successfully", "Invoice Sent");
       router.push("/invoices");
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.message || "Failed to send email");
+      toast.error(error.response?.data?.message || "Failed to send email", "Send Failed");
     } finally {
       setSending(false);
     }

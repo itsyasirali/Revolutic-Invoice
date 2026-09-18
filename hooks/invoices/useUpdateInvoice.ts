@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "@/lib/axios";
 import { invalidateInvoices } from "@/lib/swr";
+import { toast } from "@/components/ui";
 
 interface UpdateInvoicePayload {
   invoiceNumber?: string;
@@ -47,6 +48,7 @@ const useUpdateInvoice = () => {
       setLoading(false);
       if (response.status === 200) {
         await invalidateInvoices();
+        toast.success("Invoice updated successfully", "Invoice Updated");
         return response.data;
       }
       return null;
@@ -55,6 +57,7 @@ const useUpdateInvoice = () => {
       const msg =
         err?.response?.data?.message || "Failed to update the invoice";
       setError(msg);
+      toast.error(msg, "Update Failed");
       console.error(err);
       return null;
     }

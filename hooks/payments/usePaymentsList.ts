@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import usePaymentsData from "./usePayments";
 import type { Payment, UsePaymentsListReturn } from "@/types/payment";
+import { toast } from "@/components/ui";
 
 export const PAYMENT_MODE_FILTERS = [
   "All",
@@ -133,6 +134,12 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
     if (!confirmDialog.selectedIds.length) return;
     try {
       await deletePayments(confirmDialog.selectedIds);
+      toast.success(
+        confirmDialog.selectedIds.length > 1
+          ? "Payments deleted successfully"
+          : "Payment deleted successfully",
+        "Deleted"
+      );
       setAlert({
         show: true,
         type: "success",
@@ -141,6 +148,7 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
       setSelectedIds([]);
       hideConfirmDialog();
     } catch (error: any) {
+      toast.error(error?.message || "Failed to delete payments", "Delete Failed");
       setAlert({
         show: true,
         type: "error",

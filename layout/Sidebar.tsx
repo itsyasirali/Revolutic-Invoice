@@ -94,14 +94,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-[#1A1F37] border-r border-[#262C4D] transition-all duration-300 ease-in-out z-40
+      className={`fixed top-0 left-0 h-full bg-blue-950 transition-all duration-300 ease-in-out z-40
         ${isCollapsed ? "w-20" : "w-64"}
         md:sticky md:top-0 md:h-screen flex flex-col justify-between shadow-2xl text-slate-100
       `}
     >
       <div className="flex flex-col flex-1 min-h-0">
         {/* Brand / Logo Section */}
-        <div className="flex items-center px-6 py-5 border-b border-[#262C4D]">
+        <div className="flex items-center px-6 py-5">
           <Link href="/" className="flex items-center gap-3 w-full">
             {/* Logo Icon */}
             <div className="w-9 h-9 rounded-md flex items-center justify-center shrink-0 overflow-hidden shadow-md shadow-blue-600/20">
@@ -169,7 +169,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               const isActive =
                 item.path === "/dashboard"
                   ? routePath === "/dashboard" || routePath === "/"
-                  : routePath === item.path || routePath.startsWith(item.path + "/");
+                  : routePath === item.path ||
+                    routePath.startsWith(item.path + "/");
 
               return (
                 <OrgLink
@@ -206,7 +207,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Sidebar: Collapse Toggle Only */}
-      <div className="p-3 border-t border-[#262C4D] bg-[#161A2E]">
+      <div className="p-3 border-t border-blue-900">
         <button
           onClick={() => onToggle(!isCollapsed)}
           className="w-full flex items-center justify-center p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-xs"

@@ -2,7 +2,13 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Input, Select, Button, PageHeader, LoadingSpinner } from "@/components/ui";
+import {
+  Input,
+  Select,
+  Button,
+  PageHeader,
+  LoadingSpinner,
+} from "@/components/ui";
 import usePaymentForm from "@/hooks/payments/usePaymentForm";
 import type { PaymentFormData } from "@/types/payment";
 import { Search, Mail } from "lucide-react";
@@ -42,16 +48,16 @@ const PaymentForm: React.FC = () => {
         onBack={() => router.push("/payments")}
       />
 
-      <div className="flex-1 py-8 w-full">
-        <div className="flex flex-col gap-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="flex-1 py-8 px-4 w-full">
+        <div className="flex flex-col gap-y-6">
+          <div className="grid grid-cols-1  gap-8">
             <div className="space-y-4">
               <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
                 Customer Details
               </label>
               <div className="relative">
                 <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">
-                  Customer Name
+                  Customer
                 </label>
                 <div className="relative">
                   <button
@@ -256,7 +262,8 @@ const PaymentForm: React.FC = () => {
                       onChange={(e) =>
                         setPaymentData((prev) => ({
                           ...prev,
-                          paymentMode: e.target.value as PaymentFormData["paymentMode"],
+                          paymentMode: e.target
+                            .value as PaymentFormData["paymentMode"],
                         }))
                       }
                       options={paymentModeOptions}
@@ -366,15 +373,6 @@ const PaymentForm: React.FC = () => {
                                 }}
                                 className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-md text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 bg-gray-50"
                               />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handlePayInFull(invoice.id, invoice.remaining)
-                                }
-                                className="text-primary text-sm hover:underline"
-                              >
-                                Pay in Full
-                              </button>
                             </div>
                           </td>
                         </tr>
@@ -386,10 +384,10 @@ const PaymentForm: React.FC = () => {
                 <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-black text-primary uppercase tracking-tighter">
+                      <span className="text-sm font-bold text-primary uppercase tracking-tighter">
                         Amount Received:
                       </span>
-                      <span className="text-xl font-black text-primary tracking-tighter">
+                      <span className="text-md font-bold text-primary tracking-tighter">
                         {paymentData.currency}{" "}
                         {(Number(paymentData.amountReceived) || 0).toFixed(2)}
                       </span>
