@@ -12,6 +12,7 @@ export { CurrencyDisplay } from "./CurrencyDisplay";
 export { EmptyState } from "./EmptyState";
 export { IconButton } from "./IconButton";
 export { LoadingSpinner, ThreeDotLoader } from "./LoadingSpinner";
+export { Spinner } from "./Spinner";
 export { PageHeader } from "./PageHeader";
 export { Tabs } from "./Tabs";
 export { ComingSoon } from "./ComingSoon";
