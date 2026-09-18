@@ -25,7 +25,7 @@ import {
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
 import OrganizationSwitcher from "@/components/organization/OrganizationSwitcher";
-import { SearchDropdown, LoadingSpinner } from "@/components/ui";
+import { SearchDropdown, LoadingSpinner, IconButton } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
 
@@ -303,15 +303,15 @@ const Header = () => {
 
         {/* Notification Bell */}
         <div className="relative" ref={notificationRef}>
-          <button
-            type="button"
+          <IconButton
+            icon={Bell}
+            variant="ghost"
+            size="md"
             onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-            className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" />
-          </button>
+            className="relative rounded-xl text-slate-500 hover:text-slate-800"
+            label="Notifications"
+          />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white pointer-events-none" />
 
           {isNotificationOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 z-50">

@@ -1,6 +1,7 @@
 import React from "react";
 import { getSafeHex } from "@/utils/templates/colorUtils";
 import type { ColorInputProps } from "@/types/template";
+import { Input } from "@/components/ui";
 
 export const ColorInput: React.FC<ColorInputProps> = ({
   label,
@@ -19,7 +20,7 @@ export const ColorInput: React.FC<ColorInputProps> = ({
         className="w-10 h-10 rounded-md border-2 border-gray-300 cursor-pointer shadow-sm hover:border-primary/50"
         title={value || "#000000"}
       />
-      <input
+      <Input
         type="text"
         value={(value || "").toUpperCase()}
         onChange={(e) =>
@@ -30,7 +31,9 @@ export const ColorInput: React.FC<ColorInputProps> = ({
           )
         }
         placeholder="#000000"
-        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono text-gray-900 uppercase focus:ring-2 focus:ring-primary/50 focus:border-primary/60"
+        showLabel={false}
+        fullWidth
+        className="font-mono uppercase"
       />
     </div>
   </div>

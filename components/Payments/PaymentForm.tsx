@@ -6,6 +6,7 @@ import {
   Input,
   Select,
   Button,
+  Checkbox,
   PageHeader,
   LoadingSpinner,
 } from "@/components/ui";
@@ -86,19 +87,18 @@ const PaymentForm: React.FC = () => {
                   {customerDropdownOpen && (
                     <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="sticky top-0 bg-gray-50/80 backdrop-blur-md border-b border-gray-100 p-3">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                          <input
-                            type="text"
-                            placeholder="Search customers..."
-                            value={customerSearchTerm}
-                            onChange={(e) =>
-                              setCustomerSearchTerm(e.target.value)
-                            }
-                            className="w-full pl-10 pr-4 py-2 text-gray-900 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 outline-none"
-                            autoFocus
-                          />
-                        </div>
+                        <Input
+                          type="text"
+                          placeholder="Search customers..."
+                          value={customerSearchTerm}
+                          onChange={(e) =>
+                            setCustomerSearchTerm(e.target.value)
+                          }
+                          leftIcon={Search}
+                          showLabel={false}
+                          fullWidth
+                          autoFocus
+                        />
                       </div>
 
                       <div className="max-h-64 overflow-y-auto">
@@ -185,27 +185,19 @@ const PaymentForm: React.FC = () => {
                         className="w-full rounded-md"
                       />
                       {selectedCustomerData && unpaidInvoices.length > 0 && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <input
-                            type="checkbox"
+                        <div className="mt-2">
+                          <Checkbox
                             id="payAllRemaining"
+                            checkboxSize="sm"
                             checked={payAllRemaining}
                             onChange={handlePayAllRemainingToggle}
-                            className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
-                          />
-                          <label
-                            htmlFor="payAllRemaining"
-                            className="text-sm text-gray-600 cursor-pointer select-none"
-                          >
-                            Receive full amount ({paymentData.currency}{" "}
-                            {unpaidInvoices
+                            label={`Receive full amount (${paymentData.currency} ${unpaidInvoices
                               .reduce(
                                 (sum, inv) => sum + Number(inv.remaining || 0),
                                 0,
                               )
-                              .toFixed(2)}
-                            )
-                          </label>
+                              .toFixed(2)})`}
+                          />
                         </div>
                       )}
                     </div>
@@ -352,16 +344,18 @@ const PaymentForm: React.FC = () => {
                             {(invoice.remaining || 0).toFixed(2)}
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <input
+                            <Input
                               type="date"
                               value={paymentData.paymentDate}
                               readOnly
-                              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                              inputSize="sm"
+                              showLabel={false}
+                              fullWidth={false}
                             />
                           </td>
                           <td className="px-4 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <input
+                              <Input
                                 type="text"
                                 inputMode="decimal"
                                 value={appliedAmounts[invoice.id] || 0}
@@ -371,7 +365,10 @@ const PaymentForm: React.FC = () => {
                                     handleAppliedAmountChange(invoice.id, val);
                                   }
                                 }}
-                                className="w-24 px-3 py-1.5 text-sm border border-gray-400 rounded-md text-right text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-primary/50 bg-gray-50"
+                                inputSize="sm"
+                                showLabel={false}
+                                fullWidth={false}
+                                className="w-24 text-right font-bold"
                               />
                             </div>
                           </td>

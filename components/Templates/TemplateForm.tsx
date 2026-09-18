@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Upload, GripVertical, Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button, Input, Checkbox } from "@/components/ui";
 import TemplatePreview from "./TemplatePreview";
 import useTemplateFormView from "@/hooks/templates/useTemplateFormView";
 import ColorInput from "./components/ColorInput";
@@ -52,12 +52,13 @@ const TemplateForm: React.FC = () => {
                 <label className="block text-xs font-medium text-primary mb-1">
                   Template Name*
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.templateName}
                   onChange={(e) => handleChange("templateName", e.target.value)}
                   placeholder="Standard Template"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                  showLabel={false}
+                  fullWidth
                 />
               </div>
 
@@ -135,14 +136,15 @@ const TemplateForm: React.FC = () => {
                       <label className="text-xs text-gray-500 block mb-1">
                         {label}
                       </label>
-                      <input
+                      <Input
                         type="number"
                         step="0.1"
                         value={formData[key] as number}
                         onChange={(e) =>
                           handleChange(key, parseFloat(e.target.value) || 0)
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                        showLabel={false}
+                        fullWidth
                       />
                     </div>
                   ))}
@@ -150,22 +152,19 @@ const TemplateForm: React.FC = () => {
               </div>
 
               <div className="px-4 py-4 border-b border-gray-200">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checkboxSize="sm"
                     checked={formData.showNotes}
                     onChange={(e) =>
                       handleChange("showNotes", e.target.checked)
                     }
-                    className="w-4 h-4 rounded text-primary"
+                    label="Include Payment Stub"
                   />
-                  <span className="text-sm text-gray-800">
-                    Include Payment Stub
-                  </span>
                   <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
                     ?
                   </span>
-                </label>
+                </div>
               </div>
 
               <CollapsibleSection title="Font" defaultOpen={false}>
@@ -265,22 +264,24 @@ const TemplateForm: React.FC = () => {
                       <label className="text-xs text-gray-600 mb-1 block">
                         Brand Name
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={branding.brandName}
                         onChange={(e) => setBrandName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                        showLabel={false}
+                        fullWidth
                       />
                     </div>
                     <div>
                       <label className="text-xs text-gray-600 mb-1 block">
                         Tagline
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={branding.tagline}
                         onChange={(e) => setTagline(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                        showLabel={false}
+                        fullWidth
                       />
                     </div>
                   </div>
@@ -299,13 +300,14 @@ const TemplateForm: React.FC = () => {
                     <label className="text-xs text-gray-600 mb-1 block">
                       Title Text
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={formData.invoiceLabel}
                       onChange={(e) =>
                         handleChange("invoiceLabel", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                      showLabel={false}
+                      fullWidth
                     />
                   </div>
                   <ColorInput
@@ -328,13 +330,14 @@ const TemplateForm: React.FC = () => {
                     <label className="text-xs text-gray-600 mb-1 block">
                       Number Label
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={formData.invoiceNumberLabel}
                       onChange={(e) =>
                         handleChange("invoiceNumberLabel", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                      showLabel={false}
+                      fullWidth
                     />
                   </div>
                   <ColorInput
@@ -346,37 +349,28 @@ const TemplateForm: React.FC = () => {
               </CollapsibleSection>
 
               <div className="px-4 py-4 border-b border-gray-200 space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showHeader}
-                    onChange={(e) =>
-                      handleChange("showHeader", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Header</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showFooter}
-                    onChange={(e) =>
-                      handleChange("showFooter", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Footer</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showLogo}
-                    onChange={(e) => handleChange("showLogo", e.target.checked)}
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Logo</span>
-                </label>
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showHeader}
+                  onChange={(e) =>
+                    handleChange("showHeader", e.target.checked)
+                  }
+                  label="Show Header"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showFooter}
+                  onChange={(e) =>
+                    handleChange("showFooter", e.target.checked)
+                  }
+                  label="Show Footer"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showLogo}
+                  onChange={(e) => handleChange("showLogo", e.target.checked)}
+                  label="Show Logo"
+                />
               </div>
 
               <CollapsibleSection
@@ -513,13 +507,14 @@ const TemplateForm: React.FC = () => {
                     <label className="text-xs text-gray-600 mb-1 block">
                       Footer Text
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={formData.footerText || ""}
                       onChange={(e) =>
                         handleChange("footerText", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                      showLabel={false}
+                      fullWidth
                     />
                   </div>
                 </div>
@@ -530,13 +525,17 @@ const TemplateForm: React.FC = () => {
           {activeNav === "table" && (
             <>
               <div className="px-4 py-3 border-b border-gray-200">
-                <button
+                <Button
                   onClick={addColumn}
-                  className="flex items-center gap-2 w-full py-2 px-3 border-2 border-dashed border-primary/40 rounded-md text-primary hover:bg-primary/5"
+                  variant="outline"
+                  size="sm"
+                  fullWidth
+                  icon={<Plus size={16} />}
+                  iconPosition="left"
+                  className="border-2 border-dashed border-primary/40 text-primary hover:bg-primary/5"
                 >
-                  <Plus size={16} />
-                  <span className="text-sm font-medium">Add Column</span>
-                </button>
+                  Add Column
+                </Button>
               </div>
 
               <div className="px-4 py-3 space-y-2">
@@ -554,11 +553,10 @@ const TemplateForm: React.FC = () => {
                         size={14}
                         className="text-gray-400 cursor-move"
                       />
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        checkboxSize="sm"
                         checked={col.enabled}
                         onChange={() => toggleColumn(idx)}
-                        className="rounded text-primary"
                       />
                       <span className="text-xs text-gray-600 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
                         {col.key}
@@ -582,19 +580,22 @@ const TemplateForm: React.FC = () => {
                     <div className="grid grid-cols-3 gap-2">
                       <div>
                         <label className="text-xs text-gray-500">Label</label>
-                        <input
+                        <Input
                           type="text"
                           value={col.label}
                           onChange={(e) =>
                             handleColumnChange(idx, "label", e.target.value)
                           }
                           disabled={!col.enabled}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs text-gray-800"
+                          inputSize="sm"
+                          showLabel={false}
+                          fullWidth
+                          className="text-xs"
                         />
                       </div>
                       <div>
                         <label className="text-xs text-gray-500">Width</label>
-                        <input
+                        <Input
                           type="number"
                           value={col.width}
                           onChange={(e) =>
@@ -605,7 +606,10 @@ const TemplateForm: React.FC = () => {
                             )
                           }
                           disabled={!col.enabled}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs text-gray-800"
+                          inputSize="sm"
+                          showLabel={false}
+                          fullWidth
+                          className="text-xs"
                         />
                       </div>
                       <div>
@@ -650,32 +654,22 @@ const TemplateForm: React.FC = () => {
               </CollapsibleSection>
 
               <div className="px-4 py-4 space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showTableHeader}
-                    onChange={(e) =>
-                      handleChange("showTableHeader", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Show Table Header
-                  </span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.alternateRowColors}
-                    onChange={(e) =>
-                      handleChange("alternateRowColors", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Alternate Row Colors
-                  </span>
-                </label>
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showTableHeader}
+                  onChange={(e) =>
+                    handleChange("showTableHeader", e.target.checked)
+                  }
+                  label="Show Table Header"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.alternateRowColors}
+                  onChange={(e) =>
+                    handleChange("alternateRowColors", e.target.checked)
+                  }
+                  label="Alternate Row Colors"
+                />
               </div>
             </>
           )}
@@ -795,13 +789,14 @@ const TemplateForm: React.FC = () => {
                     <label className="text-xs text-gray-600 mb-1 block">
                       Label Text
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={formData.balanceDueLabel}
                       onChange={(e) =>
                         handleChange("balanceDueLabel", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+                      showLabel={false}
+                      fullWidth
                     />
                   </div>
                   <ColorInput
@@ -818,50 +813,36 @@ const TemplateForm: React.FC = () => {
               </CollapsibleSection>
 
               <div className="px-4 py-4 border-b border-gray-200 space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showSubtotal}
-                    onChange={(e) =>
-                      handleChange("showSubtotal", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Subtotal</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showTax}
-                    onChange={(e) => handleChange("showTax", e.target.checked)}
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Tax</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showDiscount}
-                    onChange={(e) =>
-                      handleChange("showDiscount", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">Show Discount</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showPreviousDue}
-                    onChange={(e) =>
-                      handleChange("showPreviousDue", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Show Previous Remaining
-                  </span>
-                </label>
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showSubtotal}
+                  onChange={(e) =>
+                    handleChange("showSubtotal", e.target.checked)
+                  }
+                  label="Show Subtotal"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showTax}
+                  onChange={(e) => handleChange("showTax", e.target.checked)}
+                  label="Show Tax"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showDiscount}
+                  onChange={(e) =>
+                    handleChange("showDiscount", e.target.checked)
+                  }
+                  label="Show Discount"
+                />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showPreviousDue}
+                  onChange={(e) =>
+                    handleChange("showPreviousDue", e.target.checked)
+                  }
+                  label="Show Previous Remaining"
+                />
               </div>
             </>
           )}
@@ -889,19 +870,14 @@ const TemplateForm: React.FC = () => {
                 <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
                   Visibility
                 </h4>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.showNotes}
-                    onChange={(e) =>
-                      handleChange("showNotes", e.target.checked)
-                    }
-                    className="rounded text-primary"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Show Notes Section
-                  </span>
-                </label>
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showNotes}
+                  onChange={(e) =>
+                    handleChange("showNotes", e.target.checked)
+                  }
+                  label="Show Notes Section"
+                />
               </div>
             </>
           )}

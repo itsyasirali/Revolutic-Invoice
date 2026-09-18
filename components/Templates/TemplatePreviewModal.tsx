@@ -14,6 +14,7 @@ import {
 import type { TemplatePreviewModalProps } from "@/types/template";
 import useTemplatePreviewModal from "@/hooks/templates/useTemplatePreviewModal";
 import TemplatePreview from "./TemplatePreview";
+import { Button } from "@/components/ui";
 
 const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   isOpen,
@@ -39,19 +40,18 @@ const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
           <h2 className="text-base font-medium text-gray-900">Preview</h2>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => handleDownload(template)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-md hover:bg-blue-700 shadow-sm"
+              variant="primary"
+              size="sm"
+              icon={<Download size={16} />}
+              iconPosition="left"
             >
-              <Download size={16} />
               Download
-            </button>
-            <button
-              onClick={onClose}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
+            </Button>
+            <Button onClick={onClose} variant="secondary" size="sm" className="bg-gray-200 text-gray-700 hover:bg-gray-300">
               Close
-            </button>
+            </Button>
           </div>
         </div>
 

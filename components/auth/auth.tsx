@@ -7,6 +7,7 @@ import useLoginSignupForm from "@/hooks/auth/useLoginSignupForm";
 import { Eye, EyeOff } from "lucide-react";
 import AuthSlideIllustration from "@/components/auth/AuthSlideIllustration";
 import type { LoginSignupFormProps } from "@/types/auth";
+import { Button, Input } from "@/components/ui";
 
 const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
   onLoginSuccess,
@@ -100,111 +101,112 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             >
               {/* Full Name (Sign Up only) */}
               {isSignup && (
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    required
-                    className="w-full px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  required
+                  showLabel={false}
+                  fullWidth
+                />
               )}
 
               {/* Email Input */}
-              <div>
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  required
-                  className="w-full px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-                />
-              </div>
+              <Input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyPress}
+                required
+                showLabel={false}
+                fullWidth
+              />
 
               {/* Password Input */}
-              <div className="relative flex items-center">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  required
-                  className="w-full pl-3.5 pr-10 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-
-              {/* Confirm Password (Sign Up only) */}
-              {isSignup && (
-                <div className="relative flex items-center">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    required
-                    className="w-full pl-3.5 pr-10 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-                  />
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyPress}
+                required
+                showLabel={false}
+                fullWidth
+                suffix={
                   <button
                     type="button"
-                    onClick={toggleConfirmPasswordVisibility}
-                    className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
-                    aria-label="Toggle confirm password visibility"
+                    onClick={togglePasswordVisibility}
+                    className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                    aria-label="Toggle password visibility"
                   >
-                    {showConfirmPassword ? (
+                    {showPassword ? (
                       <EyeOff className="w-4 h-4" />
                     ) : (
                       <Eye className="w-4 h-4" />
                     )}
                   </button>
-                </div>
+                }
+              />
+
+              {/* Confirm Password (Sign Up only) */}
+              {isSignup && (
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  required
+                  showLabel={false}
+                  fullWidth
+                  suffix={
+                    <button
+                      type="button"
+                      onClick={toggleConfirmPasswordVisibility}
+                      className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                      aria-label="Toggle confirm password visibility"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  }
+                />
               )}
 
               {/* Sub-links row */}
               {!isSignup && (
                 <div className="flex items-center justify-between text-xs pt-0.5">
-                  <button
+                  <Button
                     type="button"
                     onClick={handleToggle}
-                    className="text-primary font-medium hover:underline cursor-pointer"
+                    variant="link"
+                    className="text-xs font-medium"
                   >
                     Sign in using email OTP
-                  </button>
-                  <button
-                    type="button"
-                    className="text-primary font-medium hover:underline cursor-pointer"
-                  >
+                  </Button>
+                  <Button type="button" variant="link" className="text-xs font-medium">
                     Forgot Password?
-                  </button>
+                  </Button>
                 </div>
               )}
 
               {/* Action Button */}
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-primary hover:bg-primary/90 disabled:opacity-60 text-white text-sm font-semibold rounded-md transition-colors cursor-pointer mt-3 shadow-xs"
+                loading={loading}
+                variant="primary"
+                fullWidth
+                className="mt-3"
               >
                 {loading ? "Processing..." : isSignup ? "Sign up" : "Sign in"}
-              </button>
+              </Button>
             </form>
           </div>
 
@@ -220,42 +222,47 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             </div>
 
             {/* Google Button */}
-            <button
+            <Button
               type="button"
-              className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-md transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-2.5"
+              variant="outline"
+              fullWidth
               title="Continue with Google"
+              icon={
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                  />
+                </svg>
+              }
+              iconPosition="left"
             >
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                />
-              </svg>
               Continue with Google
-            </button>
+            </Button>
 
             {/* Toggle Sign In / Sign Up */}
             <p className="text-center text-xs text-slate-500">
               {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button
+              <Button
                 type="button"
                 onClick={handleToggle}
-                className="text-primary font-semibold hover:underline cursor-pointer"
+                variant="link"
+                className="text-xs font-semibold"
               >
                 {isSignup ? "Sign In" : "Sign Up"}
-              </button>
+              </Button>
             </p>
           </div>
         </div>

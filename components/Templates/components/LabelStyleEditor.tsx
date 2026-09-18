@@ -1,6 +1,7 @@
 import React from "react";
 import ColorInput from "./ColorInput";
 import type { LabelStyleProps } from "@/types/template";
+import { Input } from "@/components/ui";
 
 export const LabelStyleEditor: React.FC<LabelStyleProps> = ({
   label,
@@ -22,11 +23,12 @@ export const LabelStyleEditor: React.FC<LabelStyleProps> = ({
     </label>
     <div>
       <label className="text-xs text-gray-500 mb-1 block">Text</label>
-      <input
+      <Input
         type="text"
         value={textValue}
         onChange={(e) => onTextChange(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+        showLabel={false}
+        fullWidth
       />
     </div>
 
@@ -49,11 +51,12 @@ export const LabelStyleEditor: React.FC<LabelStyleProps> = ({
     {showSize && (
       <div>
         <label className="text-xs text-gray-500 mb-1 block">Size (pt)</label>
-        <input
+        <Input
           type="number"
           value={fontSize}
           onChange={(e) => onFontSizeChange?.(parseInt(e.target.value) || 10)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800"
+          showLabel={false}
+          fullWidth
         />
       </div>
     )}
