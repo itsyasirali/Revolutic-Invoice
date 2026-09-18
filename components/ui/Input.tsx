@@ -71,7 +71,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         <div
-          className={`relative flex items-center transition-all duration-200 ${variantClasses[variant]} ${sizeClasses[inputSize]} ${errorContainerClass} ${disabled ? "opacity-60 bg-slate-100 cursor-not-allowed" : ""}`}
+          className={`relative flex items-center transition-all duration-200 overflow-hidden ${variantClasses[variant]} ${sizeClasses[inputSize]} ${errorContainerClass} ${disabled ? "opacity-60 bg-slate-100 cursor-not-allowed" : ""}`}
         >
           {prefix && (
             <div className="pl-3.5 pr-1 text-slate-500 font-medium select-none text-sm shrink-0">
@@ -90,7 +90,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             value={value}
             disabled={disabled}
-            className={`w-full h-full bg-transparent text-slate-800 placeholder:text-slate-400 outline-none transition-colors px-3.5 ${LeftIcon ? "pl-2" : ""} ${prefix ? "pl-1" : ""} ${className}`}
+            className={`flex-1 min-w-0 w-full h-full bg-transparent text-slate-800 placeholder:text-slate-400 outline-none transition-colors px-3.5 rounded-[inherit] ${LeftIcon ? "pl-2" : ""} ${prefix ? "pl-1" : ""} ${className}`}
             {...props}
           />
 
@@ -98,7 +98,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={onClear}
-              className="p-1 mr-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/60 transition-colors"
+              className="p-1 mr-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/60 transition-colors shrink-0"
             >
               <X className="w-3.5 h-3.5" />
             </button>
