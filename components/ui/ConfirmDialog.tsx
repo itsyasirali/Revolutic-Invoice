@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle, Info, CheckCircle, X } from "lucide-react";
 import type { ConfirmDialogProps } from "@/types/common";
 import Button from "./Button";
@@ -15,39 +16,41 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
   type = "warning",
 }) => {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const config = {
     danger: {
       icon: AlertTriangle,
       iconColor: "text-rose-600",
       buttonVariant: "danger" as const,
-      bgColor: "bg-rose-50/70",
     },
     warning: {
       icon: AlertTriangle,
       iconColor: "text-amber-600",
       buttonVariant: "warning" as const,
-      bgColor: "bg-amber-50/70",
     },
     info: {
       icon: Info,
       iconColor: "text-sky-600",
       buttonVariant: "primary" as const,
-      bgColor: "bg-sky-50/70",
     },
     success: {
       icon: CheckCircle,
       iconColor: "text-emerald-600",
       buttonVariant: "success" as const,
-      bgColor: "bg-emerald-50/70",
     },
   };
 
-  const { icon: Icon, iconColor, buttonVariant, bgColor } = config[type];
+  const { icon: Icon, iconColor, buttonVariant } = config[type];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-start justify-center px-4 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
@@ -55,11 +58,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       />
 
       {/* Dialog Container */}
-      <div className="relative bg-white rounded-md shadow-2xl border border-slate-100 max-w-md w-full z-10 overflow-hidden">
+      <div className="relative bg-white rounded-b-xl shadow-2xl border-x border-b border-slate-200 max-w-md w-full z-10 overflow-hidden">
         {/* Header */}
-        <div
-          className={`flex items-start gap-4 p-6 ${bgColor} border-b border-slate-100`}
-        >
+        <div className={`flex items-start gap-4 p-6`}>
           <div
             className={`p-2.5 rounded-md bg-white shadow-sm shrink-0 ${iconColor}`}
           >
@@ -81,7 +82,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2.5 justify-end px-6 py-4 bg-slate-50/80 border-t border-slate-100">
+        <div className="flex gap-2.5 justify-end px-6 py-4">
           {cancelText && (
             <Button onClick={onCancel} variant="outline" size="sm">
               {cancelText}
@@ -92,7 +93,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
