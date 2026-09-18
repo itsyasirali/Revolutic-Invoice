@@ -12,35 +12,13 @@ import {
 } from "lucide-react";
 import { ConfirmDialog, LoadingSpinner } from "@/components/ui";
 import useOrganizationsList from "@/hooks/organization/useOrganizationsList";
-import { MAX_ORGANIZATIONS_PER_USER } from "@/types/organization";
+import {
+  MAX_ORGANIZATIONS_PER_USER,
+  ORGANIZATION_THEMES,
+  getOrganizationTheme,
+} from "@/types/organization";
 
-const THEMES = [
-  {
-    accent: "bg-blue-500",
-    avatar: "bg-blue-500",
-    chip: "bg-blue-50 text-blue-600",
-  },
-  {
-    accent: "bg-violet-500",
-    avatar: "bg-violet-500",
-    chip: "bg-violet-50 text-violet-600",
-  },
-  {
-    accent: "bg-emerald-500",
-    avatar: "bg-emerald-500",
-    chip: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    accent: "bg-amber-500",
-    avatar: "bg-amber-500",
-    chip: "bg-amber-50 text-amber-600",
-  },
-  {
-    accent: "bg-pink-500",
-    avatar: "bg-pink-500",
-    chip: "bg-pink-50 text-pink-600",
-  },
-];
+export const THEMES = ORGANIZATION_THEMES;
 
 export const OrganizationsList: React.FC = () => {
   const {
@@ -117,7 +95,7 @@ export const OrganizationsList: React.FC = () => {
         <div className="mt-6 flex flex-col gap-4">
           {organizations.map((org, index) => {
             const isActive = org.id === organization?.id;
-            const theme = THEMES[index % THEMES.length];
+            const theme = getOrganizationTheme(index);
 
             return (
               <div

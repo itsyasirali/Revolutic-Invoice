@@ -294,7 +294,7 @@ export const OrganizationSetup: React.FC = () => {
                 disabled={loading}
                 className="h-11 px-5 sm:px-6 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-medium text-sm border border-slate-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAddingNewOrg ? "Back to Dashboard" : "Go Back"}
+                {isAddingNewOrg ? "Back to Organizations" : "Go Back"}
               </button>
             </div>
 

@@ -21,7 +21,6 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
   const { user, refetchProfile, logout } = useAuth();
   const {
-    organization,
     organizations,
     hasOrganization,
     refreshOrganizations,
@@ -37,9 +36,9 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
         `You can create up to ${MAX_ORGANIZATIONS_PER_USER} organizations. Delete an existing organization first.`,
         "Limit Reached",
       );
-      router.replace(organization?.slug ? `/${organization.slug}/dashboard` : "/organizations");
+      router.replace("/organizations");
     }
-  }, [limitReached, organization?.slug, router]);
+  }, [limitReached, router]);
 
   // Form State
   const [organizationName, setOrganizationName] = useState(
@@ -153,7 +152,11 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
           isAddingNewOrg ? "Organization Created" : "Setup Complete",
         );
 
-        router.push(savedOrg?.slug ? `/${savedOrg.slug}/dashboard` : "/organization-setup");
+        if (isAddingNewOrg) {
+          router.push("/organizations");
+        } else {
+          router.push(savedOrg?.slug ? `/${savedOrg.slug}/dashboard` : "/organization-setup");
+        }
         router.refresh();
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -190,11 +193,11 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
 
   const handleBack = useCallback(() => {
     if (isAddingNewOrg) {
-      router.push(organization?.slug ? `/${organization.slug}/dashboard` : "/organization-setup");
+      router.push("/organizations");
     } else {
       logout();
     }
-  }, [isAddingNewOrg, organization?.slug, router, logout]);
+  }, [isAddingNewOrg, router, logout]);
 
   return {
     organizationName,

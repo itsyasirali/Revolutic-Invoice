@@ -1,5 +1,46 @@
 export const MAX_ORGANIZATIONS_PER_USER = 5;
 
+export interface OrganizationTheme {
+  accent: string;
+  avatar: string;
+  chip: string;
+}
+
+export const ORGANIZATION_THEMES: OrganizationTheme[] = [
+  {
+    accent: "bg-blue-500",
+    avatar: "bg-blue-500",
+    chip: "bg-blue-50 text-blue-600",
+  },
+  {
+    accent: "bg-violet-500",
+    avatar: "bg-violet-500",
+    chip: "bg-violet-50 text-violet-600",
+  },
+  {
+    accent: "bg-emerald-500",
+    avatar: "bg-emerald-500",
+    chip: "bg-emerald-50 text-emerald-600",
+  },
+  {
+    accent: "bg-amber-500",
+    avatar: "bg-amber-500",
+    chip: "bg-amber-50 text-amber-600",
+  },
+  {
+    accent: "bg-pink-500",
+    avatar: "bg-pink-500",
+    chip: "bg-pink-50 text-pink-600",
+  },
+];
+
+export const getOrganizationTheme = (index: number): OrganizationTheme => {
+  const safeIndex =
+    ((index % ORGANIZATION_THEMES.length) + ORGANIZATION_THEMES.length) %
+    ORGANIZATION_THEMES.length;
+  return ORGANIZATION_THEMES[safeIndex];
+};
+
 export interface OrganizationData {
   id: number;
   name: string;
@@ -106,4 +147,3 @@ export interface UseOrganizationSwitcherReturn {
   confirmSwitch: () => Promise<void>;
   cancelSwitch: () => void;
 }
-
