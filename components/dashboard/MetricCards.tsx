@@ -9,11 +9,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
-import type { DashboardKPIs } from "@/types/dashboard";
-
-interface MetricCardsProps {
-  kpis: DashboardKPIs;
-}
+import type { MetricCardsProps } from "@/types/dashboard";
 
 const MiniBarChart = ({ color }: { color: string }) => {
   const heights = ["40%", "70%", "50%", "90%", "65%"];

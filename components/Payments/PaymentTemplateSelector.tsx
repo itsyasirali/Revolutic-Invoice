@@ -5,15 +5,7 @@ import { X } from "lucide-react";
 import usePaymentTemplateSelector from "@/hooks/payments/usePaymentTemplateSelector";
 import TemplateCard from "@/components/Templates/TemplateCard";
 import { LoadingSpinner } from "@/components/ui";
-
-import type { Template } from "@/entities/Template";
-
-interface PaymentTemplateSelectorProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (template: Template) => void;
-  currentTemplateId?: string;
-}
+import type { PaymentTemplateSelectorProps } from "@/types/payment";
 
 const PaymentTemplateSelector: React.FC<PaymentTemplateSelectorProps> = ({
   isOpen,

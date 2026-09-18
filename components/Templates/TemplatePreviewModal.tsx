@@ -11,21 +11,8 @@ import {
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
-import type { TemplateListItem } from "@/types/template";
+import type { TemplatePreviewModalProps } from "@/types/template";
 import TemplatePreview from "./TemplatePreview";
-
-interface TemplatePreviewModalProps {
-  isOpen: boolean;
-  template: TemplateListItem | null;
-  zoomLevel: number;
-  currentPage: number;
-  totalPages?: number;
-  onClose: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onPageChange: (page: number) => void;
-  onPrint?: () => void;
-}
 
 const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   isOpen,

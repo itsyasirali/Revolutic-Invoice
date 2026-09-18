@@ -3,14 +3,7 @@ import Container from "@/components/layout/container";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ResourceItem } from "@/types/resource";
-
-interface HeroProps {
-  title: string;
-  subtitle?: string;
-  featuredItem: ResourceItem;
-  baseRoute: string;
-}
+import type { HeroProps } from "@/types/resource";
 
 const Hero = ({ title, subtitle, featuredItem, baseRoute }: HeroProps) => {
   return (

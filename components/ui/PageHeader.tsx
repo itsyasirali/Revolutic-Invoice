@@ -2,23 +2,7 @@
 
 import React from "react";
 import { ChevronDown } from "lucide-react";
-
-export interface PageHeaderProps {
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  showBackButton?: boolean;
-  onBack?: () => void;
-  actions?: React.ReactNode;
-  className?: string;
-  dropdown?: {
-    options: { label: string; value: string }[];
-    value: string;
-    onChange: (value: string) => void;
-    isOpen: boolean;
-    onToggle: () => void;
-  };
-  actionBar?: React.ReactNode;
-}
+import type { PageHeaderProps } from "@/types/common";
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,

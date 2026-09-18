@@ -167,3 +167,7 @@ export interface BatchUpdateCustomerPayload {
 export interface BatchDeleteCustomerPayload {
   customers: string[];
 }
+
+export interface CustomerListProps {
+  initialCustomers?: Customer[];
+}

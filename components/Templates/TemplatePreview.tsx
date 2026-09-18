@@ -1,170 +1,14 @@
 "use client";
 
 import React from "react";
-
-interface TableColumn {
-  key: string;
-  label: string;
-  width: number;
-  align: "left" | "center" | "right";
-  enabled: boolean;
-}
-
-interface InvoiceItem {
-  index: number;
-  itemName: string;
-  description: string;
-  quantity: number;
-  rate: number;
-  amount: number;
-}
-
-interface TemplateBranding {
-  brandName?: string;
-  tagline?: string;
-  logoPreview?: string;
-}
-
-interface TableColumnSetting {
-  columnName?: string;
-  key?: string;
-  label?: string;
-  width?: string | number;
-  alignment?: "left" | "center" | "right";
-  visible?: boolean;
-}
-
-interface TemplateData {
-  primaryColor?: string;
-  accentColor?: string;
-  secondaryColor?: string;
-  invoiceNumberColor?: string;
-  billToColor?: string;
-  previousDueColor?: string;
-  textColor?: string;
-  footerBackgroundColor?: string;
-  borderColor?: string;
-  headerTextColor?: string;
-  tableBorderColor?: string;
-  tableHeaderBgColor?: string;
-  tableHeaderTextColor?: string;
-  tableRowColor?: string;
-  tableAltRowColor?: string;
-  invoiceDateLabelColor?: string;
-  invoiceDateValueColor?: string;
-  termsLabelColor?: string;
-  termsValueColor?: string;
-  dueDateLabelColor?: string;
-  dueDateValueColor?: string;
-  billToNameColor?: string;
-  billToAddressColor?: string;
-  balanceDueTextColor?: string;
-
-  branding?: TemplateBranding;
-  brandName?: string;
-  tagline?: string;
-  logoUrl?: string;
-  showLogo?: boolean;
-
-  fontFamily?: string;
-  fontSize?: number | string;
-  headingFontSize?: number | string;
-  subheadingFontSize?: number | string;
-  labelFontSize?: number | string;
-  invoiceDetailLabelFontSize?: number | string;
-  invoiceDetailValueFontSize?: number | string;
-  billToNameFontSize?: number | string;
-  billToAddressFontSize?: number | string;
-  tableFontSize?: number | string;
-  footerFontSize?: number | string;
-
-  invoiceLabel?: string;
-  billToLabel?: string;
-  invoiceDateLabel?: string;
-  termsLabel?: string;
-  dueDateLabel?: string;
-  itemsLabel?: string;
-  quantityLabel?: string;
-  rateLabel?: string;
-  amountLabel?: string;
-  subtotalLabel?: string;
-  taxLabel?: string;
-  discountLabel?: string;
-  previousDueLabel?: string;
-  totalLabel?: string;
-  balanceDueLabel?: string;
-  notesLabel?: string;
-  footerText?: string;
-
-  showInvoiceDate?: boolean;
-  showDueDate?: boolean;
-  showTableHeader?: boolean;
-  alternateRowColors?: boolean;
-  showSubtotal?: boolean;
-  showTax?: boolean;
-  showDiscount?: boolean;
-  showPreviousDue?: boolean;
-  showTotal?: boolean;
-  showNotes?: boolean;
-  showFooter?: boolean;
-
-  marginTop?: number;
-  marginRight?: number;
-  marginLeft?: number;
-  paperSize?: string;
-  orientation?: string;
-  backgroundColor?: string;
-
-  tableColumns?: TableColumn[];
-  tableColumnSettings?: TableColumnSetting[];
-}
-
-interface InvoiceItemData {
-  title?: string;
-  description?: string;
-  quantity?: number | string;
-  rate?: number | string;
-  amount?: number | string;
-  name?: string;
-  item?: { name?: string };
-  [key: string]: unknown;
-}
-
-interface CustomerData {
-  displayName?: string;
-  companyName?: string;
-  address?: string;
-}
-
-interface InvoiceData {
-  invoiceNumber?: string;
-  invoiceDate?: string | Date;
-  dueDate?: string | Date;
-  formattedDueDate?: string;
-  terms?: string;
-  customerDisplayName?: string;
-  customerId?: CustomerData;
-  customer?: CustomerData;
-  customerAddress?: string;
-  items?: InvoiceItemData[];
-  subTotal?: number | string;
-  subtotal?: number | string;
-  previousRemaining?: number | string;
-  remaining?: number | string;
-  total?: number | string;
-  currency?: string;
-  notes?: string;
-}
-
-interface TemplatePreviewProps {
-  data: TemplateData;
-  invoice?: InvoiceData;
-  selectedElement?: string;
-  onSelectElement?: (element: string) => void;
-  style?: React.CSSProperties;
-  className?: string;
-  footerStyle?: React.CSSProperties;
-}
+import type {
+  TemplatePreviewTableColumn,
+  TemplatePreviewInvoiceItem,
+  TemplatePreviewTableColumnSetting,
+  TemplatePreviewInvoiceItemData,
+  TemplatePreviewInvoiceData,
+  TemplatePreviewProps,
+} from "@/types/template";
 
 const SelectableElement: React.FC<{
   id: string;
@@ -266,7 +110,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         : ""),
   };
 
-  const DEFAULT_COLUMNS: TableColumn[] = [
+  const DEFAULT_COLUMNS: TemplatePreviewTableColumn[] = [
     { key: "index", label: "#", width: 30, align: "left", enabled: true },
     {
       key: "itemName",
@@ -298,13 +142,13 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     },
   ];
 
-  const getTableColumns = (): TableColumn[] => {
+  const getTableColumns = (): TemplatePreviewTableColumn[] => {
     if (data.tableColumns) return data.tableColumns;
 
     const settings = data.tableColumnSettings;
     if (settings && Array.isArray(settings) && settings.length > 0) {
       const merged = DEFAULT_COLUMNS.map((defCol) => {
-        const saved = settings.find((c: TableColumnSetting) => {
+        const saved = settings.find((c: TemplatePreviewTableColumnSetting) => {
           const key = c.columnName || c.key;
           if (key === defCol.key) return true;
           if (
@@ -330,7 +174,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       });
 
       const custom = settings
-        .filter((c: TableColumnSetting) => {
+        .filter((c: TemplatePreviewTableColumnSetting) => {
           const key = c.columnName || c.key;
           const normalizedKey =
             key === "name" || key === "item" || key === "description"
@@ -340,7 +184,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             (d) => d.key === key || d.key === normalizedKey,
           );
         })
-        .map((c: TableColumnSetting) => ({
+        .map((c: TemplatePreviewTableColumnSetting) => ({
           key: c.columnName || c.key || `col-${Math.random()}`,
           label: c.label || "",
           width:
@@ -423,7 +267,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         },
         items:
           invoice.items && invoice.items.length > 0
-            ? invoice.items.map((item: InvoiceItemData, index: number) => ({
+            ? invoice.items.map((item: TemplatePreviewInvoiceItemData, index: number) => ({
                 ...item,
                 index: index + 1,
                 itemName: item.title || item.item?.name || item.name || "",
@@ -840,7 +684,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               }`}
               title={onSelectElement ? "Click to edit Table Body" : undefined}
             >
-              {activeInvoice.items.map((item: InvoiceItem, i: number) => (
+              {activeInvoice.items.map((item: TemplatePreviewInvoiceItem, i: number) => (
                 <tr
                   key={i}
                   style={{

@@ -9,11 +9,7 @@ import {
   ScrollText,
   ArrowUpRight,
 } from "lucide-react";
-import type { MonthlySummaryMetric } from "@/types/dashboard";
-
-interface MonthlySummaryCardProps {
-  metrics: MonthlySummaryMetric[];
-}
+import type { MonthlySummaryMetric, MonthlySummaryCardProps } from "@/types/dashboard";
 
 const MonthlySummaryCard = ({ metrics }: MonthlySummaryCardProps) => {
   const getIconForType = (type: MonthlySummaryMetric["type"]) => {

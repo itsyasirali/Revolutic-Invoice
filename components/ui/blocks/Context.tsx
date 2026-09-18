@@ -1,13 +1,7 @@
 import React from "react";
 import Container from "@/components/layout/container";
 import Card from "@/components/ui/blocks/ResourceCard";
-import { ResourceItem } from "@/types/resource";
-
-interface ContextProps {
-  currentItem: ResourceItem;
-  allItems: ResourceItem[];
-  baseRoute: string;
-}
+import type { ContextProps } from "@/types/resource";
 
 const Context = ({ currentItem, allItems, baseRoute }: ContextProps) => {
   // Find 3 other items, preferably in the same category, or just other recent items

@@ -7,10 +7,7 @@ import Context from "@/components/ui/blocks/Context";
 import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import industries from "@/data/industries/industries";
-
-interface IndustryDetailPageProps {
-  params: Promise<{ slug: string }>;
-}
+import type { IndustryDetailPageProps } from "@/types/resource";
 
 const IndustryDetailPage = async ({ params }: IndustryDetailPageProps) => {
   const { slug } = await params;

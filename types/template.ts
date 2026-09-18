@@ -516,3 +516,201 @@ export interface UseTemplateFormViewReturn extends UseTemplateFormReturn {
   handlePreviewSelection: (elementId: string) => void;
 }
 
+export interface TemplateCardProps {
+  template: TemplateListItem;
+  index: number;
+  onEdit: (id: string) => void;
+  onSetActive: (id: string) => void;
+  onPreview: (template: TemplateListItem) => void;
+  onClone?: (template: TemplateListItem) => void;
+  onDelete?: (id: string) => void;
+  mode?: "manage" | "select";
+  selected?: boolean;
+  onClick?: (template: TemplateListItem) => void;
+}
+
+export interface TemplateListProps {
+  initialTemplates?: TemplateListItem[];
+}
+
+export interface TemplatePreviewModalProps {
+  isOpen: boolean;
+  template: TemplateListItem | null;
+  zoomLevel: number;
+  currentPage: number;
+  totalPages?: number;
+  onClose: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onPageChange: (page: number) => void;
+  onPrint?: () => void;
+}
+
+// The following types describe the rendering-only data shape consumed by
+// TemplatePreview.tsx. They are intentionally separate from the domain
+// Template/TableColumn/TableColumnSetting types above (different shape,
+// preview-specific), hence the "TemplatePreview" prefix to avoid collisions.
+export interface TemplatePreviewTableColumn {
+  key: string;
+  label: string;
+  width: number;
+  align: "left" | "center" | "right";
+  enabled: boolean;
+}
+
+export interface TemplatePreviewInvoiceItem {
+  index: number;
+  itemName: string;
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface TemplatePreviewBranding {
+  brandName?: string;
+  tagline?: string;
+  logoPreview?: string;
+}
+
+export interface TemplatePreviewTableColumnSetting {
+  columnName?: string;
+  key?: string;
+  label?: string;
+  width?: string | number;
+  alignment?: "left" | "center" | "right";
+  visible?: boolean;
+}
+
+export interface TemplatePreviewTemplateData {
+  primaryColor?: string;
+  accentColor?: string;
+  secondaryColor?: string;
+  invoiceNumberColor?: string;
+  billToColor?: string;
+  previousDueColor?: string;
+  textColor?: string;
+  footerBackgroundColor?: string;
+  borderColor?: string;
+  headerTextColor?: string;
+  tableBorderColor?: string;
+  tableHeaderBgColor?: string;
+  tableHeaderTextColor?: string;
+  tableRowColor?: string;
+  tableAltRowColor?: string;
+  invoiceDateLabelColor?: string;
+  invoiceDateValueColor?: string;
+  termsLabelColor?: string;
+  termsValueColor?: string;
+  dueDateLabelColor?: string;
+  dueDateValueColor?: string;
+  billToNameColor?: string;
+  billToAddressColor?: string;
+  balanceDueTextColor?: string;
+
+  branding?: TemplatePreviewBranding;
+  brandName?: string;
+  tagline?: string;
+  logoUrl?: string;
+  showLogo?: boolean;
+
+  fontFamily?: string;
+  fontSize?: number | string;
+  headingFontSize?: number | string;
+  subheadingFontSize?: number | string;
+  labelFontSize?: number | string;
+  invoiceDetailLabelFontSize?: number | string;
+  invoiceDetailValueFontSize?: number | string;
+  billToNameFontSize?: number | string;
+  billToAddressFontSize?: number | string;
+  tableFontSize?: number | string;
+  footerFontSize?: number | string;
+
+  invoiceLabel?: string;
+  billToLabel?: string;
+  invoiceDateLabel?: string;
+  termsLabel?: string;
+  dueDateLabel?: string;
+  itemsLabel?: string;
+  quantityLabel?: string;
+  rateLabel?: string;
+  amountLabel?: string;
+  subtotalLabel?: string;
+  taxLabel?: string;
+  discountLabel?: string;
+  previousDueLabel?: string;
+  totalLabel?: string;
+  balanceDueLabel?: string;
+  notesLabel?: string;
+  footerText?: string;
+
+  showInvoiceDate?: boolean;
+  showDueDate?: boolean;
+  showTableHeader?: boolean;
+  alternateRowColors?: boolean;
+  showSubtotal?: boolean;
+  showTax?: boolean;
+  showDiscount?: boolean;
+  showPreviousDue?: boolean;
+  showTotal?: boolean;
+  showNotes?: boolean;
+  showFooter?: boolean;
+
+  marginTop?: number;
+  marginRight?: number;
+  marginLeft?: number;
+  paperSize?: string;
+  orientation?: string;
+  backgroundColor?: string;
+
+  tableColumns?: TemplatePreviewTableColumn[];
+  tableColumnSettings?: TemplatePreviewTableColumnSetting[];
+}
+
+export interface TemplatePreviewInvoiceItemData {
+  title?: string;
+  description?: string;
+  quantity?: number | string;
+  rate?: number | string;
+  amount?: number | string;
+  name?: string;
+  item?: { name?: string };
+  [key: string]: unknown;
+}
+
+export interface TemplatePreviewCustomerData {
+  displayName?: string;
+  companyName?: string;
+  address?: string;
+}
+
+export interface TemplatePreviewInvoiceData {
+  invoiceNumber?: string;
+  invoiceDate?: string | Date;
+  dueDate?: string | Date;
+  formattedDueDate?: string;
+  terms?: string;
+  customerDisplayName?: string;
+  customerId?: TemplatePreviewCustomerData;
+  customer?: TemplatePreviewCustomerData;
+  customerAddress?: string;
+  items?: TemplatePreviewInvoiceItemData[];
+  subTotal?: number | string;
+  subtotal?: number | string;
+  previousRemaining?: number | string;
+  remaining?: number | string;
+  total?: number | string;
+  currency?: string;
+  notes?: string;
+}
+
+export interface TemplatePreviewProps {
+  data: TemplatePreviewTemplateData;
+  invoice?: TemplatePreviewInvoiceData;
+  selectedElement?: string;
+  onSelectElement?: (element: string) => void;
+  style?: React.CSSProperties;
+  className?: string;
+  footerStyle?: React.CSSProperties;
+}
+

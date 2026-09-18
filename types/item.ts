@@ -65,6 +65,10 @@ export interface BatchUpdateItemPayload {
   items: string[];
 }
 
+export interface ItemListProps {
+  initialItems?: Item[];
+}
+
 export interface BatchDeleteItemPayload {
   items: string[];
 }

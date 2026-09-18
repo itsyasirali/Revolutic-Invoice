@@ -19,3 +19,49 @@ export interface ResourceItem {
   publishedAt?: string;
   readTime?: string;
 }
+
+export interface ArticleProps {
+  item: ResourceItem;
+}
+
+export interface ContextProps {
+  currentItem: ResourceItem;
+  allItems: ResourceItem[];
+  baseRoute: string;
+}
+
+export interface DetailHeroProps {
+  item: ResourceItem;
+}
+
+export interface HeroProps {
+  title: string;
+  subtitle?: string;
+  featuredItem: ResourceItem;
+  baseRoute: string;
+}
+
+export interface ListProps {
+  title: string;
+  description: string;
+  items: ResourceItem[];
+  categories: string[];
+  baseRoute: string;
+}
+
+export interface ResourceCardProps {
+  item: ResourceItem;
+  baseRoute: string;
+}
+
+export interface ResourceDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export interface IndustryDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export interface CustomerStoryDetailPageProps {
+  params: Promise<{ slug: string }>;
+}

@@ -73,3 +73,39 @@ export interface DashboardData {
   monthlySummary: MonthlySummaryMetric[];
   currencyStats?: { currency: string; received: number; remaining: number }[];
 }
+
+export interface SalesOverviewDonutProps {
+  data: SalesOverviewData;
+}
+
+export interface RevenueOverviewChartProps {
+  data: RevenuePoint[];
+  currency?: string;
+}
+
+export interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+  currency?: string;
+}
+
+export interface RecentInvoicesTableProps {
+  invoices: DashboardInvoice[];
+}
+
+export interface MonthlySummaryCardProps {
+  metrics: MonthlySummaryMetric[];
+}
+
+export interface DashboardHeaderProps {
+  userName?: string;
+}
+
+export interface MetricCardsProps {
+  kpis: DashboardKPIs;
+}

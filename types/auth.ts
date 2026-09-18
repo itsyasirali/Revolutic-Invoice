@@ -1,3 +1,6 @@
+import type { ReactNode } from "react";
+import type { User } from "@/context/AuthContext";
+
 export interface SignupPayload {
   name: string;
   email: string;
@@ -20,4 +23,18 @@ export interface AuthUser {
   id: number;
   name: string;
   email: string;
+}
+
+export interface AuthWrapperProps {
+  children: ReactNode;
+  initialUser?: User | null;
+}
+
+export interface AuthSlideIllustrationProps {
+  slideId: string;
+}
+
+export interface LoginSignupFormProps {
+  onLoginSuccess?: () => void;
+  initialMode?: "login" | "signup";
 }

@@ -7,10 +7,7 @@ import Context from "@/components/ui/blocks/Context";
 import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import posts from "@/data/blog/posts";
-
-interface ResourceDetailPageProps {
-  params: Promise<{ slug: string }>;
-}
+import type { ResourceDetailPageProps } from "@/types/resource";
 
 const ResourceDetailPage = async ({ params }: ResourceDetailPageProps) => {
   const { slug } = await params;

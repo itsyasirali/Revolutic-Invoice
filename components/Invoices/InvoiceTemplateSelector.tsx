@@ -5,15 +5,8 @@ import { X } from "lucide-react";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import TemplateCard from "@/components/Templates/TemplateCard";
 import { LoadingSpinner } from "@/components/ui";
-
+import type { InvoiceTemplateSelectorProps } from "@/types/invoice";
 import type { TemplateListItem } from "@/types/template";
-
-interface InvoiceTemplateSelectorProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (template: TemplateListItem) => void;
-  currentTemplateId?: string;
-}
 
 const InvoiceTemplateSelector: React.FC<InvoiceTemplateSelectorProps> = ({
   isOpen,

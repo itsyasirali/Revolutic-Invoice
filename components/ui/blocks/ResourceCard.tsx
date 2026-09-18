@@ -2,12 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Calendar } from "lucide-react";
-import { ResourceItem } from "@/types/resource";
-
-interface ResourceCardProps {
-  item: ResourceItem;
-  baseRoute: string;
-}
+import type { ResourceCardProps } from "@/types/resource";
 
 const ResourceCard = ({ item, baseRoute }: ResourceCardProps) => {
   return (

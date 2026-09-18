@@ -3,12 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { ScrollText, ArrowRight, Plus } from "lucide-react";
-import type { DashboardInvoice } from "@/types/dashboard";
+import type { DashboardInvoice, RecentInvoicesTableProps } from "@/types/dashboard";
 import { getCurrencySymbol } from "@/data/countries/countries";
-
-interface RecentInvoicesTableProps {
-  invoices: DashboardInvoice[];
-}
 
 const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
   const getStatusBadge = (status: DashboardInvoice["status"]) => {

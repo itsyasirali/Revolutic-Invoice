@@ -1,4 +1,5 @@
 import type { Customer } from "./customer";
+import type { TemplateListItem } from "./template";
 
 // --- Backend request payload shapes (mirrors api/src/invoices/dto/*) ---
 
@@ -265,4 +266,15 @@ export interface UseSendInvoiceReturn {
   loading: boolean;
   alert: AlertState;
   dismissAlert: () => void;
+}
+
+export interface InvoiceListProps {
+  initialInvoices?: any[];
+}
+
+export interface InvoiceTemplateSelectorProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (template: TemplateListItem) => void;
+  currentTemplateId?: string;
 }

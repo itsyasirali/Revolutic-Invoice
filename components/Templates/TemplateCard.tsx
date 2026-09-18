@@ -2,22 +2,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Pencil, Settings, Eye, Copy, Trash2, CheckCircle } from "lucide-react";
-import type { TemplateListItem } from "@/types/template";
+import type { TemplateCardProps } from "@/types/template";
 import TemplatePreview from "./TemplatePreview";
 import { Badge, IconButton } from "@/components/ui";
-
-interface TemplateCardProps {
-  template: TemplateListItem;
-  index: number;
-  onEdit: (id: string) => void;
-  onSetActive: (id: string) => void;
-  onPreview: (template: TemplateListItem) => void;
-  onClone?: (template: TemplateListItem) => void;
-  onDelete?: (id: string) => void;
-  mode?: "manage" | "select";
-  selected?: boolean;
-  onClick?: (template: TemplateListItem) => void;
-}
 
 const TemplateCard: React.FC<TemplateCardProps> = ({
   template,

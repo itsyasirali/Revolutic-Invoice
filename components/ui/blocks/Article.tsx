@@ -1,10 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { ResourceItem } from "@/types/resource";
-
-interface ArticleProps {
-  item: ResourceItem;
-}
+import type { ArticleProps } from "@/types/resource";
 
 const Article = ({ item }: ArticleProps) => {
   return (

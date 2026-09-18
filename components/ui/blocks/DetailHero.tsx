@@ -1,11 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Container from "@/components/layout/container";
-import { ResourceItem } from "@/types/resource";
-
-interface DetailHeroProps {
-  item: ResourceItem;
-}
+import type { DetailHeroProps } from "@/types/resource";
 
 const DetailHero = ({ item }: DetailHeroProps) => {
   return (

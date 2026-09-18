@@ -12,11 +12,7 @@ import {
   AlertModal,
 } from "@/components/ui";
 import useCustomerList from "@/hooks/customers/useCustomerList";
-import type { Customer } from "@/types/customer";
-
-interface CustomerListProps {
-  initialCustomers?: Customer[];
-}
+import type { Customer, CustomerListProps } from "@/types/customer";
 
 const CustomerList = ({ initialCustomers }: CustomerListProps) => {
   const {

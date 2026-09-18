@@ -2,11 +2,7 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { SalesOverviewData } from "@/types/dashboard";
-
-interface SalesOverviewDonutProps {
-  data: SalesOverviewData;
-}
+import type { SalesOverviewDonutProps } from "@/types/dashboard";
 
 const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
   const { totalSales, segments, currency = "Rs" } = data;

@@ -7,10 +7,7 @@ import Context from "@/components/ui/blocks/Context";
 import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import customers from "@/data/customers/customers";
-
-interface CustomerStoryDetailPageProps {
-  params: Promise<{ slug: string }>;
-}
+import type { CustomerStoryDetailPageProps } from "@/types/resource";
 
 const CustomerStoryDetailPage = async ({ params }: CustomerStoryDetailPageProps) => {
   const { slug } = await params;

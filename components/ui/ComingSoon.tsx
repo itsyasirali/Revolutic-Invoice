@@ -1,8 +1,5 @@
 import React from 'react';
-
-export interface ComingSoonProps {
-    title?: string;
-}
+import type { ComingSoonProps } from '@/types/common';
 
 export const ComingSoon: React.FC<ComingSoonProps> = ({ title }) => {
     return (

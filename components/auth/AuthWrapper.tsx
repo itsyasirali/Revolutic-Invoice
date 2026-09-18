@@ -2,13 +2,9 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { AuthProvider, useAuth, type User } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { OrganizationProvider, useOrganization } from "@/context/OrganizationContext";
-
-interface AuthWrapperProps {
-  children: React.ReactNode;
-  initialUser?: User | null;
-}
+import type { AuthWrapperProps } from "@/types/auth";
 
 const AuthContent = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();

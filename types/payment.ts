@@ -1,5 +1,6 @@
 import type React from "react";
 import type { Customer } from "./customer";
+import type { Template } from "@/entities/Template";
 
 // Payment Status and Mode Types
 export type PaymentStatus = "Draft" | "Paid";
@@ -288,4 +289,15 @@ export interface UsePaymentFormReturn {
   customersLoading: boolean;
   isFormValid: boolean;
   paymentModeOptions: Array<{ value: string; label: string }>;
+}
+
+export interface PaymentListProps {
+  initialPayments?: Payment[];
+}
+
+export interface PaymentTemplateSelectorProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (template: Template) => void;
+  currentTemplateId?: string;
 }

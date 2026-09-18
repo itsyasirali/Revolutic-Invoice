@@ -7,11 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthForm } from "@/hooks/auth/useAuthForm";
 import { Eye, EyeOff } from "lucide-react";
 import AuthSlideIllustration from "@/components/auth/AuthSlideIllustration";
-
-interface LoginSignupFormProps {
-  onLoginSuccess?: () => void;
-  initialMode?: "login" | "signup";
-}
+import type { LoginSignupFormProps } from "@/types/auth";
 
 const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
   onLoginSuccess,

@@ -16,11 +16,7 @@ import {
 } from "@/components/ui";
 import TemplateCard from "./TemplateCard";
 import TemplatePreviewModal from "./TemplatePreviewModal";
-import type { TemplateListItem } from "@/types/template";
-
-interface TemplateListProps {
-  initialTemplates?: TemplateListItem[];
-}
+import type { TemplateListProps } from "@/types/template";
 
 const TemplateList = ({ initialTemplates }: TemplateListProps) => {
   const router = useRouter();

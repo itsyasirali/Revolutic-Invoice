@@ -11,11 +11,7 @@ import {
   AlertModal,
 } from "@/components/ui";
 import useItemList from "@/hooks/items/useItemList";
-import type { Item } from "@/types/item";
-
-interface ItemListProps {
-  initialItems?: Item[];
-}
+import type { Item, ItemListProps } from "@/types/item";
 
 const ItemList = ({ initialItems }: ItemListProps) => {
   const {

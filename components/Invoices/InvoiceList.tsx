@@ -11,10 +11,7 @@ import {
 } from "@/components/ui";
 import useInvoiceList from "@/hooks/invoices/useInvoiceList";
 import type { UIInvoiceListItem } from "@/hooks/invoices/useInvoicesData";
-
-interface InvoiceListProps {
-  initialInvoices?: any[];
-}
+import type { InvoiceListProps } from "@/types/invoice";
 
 const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
   const {

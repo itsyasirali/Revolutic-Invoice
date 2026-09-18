@@ -10,23 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { RevenuePoint } from "@/types/dashboard";
-
-interface RevenueOverviewChartProps {
-  data: RevenuePoint[];
-  currency?: string;
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    name: string;
-    value: number;
-    color: string;
-  }>;
-  label?: string;
-  currency?: string;
-}
+import type { RevenueOverviewChartProps, CustomTooltipProps } from "@/types/dashboard";
 
 const CustomTooltip = ({ active, payload, label, currency = "Rs" }: CustomTooltipProps) => {
   if (active && payload && payload.length) {

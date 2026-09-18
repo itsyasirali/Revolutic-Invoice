@@ -1,10 +1,6 @@
-import React from "react";
 import LandingNavbar from "./LandingNavbar";
 import LandingFooter from "./LandingFooter";
-
-interface MarketingLayoutProps {
-  children: React.ReactNode;
-}
+import type { MarketingLayoutProps } from "@/types/landing";
 
 const MarketingLayout = ({ children }: MarketingLayoutProps) => {
   return (

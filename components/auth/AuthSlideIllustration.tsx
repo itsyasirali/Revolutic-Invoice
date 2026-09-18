@@ -20,10 +20,7 @@ import {
   MessageCircle,
   User,
 } from "lucide-react";
-
-interface AuthSlideIllustrationProps {
-  slideId: string;
-}
+import type { AuthSlideIllustrationProps } from "@/types/auth";
 
 const AuthSlideIllustration: React.FC<AuthSlideIllustrationProps> = ({
   slideId,

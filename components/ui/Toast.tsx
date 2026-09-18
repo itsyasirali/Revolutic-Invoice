@@ -8,18 +8,7 @@ import {
   Info,
   X,
 } from "lucide-react";
-
-export type ToastType = "success" | "error" | "warning" | "info";
-
-export interface ToastMessage {
-  id: string;
-  type: ToastType;
-  title?: string;
-  message: string;
-  duration?: number;
-}
-
-type ToastListener = (toast: ToastMessage) => void;
+import type { ToastType, ToastMessage, ToastListener } from "@/types/common";
 
 class ToastManager {
   private listeners: ToastListener[] = [];

@@ -4,15 +4,7 @@ import React, { useState } from "react";
 import Container from "@/components/layout/container";
 import Card from "@/components/ui/blocks/ResourceCard";
 import Button from "@/components/ui/Button";
-import { ResourceItem } from "@/types/resource";
-
-interface ListProps {
-  title: string;
-  description: string;
-  items: ResourceItem[];
-  categories: string[];
-  baseRoute: string;
-}
+import type { ListProps } from "@/types/resource";
 
 const List = ({
   title,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import type { Payment } from "@/types/payment";
+import type { Payment, PaymentListProps } from "@/types/payment";
 import usePaymentsList, {
   PAYMENT_MODE_FILTERS,
 } from "@/hooks/payments/usePaymentsList";
@@ -13,10 +13,6 @@ import {
   StatusBadge,
   ConfirmDialog,
 } from "@/components/ui";
-
-interface PaymentListProps {
-  initialPayments?: Payment[];
-}
 
 const PaymentList = ({ initialPayments }: PaymentListProps) => {
   const { handleRowClick } = usePaymentActions();

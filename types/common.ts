@@ -2,6 +2,57 @@ import type * as React from 'react';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
+// Container Component Types
+export interface ContainerProps {
+    children: React.ReactNode;
+    className?: string;
+}
+
+// Coming Soon Component Types
+export interface ComingSoonProps {
+    title?: string;
+}
+
+// Alert Modal Component Types
+export interface AlertModalProps {
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    message: string;
+    onClose: () => void;
+    title?: string;
+}
+
+// Toast Component Types
+export type ToastType = "success" | "error" | "warning" | "info";
+
+export interface ToastMessage {
+    id: string;
+    type: ToastType;
+    title?: string;
+    message: string;
+    duration?: number;
+}
+
+export type ToastListener = (toast: ToastMessage) => void;
+
+// Page Header Component Types
+export interface PageHeaderProps {
+    title: React.ReactNode;
+    subtitle?: React.ReactNode;
+    showBackButton?: boolean;
+    onBack?: () => void;
+    actions?: React.ReactNode;
+    className?: string;
+    dropdown?: {
+        options: { label: string; value: string }[];
+        value: string;
+        onChange: (value: string) => void;
+        isOpen: boolean;
+        onToggle: () => void;
+    };
+    actionBar?: React.ReactNode;
+}
+
 // Button Component Types
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning' | 'link';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

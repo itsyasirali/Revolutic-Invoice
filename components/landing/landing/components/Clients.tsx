@@ -1,10 +1,5 @@
-import * as React from "react";
 import Container from "@/components/layout/container";
-
-interface ClientBrand {
-  name: string;
-  tagline?: string;
-}
+import type { ClientBrand } from "@/types/landing";
 
 const clientBrands: ClientBrand[] = [
   { name: "Stripe", tagline: "Financial Infrastructure" },

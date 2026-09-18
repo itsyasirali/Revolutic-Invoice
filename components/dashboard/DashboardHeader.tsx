@@ -1,10 +1,7 @@
 "use client";
 
 import React from "react";
-
-interface DashboardHeaderProps {
-  userName?: string;
-}
+import type { DashboardHeaderProps } from "@/types/dashboard";
 
 const DashboardHeader = ({
   userName = "Ahmad Shahzad",
