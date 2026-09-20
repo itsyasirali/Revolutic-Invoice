@@ -111,6 +111,7 @@ const buildEmptyDashboardData = (currencySymbol: string): DashboardData => ({
     },
   },
   revenueOverview: [],
+  revenueOverviewWeekly: [],
   salesOverview: {
     totalSales: 0,
     currency: currencySymbol,
@@ -321,9 +322,9 @@ export const getDashboardData = async (
       },
     };
 
-    // Dynamic Last 6 Calendar Months Revenue Overview
+    // Dynamic Last 12 Calendar Months Revenue Overview (client filters to 1/3/6/12)
     const revenueOverview: RevenuePoint[] = [];
-    for (let i = 5; i >= 0; i--) {
+    for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const mName = d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
       const mIdx = d.getMonth();
@@ -348,6 +349,52 @@ export const getDashboardData = async (
         expenses: 0,
       });
     }
+
+    // Weekly breakdown for the current month (used by the "1M" chart filter)
+    const revenueOverviewWeekly: RevenuePoint[] = [];
+    const weekStarts: Date[] = [];
+    {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      let cursor = new Date(monthStart);
+      while (cursor <= monthEnd) {
+        weekStarts.push(new Date(cursor));
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 7);
+      }
+    }
+
+    weekStarts.forEach((weekStart, idx) => {
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const weekEnd = new Date(
+        Math.min(
+          new Date(
+            weekStart.getFullYear(),
+            weekStart.getMonth(),
+            weekStart.getDate() + 6,
+          ).getTime(),
+          monthEnd.getTime(),
+        ),
+      );
+
+      let weekSales = 0;
+      invoices.forEach((inv) => {
+        const invDate = new Date(inv.invoiceDate || inv.createdAt);
+        if (!isNaN(invDate.getTime()) && invDate >= weekStart && invDate <= weekEnd) {
+          weekSales += convertToOrgCurrency(
+            Number(inv.total || 0),
+            inv.currency || orgCurrency,
+            orgCurrency,
+            rates,
+          );
+        }
+      });
+
+      revenueOverviewWeekly.push({
+        month: `Week ${idx + 1}`,
+        income: Math.round(weekSales),
+        expenses: 0,
+      });
+    });
 
     // Sales Overview Donut Calculation
     const totalSales = Math.round(totalInvoicesAmount);
@@ -444,6 +491,7 @@ export const getDashboardData = async (
     return {
       kpis,
       revenueOverview,
+      revenueOverviewWeekly,
       salesOverview,
       recentInvoices,
       monthlySummary,

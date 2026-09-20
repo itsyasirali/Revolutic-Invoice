@@ -68,6 +68,7 @@ export interface DashboardInvoice {
 export interface DashboardData {
   kpis: DashboardKPIs;
   revenueOverview: RevenuePoint[];
+  revenueOverviewWeekly: RevenuePoint[];
   salesOverview: SalesOverviewData;
   recentInvoices: DashboardInvoice[];
   monthlySummary: MonthlySummaryMetric[];
@@ -80,6 +81,7 @@ export interface SalesOverviewDonutProps {
 
 export interface RevenueOverviewChartProps {
   data: RevenuePoint[];
+  weeklyData?: RevenuePoint[];
   currency?: string;
 }
 

@@ -34,6 +34,7 @@ export const DashboardMain = async () => {
         <div className="lg:col-span-8 min-h-85">
           <RevenueOverviewChart
             data={dashboardData.revenueOverview}
+            weeklyData={dashboardData.revenueOverviewWeekly}
             currency={dashboardData.kpis.totalInvoices.currency}
           />
         </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,6 +11,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { RevenueOverviewChartProps, CustomTooltipProps } from "@/types/dashboard";
+
+const PERIODS = [
+  { label: "1M", months: 1 },
+  { label: "3M", months: 3 },
+  { label: "6M", months: 6 },
+  { label: "12M", months: 12 },
+] as const;
 
 const CustomTooltip = ({ active, payload, label, currency = "Rs" }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
@@ -42,29 +49,66 @@ const CustomTooltip = ({ active, payload, label, currency = "Rs" }: CustomToolti
   return null;
 };
 
-const RevenueOverviewChart = ({ data, currency = "Rs" }: RevenueOverviewChartProps) => {
+const RevenueOverviewChart = ({
+  data,
+  weeklyData = [],
+  currency = "Rs",
+}: RevenueOverviewChartProps) => {
+  const [activePeriod, setActivePeriod] = useState<number>(6);
+
+  const isWeekly = activePeriod === 1;
+
+  const visibleData = useMemo(() => {
+    if (isWeekly) return weeklyData;
+    return data.slice(Math.max(data.length - activePeriod, 0));
+  }, [data, weeklyData, activePeriod, isWeekly]);
+
+  const periodLabel =
+    PERIODS.find((p) => p.months === activePeriod)?.label || "6M";
+
   return (
     <div className="bg-white rounded-md p-5 border border-slate-200/80 shadow-[0_2px_12px_rgb(0,0,0,0.03)] flex flex-col justify-between h-full">
       {/* Chart Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 tracking-tight">
             Revenue Overview
           </h2>
           <p className="text-xs text-slate-400">
-            Income vs Expenses (Last 6 Months)
+            Total Income vs Expenses (
+            {isWeekly ? "This Month by Week" : `Last ${periodLabel}`})
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-            <span>Income</span>
+        <div className="flex items-center gap-3">
+          {/* Legend */}
+          <div className="flex items-center gap-3 text-xs font-medium text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+              <span>Income</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+              <span>Expenses</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-            <span>Expenses</span>
+
+          {/* Period Filter */}
+          <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-200/70">
+            {PERIODS.map((period) => (
+              <button
+                key={period.label}
+                type="button"
+                onClick={() => setActivePeriod(period.months)}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors cursor-pointer ${
+                  activePeriod === period.months
+                    ? "bg-white text-primary shadow-xs"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -72,18 +116,19 @@ const RevenueOverviewChart = ({ data, currency = "Rs" }: RevenueOverviewChartPro
       {/* Chart Area */}
       <div className="w-full h-64 sm:h-72 mt-2 [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
+          <BarChart
+            data={visibleData}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            barGap={4}
           >
             <defs>
-              <linearGradient id="incomeAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#1E6BFF" stopOpacity={0.18} />
-                <stop offset="95%" stopColor="#1E6BFF" stopOpacity={0.01} />
+              <linearGradient id="incomeBarGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity={1} />
+                <stop offset="100%" stopColor="#93C5FD" stopOpacity={0.9} />
               </linearGradient>
-              <linearGradient id="expenseAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#EF4444" stopOpacity={0.16} />
-                <stop offset="95%" stopColor="#EF4444" stopOpacity={0.01} />
+              <linearGradient id="expenseBarGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#EF4444" stopOpacity={1} />
+                <stop offset="100%" stopColor="#FCA5A5" stopOpacity={0.9} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -104,48 +149,25 @@ const RevenueOverviewChart = ({ data, currency = "Rs" }: RevenueOverviewChartPro
               tick={{ fill: "#94A3B8", fontSize: 11 }}
               tickFormatter={(v) => `${currency} ${v.toLocaleString()}`}
             />
-            <Tooltip content={<CustomTooltip currency={currency} />} />
-            <Area
+            <Tooltip
+              cursor={{ fill: "#F8FAFC" }}
+              content={<CustomTooltip currency={currency} />}
+            />
+            <Bar
               name="Income"
-              type="monotone"
               dataKey="income"
-              stroke="#1E6BFF"
-              strokeWidth={2.5}
-              fill="url(#incomeAreaGrad)"
-              activeDot={{
-                r: 5,
-                fill: "#1E6BFF",
-                stroke: "#FFFFFF",
-                strokeWidth: 2,
-              }}
-              dot={{
-                r: 3,
-                fill: "#1E6BFF",
-                stroke: "#FFFFFF",
-                strokeWidth: 1.5,
-              }}
+              fill="url(#incomeBarGrad)"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={28}
             />
-            <Area
+            <Bar
               name="Expenses"
-              type="monotone"
               dataKey="expenses"
-              stroke="#EF4444"
-              strokeWidth={2.5}
-              fill="url(#expenseAreaGrad)"
-              activeDot={{
-                r: 5,
-                fill: "#EF4444",
-                stroke: "#FFFFFF",
-                strokeWidth: 2,
-              }}
-              dot={{
-                r: 3,
-                fill: "#EF4444",
-                stroke: "#FFFFFF",
-                strokeWidth: 1.5,
-              }}
+              fill="url(#expenseBarGrad)"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={28}
             />
-          </AreaChart>
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>
