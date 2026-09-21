@@ -608,7 +608,8 @@ export const generateInvoicePDF = (
             .font("Helvetica-Bold")
             .fillColor(tableHeaderTextColor);
 
-          const headerTextY = tableTop + (tableHeight - tableFontSize) / 2 - 3.5;
+          // Helvetica caps span ~0.72em from the line top, so their visual centre is ~0.36em down
+          const headerTextY = tableTop + tableHeight / 2 - tableFontSize * 0.36;
 
           finalColumns.forEach((col: ColumnConfig) => {
             doc.text(col.label || "", (col.x || 35) + 5, headerTextY, {
@@ -824,7 +825,7 @@ export const generateInvoicePDF = (
           .text(
             template?.balanceDueLabel ?? "",
             370,
-            yPosition + (balanceBoxHeight - labelFontSize) / 2 - 4.5,
+            yPosition + balanceBoxHeight / 2 - labelFontSize * 0.36,
             {
               lineBreak: false,
             },
@@ -836,7 +837,7 @@ export const generateInvoicePDF = (
           .text(
             formatCurrency(totalBalanceDue),
             480,
-            yPosition + (balanceBoxHeight - (labelFontSize + 2)) / 2 - 4.5,
+            yPosition + balanceBoxHeight / 2 - (labelFontSize + 2) * 0.36,
             {
               width: 75,
               align: "right",
