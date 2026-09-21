@@ -18,7 +18,7 @@ const Industries = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
           <div className="hidden md:block flex-1" />
           <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl shrink-0">
-            One solution, perfect for every industry
+            One invoicing solution, perfect for every industry
           </h2>
           <div className="flex justify-center md:justify-end gap-4 flex-1">
             <Button

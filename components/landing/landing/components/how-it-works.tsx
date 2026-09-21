@@ -16,7 +16,7 @@ const HowItWorks = () => {
               How it works
             </h2>
             <p className="text-lg text-slate-600 mb-8">
-              Skip the complex AI training. We&apos;ve simplified the process so you can deploy an intelligent conversational agent in minutes.
+              Skip the spreadsheets. We&apos;ve simplified billing so you can send your first professional invoice in minutes.
             </p>
             
             <div className="space-y-8">
@@ -37,7 +37,7 @@ const HowItWorks = () => {
             
             <div className="mt-10">
               <Button asChild>
-                <Link href="/auth">Start your 14-day free trial</Link>
+                <Link href="/register">Start your 14-day free trial</Link>
               </Button>
             </div>
           </div>
@@ -53,9 +53,9 @@ const HowItWorks = () => {
                <div className="mb-8 border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-2 mb-1">
                      <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
-                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Agent Status</span>
+                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Invoice Status</span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800">Deployment Sequence</h3>
+                  <h3 className="text-xl font-bold text-slate-800">Invoice INV-1042</h3>
                </div>
 
                {/* Checklist */}
@@ -70,9 +70,9 @@ const HowItWorks = () => {
                         <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                      </div>
                      <div>
-                        <div className="text-sm font-semibold text-slate-800">Connecting WhatsApp API</div>
+                        <div className="text-sm font-semibold text-slate-800">Business profile ready</div>
                         <div className="text-xs font-medium text-primary mt-0.5 flex items-center gap-1.5">
-                           Linked to +1 (555) 0198
+                           Acme Studio - logo and tax ID added
                         </div>
                      </div>
                   </div>
@@ -83,15 +83,15 @@ const HowItWorks = () => {
                         <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                      </div>
                      <div>
-                        <div className="text-sm font-semibold text-slate-800">Ingesting knowledge base</div>
+                        <div className="text-sm font-semibold text-slate-800">Invoice created</div>
                         <div className="flex flex-col gap-2 mt-2.5">
                            <div className="flex items-center gap-2 text-xs">
-                              <span className="bg-slate-50 text-slate-600 font-medium px-2 py-1 rounded border border-slate-200">yourwebsite.com</span>
-                              <span className="text-slate-400">142 pages</span>
+                              <span className="bg-slate-50 text-slate-600 font-medium px-2 py-1 rounded border border-slate-200">Alice Smith</span>
+                              <span className="text-slate-400">Customer</span>
                            </div>
                            <div className="flex items-center gap-2 text-xs">
-                              <span className="bg-slate-50 text-slate-600 font-medium px-2 py-1 rounded border border-slate-200">product_catalog.pdf</span>
-                              <span className="text-slate-400">24 pages</span>
+                              <span className="bg-slate-50 text-slate-600 font-medium px-2 py-1 rounded border border-slate-200">3 line items</span>
+                              <span className="text-slate-400">$1,250.00</span>
                            </div>
                         </div>
                      </div>
@@ -103,8 +103,8 @@ const HowItWorks = () => {
                         <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                      </div>
                      <div>
-                        <div className="text-sm font-semibold text-slate-800">Training neural engine</div>
-                        <div className="text-xs font-medium text-primary mt-0.5">Bypassed — Zero-shot enabled</div>
+                        <div className="text-sm font-semibold text-slate-800">Payment reminder</div>
+                        <div className="text-xs font-medium text-primary mt-0.5">Scheduled 3 days before due date</div>
                      </div>
                   </div>
 
@@ -117,7 +117,7 @@ const HowItWorks = () => {
                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
                   </div>
-                  <span className="text-sm font-bold text-primary">Agent is Live & Routing</span>
+                  <span className="text-sm font-bold text-primary">Invoice Sent & Tracked</span>
                </div>
                
             </div>

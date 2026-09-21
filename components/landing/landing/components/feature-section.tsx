@@ -14,11 +14,11 @@ const FeatureSection = () => {
         <div className="text-center mb-20 space-y-4">
           <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Everything you need to{" "}
-            <span className="text-primary">scale communication</span>
+            <span className="text-primary">get paid faster</span>
           </h2>
           <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed pt-2">
-            Powerful features designed to help your team work smarter, not
-            harder. Deliver exceptional customer experiences at scale.
+            Powerful features designed to help you invoice smarter, not
+            harder. Save time on billing and keep your cash flow healthy.
           </p>
         </div>
 

@@ -15,14 +15,14 @@ const Hero = () => {
       <Container className="text-center">
         <div className="mx-auto max-w-5xl space-y-8">
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl md:text-7xl">
-            The AI-supported communication software for{" "}
+            Smart invoicing software for{" "}
             <span className="text-primary">your business.</span>
           </h1>
 
           <p className="mx-auto max-w-3xl text-lg text-slate-600 md:text-xl font-semibold leading-relaxed">
-            Automate customer support, scale your sales, and engage with users
-            directly on WhatsApp. Build your intelligent agent in minutes, no
-            coding required.
+            Create professional invoices, track payments, and get paid faster.
+            Manage customers, items and billing in one place, no accounting
+            expertise required.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -75,7 +75,7 @@ const Hero = () => {
                   </div>
                 </div>
                 <div className="ml-4 flex h-6 flex-1 items-center rounded-md bg-slate-100 px-3 text-xs text-slate-400">
-                  agentchat.app
+                  invoicesmarty.app
                 </div>
               </div>
 
@@ -86,7 +86,7 @@ const Hero = () => {
                   {/* Sidebar */}
                   <div className="w-64 border-r bg-white hidden md:block p-4 overflow-hidden">
                     <div className="font-semibold text-lg text-slate-800 mb-4 px-2">
-                      Messages
+                      Recent Activity
                     </div>
                     <div className="space-y-1">
                       {chatData.map((chat) => (

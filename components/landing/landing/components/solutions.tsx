@@ -14,7 +14,7 @@ const Solutions = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            The perfect solution for every team
+            The perfect invoicing solution for every team
           </h2>
         </div>
 

@@ -10,10 +10,10 @@ const Testimonials = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl mb-4">
-            Loved by fast-growing teams
+            Loved by fast-growing businesses
           </h2>
           <p className="text-lg text-slate-600">
-            Don&apos;t just take our word for it. See what our customers have to say about AgentChat.
+            Don&apos;t just take our word for it. See what our customers have to say about InvoiceSmarty.
           </p>
         </div>
 

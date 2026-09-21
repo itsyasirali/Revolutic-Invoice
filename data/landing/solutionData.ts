@@ -1,92 +1,92 @@
-import { MessageSquare, LayoutTemplate, AtSign, Rss, ArrowRight, Headset, Users, LineChart, Megaphone, Mail, Zap, Briefcase, FileText, UserCheck } from "lucide-react";
+import { FileText, LayoutTemplate, Repeat, Bell, Globe, Users, LineChart, Calculator, Receipt, Wallet, ClipboardList, Landmark, Percent, Mail } from "lucide-react";
 
 export const solutionData = {
-  Sales: {
-    title: "More deals. Less effort.",
-    description: "Turn conversations into conversions with WhatsApp Business. Close deals faster, wow your customers, and build lasting relationships effortlessly.",
+  Freelancers: {
+    title: "Invoice clients. Get paid faster.",
+    description: "Send professional invoices in seconds, track who has paid, and spend less time on admin and more time on your craft.",
     benefits: [
-      "Boost conversions with interactive WhatsApp templates",
-      "24/7 AI-powered automatic follow-ups",
-      "One inbox for all customer conversations"
+      "Branded invoice templates in a few clicks",
+      "Automatic reminders for overdue payments",
+      "One place for all your customers and items"
     ],
     testimonial: {
       image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200",
-      quote: "With AgentChat, we communicate efficiently and create compelling customer experiences.",
+      quote: "With InvoiceSmarty, I send invoices the moment a project is done and get paid in days, not weeks.",
       author: "Sven Jaeger",
-      company: "Allianz"
+      company: "Freelance Designer"
     },
     features: [
-      { icon: MessageSquare, text: "Chatbots for instant lead qualification" },
-      { icon: LayoutTemplate, text: "Interactive templates that sell" },
-      { icon: AtSign, text: "Internal notes and @mentions for effortless teamwork" },
-      { icon: Rss, text: "WhatsApp Newsletters for tailored offers" },
-      { icon: ArrowRight, text: "Seamless CRM integration" },
+      { icon: FileText, text: "Professional invoices in seconds" },
+      { icon: LayoutTemplate, text: "Customizable branded templates" },
+      { icon: Bell, text: "Automatic payment reminders" },
+      { icon: Globe, text: "Multi-currency billing" },
+      { icon: Mail, text: "Send invoices by email" },
     ]
   },
-  Support: {
-    title: "Support that scales with you.",
-    description: "Resolve tickets faster and keep your customers happy. Automate the repetitive stuff so your team can focus on what matters.",
+  Accounting: {
+    title: "Books that stay balanced.",
+    description: "Keep every invoice, payment and tax detail organized so month-end closing is fast and error-free.",
     benefits: [
-      "Reduce resolution times with smart routing",
-      "Automate FAQs with custom chatbots",
-      "Collaborate seamlessly on complex issues"
+      "Accurate taxes and discounts on every invoice",
+      "Payments matched to invoices automatically",
+      "Clear reports for reconciliation and audits"
     ],
     testimonial: {
       image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      quote: "Our response time dropped by 50% and customer satisfaction is at an all-time high.",
+      quote: "Our month-end close dropped from days to hours and we no longer chase missing payments.",
       author: "Maria Garcia",
       company: "TechFlow"
     },
     features: [
-      { icon: Headset, text: "Universal inbox for all channels" },
-      { icon: Zap, text: "Automated routing and assignment" },
-      { icon: Users, text: "Team collaboration tools" },
-      { icon: FileText, text: "Canned responses and templates" },
-      { icon: LineChart, text: "Performance analytics" },
+      { icon: Calculator, text: "Automatic tax calculations" },
+      { icon: Receipt, text: "Complete payment history" },
+      { icon: LineChart, text: "Revenue and outstanding reports" },
+      { icon: ClipboardList, text: "Itemized line items" },
+      { icon: Landmark, text: "Audit-ready records" },
     ]
   },
-  Marketing: {
-    title: "Reach customers where they are.",
-    description: "Drive engagement and sales with targeted WhatsApp marketing campaigns that get read instantly.",
+  Sales: {
+    title: "Close the deal, send the invoice.",
+    description: "Turn won deals into invoices instantly and keep your customer billing details in one place.",
     benefits: [
-      "98% open rates on WhatsApp campaigns",
-      "Personalized bulk messaging",
-      "Trackable links and rich media"
+      "Create invoices from saved customers and items",
+      "Recurring invoices for retainers and subscriptions",
+      "See every customer's balance at a glance"
     ],
     testimonial: {
       image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
-      quote: "The engagement we get on WhatsApp newsletters completely outperforms our email campaigns.",
+      quote: "Invoicing right after signing a deal shaved a week off our average payment time.",
       author: "Thomas Wright",
       company: "RetailerPro"
     },
     features: [
-      { icon: Megaphone, text: "GDPR-compliant newsletter campaigns" },
-      { icon: LayoutTemplate, text: "Rich media message templates" },
-      { icon: Users, text: "Advanced audience segmentation" },
-      { icon: LineChart, text: "Campaign performance tracking" },
-      { icon: Mail, text: "Automated opt-in flows" },
+      { icon: Users, text: "Customer profiles and contacts" },
+      { icon: Repeat, text: "Recurring invoices" },
+      { icon: Percent, text: "Discounts and promotions" },
+      { icon: FileText, text: "Quick invoice creation" },
+      { icon: LineChart, text: "Sales performance tracking" },
     ]
   },
-  Recruiting: {
-    title: "Hire faster via WhatsApp.",
-    description: "Meet candidates on their favorite app. Speed up your hiring process and improve candidate experience effortlessly.",
+  Finance: {
+    title: "Cash flow, under control.",
+    description: "Know exactly what is paid, pending and overdue so you can plan ahead with confidence.",
     benefits: [
-      "Reach candidates faster directly on their phones",
-      "Automate initial screening questions",
-      "Schedule interviews via chat"
+      "Real-time view of paid, pending and overdue invoices",
+      "Automated reminders reduce late payments",
+      "Multi-organization support for growing teams"
     ],
     testimonial: {
       image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200",
-      quote: "Candidates love the fast, informal communication. We've hired top talent in record time.",
+      quote: "We finally have a clear picture of our receivables. Late payments are down by a third.",
       author: "Sarah Chen",
       company: "TalentHub"
     },
     features: [
-      { icon: UserCheck, text: "Automated candidate screening" },
-      { icon: MessageSquare, text: "Instant interview scheduling" },
-      { icon: Briefcase, text: "Job alert subscriptions" },
-      { icon: AtSign, text: "Hiring manager collaboration" },
-      { icon: LayoutTemplate, text: "Quick reply templates" },
+      { icon: Wallet, text: "Live cash flow dashboard" },
+      { icon: Bell, text: "Overdue invoice alerts" },
+      { icon: LineChart, text: "Revenue overview charts" },
+      { icon: Users, text: "Team roles and organizations" },
+      { icon: Landmark, text: "Secure financial records" },
     ]
   }
 }

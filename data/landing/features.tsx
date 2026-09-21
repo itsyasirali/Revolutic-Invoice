@@ -1,35 +1,35 @@
 import React from "react"
-import { Bot, Zap, Shield, MessageSquare, LineChart, Globe } from "lucide-react"
+import { FileText, Zap, Shield, BellRing, LineChart, Globe } from "lucide-react"
 
 const features = [
   {
-    title: "AI-Powered Agents",
-    description: "Deploy intelligent WhatsApp agents that autonomously handle 80% of routine customer inquiries 24/7.",
-    icon: <Bot className="h-6 w-6" />
+    title: "Professional Invoices",
+    description: "Create polished, branded invoices with line items, taxes and discounts in seconds and send them straight to your customers.",
+    icon: <FileText className="h-6 w-6" />
   },
   {
     title: "Lightning Fast Setup",
-    description: "Launch your customized AI agent in under 5 minutes. No coding or complex engineering required.",
+    description: "Start invoicing in under 3 minutes. Add your business details, customers and items, no accounting expertise required.",
     icon: <Zap className="h-6 w-6" />
   },
   {
     title: "Bank-Grade Security",
-    description: "End-to-end encryption with strict compliance to GDPR, SOC2, and ISO27001 data protection standards.",
+    description: "Your financial data is protected with end-to-end encryption and strict data protection standards.",
     icon: <Shield className="h-6 w-6" />
   },
   {
-    title: "Omnichannel Inbox",
-    description: "Seamlessly unify WhatsApp, Messenger, and Web chat into one intuitive, high-performance dashboard.",
-    icon: <MessageSquare className="h-6 w-6" />
+    title: "Payment Tracking & Reminders",
+    description: "See who has paid and who is overdue at a glance, and send automatic payment reminders to get paid faster.",
+    icon: <BellRing className="h-6 w-6" />
   },
   {
-    title: "Real-Time Intelligence",
-    description: "Track resolution times, customer sentiment, and agent performance through actionable live analytics.",
+    title: "Real-Time Reports",
+    description: "Track revenue, outstanding balances and top customers through clear, actionable live dashboards.",
     icon: <LineChart className="h-6 w-6" />
   },
   {
-    title: "Global Translation",
-    description: "Break borders with automatic, real-time message translation in over 50 languages for international reach.",
+    title: "Multi-Currency Billing",
+    description: "Invoice international customers in their own currency and get paid from anywhere in the world.",
     icon: <Globe className="h-6 w-6" />
   }
 ]

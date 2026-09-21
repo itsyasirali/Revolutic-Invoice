@@ -1,26 +1,26 @@
 import { ResourceItem } from "@/types/resource";
 
 const IndustryContent = `
-  <p>Our conversational AI and WhatsApp Business integration is specifically tailored to meet the unique challenges of your industry. Whether you are looking to automate lead generation, improve customer support, or drive sales directly through chat, our platform provides the tools you need.</p>
+  <p>InvoiceSmarty is tailored to the unique billing needs of your industry. Whether you are looking to create professional invoices, track payments, or automate reminders and get paid faster, our platform provides the tools you need.</p>
   
   <h2>Why Choose Us for Your Industry?</h2>
-  <p>Different industries have different communication needs. A real estate agent needs to qualify leads and schedule viewings, while a retail store needs to process orders and handle returns. Our templates and AI bots are pre-configured with industry best practices.</p>
+  <p>Different industries have different invoicing needs. A property manager bills recurring rent, while a retailer needs itemized invoices with taxes and discounts. Our invoice templates and workflows are pre-configured with industry best practices.</p>
   
   <div class="bg-[#f0f9ff] p-6 rounded-xl border border-[#bae6fd] my-8">
     <div class="flex gap-4">
       <div class="text-primary">💡</div>
       <div>
         <h4 class="font-bold text-slate-900 mb-2">Industry Standard Compliance</h4>
-        <p class="text-sm text-slate-700 m-0">We ensure that all our communication flows comply with your industry's strict data protection and privacy regulations, giving you peace of mind.</p>
+        <p class="text-sm text-slate-700 m-0">We ensure that your invoices, tax details and customer data are handled in line with your industry's financial and privacy regulations, giving you peace of mind.</p>
       </div>
     </div>
   </div>
 
   <h2>Key Benefits</h2>
   <ul>
-    <li>Automated 24/7 responses tailored to common industry questions.</li>
-    <li>Seamless CRM integrations to keep your data synced.</li>
-    <li>Rich media support for sending catalogs, documents, and videos.</li>
+    <li>Automated payment reminders and recurring invoices tailored to your industry.</li>
+    <li>Seamless accounting integrations to keep your books synced.</li>
+    <li>Custom branded templates, itemized line items, taxes and multi-currency support.</li>
   </ul>
 `;
 
@@ -31,7 +31,7 @@ const industries: ResourceItem[] = [
     slug: "insurance",
     title: "Insurance",
     description:
-      "Streamline your insurance operations by automating tedious claims processing, proactively sending policy renewal reminders, and offering instant, secure 24/7 support via WhatsApp. Learn how our tailored AI solutions help leading insurance providers reduce wait times by up to 80% and drastically improve customer retention rates.",
+      "Streamline premium billing with professional invoices, automatic policy renewal billing, and payment reminders. Learn how InvoiceSmarty helps insurance providers cut collection time and improve retention with clear, accurate billing.",
     category: "Finance & Real Estate",
     image:
       "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
@@ -43,7 +43,7 @@ const industries: ResourceItem[] = [
     slug: "banks",
     title: "Banks",
     description:
-      "Provide your clients with secure, instant customer support for banking inquiries, account updates, and fraud alerts directly through chat.",
+      "Issue accurate invoices for fees and services, reconcile payments in real time, and keep a clear audit trail of every transaction.",
     category: "Finance & Real Estate",
     image:
       "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&w=800&q=80",
@@ -54,7 +54,7 @@ const industries: ResourceItem[] = [
     slug: "real-estate",
     title: "Real Estate",
     description:
-      "Enable agents to schedule viewings seamlessly, share high-quality property listings, and nurture prospective buyers efficiently.",
+      "Invoice commissions, deposits and service fees in seconds, and track every payment from buyers, sellers and landlords.",
     category: "Finance & Real Estate",
     image:
       "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
@@ -65,7 +65,7 @@ const industries: ResourceItem[] = [
     slug: "property-management",
     title: "Property Management",
     description:
-      "Simplify property management by handling tenant requests, scheduling maintenance updates, and sending rent reminders automatically.",
+      "Simplify rent and maintenance billing with recurring invoices, automatic late-payment reminders and clear tenant statements.",
     category: "Finance & Real Estate",
     image:
       "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=800&q=80",
@@ -78,7 +78,7 @@ const industries: ResourceItem[] = [
     slug: "e-commerce",
     title: "E-Commerce",
     description:
-      "Boost your online sales by recovering abandoned carts with personalized offers and providing real-time order tracking updates.",
+      "Generate itemized invoices with taxes and discounts for every order, and reconcile payments and refunds automatically.",
     category: "Commerce & Services",
     image:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80",
@@ -89,7 +89,7 @@ const industries: ResourceItem[] = [
     slug: "car-dealerships",
     title: "Car Dealerships",
     description:
-      "Drive more foot traffic to your showroom by allowing customers to book test drives easily and instantly receive digital vehicle brochures.",
+      "Create detailed sales, service and parts invoices, record deposits and installments, and get paid faster.",
     category: "Commerce & Services",
     image:
       "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800&q=80",
@@ -100,7 +100,7 @@ const industries: ResourceItem[] = [
     slug: "travel-agencies",
     title: "Travel Agencies",
     description:
-      "Enhance the traveler experience by sending comprehensive itineraries, instant flight alerts, and personalized booking recommendations.",
+      "Send clear itemized invoices for bookings and packages, collect deposits, and manage multi-currency payments.",
     category: "Commerce & Services",
     image:
       "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80",
@@ -111,7 +111,7 @@ const industries: ResourceItem[] = [
     slug: "educational-institutions",
     title: "Educational Institutions",
     description:
-      "Foster a more connected school community by keeping students and parents informed on admissions, campus events, and emergency alerts.",
+      "Manage tuition and fee invoicing, schedule installments, and send automatic reminders to parents and students.",
     category: "Commerce & Services",
     image:
       "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800",
@@ -124,7 +124,7 @@ const industries: ResourceItem[] = [
     slug: "doctors",
     title: "Doctors",
     description:
-      "Improve patient care and reduce no-shows by managing appointments effectively and sending automated, timely patient reminders.",
+      "Bill patients quickly with professional invoices, track outstanding balances, and send timely payment reminders.",
     category: "Health & Lifestyle",
     image:
       "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
@@ -135,7 +135,7 @@ const industries: ResourceItem[] = [
     slug: "fitness",
     title: "Fitness",
     description:
-      "Keep your gym members engaged by sharing customized workout plans, daily class schedules, and motivational check-ins effortlessly.",
+      "Automate membership and class-pack invoices with recurring billing and simple payment tracking.",
     category: "Health & Lifestyle",
     image:
       "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",

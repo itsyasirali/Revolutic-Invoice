@@ -1,18 +1,18 @@
 const steps = [
     {
       number: "01",
-      title: "Connect your number",
-      description: "Link your existing WhatsApp Business number or generate a new one instantly."
+      title: "Set up your business",
+      description: "Add your company details, logo and tax information once, and your invoices are always branded."
     },
     {
       number: "02",
-      title: "Give it knowledge",
-      description: "No need to train! Just paste your website link, upload your documents, and give it custom details."
+      title: "Create & send invoices",
+      description: "Pick a template, add customers and items, then email a professional invoice in a few clicks."
     },
     {
       number: "03",
-      title: "Go live",
-      description: "Deploy your agent to handle queries automatically. Seamlessly hand off to human agents when needed."
+      title: "Get paid faster",
+      description: "Track payments, send automatic reminders and see your revenue in real time."
     }
   ]
 export default steps
