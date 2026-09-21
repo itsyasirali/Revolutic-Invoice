@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
+import { User } from "@/entities/User";
+import { loadCustomPlaceholders } from "@/lib/placeholders/server";
+import { buildPlaceholderValues } from "@/lib/placeholders/context";
+import { replacePlaceholders } from "@/lib/placeholders/replace";
 import {
   createMailTransporter,
   getMailFromName,
@@ -36,6 +40,7 @@ const sendPayment = async (
       where: { id: parseInt(id), organizationId: orgId },
       relations: [
         "customer",
+        "organization",
         "template",
         "appliedInvoices",
         "appliedInvoices.invoice",
@@ -64,11 +69,24 @@ const sendPayment = async (
     const bcc = Array.isArray(body.bcc) ? body.bcc : [];
 
     const companyName = getMailFromName();
-    const subject =
+    const sender = await db.getRepository(User).findOne({ where: { id: userId } });
+    const values = buildPlaceholderValues({
+      scope: "payment",
+      payment,
+      organization: payment.organization,
+      organizationName: companyName,
+      sender,
+      custom: await loadCustomPlaceholders(orgId),
+    });
+    const subject = replacePlaceholders(
       body.subject ||
-      `Payment Receipt #${payment.paymentNumber || payment.id} - ${companyName}`;
-    const messageHtml = (
-      body.message || "Thank you for your payment."
+        `Payment Receipt #${payment.paymentNumber || payment.id} - ${companyName}`,
+      values,
+    );
+    const messageHtml = replacePlaceholders(
+      body.message || "Thank you for your payment.",
+      values,
+      { html: true },
     ).replace(/\n/g, "<br/>");
 
     const mailOptions = {

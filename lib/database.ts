@@ -9,10 +9,12 @@ import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Template } from "@/entities/Template";
 import { Organization } from "@/entities/Organization";
+import { CustomPlaceholder } from "@/entities/CustomPlaceholder";
 
 const globalForDb = globalThis as unknown as {
   dataSource?: DataSource;
   dataSourceInitPromise?: Promise<DataSource>;
+  dataSourceEntityCount?: number;
 };
 
 const getSslConfig = (connectionUrl?: string) => {
@@ -44,6 +46,7 @@ const ENTITIES = [
   PaymentAppliedInvoice,
   Template,
   Organization,
+  CustomPlaceholder,
 ];
 
 // Ensure entity class names are preserved in production builds to prevent TypeORM
@@ -58,6 +61,7 @@ const ENTITIES = [
   [PaymentAppliedInvoice, "PaymentAppliedInvoice"],
   [Template, "Template"],
   [Organization, "Organization"],
+  [CustomPlaceholder, "CustomPlaceholder"],
 ].forEach(([cls, name]) => {
   try {
     Object.defineProperty(cls, "name", { value: name, configurable: true });
@@ -103,6 +107,25 @@ const ensureFindMetadataPatch = (ds: DataSource) => {
 };
 
 export const getDatabase = async (): Promise<DataSource> => {
+  // Dev HMR keeps the DataSource on globalThis; if entities were added since it
+  // was created, drop it so the new entity metadata gets registered.
+  if (
+    globalForDb.dataSource &&
+    globalForDb.dataSourceEntityCount !== ENTITIES.length
+  ) {
+    const stale = globalForDb.dataSource;
+    const pending = globalForDb.dataSourceInitPromise;
+    globalForDb.dataSource = undefined;
+    globalForDb.dataSourceInitPromise = undefined;
+    try {
+      await pending?.catch(() => undefined);
+      if (stale.isInitialized) await stale.destroy();
+    } catch {
+      // ignore teardown errors
+    }
+  }
+  globalForDb.dataSourceEntityCount = ENTITIES.length;
+
   // Fast-path: return cached and initialized DataSource immediately
   if (globalForDb.dataSource?.isInitialized) {
     ensureFindMetadataPatch(globalForDb.dataSource);

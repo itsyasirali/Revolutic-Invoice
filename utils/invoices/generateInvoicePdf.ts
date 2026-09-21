@@ -4,6 +4,7 @@ import fs from "fs";
 import { Template } from "@/entities/Template";
 import { Invoice } from "@/entities/Invoice";
 import { Customer } from "@/entities/Customer";
+import { replacePlaceholders, type PlaceholderValues } from "@/lib/placeholders/replace";
 import { Organization } from "@/entities/Organization";
 
 export interface InvoiceItemPdf {
@@ -54,9 +55,13 @@ interface ExtendedInvoice extends Omit<
 
 export const generateInvoicePDF = (
   invoice: ExtendedInvoice,
+  placeholderValues?: PlaceholderValues,
 ): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     try {
+      const notesHtml = placeholderValues
+        ? replacePlaceholders(invoice.notes, placeholderValues, { html: true })
+        : invoice.notes;
       const template = invoice.template;
 
       const isValidHex = (color: unknown): color is string => {
@@ -618,7 +623,13 @@ export const generateInvoicePDF = (
         const itemsToShow = invoice.items || [];
 
         itemsToShow.forEach((item: InvoiceItemPdf, index: number) => {
-          const itemRowHeight = 22;
+          const descText =
+            template?.showItemDescription !== false && item.description
+              ? placeholderValues
+                ? replacePlaceholders(item.description, placeholderValues)
+                : item.description ?? ""
+              : "";
+          const itemRowHeight = descText ? 34 : 22;
           const rowTextY = yPosition + (itemRowHeight - baseFontSize) / 2 - 3.5;
 
           if (template?.alternateRowColors !== false && index % 2 === 1) {
@@ -652,7 +663,9 @@ export const generateInvoicePDF = (
                 value = item.title || item.item?.name || item.name || "";
                 break;
               case "description":
-                value = item.description || "";
+                value = placeholderValues
+                  ? replacePlaceholders(item.description, placeholderValues)
+                  : item.description || "";
                 break;
               case "quantity":
               case "qty":
@@ -686,6 +699,22 @@ export const generateInvoicePDF = (
               ellipsis: true,
               lineBreak: false,
             });
+
+            if (
+              descText &&
+              ["items", "item", "name", "itemName", "product"].includes(col.key ?? "")
+            ) {
+              doc
+                .fontSize(Math.max(baseFontSize - 1, 6))
+                .fillColor(grayText)
+                .text(descText, col.x ? col.x + 5 : 40, rowTextY + baseFontSize + 3, {
+                  width: col.w ? col.w - 10 : 40,
+                  height: 11,
+                  align: col.align || "left",
+                  ellipsis: true,
+                });
+              doc.fontSize(baseFontSize).fillColor(textColor);
+            }
           });
 
           yPosition += itemRowHeight;
@@ -817,7 +846,7 @@ export const generateInvoicePDF = (
 
         yPosition += 40;
 
-        if (invoice.notes && template?.showNotes !== false) {
+        if (notesHtml && template?.showNotes !== false) {
           doc
             .fontSize(baseFontSize + 2)
             .font("Helvetica-Bold")
@@ -847,7 +876,7 @@ export const generateInvoicePDF = (
             return text.trim();
           };
 
-          const parsedText = parseHtml(invoice.notes);
+          const parsedText = parseHtml(notesHtml);
           const notesHeight = Math.max(
             80,
             doc.heightOfString(parsedText, { width: 490 }),

@@ -12,6 +12,10 @@ import {
   MissingMailConfigError,
 } from "@/lib/mailer";
 import { createInvoiceRecord, InvoiceOperationError } from "./createInvoice";
+import { User } from "@/entities/User";
+import { loadCustomPlaceholders } from "@/lib/placeholders/server";
+import { buildPlaceholderValues } from "@/lib/placeholders/context";
+import { replacePlaceholders } from "@/lib/placeholders/replace";
 import type { CreateInvoicePayload, SendInvoicePayload } from "@/types/invoice";
 
 const sendInvoice = async (
@@ -36,7 +40,7 @@ const sendInvoice = async (
     let invoiceId = Number(id);
 
     const body: SendInvoicePayload = await req.json();
-    const { to, cc, bcc, message, attachPDF, invoiceData } = body;
+    const { to, cc, bcc, message, subject, attachPDF, invoiceData } = body;
 
     // Handle sending an unsaved 'draft' invoice — mirrors the NestJS
     // InvoicesController.send()'s inline
@@ -107,10 +111,24 @@ const sendInvoice = async (
       }
     }
 
+    // Placeholder values (built-ins + org custom) used for email and PDF notes
+    const sender = await db.getRepository(User).findOne({ where: { id: parsedUserId } });
+    const placeholderValues = buildPlaceholderValues({
+      scope: "invoice",
+      invoice,
+      organization: invoice.organization,
+      organizationName: getMailFromName(),
+      sender,
+      custom: await loadCustomPlaceholders(orgId),
+    });
+
     // Generate PDF if required
     let pdfBuffer: Buffer | undefined;
     if (attachPDF !== false) {
-      pdfBuffer = await generateInvoicePDF(invoice as unknown as Parameters<typeof generateInvoicePDF>[0]);
+      pdfBuffer = await generateInvoicePDF(
+        invoice as unknown as Parameters<typeof generateInvoicePDF>[0],
+        placeholderValues,
+      );
     }
 
     // Configure email transporter (shared factory from lib/mailer.ts —
@@ -128,12 +146,16 @@ const sendInvoice = async (
 
     const invoiceNumber = invoice.invoiceNumber;
     const companyName = getMailFromName();
-    const emailSubject = `Invoice - ${invoiceNumber} from ${companyName}`;
+    const emailSubject = subject
+      ? replacePlaceholders(subject, placeholderValues)
+      : `Invoice - ${invoiceNumber} from ${companyName}`;
 
     // Use custom message or default
     const customMessage =
       message || "Thank you for your business. Please find your invoice attached.";
-    const formattedMessage = customMessage.replace(/\n/g, "<br/>");
+    const formattedMessage = replacePlaceholders(customMessage, placeholderValues, {
+      html: true,
+    }).replace(/\n/g, "<br/>");
 
     // Email HTML template
     const emailHtml = `

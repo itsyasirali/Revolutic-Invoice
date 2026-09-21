@@ -1,6 +1,10 @@
 "use client";
 
 import React from "react";
+import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
+import { useProfile } from "@/hooks/auth/useProfile";
+import { buildPlaceholderValues } from "@/lib/placeholders/context";
+import { replacePlaceholders } from "@/lib/placeholders/replace";
 import type {
   TemplatePreviewTableColumn,
   TemplatePreviewInvoiceItem,
@@ -56,6 +60,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   className,
   footerStyle,
 }) => {
+  const { custom: customPlaceholders } = useCustomPlaceholders();
+  const { user: profileUser } = useProfile();
   const isValidColor = (color: unknown): color is string => {
     if (!color || typeof color !== "string") return false;
     if (color === "#") return false;
@@ -294,6 +300,17 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       }
     : DUMMY_INVOICE_DATA;
 
+  const placeholderValues = buildPlaceholderValues({
+    scope: "invoice",
+    invoice,
+    organizationName: profileUser?.companyName,
+    senderName: profileUser?.name,
+    custom: customPlaceholders,
+  });
+  const resolvedNotes = replacePlaceholders(activeInvoice.notes, placeholderValues, {
+    html: true,
+  });
+
   const formatCurrency = (amount: number): string => {
     return activeInvoice.currency
       ? `${amount.toFixed(2)} ${activeInvoice.currency}`
@@ -307,7 +324,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       case "itemName":
         return item.itemName ?? "";
       case "description":
-        return item.description ?? "";
+        return replacePlaceholders(item.description ?? "", placeholderValues);
       case "quantity":
         return item.quantity !== undefined && item.quantity !== null
           ? Number(item.quantity).toFixed(2)
@@ -711,6 +728,20 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       }}
                     >
                       {getCellValue(item, col.key)}
+                      {col.key === "itemName" &&
+                        data.showItemDescription !== false &&
+                        item.description && (
+                          <div
+                            style={{
+                              fontSize: `${Math.max((Number(data.tableFontSize) || 10) - 1, 6)}pt`,
+                              color: grayText,
+                              marginTop: "2px",
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
+                            {replacePlaceholders(item.description, placeholderValues)}
+                          </div>
+                        )}
                     </td>
                   ))}
                 </tr>
@@ -948,7 +979,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 lineHeight: 1.6,
                 marginTop: "12px",
               }}
-              dangerouslySetInnerHTML={{ __html: activeInvoice.notes }}
+              dangerouslySetInnerHTML={{ __html: resolvedNotes }}
             ></div>
           </SelectableElement>
         )}

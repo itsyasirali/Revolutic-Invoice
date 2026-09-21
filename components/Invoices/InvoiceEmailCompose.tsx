@@ -5,11 +5,14 @@ import { useParams, useRouter } from "next/navigation";
 import { Send, X, Plus, Check, Download } from "lucide-react";
 import useInvoiceEmail from "@/hooks/invoices/useInvoiceEmail";
 import { Button, PageHeader } from "@/components/ui";
+import EmailContentFields from "@/components/ui/EmailContentFields";
+import { useProfile } from "@/hooks/auth/useProfile";
 
 const InvoiceEmailCompose: React.FC = () => {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
+  const { user } = useProfile();
 
   const {
     invoice,
@@ -25,6 +28,7 @@ const InvoiceEmailCompose: React.FC = () => {
     handleKeyDown,
     removeEmail,
     updateMessage,
+    updateSubject,
     toggleAttachPDF,
   } = useInvoiceEmail(id || "");
 
@@ -203,29 +207,16 @@ const InvoiceEmailCompose: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center px-6 py-4 border-b border-gray-100">
-            <span className="w-20 text-sm font-medium text-gray-500">
-              Subject
-            </span>
-            <input
-              type="text"
-              value={emailData.subject}
-              readOnly
-              className="flex-1 text-sm text-gray-900 outline-none bg-transparent"
-            />
-          </div>
-
-          <div className="px-6 py-4">
-            <label className="block text-sm font-medium text-gray-500 mb-2">
-              Message
-            </label>
-            <textarea
-              value={emailData.message}
-              onChange={(e) => updateMessage(e.target.value)}
-              className="w-full h-64 p-4 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"
-              placeholder="Type your message here..."
-            />
-          </div>
+          <EmailContentFields
+            scope="invoice"
+            record={invoice}
+            organizationName={user?.companyName}
+            senderName={user?.name || user?.firstName}
+            subject={emailData.subject}
+            message={emailData.message}
+            onSubjectChange={updateSubject}
+            onMessageChange={updateMessage}
+          />
 
           <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
             <div

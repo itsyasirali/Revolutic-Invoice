@@ -36,6 +36,7 @@ export interface SendInvoicePayload {
   cc?: string[];
   bcc?: string[];
   message?: string;
+  subject?: string;
   attachPDF?: boolean;
   invoiceData?: unknown; // Allow passing full invoice data for drafts
 }
@@ -176,6 +177,7 @@ export interface InvoiceItem {
   id: number;
   itemId?: string;
   name: string;
+  description?: string;
   quantity: number;
   unit: string;
   rate: number;

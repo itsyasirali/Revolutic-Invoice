@@ -77,51 +77,31 @@ export const usePaymentEmail = (paymentId: string, initialData?: any) => {
       const recipients =
         allCustomerEmails.length > 0 ? [allCustomerEmails[0]] : [];
 
-      const customerName =
-        paymentData.customerDisplayName ||
-        paymentData.customer?.displayName ||
-        "Customer";
-
-      let formattedDate = "N/A";
-      try {
-        formattedDate = paymentData.paymentDate
-          ? new Date(paymentData.paymentDate).toLocaleDateString()
-          : "N/A";
-      } catch {
-        // Ignore
-      }
-
-      const amountReceived = paymentData.amountReceived
-        ? Number(paymentData.amountReceived).toFixed(2)
-        : "0.00";
-      const currency = paymentData.currency || "PKR";
-      const paymentNumber = paymentData.paymentNumber || "DRAFT";
-
-      const defaultMessage = `Dear ${customerName},
+      const defaultMessage = `Dear %CustomerName%,
 
 Thank you for your payment. We have received it and processed it successfully.
 
 Please find attached your payment receipt for your records.
 
 PAYMENT DETAILS:
-Receipt Number: ${paymentNumber}
-Payment Date: ${formattedDate}
-Amount Received: ${currency} ${amountReceived}
+Receipt Number: %PaymentNumber%
+Payment Date: %PaymentDate%
+Amount Received: %Currency% %PaymentAmount%
 
 If you have any questions, please feel free to contact us.
 
 Thank you for your business.
 
 Best regards,
-${user?.name || user?.firstName || "Team"}
-${companyName}`;
+%Sender%
+%OrganizationName%`;
 
       setEmailData({
         from: userEmail,
         to: recipients,
         cc: [userEmail],
         bcc: [],
-        subject: `Payment Receipt - ${paymentNumber} from ${companyName}`,
+        subject: "Payment Receipt - %PaymentNumber% from %OrganizationName%",
         message: defaultMessage,
         attachPDF: true,
       });
@@ -181,6 +161,7 @@ ${companyName}`;
         cc: emailData.cc,
         bcc: emailData.bcc,
         message: emailData.message,
+        subject: emailData.subject,
         attachPDF: emailData.attachPDF,
       });
 
@@ -206,6 +187,10 @@ ${companyName}`;
       ...prev,
       [type]: prev[type].filter((_, i) => i !== index),
     }));
+  };
+
+  const updateSubject = (text: string) => {
+    setEmailData((prev) => ({ ...prev, subject: text }));
   };
 
   const updateMessage = (text: string) => {
@@ -245,6 +230,7 @@ ${companyName}`;
     addEmail,
     removeEmail,
     updateMessage,
+    updateSubject,
     toggleAttachPDF,
     newEmailInput,
     setNewEmailInput,

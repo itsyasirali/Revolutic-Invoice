@@ -407,6 +407,17 @@ const InvoiceForm = () => {
                             searchPlaceholder="Search items..."
                             fullWidth
                           />
+                          {(item.itemId || item.name) && (
+                            <textarea
+                              value={item.description || ""}
+                              onChange={(e) =>
+                                updateItem(item.id, "description", e.target.value)
+                              }
+                              rows={2}
+                              placeholder="Item description (optional) - supports %Placeholders%"
+                              className="mt-2 w-full px-3 py-2 text-sm border border-slate-200 rounded-md bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 resize-y"
+                            />
+                          )}
                         </div>
 
                         <div className="md:col-span-2">

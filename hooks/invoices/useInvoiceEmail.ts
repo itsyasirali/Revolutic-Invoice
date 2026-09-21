@@ -88,63 +88,32 @@ export const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
           ? [allCustomerEmails[0]]
           : [];
 
-      const currentInvoiceAmount =
-        invoiceData.remaining !== undefined
-          ? Number(invoiceData.remaining)
-          : Number(invoiceData.total) || 0;
-      const previousRemaining = Number(invoiceData.previousRemaining) || 0;
-      const totalBalanceDue = currentInvoiceAmount + previousRemaining;
-
-      const customerName =
-        invoiceData.customerDisplayName ||
-        invoiceData.customerName ||
-        invoiceData.customerId?.displayName ||
-        "Customer";
-
-      let formattedDate = "N/A";
-      try {
-        formattedDate = invoiceData.invoiceDate
-          ? new Date(invoiceData.invoiceDate).toLocaleDateString()
-          : "N/A";
-      } catch {
-        // Ignore
-      }
-
-      let formattedDueDate = "N/A";
-      try {
-        formattedDueDate = invoiceData.dueDate
-          ? new Date(invoiceData.dueDate).toLocaleDateString()
-          : "N/A";
-      } catch {
-        // Ignore
-      }
-
-      const defaultMessage = `Dear ${customerName},
+      const defaultMessage = `Dear %CustomerName%,
 
 Thank you for choosing to work with us! We truly appreciate your trust and continued partnership.
 
 Please find attached your invoice for the services/products provided. You can view, download, and print the invoice PDF from the attachment below.
 
 INVOICE DETAILS:
-Invoice Number: ${invoiceData.invoiceNumber}
-Invoice Date: ${formattedDate}
-Due Date: ${formattedDueDate}
-Amount Due: ${invoiceData.currency || "PKR"} ${totalBalanceDue.toFixed(2)}
+Invoice Number: %InvoiceNumber%
+Invoice Date: %InvoiceDate%
+Due Date: %DueDate%
+Amount Due: %Currency% %TotalBalanceDue%
 
 If you have any questions or concerns regarding this invoice, please don't hesitate to reach out. We're here to help!
 
 Thank you once again for your business. We look forward to serving you in the future.
 
 Best regards,
-${user?.name || user?.firstName || "Team"}
-${companyName}`;
+%Sender%
+%OrganizationName%`;
 
       setEmailData({
         from: userEmail,
         to: recipients,
         cc: [userEmail],
         bcc: [],
-        subject: `Invoice - ${invoiceData.invoiceNumber} from ${companyName}`,
+        subject: "Invoice - %InvoiceNumber% from %OrganizationName%",
         message: defaultMessage,
         attachPDF: true,
       });
@@ -201,6 +170,7 @@ ${companyName}`;
         cc: emailData.cc,
         bcc: emailData.bcc,
         message: emailData.message,
+        subject: emailData.subject,
         attachPDF: emailData.attachPDF,
         invoiceData: invoice,
       });
@@ -251,6 +221,10 @@ ${companyName}`;
     setEmailData((prev) => ({ ...prev, message: text }));
   };
 
+  const updateSubject = (text: string) => {
+    setEmailData((prev) => ({ ...prev, subject: text }));
+  };
+
   const toggleAttachPDF = () => {
     setEmailData((prev) => ({ ...prev, attachPDF: !prev.attachPDF }));
   };
@@ -272,6 +246,7 @@ ${companyName}`;
     handleKeyDown,
     removeEmail,
     updateMessage,
+    updateSubject,
     toggleAttachPDF,
     router,
   };

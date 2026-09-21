@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { OrgLink } from "@/components/organization/OrgLink";
 import {
+  Braces,
   Home,
   User,
   ShoppingBag,
@@ -58,6 +59,7 @@ const MENU_ITEMS = [
   { icon: Bookmark, label: "Expenses", path: "/expenses" },
   { icon: Timer, label: "Time Tracking", path: "/time-tracking" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
+  { icon: Braces, label: "Placeholders", path: "/settings/placeholders" },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({

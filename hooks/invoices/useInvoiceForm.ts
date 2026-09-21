@@ -402,6 +402,7 @@ export const useInvoiceForm = () => {
             ...invItem,
             itemId: String(item.id),
             name: item.name || "",
+            description: item.description || "",
             unit: item.unit || "",
             rate: item.sellingPrice || 0,
             amount: calculateAmount(invItem.quantity, item.sellingPrice || 0),
@@ -494,7 +495,7 @@ export const useInvoiceForm = () => {
       items: items.map((item) => ({
         itemId: item.itemId,
         title: item.name,
-        description: "",
+        description: item.description || "",
         quantity: item.quantity,
         rate: item.rate,
         amount: item.amount,
@@ -552,7 +553,7 @@ export const useInvoiceForm = () => {
       items: items.map((item) => ({
         itemId: item.itemId,
         title: item.name,
-        description: "",
+        description: item.description || "",
         quantity: item.quantity,
         rate: item.rate,
         amount: item.amount,
@@ -618,7 +619,7 @@ export const useInvoiceForm = () => {
         items: items.map((item) => ({
           itemId: item.itemId,
           title: item.name,
-          description: "",
+          description: item.description || "",
           quantity: item.quantity,
           rate: item.rate,
           amount: item.amount,

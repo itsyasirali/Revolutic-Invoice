@@ -697,6 +697,7 @@ export interface TemplatePreviewTemplateData {
   billToNameFontSize?: number | string;
   billToAddressFontSize?: number | string;
   tableFontSize?: number | string;
+  showItemDescription?: boolean;
   footerFontSize?: number | string;
 
   invoiceLabel?: string;
