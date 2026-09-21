@@ -1,6 +1,6 @@
 import { countries } from "./countries";
 
-export const COUNTRY_STATES: Record<string, string[]> = {
+const COUNTRY_STATES: Record<string, string[]> = {
   Pakistan: [
     "Punjab",
     "Sindh",
@@ -251,7 +251,7 @@ const DEFAULT_STATES = [
   "Other",
 ];
 
-export const COUNTRY_TIMEZONES: Record<string, string> = {
+const COUNTRY_TIMEZONES: Record<string, string> = {
   Pakistan: "(GMT +5:00) Pakistan Time (Asia/Karachi)",
   "United States": "(GMT -5:00) Eastern Time (US & Canada)",
   "United Kingdom": "(GMT 0:00) Greenwich Mean Time (Europe/London)",

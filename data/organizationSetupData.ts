@@ -27,7 +27,6 @@ export const INDUSTRIES: string[] = [
 export const LOCATIONS: string[] = [...COUNTRY_NAMES, "Other"];
 
 // Default initial provinces (for Pakistan)
-export const PROVINCES: string[] = getStatesForCountry("Pakistan");
 
 // Derived directly from the countries dataset
 export const CURRENCIES: SetupSelectOption[] = UNIQUE_CURRENCIES.map((c) => ({

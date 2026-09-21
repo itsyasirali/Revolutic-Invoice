@@ -25,7 +25,7 @@ export interface CloudinaryUploadResult {
 /**
  * Uploads a NodeJS Buffer directly to Cloudinary using an upload stream.
  */
-export const uploadBufferToCloudinary = async (
+const uploadBufferToCloudinary = async (
   buffer: Buffer,
   folder: string,
   fileName?: string,
@@ -78,7 +78,7 @@ export const uploadFileToCloudinary = async (
  * e.g. "https://res.cloudinary.com/demo/image/upload/v12345/revolutic/templates/logo-123.png"
  * -> "revolutic/templates/logo-123"
  */
-export const extractPublicIdFromUrl = (url: string): string | null => {
+const extractPublicIdFromUrl = (url: string): string | null => {
   try {
     if (!url || !url.includes("cloudinary.com")) return null;
     const parts = url.split("/");

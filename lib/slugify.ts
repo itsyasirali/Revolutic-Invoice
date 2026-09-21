@@ -1,7 +1,7 @@
 import type { Repository } from "typeorm";
 import type { Organization } from "@/entities/Organization";
 
-export const slugify = (input: string): string =>
+const slugify = (input: string): string =>
   input
     .toLowerCase()
     .trim()

@@ -2009,17 +2009,6 @@ for (const country of countries) {
 export const UNIQUE_CURRENCIES: CurrencyOption[] = Array.from(currencyMap.values());
 
 // Helper functions
-export const getCountryByName = (name: string): Country | undefined =>
-  countries.find((c) => c.name.toLowerCase() === name.toLowerCase());
-
-export const getCountryByCode = (code: string): Country | undefined =>
-  countries.find((c) => c.code.toLowerCase() === code.toLowerCase());
-
-export const getCurrencyByCountry = (countryName: string): string => {
-  const match = getCountryByName(countryName);
-  return match ? match.currency : "PKR";
-};
-
 export const getCurrencySymbol = (currencyCode?: string): string => {
   if (!currencyCode) return "₨";
   const code = currencyCode.trim().toUpperCase();
@@ -2031,4 +2020,3 @@ export const getCurrencySymbol = (currencyCode?: string): string => {
   return match?.currency_symbol || currencyCode;
 };
 
-export const getCurrencySymbolByCode = getCurrencySymbol;
