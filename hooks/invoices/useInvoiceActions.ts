@@ -31,7 +31,7 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
 
   const handleEdit = useCallback(
     (invoice: any) => {
-      setNavState(`invoice:${invoice.id}`, invoice);
+      setNavState(`invoice:${invoice.id}`, invoice.raw || invoice);
       router.push(`/invoices/edit/${invoice.id}`);
     },
     [router]
@@ -39,7 +39,7 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
 
   const handlePreview = useCallback(
     (invoice: any) => {
-      setNavState(`invoice:${invoice.id}`, invoice);
+      setNavState(`invoice:${invoice.id}`, invoice.raw || invoice);
       router.push(`/invoices/preview/${invoice.id}`);
     },
     [router]
@@ -51,7 +51,7 @@ const useInvoiceActions = (props?: UseInvoiceActionsProps) => {
 
   const handleBackToEdit = useCallback(
     (invoice: any) => {
-      setNavState(`invoice:${invoice.id}`, invoice);
+      setNavState(`invoice:${invoice.id}`, invoice.raw || invoice);
       router.push(`/invoices/edit/${invoice.id}`);
     },
     [router]

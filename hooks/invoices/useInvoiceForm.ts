@@ -181,7 +181,9 @@ export const useInvoiceForm = () => {
 
         const navInvoice = getNavState<Invoice>(`invoice:${id}`);
         if (navInvoice) {
-          setInvoice(navInvoice);
+          setInvoice(
+            ((navInvoice as unknown as { raw?: Invoice }).raw ?? navInvoice) as Invoice
+          );
           return;
         }
 

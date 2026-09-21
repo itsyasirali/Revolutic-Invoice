@@ -19,6 +19,8 @@ import {
 import { Table, StatusBadge, Button } from "@/components/ui";
 import useInvoiceDetails from "@/hooks/invoices/useInvoiceDetails";
 import type { Invoice } from "@/types/invoice";
+import usePlaceholderResolver from "@/hooks/common/usePlaceholderResolver";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import type { TableColumn } from "@/types/common";
 
 const InvoiceDetails: React.FC = () => {
@@ -44,6 +46,7 @@ const InvoiceDetails: React.FC = () => {
     statusText,
     statusVariant,
   } = useInvoiceDetails();
+  const { resolve } = usePlaceholderResolver("invoice", invoice);
 
   const columns: TableColumn<Invoice["items"][0]>[] = [
     {
@@ -56,7 +59,7 @@ const InvoiceDetails: React.FC = () => {
           </p>
           {item.description && (
             <p className="text-xs text-slate-500 line-clamp-2">
-              {item.description}
+              {resolve(item.description)}
             </p>
           )}
         </div>
@@ -394,9 +397,12 @@ const InvoiceDetails: React.FC = () => {
             <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-slate-400" /> Notes & Terms
             </h3>
-            <div className="p-4 bg-slate-50/80 rounded-lg border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-              {invoice.notes}
-            </div>
+            <div
+              className="p-4 bg-slate-50/80 rounded-lg border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(resolve(invoice.notes, true)),
+              }}
+            />
           </div>
         )}
       </div>

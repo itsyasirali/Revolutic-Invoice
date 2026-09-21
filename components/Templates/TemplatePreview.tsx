@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { buildPlaceholderValues } from "@/lib/placeholders/context";
@@ -979,7 +980,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 lineHeight: 1.6,
                 marginTop: "12px",
               }}
-              dangerouslySetInnerHTML={{ __html: resolvedNotes }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(resolvedNotes) }}
             ></div>
           </SelectableElement>
         )}
