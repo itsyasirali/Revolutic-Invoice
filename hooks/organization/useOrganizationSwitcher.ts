@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useOrganization } from "@/context/OrganizationContext";
 import type { OrganizationData, UseOrganizationSwitcherReturn } from "@/types/organization";
 
 const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
   const router = useRouter();
-  const pathname = usePathname();
   const {
     organization,
     organizations,
@@ -65,10 +64,9 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
     const switchedOrg = await switchOrganization(pendingOrg.id);
     setPendingOrg(null);
     if (switchedOrg?.slug) {
-      const rest = pathname.replace(/^\/[^/]+/, "") || "/dashboard";
-      router.push(`/${switchedOrg.slug}${rest}`);
+      router.push(`/${switchedOrg.slug}/dashboard`);
     }
-  }, [pendingOrg, switchOrganization, pathname, router]);
+  }, [pendingOrg, switchOrganization, router]);
 
   const cancelSwitch = useCallback(() => {
     setPendingOrg(null);

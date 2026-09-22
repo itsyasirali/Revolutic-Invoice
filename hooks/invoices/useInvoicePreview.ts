@@ -6,6 +6,7 @@ import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import type { TemplateListItem } from "@/types/template";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useUpdateInvoice from "./useUpdateInvoice";
+import useWriteOffInvoice from "./useWriteOffInvoice";
 import { getNavState, setNavState } from "@/lib/clientNavState";
 import axios from "@/lib/axios";
 
@@ -22,11 +23,8 @@ export const useInvoicePreview = () => {
   );
   const [fetchedInvoice, setFetchedInvoice] = useState<any>(null);
 
-  useEffect(() => {
-    const navStateInvoice = id ? getNavState<any>(`invoice:${id}`) : undefined;
-    if (navStateInvoice) {
-      setFetchedInvoice(navStateInvoice);
-    } else if (id && id !== "draft") {
+  const fetchInvoice = () => {
+    if (id && id !== "draft") {
       axios
         .get(`/invoices/${id}`)
         .then((res) => {
@@ -38,9 +36,28 @@ export const useInvoicePreview = () => {
           console.error("Failed to fetch invoice details:", err);
         });
     }
+  };
+
+  useEffect(() => {
+    // Show cached nav-state data instantly, then always refetch to get
+    // complete server-side data (e.g. write-off history) the cached copy lacks.
+    const navStateInvoice = id ? getNavState<any>(`invoice:${id}`) : undefined;
+    if (navStateInvoice) {
+      setFetchedInvoice(navStateInvoice);
+    }
+    fetchInvoice();
   }, [id]);
 
   const invoice = fetchedInvoice;
+
+  const {
+    target: writeOffTarget,
+    loading: writeOffLoading,
+    openWriteOff,
+    closeWriteOff,
+    submitWriteOff,
+    reverseWriteOff,
+  } = useWriteOffInvoice(fetchInvoice);
 
   const activeTemplate = useMemo(() => {
     if (localTemplate) return localTemplate;
@@ -302,6 +319,12 @@ export const useInvoicePreview = () => {
     handleBackClick,
     handleDownloadPDF,
     activeTemplate,
+    writeOffTarget,
+    writeOffLoading,
+    openWriteOff,
+    closeWriteOff,
+    submitWriteOff,
+    reverseWriteOff,
   };
 };
 

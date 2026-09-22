@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Mail,
   Phone,
-  FileText,
+  ScrollText,
   MapPin,
   Calendar,
   Clock,
@@ -15,13 +15,18 @@ import {
   DollarSign,
   Eye,
   Send,
+  Ban,
+  RotateCcw,
 } from "lucide-react";
 import { Table, StatusBadge, Button } from "@/components/ui";
+import WriteOffModal from "./WriteOffModal";
 import useInvoiceDetails from "@/hooks/invoices/useInvoiceDetails";
 import type { Invoice } from "@/types/invoice";
 import usePlaceholderResolver from "@/hooks/common/usePlaceholderResolver";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import type { TableColumn } from "@/types/common";
+
+const NON_WRITE_OFF_STATUSES = ["draft", "paid", "cancelled", "written off"];
 
 const InvoiceDetails: React.FC = () => {
   const {
@@ -42,9 +47,16 @@ const InvoiceDetails: React.FC = () => {
     discountAmount,
     total,
     amountPaid,
+    totalWrittenOff,
     balanceDue,
     statusText,
     statusVariant,
+    writeOffTarget,
+    writeOffLoading,
+    openWriteOff,
+    closeWriteOff,
+    submitWriteOff,
+    reverseWriteOff,
   } = useInvoiceDetails();
   const { resolve } = usePlaceholderResolver("invoice", invoice);
 
@@ -114,8 +126,27 @@ const InvoiceDetails: React.FC = () => {
     return null;
   }
 
+  const canWriteOff = !NON_WRITE_OFF_STATUSES.includes(
+    statusText.toLowerCase(),
+  );
+  const activeWriteOffs = (invoice.writeOffs || []).filter(
+    (w: any) => !w.reversedAt,
+  );
+  const reversedWriteOffs = (invoice.writeOffs || []).filter(
+    (w: any) => !!w.reversedAt,
+  );
+
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
+      <WriteOffModal
+        isOpen={!!writeOffTarget}
+        invoiceLabel={writeOffTarget?.invoice || invoiceNumberDisplay}
+        remainingAmount={writeOffTarget?.amount ?? balanceDue}
+        currency={currency}
+        loading={writeOffLoading}
+        onCancel={closeWriteOff}
+        onConfirm={submitWriteOff}
+      />
       {/* 1. Breadcrumb */}
       <nav
         className="flex items-center gap-2 text-sm text-slate-500"
@@ -146,7 +177,7 @@ const InvoiceDetails: React.FC = () => {
         {/* Left: Avatar + Title + Status + Invoice ID */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0 shadow-xs">
-            <FileText className="w-7 h-7 sm:w-8 sm:h-8" />
+            <ScrollText className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -181,6 +212,23 @@ const InvoiceDetails: React.FC = () => {
           >
             Preview PDF
           </Button>
+          {canWriteOff && (
+            <Button
+              onClick={() =>
+                openWriteOff({
+                  id: invoice.id,
+                  invoice: invoiceNumberDisplay,
+                  amount: balanceDue,
+                })
+              }
+              variant="danger"
+              size="md"
+              className="font-medium rounded-lg shadow-xs"
+              icon={<Ban className="w-4 h-4" />}
+            >
+              Write Off
+            </Button>
+          )}
         </div>
       </div>
 
@@ -235,7 +283,7 @@ const InvoiceDetails: React.FC = () => {
                   </div>
                   {invoice.terms && (
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                      <ScrollText className="w-4 h-4 text-slate-400 shrink-0" />
                       <span>{invoice.terms}</span>
                     </div>
                   )}
@@ -266,7 +314,11 @@ const InvoiceDetails: React.FC = () => {
             <h2 className="text-base font-bold text-slate-900 tracking-tight">
               Financial Summary
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 ${
+                totalWrittenOff > 0 ? "lg:grid-cols-3" : ""
+              }`}
+            >
               {/* Received */}
               <div className="bg-[#f0fdf4] border border-emerald-100/90 rounded-md p-4 flex flex-col justify-between min-h-[130px]">
                 <div className="text-emerald-600">
@@ -283,6 +335,26 @@ const InvoiceDetails: React.FC = () => {
                   </p>
                 </div>
               </div>
+
+              {totalWrittenOff > 0 && (
+                <div className="bg-violet-50 border border-violet-200 rounded-md p-4 flex flex-col justify-between min-h-[110px]">
+                  <div className="text-violet-600">
+                    <Ban className="w-6 h-6 stroke-[2.2]" />
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-slate-500">
+                      Written Off
+                    </p>
+                    <p className="text-base sm:text-lg font-bold text-violet-700 mt-1 truncate">
+                      {currency}{" "}
+                      {totalWrittenOff.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Remaining / Balance Due */}
               <div className="bg-[#fffbeb] border border-amber-100/90 rounded-md p-4 flex flex-col justify-between min-h-[110px]">
@@ -319,7 +391,7 @@ const InvoiceDetails: React.FC = () => {
             showCheckbox={false}
             variant="default"
             emptyMessage="No items found in this invoice"
-            emptyIcon={FileText}
+            emptyIcon={ScrollText}
           />
         </div>
 
@@ -374,6 +446,19 @@ const InvoiceDetails: React.FC = () => {
               </span>
             </div>
 
+            {totalWrittenOff > 0 && (
+              <div className="flex justify-between text-slate-600 font-medium">
+                <span>Written Off</span>
+                <span className="text-violet-700 font-bold">
+                  {currency}{" "}
+                  {totalWrittenOff.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
+
             <div className="flex justify-between font-bold pt-2 border-t border-slate-200 text-base">
               <span className="text-slate-900">Balance Due</span>
               <span
@@ -395,7 +480,8 @@ const InvoiceDetails: React.FC = () => {
         {invoice.notes && (
           <div className="pt-4 border-t border-slate-100">
             <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-slate-400" /> Notes & Terms
+              <ScrollText className="w-3.5 h-3.5 text-slate-400" /> Notes &
+              Terms
             </h3>
             <div
               className="p-4 bg-slate-50/80 rounded-lg border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
@@ -406,6 +492,66 @@ const InvoiceDetails: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 5. Write-off History */}
+      {(activeWriteOffs.length > 0 || reversedWriteOffs.length > 0) && (
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">
+            Write-off History
+          </h2>
+          <div className="flex flex-col gap-3">
+            {activeWriteOffs.map((w: any) => (
+              <div
+                key={w.id}
+                className="flex items-start justify-between gap-4 p-3 rounded-md bg-violet-50 border border-violet-200"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-violet-800">
+                    {currency}{" "}
+                    {Number(w.amount).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                  <p className="text-xs text-slate-600 mt-0.5">{w.reason}</p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {new Date(w.writeOffDate).toLocaleString()}
+                  </p>
+                </div>
+                <Button
+                  onClick={() => reverseWriteOff(invoice.id)}
+                  variant="outline"
+                  size="sm"
+                  icon={<RotateCcw className="w-3.5 h-3.5" />}
+                >
+                  Reverse
+                </Button>
+              </div>
+            ))}
+            {reversedWriteOffs.map((w: any) => (
+              <div
+                key={w.id}
+                className="flex items-start justify-between gap-4 p-3 rounded-md bg-slate-50 border border-slate-200 opacity-70"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-600 line-through">
+                    {currency}{" "}
+                    {Number(w.amount).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-0.5">{w.reason}</p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Written off {new Date(w.writeOffDate).toLocaleDateString()}{" "}
+                    · Reversed {new Date(w.reversedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

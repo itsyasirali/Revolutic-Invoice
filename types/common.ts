@@ -253,7 +253,8 @@ export type BadgeVariant =
   | 'outline'
   | 'default'
   | 'active'
-  | 'inactive';
+  | 'inactive'
+  | 'muted';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {

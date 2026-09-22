@@ -99,6 +99,7 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
     "Paid",
     "Overdue",
     "Partially Paid",
+    "Written Off",
   ];
 
   return (

@@ -36,7 +36,7 @@ const getInvoice = async (
 
     const invoice = await invoiceRepository.findOne({
       where: { id: invoiceId, organizationId: orgId },
-      relations: ["customer", "template", "items", "items.item"],
+      relations: ["customer", "template", "items", "items.item", "writeOffs"],
     });
 
     if (!invoice) {

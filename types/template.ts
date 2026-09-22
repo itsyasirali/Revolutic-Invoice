@@ -713,6 +713,7 @@ export interface TemplatePreviewTemplateData {
   taxLabel?: string;
   discountLabel?: string;
   previousDueLabel?: string;
+  writeOffLabel?: string;
   totalLabel?: string;
   balanceDueLabel?: string;
   notesLabel?: string;
@@ -776,6 +777,10 @@ export interface TemplatePreviewInvoiceData {
   total?: number | string;
   currency?: string;
   notes?: string;
+  writeOffs?: Array<{
+    amount: number | string;
+    reversedAt?: string | Date | null;
+  }>;
 }
 
 export interface TemplatePreviewProps {

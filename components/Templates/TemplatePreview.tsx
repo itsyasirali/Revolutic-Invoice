@@ -232,6 +232,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     ],
     subtotal: 150,
     previousRemaining: 0,
+    writeOffAmount: 0,
     total: 150,
     currency: "USD",
     notes:
@@ -289,6 +290,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         ),
         previousRemaining: Number(
           invoice.previousRemaining ?? DUMMY_INVOICE_DATA.previousRemaining,
+        ),
+        writeOffAmount: (invoice.writeOffs || []).reduce(
+          (sum: number, w: any) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+          0,
         ),
         total:
           invoice.remaining !== undefined
@@ -842,7 +847,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               </SelectableElement>
             )}
 
-            {data.showPreviousDue !== false && (
+            {data.showPreviousDue !== false && activeInvoice.previousRemaining > 0 && (
               <SelectableElement
                 id="previous-remaining"
                 selectedElement={selectedElement}
@@ -871,6 +876,40 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                     }}
                   >
                     {formatCurrency(activeInvoice.previousRemaining)}
+                  </span>
+                </div>
+              </SelectableElement>
+            )}
+
+            {activeInvoice.writeOffAmount > 0 && (
+              <SelectableElement
+                id="write-off"
+                selectedElement={selectedElement}
+                onSelect={onSelectElement}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "6px 0",
+                    borderBottom: `1px solid ${borderColor}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: `${data.labelFontSize || 10}pt`,
+                      color: grayText,
+                    }}
+                  >
+                    {data.writeOffLabel ?? "Write Off"}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: `${data.labelFontSize || 10}pt`,
+                      color: darkText,
+                    }}
+                  >
+                    -{formatCurrency(activeInvoice.writeOffAmount)}
                   </span>
                 </div>
               </SelectableElement>

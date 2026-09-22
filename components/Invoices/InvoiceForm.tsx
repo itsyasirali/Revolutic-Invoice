@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Settings, X, Eye, Info, Mail, Tag } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
-import { Button, PageHeader, Input, Select } from "@/components/ui";
+import { Button, PageHeader, Input, Select, Checkbox } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import type { InvoiceCustomer } from "@/types/invoice";
@@ -43,6 +43,9 @@ const InvoiceForm = () => {
     closeTemplateSelector,
     busy,
     isFormValid,
+    includePreviousRemaining,
+    setIncludePreviousRemaining,
+    getPreviousRemainingBase,
   } = useInvoiceForm();
 
   const customerOptions: SelectOption[] = useMemo(() => {
@@ -494,12 +497,12 @@ const InvoiceForm = () => {
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider mt-4">
                   Notes
                 </label>
-                <div className="bg-white rounded-md border border-gray-200 mt-4 overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 transition-all duration-300">
+                <div className="bg-white rounded-md border border-gray-200 mt-4 overflow-hidden focus-within:border-primary/50 transition-colors duration-200">
                   <style>{`
                     .ql-toolbar.ql-snow { border: none !important; border-bottom: 1px solid #f3f4f6 !important; background: #e5e7eb; padding: 12px 20px; }
                     .ql-container.ql-snow { border: none !important; font-size: 0.9375rem; color: #1f2937; }
                     .ql-editor { min-height: 180px; padding: 10px; line-height: 1.6; }
-                    .ql-editor.ql-blank::before { color: #9ca3af; font-style: normal; opacity: 0.7; }
+                    .ql-editor.ql-blank::before { left: 10px; right: 10px; color: #9ca3af; font-style: normal; opacity: 0.7; }
                   `}</style>
                   <ReactQuill
                     theme="snow"
@@ -576,6 +579,22 @@ const InvoiceForm = () => {
                   </span>
                 </div>
               </div>
+              {getPreviousRemainingBase() > 0 && (
+                <div className="flex justify-end items-center">
+                  <div className="flex items-center gap-4 w-full max-w-sm justify-between">
+                    <Checkbox
+                      label="Previous Remaining"
+                      checked={includePreviousRemaining}
+                      onChange={(e) =>
+                        setIncludePreviousRemaining(e.target.checked)
+                      }
+                    />
+                    <span className="text-base font-bold text-gray-900 w-32 text-right">
+                      {getPreviousRemainingBase().toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end items-center pt-4 border-t border-gray-100 mt-2">
                 <div className="flex items-center gap-4 w-full max-w-sm justify-between">
                   <div className="flex flex-col">

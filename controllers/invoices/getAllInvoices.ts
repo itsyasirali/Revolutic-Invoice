@@ -32,7 +32,7 @@ const getAllInvoices = async (req: NextRequest) => {
       .where("organizationId = :organizationId", { organizationId })
       .andWhere("dueDate < :now", { now: new Date() })
       .andWhere("LOWER(status) NOT IN (:...excluded)", {
-        excluded: ["paid", "draft", "cancelled", "overdue"],
+        excluded: ["paid", "draft", "cancelled", "overdue", "written off"],
       })
       .execute();
 

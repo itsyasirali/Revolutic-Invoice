@@ -15,6 +15,7 @@ export type UIInvoiceListItem = {
   date: string;
   dueDate?: string;
   amount: string;
+  remaining: number;
   status: {
     tooltip: string;
     color: "success" | "danger" | "warning" | "info" | "gray" | "default";
@@ -37,6 +38,7 @@ function toStatus(s: any): UIInvoiceListItem["status"] {
   if (v === "overdue") return { tooltip: "Overdue", color: "danger" };
   if (v === "partially paid" || v === "partial") return { tooltip: "Partially Paid", color: "warning" };
   if (v === "paid") return { tooltip: "Paid", color: "success" };
+  if (v === "written off") return { tooltip: "Written Off", color: "default" };
   return { tooltip: s || "Draft", color: "gray" };
 }
 
@@ -71,6 +73,10 @@ function mapDoc(d: RawDoc): UIInvoiceListItem {
   const date = when ? new Date(when).toLocaleDateString() : "";
   const dueDateStr = d?.dueDate ? new Date(d.dueDate).toLocaleDateString() : "";
   const amount = String(d?.total ?? d?.amount ?? "0");
+  const remaining = Math.max(
+    0,
+    Number(d?.remaining ?? Number(d?.total ?? 0) - Number(d?.received ?? 0)),
+  );
   const isOverdue = String(d?.status ?? "").toLowerCase() === "overdue";
   const overdueDays = isOverdue ? computeOverdueDays(d?.dueDate) : undefined;
 
@@ -82,6 +88,7 @@ function mapDoc(d: RawDoc): UIInvoiceListItem {
     date,
     dueDate: dueDateStr,
     amount,
+    remaining,
     currency: d?.currency ?? "PKR",
     status: toStatus(d?.status),
     overdueDays,

@@ -103,11 +103,23 @@ export const PLACEHOLDER_DEFS: PlaceholderDef[] = [
   def("Dates", both, "MONTHNUM", "Month number"),
   def("Dates", both, "YEAR", "Year"),
   def("Dates", both, "DAY", "Day of month"),
-  def("Dates", both, "(MONTH-1)", "Previous month name"),
-  def("Dates", both, "(MONTH+1)", "Next month name"),
-  def("Dates", both, "(YEAR-1)", "Previous year"),
-  def("Dates", both, "(YEAR+1)", "Next year"),
   def("Dates", both, "CurrentDate", "Today's date"),
+  ...([-3, -2, -1, 1, 2, 3] as const).map((n) =>
+    def(
+      "Dates",
+      both,
+      `(MONTH${n > 0 ? "+" : ""}${n})`,
+      `Month name, ${n > 0 ? `${n} month${n > 1 ? "s" : ""} ahead` : `${-n} month${n < -1 ? "s" : ""} ago`}`,
+    ),
+  ),
+  ...([-3, -2, -1, 1, 2, 3] as const).map((n) =>
+    def(
+      "Dates",
+      both,
+      `(YEAR${n > 0 ? "+" : ""}${n})`,
+      `Year, ${n > 0 ? `${n} year${n > 1 ? "s" : ""} ahead` : `${-n} year${n < -1 ? "s" : ""} ago`}`,
+    ),
+  ),
   ...dateParts("Current", "Today's", both),
   ...dateParts("Invoice", "Invoice", inv),
   ...dateParts("Due", "Due", inv),

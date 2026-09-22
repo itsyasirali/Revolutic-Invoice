@@ -47,6 +47,10 @@ const variantClasses: Record<BadgeVariant, { container: string; dot: string }> =
       container: "bg-slate-100 text-slate-700 border border-slate-200",
       dot: "bg-slate-500",
     },
+    muted: {
+      container: "bg-violet-50 text-violet-700 border border-violet-200",
+      dot: "bg-violet-500",
+    },
   };
 
 const sizeClasses: Record<BadgeSize, string> = {
@@ -88,6 +92,8 @@ export const Badge: React.FC<BadgeProps> = ({
       computedVariant = "inactive";
     } else if (lower === "active" || lower.includes("active")) {
       computedVariant = "active";
+    } else if (lower.includes("written off")) {
+      computedVariant = "muted";
     } else if (
       lower.includes("partially paid") ||
       lower.includes("partial") ||

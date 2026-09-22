@@ -43,7 +43,7 @@ export interface SendInvoicePayload {
 
 // --- Frontend-facing shapes (mirrors src/types/invoice.d.ts) ---
 
-export type InvoiceStatus = "Draft" | "Sent" | "Paid" | "Overdue" | "Cancelled" | "Partially Paid";
+export type InvoiceStatus = "Draft" | "Sent" | "Paid" | "Overdue" | "Cancelled" | "Partially Paid" | "Written Off";
 
 export interface InvoiceItemInput {
   itemId?: string;

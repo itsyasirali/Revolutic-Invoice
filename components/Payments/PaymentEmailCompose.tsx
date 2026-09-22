@@ -104,14 +104,14 @@ const PaymentEmailCompose: React.FC = () => {
                     <Check size={16} />
                   </button>
                 </div>
-              ) : (
+              ) : emailData.to.length < 3 ? (
                 <button
                   onClick={() => setActiveField("to")}
                   className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -153,14 +153,14 @@ const PaymentEmailCompose: React.FC = () => {
                     <Check size={16} />
                   </button>
                 </div>
-              ) : (
+              ) : emailData.cc.length < 3 ? (
                 <button
                   onClick={() => setActiveField("cc")}
                   className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -202,14 +202,14 @@ const PaymentEmailCompose: React.FC = () => {
                     <Check size={16} />
                   </button>
                 </div>
-              ) : (
+              ) : emailData.bcc.length < 3 ? (
                 <button
                   onClick={() => setActiveField("bcc")}
                   className="p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-primary transition-colors"
                 >
                   <Plus size={20} />
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
 

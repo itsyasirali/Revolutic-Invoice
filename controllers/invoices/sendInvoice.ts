@@ -71,7 +71,7 @@ const sendInvoice = async (
     // Get invoice with populated relations
     const invoice = await invoiceRepository.findOne({
       where: { id: invoiceId, organizationId: orgId },
-      relations: ["customer", "template", "items", "items.item", "organization"],
+      relations: ["customer", "template", "items", "items.item", "organization", "writeOffs"],
     });
 
     if (!invoice) {
@@ -219,7 +219,7 @@ const sendInvoice = async (
     // Return updated invoice
     const result = await invoiceRepository.findOne({
       where: { id: invoiceId },
-      relations: ["customer", "template", "items"],
+      relations: ["customer", "template", "items", "writeOffs"],
     });
 
     if (!result) {

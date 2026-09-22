@@ -14,6 +14,7 @@ import type { Customer } from "./Customer";
 import type { Template } from "./Template";
 import type { InvoiceItem } from "./InvoiceItem";
 import type { Organization } from "./Organization";
+import type { InvoiceWriteOff } from "./InvoiceWriteOff";
 
 @Entity("invoices")
 export class Invoice {
@@ -48,7 +49,7 @@ export class Invoice {
   previousRemaining!: number;
 
   @Column({ default: "Draft" })
-  status!: string; // 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled'
+  status!: string; // 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled' | 'Written Off'
 
   @Column({ type: "text", nullable: true })
   notes!: string;
@@ -90,6 +91,9 @@ export class Invoice {
 
   @OneToMany("invoice_items", "invoice", { cascade: true })
   items!: InvoiceItem[];
+
+  @OneToMany("invoice_write_offs", "invoice")
+  writeOffs!: InvoiceWriteOff[];
 
   @CreateDateColumn()
   createdAt!: Date;

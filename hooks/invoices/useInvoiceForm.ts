@@ -71,6 +71,7 @@ export const useInvoiceForm = () => {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [includePreviousRemaining, setIncludePreviousRemaining] = useState(true);
 
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const itemDropdownRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
@@ -350,11 +351,29 @@ export const useInvoiceForm = () => {
     return items.reduce((sum, item) => sum + item.amount, 0);
   };
 
+  const getPreviousRemainingBase = (): number => {
+    if (
+      isEditMode &&
+      invoice &&
+      String(
+        typeof invoice.customerId === "object" && invoice.customerId !== null
+          ? invoice.customerId.id
+          : invoice.customerId
+      ) === String(invoiceData.customerId)
+    ) {
+      return invoice.previousRemaining || 0;
+    }
+    return selectedCustomer?.receivables || 0;
+  };
+
+  const getPreviousRemainingAmount = (): number =>
+    includePreviousRemaining ? getPreviousRemainingBase() : 0;
+
   const calculateTotal = (): number => {
     const subTotal = items.reduce((sum, item) => sum + item.amount, 0);
     const discountPercent = Number(invoiceData.discountPercent) || 0;
     const discountAmount = (subTotal * discountPercent) / 100;
-    return subTotal - discountAmount;
+    return subTotal - discountAmount + getPreviousRemainingAmount();
   };
 
   const calculateDueDate = (terms: string, invoiceDate: string): string => {
@@ -510,20 +529,7 @@ export const useInvoiceForm = () => {
       templateId: invoiceData.templateId,
       notes: invoiceData.notes,
       recipients: invoiceData.recipients,
-      previousRemaining: (() => {
-        if (
-          isEditMode &&
-          invoice &&
-          String(
-            typeof invoice.customerId === "object" && invoice.customerId !== null
-              ? invoice.customerId.id
-              : invoice.customerId
-          ) === String(invoiceData.customerId)
-        ) {
-          return invoice.previousRemaining || 0;
-        }
-        return selectedCustomer?.receivables || 0;
-      })(),
+      previousRemaining: getPreviousRemainingAmount(),
     };
 
     if (isEditMode && id) {
@@ -579,20 +585,7 @@ export const useInvoiceForm = () => {
         selectedCustomer?.contacts
           ?.map((contact: Contact) => contact.email || "")
           .filter((email: string) => !!email) || [],
-      previousRemaining: (() => {
-        if (
-          isEditMode &&
-          invoice &&
-          String(
-            typeof invoice.customerId === "object" && invoice.customerId !== null
-              ? invoice.customerId.id
-              : invoice.customerId
-          ) === String(invoiceData.customerId)
-        ) {
-          return invoice.previousRemaining || 0;
-        }
-        return selectedCustomer?.receivables || 0;
-      })(),
+      previousRemaining: getPreviousRemainingAmount(),
       status: isEditMode && invoice ? invoice.status : "Draft",
     };
 
@@ -637,20 +630,7 @@ export const useInvoiceForm = () => {
           selectedCustomer?.contacts
             ?.map((contact: Contact) => contact.email || "")
             .filter((email: string) => !!email) || [],
-        previousRemaining: (() => {
-          if (
-            isEditMode &&
-            invoice &&
-            String(
-              typeof invoice.customerId === "object" && invoice.customerId !== null
-                ? invoice.customerId.id
-                : invoice.customerId
-            ) === String(invoiceData.customerId)
-          ) {
-            return invoice.previousRemaining || 0;
-          }
-          return selectedCustomer?.receivables || 0;
-        })(),
+        previousRemaining: getPreviousRemainingAmount(),
       };
 
       let invoiceId = id;
@@ -690,20 +670,7 @@ export const useInvoiceForm = () => {
           total: calculateTotal(),
           received: finalReceived,
           remaining: finalRemaining,
-          previousRemaining: (() => {
-            if (
-              isEditMode &&
-              invoice &&
-              String(
-                typeof invoice.customerId === "object" && invoice.customerId !== null
-                  ? invoice.customerId.id
-                  : invoice.customerId
-              ) === String(invoiceData.customerId)
-            ) {
-              return invoice.previousRemaining || 0;
-            }
-            return selectedCustomer?.receivables || 0;
-          })(),
+          previousRemaining: getPreviousRemainingAmount(),
           status: finalStatus,
           discountPercent: Number(invoiceData.discountPercent) || 0,
           templateId: invoiceData.templateId,
@@ -794,6 +761,9 @@ export const useInvoiceForm = () => {
     handleCancel,
     calculateTotal,
     calculateSubtotal,
+    includePreviousRemaining,
+    setIncludePreviousRemaining,
+    getPreviousRemainingBase,
   };
 };
 

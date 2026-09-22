@@ -95,7 +95,9 @@ const InvoicePreview: React.FC = () => {
                         ? "bg-emerald-600"
                         : invoice.status.toLowerCase() === "overdue"
                           ? "bg-rose-600"
-                          : "bg-slate-500"
+                          : invoice.status.toLowerCase() === "written off"
+                            ? "bg-violet-600"
+                            : "bg-slate-500"
                 }`}
               >
                 {invoice.status}

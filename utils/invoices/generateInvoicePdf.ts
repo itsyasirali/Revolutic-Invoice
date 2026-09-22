@@ -41,7 +41,7 @@ export interface ExtendedCustomer extends Partial<Customer> {
 
 interface ExtendedInvoice extends Omit<
   Invoice,
-  "customer" | "template" | "items" | "previousRemaining" | "organization"
+  "customer" | "template" | "items" | "previousRemaining" | "organization" | "writeOffs"
 > {
   customer?: ExtendedCustomer;
   template?: Template;
@@ -51,6 +51,7 @@ interface ExtendedInvoice extends Omit<
   customerDisplayName?: string;
   customerAddress?: string;
   previousRemaining?: number;
+  writeOffs?: Array<{ amount: number | string; reversedAt?: Date | null }>;
 }
 
 export const generateInvoicePDF = (
@@ -137,8 +138,12 @@ export const generateInvoicePDF = (
       const previousRemaining = Number(invoice.previousRemaining) || 0;
       const subTotal = Number(invoice.subTotal) || 0;
       const total = Number(invoice.total) || 0;
+      const writeOffAmount = (invoice.writeOffs || []).reduce(
+        (sum, w) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+        0,
+      );
 
-      const totalBalanceDue = total + previousRemaining;
+      const totalBalanceDue = total + previousRemaining - writeOffAmount;
 
       let logoDrawn = false;
       let logoBuffer: Buffer | undefined;
@@ -760,7 +765,7 @@ export const generateInvoicePDF = (
           .lineWidth(1)
           .stroke(borderColor);
 
-        if (template?.showPreviousDue !== false) {
+        if (template?.showPreviousDue !== false && previousRemaining > 0) {
           doc
             .fontSize(baseFontSize)
             .font("Helvetica")
@@ -780,6 +785,37 @@ export const generateInvoicePDF = (
             .fillColor(previousDueColor)
             .text(
               formatCurrency(previousRemaining),
+              totalsValueX,
+              yPosition + 3,
+              {
+                width: 75,
+                align: "right",
+                lineBreak: false,
+              },
+            );
+          yPosition += 25;
+        }
+
+        if (writeOffAmount > 0) {
+          doc
+            .fontSize(baseFontSize)
+            .font("Helvetica")
+            .fillColor(grayText)
+            .text(
+              "Write Off",
+              totalsLabelX,
+              yPosition + 3,
+              {
+                lineBreak: false,
+              },
+            );
+
+          doc
+            .fontSize(baseFontSize)
+            .font("Helvetica")
+            .fillColor(textColor)
+            .text(
+              `-${formatCurrency(writeOffAmount)}`,
               totalsValueX,
               yPosition + 3,
               {

@@ -201,6 +201,10 @@ export const getDashboardData = async (
     let currentPeriodPending = 0;
     let previousPeriodPending = 0;
 
+    let writtenOffAmount = 0;
+    let currentPeriodExpenses = 0;
+    let previousPeriodExpenses = 0;
+
     let thisMonthIncome = 0;
     let prevMonthIncome = 0;
     let thisMonthPaidCount = 0;
@@ -220,20 +224,34 @@ export const getDashboardData = async (
       const receivedConverted = convertToOrgCurrency(received, inv.currency || orgCurrency, orgCurrency, rates);
       const remainingConverted = convertToOrgCurrency(remaining, inv.currency || orgCurrency, orgCurrency, rates);
 
+      const isWrittenOff = status === "written off";
+
       totalInvoicesAmount += totalConverted;
       totalPaymentsAmount += receivedConverted;
-      pendingInvoicesAmount += remainingConverted;
+      if (!isWrittenOff) {
+        pendingInvoicesAmount += remainingConverted;
+      } else {
+        writtenOffAmount += remainingConverted;
+      }
 
       const invDate = new Date(inv.invoiceDate || inv.createdAt);
       if (!isNaN(invDate.getTime())) {
         if (invDate >= thirtyDaysAgo && invDate <= now) {
           currentPeriodInvoices += totalConverted;
           currentPeriodPayments += receivedConverted;
-          currentPeriodPending += remainingConverted;
+          if (isWrittenOff) {
+            currentPeriodExpenses += remainingConverted;
+          } else {
+            currentPeriodPending += remainingConverted;
+          }
         } else if (invDate >= sixtyDaysAgo && invDate < thirtyDaysAgo) {
           previousPeriodInvoices += totalConverted;
           previousPeriodPayments += receivedConverted;
-          previousPeriodPending += remainingConverted;
+          if (isWrittenOff) {
+            previousPeriodExpenses += remainingConverted;
+          } else {
+            previousPeriodPending += remainingConverted;
+          }
         }
 
         if (invDate.getFullYear() === currentYear && invDate.getMonth() === currentMonth) {
@@ -245,7 +263,9 @@ export const getDashboardData = async (
         }
       }
 
-      if (status === "paid") {
+      if (isWrittenOff) {
+        paidSum += receivedConverted;
+      } else if (status === "paid") {
         paidSum += totalConverted;
       } else if (status === "partially paid" || status === "partial") {
         partialSum += remainingConverted;
@@ -284,6 +304,7 @@ export const getDashboardData = async (
     const invoicesTrend = calcChange(currentPeriodInvoices, previousPeriodInvoices);
     const paymentsTrend = calcChange(currentPeriodPayments, previousPeriodPayments);
     const pendingTrend = calcChange(currentPeriodPending, previousPeriodPending);
+    const expensesTrend = calcChange(currentPeriodExpenses, previousPeriodExpenses);
     const monthIncomeTrend = calcChange(thisMonthIncome, prevMonthIncome);
     const monthPaidCountTrend = calcChange(thisMonthPaidCount, prevMonthPaidCount);
 
@@ -314,10 +335,10 @@ export const getDashboardData = async (
       },
       totalExpenses: {
         label: "Total Expenses",
-        amount: 0,
+        amount: Math.round(writtenOffAmount),
         currency: orgSymbol,
-        changePercent: 0,
-        isIncrease: true,
+        changePercent: expensesTrend.percent,
+        isIncrease: expensesTrend.isIncrease,
         periodLabel: "vs last period",
       },
     };
@@ -436,7 +457,8 @@ export const getDashboardData = async (
           new Date(inv.dueDate) < new Date() &&
           st !== "paid" &&
           st !== "draft" &&
-          st !== "cancelled")
+          st !== "cancelled" &&
+          st !== "written off")
       ) {
         actualStatus = "Overdue";
       }

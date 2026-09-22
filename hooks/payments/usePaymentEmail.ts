@@ -175,8 +175,17 @@ Best regards,
     }
   };
 
+  const MAX_RECIPIENTS_PER_FIELD = 3;
+
   const addEmail = (type: "to" | "cc" | "bcc", email: string) => {
     const targetList = emailData[type];
+    if (targetList.length >= MAX_RECIPIENTS_PER_FIELD) {
+      toast.error(
+        `You can add up to ${MAX_RECIPIENTS_PER_FIELD} ${type.toUpperCase()} recipients`,
+        "Limit Reached",
+      );
+      return;
+    }
     if (!targetList.includes(email)) {
       setEmailData((prev) => ({ ...prev, [type]: [...prev[type], email] }));
     }

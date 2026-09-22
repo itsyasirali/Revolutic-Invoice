@@ -14,7 +14,16 @@ const useInvoiceDetails = () => {
     setMounted(true);
   }, []);
 
-  const { invoice, handleSend } = useInvoicePreview();
+  const {
+    invoice,
+    handleSend,
+    writeOffTarget,
+    writeOffLoading,
+    openWriteOff,
+    closeWriteOff,
+    submitWriteOff,
+    reverseWriteOff,
+  } = useInvoicePreview();
 
   const handlePreviewPdf = () => {
     if (invoice) {
@@ -112,9 +121,16 @@ const useInvoiceDetails = () => {
   const discountAmount = (subtotal * discountPercent) / 100;
   const total = Number(invoice?.total ?? subtotal - discountAmount);
   const amountPaid = Number(invoice?.amountReceived ?? invoice?.received ?? 0);
-  const balanceDue = Number(
-    invoice?.remaining ?? Math.max(0, total - amountPaid),
-  );
+  const totalWrittenOff = useMemo(() => {
+    return (invoice?.writeOffs || []).reduce(
+      (sum: number, w: any) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+      0,
+    );
+  }, [invoice]);
+  // Derived from total/received/writeOffs rather than trusting a persisted
+  // `remaining` field, so the numbers always add up even if that field
+  // drifts (e.g. a write-off recorded without `remaining` being updated).
+  const balanceDue = Math.max(0, total - amountPaid - totalWrittenOff);
 
   const statusText = useMemo(() => {
     if (!invoice?.status) return "Draft";
@@ -127,6 +143,7 @@ const useInvoiceDetails = () => {
     if (s.includes("paid") && !s.includes("partially")) return "success";
     if (s.includes("partially")) return "warning";
     if (s.includes("overdue")) return "danger";
+    if (s.includes("written off")) return "muted";
     if (s.includes("sent")) return "info";
     return "gray";
   }, [statusText]);
@@ -149,9 +166,16 @@ const useInvoiceDetails = () => {
     discountAmount,
     total,
     amountPaid,
+    totalWrittenOff,
     balanceDue,
     statusText,
     statusVariant,
+    writeOffTarget,
+    writeOffLoading,
+    openWriteOff,
+    closeWriteOff,
+    submitWriteOff,
+    reverseWriteOff,
   };
 };
 
