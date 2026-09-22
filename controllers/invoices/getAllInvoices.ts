@@ -25,14 +25,25 @@ const getAllInvoices = async (req: NextRequest) => {
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
-    const where: FindOptionsWhere<Invoice> = { organizationId };
+    await invoiceRepository
+      .createQueryBuilder()
+      .update(Invoice)
+      .set({ status: "Overdue" })
+      .where("organizationId = :organizationId", { organizationId })
+      .andWhere("dueDate < :now", { now: new Date() })
+      .andWhere("LOWER(status) NOT IN (:...excluded)", {
+        excluded: ["paid", "draft", "cancelled", "overdue"],
+      })
+      .execute();
 
-    if (status) {
-      where.status = status;
-    }
+    const where: FindOptionsWhere<Invoice> = { organizationId };
 
     if (customerId) {
       where.customerId = customerId;
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     const queryBuilder = invoiceRepository

@@ -109,17 +109,12 @@ const MetricCards = ({ kpis }: MetricCardsProps) => {
         return (
           <div
             key={card.label}
-            className={`group relative overflow-hidden rounded-md p-5 border border-slate-200/70 bg-gradient-to-br ${card.tint} to-white shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between`}
+            className="group relative overflow-hidden rounded-md p-5 border border-slate-200/70 bg-white shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
           >
-            {/* Decorative Color Blob */}
-            <div
-              className={`absolute -top-6 -right-6 w-20 h-20 rounded-full ${card.blob} blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none`}
-            />
-
             {/* Top Icon Box */}
             <div className="relative mb-3 flex items-start justify-between">
               <div
-                className={`w-12 h-12 rounded-md bg-gradient-to-br ${card.iconBg} text-white flex items-center justify-center shadow-lg ${card.glow}`}
+                className={`w-12 h-12 rounded-md bg-gradient-to-br ${card.iconBg} text-white flex items-center justify-center`}
               >
                 <IconComp className="w-6 h-6" />
               </div>

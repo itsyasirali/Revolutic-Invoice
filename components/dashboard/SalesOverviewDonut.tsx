@@ -42,17 +42,17 @@ const SalesOverviewDonut = ({ data }: SalesOverviewDonutProps) => {
       </div>
 
       {/* Donut Chart with Center Stats */}
-      <div className="relative w-full h-52 flex items-center justify-center my-2 [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none">
+      <div className="relative w-full h-52 flex items-center justify-center my-2 select-none [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none [&_.recharts-sector]:!outline-none [&_path]:!outline-none [&_*]:focus:!outline-none [&_*]:select-none">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={pieData}
               innerRadius={62}
               outerRadius={84}
-              paddingAngle={isAllZero ? 0 : 3}
+              paddingAngle={isAllZero ? 0 : 0}
               dataKey="value"
               stroke="none"
-              cornerRadius={isAllZero ? 0 : 4}
+              cornerRadius={isAllZero ? 0 : 0}
             >
               {pieData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

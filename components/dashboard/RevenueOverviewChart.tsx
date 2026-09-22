@@ -114,7 +114,7 @@ const RevenueOverviewChart = ({
       </div>
 
       {/* Chart Area */}
-      <div className="w-full h-64 sm:h-72 mt-2 [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none">
+      <div className="w-full h-64 sm:h-72 mt-2 select-none [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none [&_.recharts-bar-rectangle]:!outline-none [&_path]:!outline-none [&_rect]:!outline-none [&_*]:focus:!outline-none">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={visibleData}
@@ -150,7 +150,7 @@ const RevenueOverviewChart = ({
               tickFormatter={(v) => `${currency} ${v.toLocaleString()}`}
             />
             <Tooltip
-              cursor={{ fill: "#F8FAFC" }}
+              cursor={false}
               content={<CustomTooltip currency={currency} />}
             />
             <Bar
