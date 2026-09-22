@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Edit, Send, Eye } from "lucide-react";
+import { Edit, Send, Eye, Home, ChevronRight } from "lucide-react";
 import {
   Button,
   PageHeader,
   Table,
 } from "@/components/ui";
+import { OrgLink as Link } from "@/components/organization/OrgLink";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";
 import { useRouter } from "next/navigation";
 import type { TableColumn } from "@/types/common";
@@ -75,6 +76,33 @@ const PaymentDetails: React.FC = () => {
 
   return (
     <div className="pb-8">
+      {/* Breadcrumb */}
+      <nav
+        className="flex items-center gap-2 text-sm text-slate-500 px-2 sm:px-4 md:px-6 py-2"
+        aria-label="Breadcrumb"
+      >
+        <Link
+          href="/dashboard"
+          className="text-primary hover:text-primary/80 transition-colors flex items-center"
+          title="Dashboard"
+        >
+          <Home className="w-4 h-4" />
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <Link
+          href="/payments"
+          className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
+        >
+          Payments
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
+          {payment.paymentNumber
+            ? `Payment ${payment.paymentNumber}`
+            : "Payment"}
+        </span>
+      </nav>
+
       <PageHeader
         title={
           <div className="flex items-center gap-3">

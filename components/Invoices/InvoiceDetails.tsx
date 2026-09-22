@@ -193,11 +193,12 @@ const InvoiceDetails: React.FC = () => {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center flex-col flex-wrap gap-3 shrink-0">
+        <div className="flex flex-col flex-wrap gap-3 shrink-0 w-48">
           <Button
             onClick={handleSend}
             variant="primary"
             size="md"
+            fullWidth
             className="font-medium rounded-lg shadow-xs"
             icon={<Send className="w-4 h-4" />}
           >
@@ -207,6 +208,7 @@ const InvoiceDetails: React.FC = () => {
             onClick={handlePreviewPdf}
             variant="outline"
             size="md"
+            fullWidth
             className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
             icon={<Eye className="w-4 h-4" />}
           >
@@ -223,6 +225,7 @@ const InvoiceDetails: React.FC = () => {
               }
               variant="danger"
               size="md"
+              fullWidth
               className="font-medium rounded-lg shadow-xs"
               icon={<Ban className="w-4 h-4" />}
             >
