@@ -27,8 +27,16 @@ export const createMailTransporter = (): Transporter => {
   });
 };
 
-export const getMailFromName = (): string =>
-  process.env.MAIL_FROM_NAME || "Revolutic";
+/**
+ * The display name used for outgoing mail. Prefers an org-specific name
+ * (passed in by callers that know the sending organization) over the
+ * globally configured MAIL_FROM_NAME, falling back to the app name only
+ * as a last resort. A generic/app-wide sender name on every email is a
+ * common spam signal, so callers that have an organization name should
+ * pass it through.
+ */
+export const getMailFromName = (organizationName?: string | null): string =>
+  organizationName?.trim() || process.env.MAIL_FROM_NAME || "Revolutic";
 
 export const getMailFromAddress = (): string =>
   process.env.MAIL_FROM_ADDRESS || (process.env.MAIL_USERNAME as string);

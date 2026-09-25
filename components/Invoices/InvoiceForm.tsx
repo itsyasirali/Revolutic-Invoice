@@ -125,9 +125,10 @@ const InvoiceForm = () => {
       .filter(
         (invItem) =>
           String(invItem.id) === String(currentItemId) ||
-          !items.some(
-            (i) => i.itemId === String(invItem.id) && i.id !== currentItemRowId,
-          ),
+          (String(invItem.status || "Active").toLowerCase() !== "inactive" &&
+            !items.some(
+              (i) => i.itemId === String(invItem.id) && i.id !== currentItemRowId,
+            )),
       )
       .map((invItem) => {
         const name = invItem.name || "Unnamed Item";

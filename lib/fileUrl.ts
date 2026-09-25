@@ -13,3 +13,18 @@ export const resolveFileUrl = (value: string | null | undefined): string => {
   }
   return `/${str.replace(/^\//, "")}`;
 };
+
+/**
+ * Turns a resolved file URL into one that forces a real file download
+ * (Content-Disposition: attachment) instead of the browser navigating to
+ * and rendering it inline (which, for a PDF, opens the browser's PDF
+ * viewer and can show a misleading "Failed to load" error on some setups).
+ * For Cloudinary URLs this uses the `fl_attachment` delivery flag; other
+ * URLs are returned as-is (paired with an <a download> attribute).
+ */
+export const getDownloadUrl = (value: string | null | undefined): string => {
+  const url = resolveFileUrl(value);
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+  if (url.includes("fl_attachment")) return url;
+  return url.replace("/upload/", "/upload/fl_attachment/");
+};

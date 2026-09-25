@@ -181,7 +181,7 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
 }
 
 // Table Component Types
-export type TableVariant = 'default' | 'striped' | 'bordered' | 'compact';
+export type TableVariant = 'default' | 'striped' | 'bordered' | 'compact' | 'spacious';
 
 export interface TableColumn<T = unknown> {
     key: string;

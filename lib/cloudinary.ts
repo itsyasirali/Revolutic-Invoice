@@ -29,17 +29,32 @@ const uploadBufferToCloudinary = async (
   buffer: Buffer,
   folder: string,
   fileName?: string,
+  resourceType: "image" | "raw" = "image",
 ): Promise<CloudinaryUploadResult> => {
   return new Promise((resolve, reject) => {
-    const cleanPublicId = fileName
+    const extMatch = fileName?.match(/\.[^/.]+$/);
+    const extension = extMatch ? extMatch[0] : "";
+    const baseName = fileName
       ? fileName.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_")
+      : undefined;
+    // "image"/"video" resources get their extension auto-appended by
+    // Cloudinary on delivery, but "raw" resources are served byte-for-byte
+    // under whatever public_id was given — so the extension must be baked
+    // into the public_id itself, or downloads come back with no extension.
+    const cleanPublicId = baseName
+      ? resourceType === "raw"
+        ? `${baseName}-${Date.now()}${extension}`
+        : `${baseName}-${Date.now()}`
       : undefined;
 
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: `revolutic/${folder}`,
-        public_id: cleanPublicId ? `${cleanPublicId}-${Date.now()}` : undefined,
-        resource_type: "auto",
+        public_id: cleanPublicId,
+        // Non-image files (PDFs, etc.) must go through "raw" — Cloudinary
+        // blocks direct delivery of PDFs uploaded/served as "image" by
+        // default (a security restriction), which breaks viewing them.
+        resource_type: resourceType,
       },
       (error, result: UploadApiResponse | undefined) => {
         if (error || !result) {
@@ -70,20 +85,27 @@ export const uploadFileToCloudinary = async (
 ): Promise<CloudinaryUploadResult> => {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-  return uploadBufferToCloudinary(buffer, folder, file.name);
+  const resourceType = file.type?.startsWith("image/") ? "image" : "raw";
+  return uploadBufferToCloudinary(buffer, folder, file.name, resourceType);
 };
 
 /**
- * Extracts the public_id from a Cloudinary URL.
+ * Extracts the public_id from a Cloudinary URL. "raw" resources keep their
+ * extension as part of the public_id (Cloudinary doesn't auto-append it on
+ * delivery like it does for "image"/"video"), so both forms are returned.
  * e.g. "https://res.cloudinary.com/demo/image/upload/v12345/revolutic/templates/logo-123.png"
- * -> "revolutic/templates/logo-123"
+ * -> { withExt: "revolutic/templates/logo-123.png", withoutExt: "revolutic/templates/logo-123", isRaw: false }
  */
-const extractPublicIdFromUrl = (url: string): string | null => {
+const extractPublicIdFromUrl = (
+  url: string,
+): { withExt: string; withoutExt: string; isRaw: boolean } | null => {
   try {
     if (!url || !url.includes("cloudinary.com")) return null;
     const parts = url.split("/");
     const uploadIndex = parts.findIndex((p) => p === "upload");
     if (uploadIndex === -1) return null;
+
+    const isRaw = parts[uploadIndex - 1] === "raw";
 
     // Skip version tag (e.g. "v1234567") if present
     let publicIdParts = parts.slice(uploadIndex + 1);
@@ -91,9 +113,9 @@ const extractPublicIdFromUrl = (url: string): string | null => {
       publicIdParts = publicIdParts.slice(1);
     }
 
-    const fullPathWithExt = publicIdParts.join("/");
-    // Remove extension
-    return fullPathWithExt.replace(/\.[^/.]+$/, "");
+    const withExt = publicIdParts.join("/");
+    const withoutExt = withExt.replace(/\.[^/.]+$/, "");
+    return { withExt, withoutExt, isRaw };
   } catch {
     return null;
   }
@@ -107,27 +129,44 @@ export const deleteCloudinaryAsset = async (
 ): Promise<boolean> => {
   if (!urlOrPublicId) return false;
 
-  const publicId = urlOrPublicId.includes("cloudinary.com")
+  const extracted = urlOrPublicId.includes("cloudinary.com")
     ? extractPublicIdFromUrl(urlOrPublicId)
-    : urlOrPublicId;
+    : null;
 
-  if (!publicId) return false;
+  // A raw public_id (from a resolved URL) includes its extension; a plain
+  // publicId string or an image/video one doesn't.
+  const candidates: { publicId: string; resourceType: "image" | "raw" }[] =
+    extracted
+      ? extracted.isRaw
+        ? [
+            { publicId: extracted.withExt, resourceType: "raw" },
+            { publicId: extracted.withoutExt, resourceType: "raw" },
+            { publicId: extracted.withoutExt, resourceType: "image" },
+          ]
+        : [
+            { publicId: extracted.withoutExt, resourceType: "image" },
+            { publicId: extracted.withExt, resourceType: "raw" },
+          ]
+      : [
+          { publicId: urlOrPublicId, resourceType: "image" },
+          { publicId: urlOrPublicId, resourceType: "raw" },
+        ];
 
-  try {
-    const res = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "image",
-    });
-    if (res?.result === "ok") return true;
-
-    // If not found in 'image', try 'raw' (PDFs/documents are sometimes classified as 'raw')
-    const rawRes = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "raw",
-    });
-    return rawRes?.result === "ok";
-  } catch (error) {
-    console.error(`[Cloudinary] Failed to delete asset "${publicId}":`, error);
-    return false;
+  for (const { publicId, resourceType } of candidates) {
+    try {
+      const res = await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType,
+      });
+      if (res?.result === "ok") return true;
+    } catch (error) {
+      console.error(
+        `[Cloudinary] Failed to delete asset "${publicId}" (${resourceType}):`,
+        error,
+      );
+    }
   }
+
+  return false;
 };
 
 export default cloudinary;

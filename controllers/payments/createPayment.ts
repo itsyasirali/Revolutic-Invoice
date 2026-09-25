@@ -71,6 +71,51 @@ const createPayment = async (req: NextRequest) => {
 
     // Handle applied invoices
     if (body.appliedInvoices && Array.isArray(body.appliedInvoices)) {
+      // Validate up-front (before persisting any applied-invoice records)
+      let totalAppliedAmount = 0;
+      for (const item of body.appliedInvoices) {
+        const invId = Number(item.invoiceId);
+        const amountApplied = Number(item.amount) || 0;
+
+        if (invId && amountApplied > 0) {
+          const targetInvoice = await invoiceRepo.findOne({
+            where: { id: invId, organizationId: orgId },
+          });
+
+          if (!targetInvoice) {
+            await paymentRepo.delete(savedPayment.id);
+            return NextResponse.json(
+              { message: `Invoice with ID ${invId} not found in this organization` },
+              { status: 404 },
+            );
+          }
+
+          const invoiceRemaining = Number(targetInvoice.remaining) || 0;
+          if (amountApplied > invoiceRemaining) {
+            await paymentRepo.delete(savedPayment.id);
+            return NextResponse.json(
+              {
+                message: `Payment amount exceeds invoice ${targetInvoice.invoiceNumber}'s remaining balance of ${invoiceRemaining.toFixed(2)}`,
+              },
+              { status: 400 },
+            );
+          }
+
+          totalAppliedAmount += amountApplied;
+        }
+      }
+
+      const amountReceived = Number(body.amountReceived) || 0;
+      if (totalAppliedAmount > amountReceived) {
+        await paymentRepo.delete(savedPayment.id);
+        return NextResponse.json(
+          {
+            message: `Total applied amount (${totalAppliedAmount.toFixed(2)}) exceeds the payment amount received (${amountReceived.toFixed(2)})`,
+          },
+          { status: 400 },
+        );
+      }
+
       for (const item of body.appliedInvoices) {
         const invId = Number(item.invoiceId);
         const amountApplied = Number(item.amount) || 0;

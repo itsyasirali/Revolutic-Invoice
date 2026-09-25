@@ -43,7 +43,9 @@ export const useInvoicePreview = () => {
     // complete server-side data (e.g. write-off history) the cached copy lacks.
     const navStateInvoice = id ? getNavState<any>(`invoice:${id}`) : undefined;
     if (navStateInvoice) {
-      setFetchedInvoice(navStateInvoice);
+      setFetchedInvoice(
+        (navStateInvoice as { raw?: unknown }).raw ?? navStateInvoice
+      );
     }
     fetchInvoice();
   }, [id]);
@@ -93,7 +95,10 @@ export const useInvoicePreview = () => {
     if (invoice) {
       const targetId = id && id !== "draft" ? id : invoice.id;
       if (targetId) {
-        setNavState(`invoice:${targetId}`, invoice);
+        // Match the shape used elsewhere (e.g. the invoice list) when caching
+        // nav state, so useInvoiceForm's `.raw ?? navInvoice` unwrapping logic
+        // resolves the same way regardless of where the edit navigation came from.
+        setNavState(`invoice:${targetId}`, { raw: invoice });
         router.push(`/invoices/edit/${targetId}`);
       } else {
         router.push(`/invoices/new`);

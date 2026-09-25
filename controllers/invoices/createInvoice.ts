@@ -67,6 +67,19 @@ export const createInvoiceRecord = async (
   // Get template (provided or default)
   const finalTemplateId = template?.id;
 
+  // Calculate next invoice number scoped to organization
+  const lastInvoice = await invoiceRepository.findOne({
+    where: { organizationId: orgId },
+    order: { id: "DESC" },
+  });
+  let nextInvoiceSequence = 1;
+  if (lastInvoice?.invoiceNumber) {
+    const match = String(lastInvoice.invoiceNumber).match(/(\d+)\s*$/);
+    const lastSequence = match ? parseInt(match[1], 10) : 0;
+    nextInvoiceSequence = (Number.isNaN(lastSequence) ? 0 : lastSequence) + 1;
+  }
+  const invoiceNumber = `INV-${String(nextInvoiceSequence).padStart(4, "0")}`;
+
   // Calculate totals
   const calculatedData = calculateInvoiceTotals({
     ...invoiceData,
@@ -77,6 +90,7 @@ export const createInvoiceRecord = async (
   const invoice = invoiceRepository.create({
     ...invoiceData,
     ...calculatedData,
+    invoiceNumber,
     invoiceDate: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate) : new Date(),
     dueDate: invoiceData.dueDate ? new Date(invoiceData.dueDate) : undefined,
     items:

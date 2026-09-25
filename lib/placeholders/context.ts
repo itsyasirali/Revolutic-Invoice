@@ -91,7 +91,13 @@ export const buildPlaceholderValues = ({
   now = new Date(),
 }: PlaceholderInput): PlaceholderValues => {
   const source = scope === "invoice" ? invoice : payment;
-  const customer = source?.customer ?? source?.customerId ?? {};
+  // `customerId` is usually just the raw foreign-key id (a number), not the
+  // populated relation — only treat it as the customer record when it has
+  // actually been expanded into an object, otherwise fall back to `{}` so
+  // fields like CompanyName resolve to "" instead of reading off a primitive.
+  const rawCustomer = source?.customer ?? source?.customerId;
+  const customer =
+    rawCustomer && typeof rawCustomer === "object" ? rawCustomer : {};
   const contact = Array.isArray(customer.contacts) ? customer.contacts[0] : undefined;
   const customerName =
     source?.customerDisplayName ||

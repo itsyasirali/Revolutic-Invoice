@@ -12,6 +12,18 @@ import {
 } from "recharts";
 import type { RevenueOverviewChartProps, CustomTooltipProps } from "@/types/dashboard";
 
+const formatAxisValue = (value: number): string => {
+  const num = Number(value) || 0;
+  const abs = Math.abs(num);
+  if (abs >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(abs % 1_000_000 === 0 ? 0 : 1)}M`;
+  }
+  if (abs >= 1_000) {
+    return `${(num / 1_000).toFixed(abs % 1_000 === 0 ? 0 : 1)}k`;
+  }
+  return num.toLocaleString();
+};
+
 const PERIODS = [
   { label: "1M", months: 1 },
   { label: "3M", months: 3 },
@@ -147,7 +159,8 @@ const RevenueOverviewChart = ({
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#94A3B8", fontSize: 11 }}
-              tickFormatter={(v) => `${currency} ${v.toLocaleString()}`}
+              domain={[0, (dataMax: number) => Math.ceil((dataMax || 0) * 1.1)]}
+              tickFormatter={(v) => `${currency} ${formatAxisValue(v)}`}
             />
             <Tooltip
               cursor={false}

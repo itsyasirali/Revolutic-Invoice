@@ -117,7 +117,7 @@ const sendInvoice = async (
       scope: "invoice",
       invoice,
       organization: invoice.organization,
-      organizationName: getMailFromName(),
+      organizationName: getMailFromName(invoice.organization?.name),
       sender,
       custom: await loadCustomPlaceholders(orgId),
     });
@@ -145,7 +145,11 @@ const sendInvoice = async (
     }
 
     const invoiceNumber = invoice.invoiceNumber;
-    const companyName = getMailFromName();
+    const companyName = getMailFromName(invoice.organization?.name);
+    // Prefer the organization's own contact email for replies so recipients
+    // reply directly to the business rather than a generic mailbox; fall
+    // back to the configured MAIL_FROM_ADDRESS.
+    const replyToAddress = invoice.organization?.email || getMailFromAddress();
     const emailSubject = subject
       ? replacePlaceholders(subject, placeholderValues)
       : `Invoice - ${invoiceNumber} from ${companyName}`;
@@ -196,13 +200,20 @@ const sendInvoice = async (
       });
     }
 
+    // Plain-text alternative to the HTML body. Emails with only an HTML
+    // part (no text/plain alternative) are a common spam filter signal, so
+    // always include one derived from the customer-facing message.
+    const emailText = `Invoice #${invoiceNumber}\n\n${customMessage}\n\nPowered by Revolutic`;
+
     // Send email
     const mailOptions = {
       from: `"${companyName}" <${getMailFromAddress()}>`,
+      replyTo: replyToAddress,
       to: to.join(", "),
       ...(cc && cc.length > 0 && { cc: cc.join(", ") }),
       ...(bcc && bcc.length > 0 && { bcc: bcc.join(", ") }),
       subject: emailSubject,
+      text: emailText,
       html: emailHtml,
       attachments,
     };

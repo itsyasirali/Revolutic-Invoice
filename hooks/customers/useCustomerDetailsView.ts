@@ -5,8 +5,9 @@ import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerFinancials } from "./useCustomerFinancials";
+import { getDownloadUrl } from "@/lib/fileUrl";
 
-export type CustomerTab = "invoices" | "transactions";
+export type CustomerTab = "invoices" | "transactions" | "contacts" | "documents";
 
 export const useCustomerDetailsView = () => {
   const router = useRouter();
@@ -20,7 +21,7 @@ export const useCustomerDetailsView = () => {
   const { financials, customerInvoices, customerTransactions } =
     useCustomerFinancials(customer);
 
-  const [activeTab, setActiveTab] = useState<CustomerTab>("invoices");
+  const [activeTab, setActiveTab] = useState<CustomerTab>("contacts");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -128,8 +129,56 @@ export const useCustomerDetailsView = () => {
   const phone = primaryContact?.phone || customer?.phone || "No phone provided";
   const currency = customer?.currency || "PKR";
 
+  const contactList = useMemo(() => {
+    const rawContacts = customer?.contacts || [];
+    if (rawContacts.length > 0) {
+      return rawContacts.map((contact, idx) => ({
+        id: idx,
+        name:
+          `${contact.firstName || ""} ${contact.lastName || ""}`.trim() ||
+          (idx === 0 ? "Primary Contact" : `Contact ${idx + 1}`),
+        email: contact.email || "No email provided",
+        phone: contact.contact || "No phone provided",
+      }));
+    }
+    // Older customers without a contacts array: fall back to the
+    // customer-level email/phone as a single entry.
+    if (customer?.email || customer?.phone) {
+      return [
+        {
+          id: 0,
+          name: "Primary Contact",
+          email: customer?.email || "No email provided",
+          phone: customer?.phone || "No phone provided",
+        },
+      ];
+    }
+    return [];
+  }, [customer]);
+
+  const documentList = useMemo(() => {
+    const rawDocuments = customer?.documents || [];
+    return rawDocuments.map((doc, idx) => {
+      const isObject = typeof doc === "object" && doc !== null;
+      const rawPath = isObject
+        ? String((doc as { url?: string; path?: string }).url || (doc as { path?: string }).path || "")
+        : String(doc);
+      const name =
+        (isObject && (doc as { name?: string }).name) ||
+        rawPath.split("/").pop() ||
+        `Document ${idx + 1}`;
+      return {
+        id: idx,
+        name,
+        url: getDownloadUrl(rawPath),
+      };
+    });
+  }, [customer]);
+
   const tabs = useMemo(
     () => [
+      { label: "Contacts", value: "contacts", count: contactList.length },
+      { label: "Documents", value: "documents", count: documentList.length },
       { label: "Invoices", value: "invoices", count: customerInvoices.length },
       {
         label: "Transactions",
@@ -137,7 +186,12 @@ export const useCustomerDetailsView = () => {
         count: customerTransactions.length,
       },
     ],
-    [customerInvoices.length, customerTransactions.length],
+    [
+      contactList.length,
+      documentList.length,
+      customerInvoices.length,
+      customerTransactions.length,
+    ],
   );
 
   return {
@@ -158,6 +212,8 @@ export const useCustomerDetailsView = () => {
     customerLocation,
     email,
     phone,
+    contactList,
+    documentList,
     currency,
     tabs,
     handleEdit,

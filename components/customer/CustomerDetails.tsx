@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  Users,
+  Paperclip,
+  Download,
 } from "lucide-react";
 import {
   Table,
@@ -46,7 +49,10 @@ const CustomerDetails: React.FC = () => {
     customerLocation,
     email,
     phone,
+    contactList,
+    documentList,
     currency,
+
     tabs,
     handleBackClick,
     handleEdit,
@@ -103,6 +109,60 @@ const CustomerDetails: React.FC = () => {
               | "gray"
           }
         />
+      ),
+    },
+  ];
+
+  const contactColumns: TableColumn<(typeof contactList)[number]>[] = [
+    {
+      key: "name",
+      label: "NAME",
+      width: "30%",
+      render: (item) => (
+        <span className="font-bold text-gray-900">{item.name}</span>
+      ),
+    },
+    {
+      key: "email",
+      label: "EMAIL",
+      width: "40%",
+      render: (item) => <span className="text-gray-600">{item.email}</span>,
+    },
+    {
+      key: "phone",
+      label: "PHONE",
+      width: "30%",
+      render: (item) => <span className="text-gray-600">{item.phone}</span>,
+    },
+  ];
+
+  const documentColumns: TableColumn<(typeof documentList)[number]>[] = [
+    {
+      key: "name",
+      label: "DOCUMENT NAME",
+      width: "80%",
+      render: (item) => (
+        <span className="flex items-center gap-2 font-bold text-gray-900 min-w-0">
+          <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
+          <span className="truncate">{item.name}</span>
+        </span>
+      ),
+    },
+    {
+      key: "action",
+      label: "",
+      width: "20%",
+      align: "right" as const,
+      render: (item) => (
+        <a
+          href={item.url}
+          download={item.name}
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium text-sm"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Download
+        </a>
       ),
     },
   ];
@@ -337,8 +397,8 @@ const CustomerDetails: React.FC = () => {
       </div>
 
       {/* 4. Tabs & Lists */}
-      <div className="flex flex-col mt-2">
-        <div className="mb-4">
+      <div className="flex flex-col mt-4">
+        <div className="mb-6">
           <Tabs
             tabs={tabs}
             activeTab={activeTab}
@@ -347,6 +407,36 @@ const CustomerDetails: React.FC = () => {
         </div>
 
         <div>
+          {activeTab === "contacts" && (
+            <Table
+              columns={contactColumns}
+              data={contactList}
+              selectedIds={[]}
+              onSelectAll={() => {}}
+              onSelectRow={() => {}}
+              getRowId={(item) => item.id}
+              emptyMessage="No contacts found"
+              emptyIcon={Users}
+              showCheckbox={false}
+              variant="spacious"
+            />
+          )}
+
+          {activeTab === "documents" && (
+            <Table
+              columns={documentColumns}
+              data={documentList}
+              selectedIds={[]}
+              onSelectAll={() => {}}
+              onSelectRow={() => {}}
+              getRowId={(item) => item.id}
+              emptyMessage="No documents found"
+              emptyIcon={Paperclip}
+              showCheckbox={false}
+              variant="spacious"
+            />
+          )}
+
           {activeTab === "invoices" && (
             <Table
               columns={invoiceColumns}
@@ -359,6 +449,7 @@ const CustomerDetails: React.FC = () => {
               emptyMessage="No invoices found"
               emptyIcon={FileText}
               showCheckbox={false}
+              variant="spacious"
             />
           )}
 
@@ -374,6 +465,7 @@ const CustomerDetails: React.FC = () => {
               emptyMessage="No transactions found"
               emptyIcon={DollarSign}
               showCheckbox={false}
+              variant="spacious"
             />
           )}
         </div>

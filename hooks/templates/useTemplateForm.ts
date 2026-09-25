@@ -510,11 +510,6 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         await invalidateTemplates();
         const successMsg = `Template ${effectiveId ? "updated" : "created"} successfully`;
         toast.success(successMsg, effectiveId ? "Template Updated" : "Template Created");
-        setAlert({
-          show: true,
-          type: "success",
-          message: successMsg,
-        });
 
         setTimeout(() => {
           router.refresh();

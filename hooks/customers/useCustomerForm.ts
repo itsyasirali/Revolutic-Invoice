@@ -47,6 +47,29 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
           formData.set("contacts", contacts as string);
         }
 
+        // Client-side validation: require at least one contact with an
+        // email or phone number, mirroring the server-side check in
+        // utils/customers/customersHelper.ts (validateContacts).
+        let parsedContacts: Array<{ email?: string; contact?: string }> = [];
+        try {
+          parsedContacts = contacts ? JSON.parse(contacts as string) : [];
+        } catch {
+          parsedContacts = [];
+        }
+        const hasValidContact = parsedContacts.some(
+          (c) =>
+            c &&
+            ((c.email && c.email.trim()) || (c.contact && c.contact.trim())),
+        );
+        if (!hasValidContact) {
+          showAlert(
+            "error",
+            "At least one contact with an email or phone number is required",
+          );
+          setLoading(false);
+          return;
+        }
+
         if (customer && customer.id) {
           const existingDocsPayload = currentExistingFiles.map((f) => {
             if (!f) return "";

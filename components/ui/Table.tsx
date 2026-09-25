@@ -7,7 +7,7 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const variantTableClasses: Record<
   TableVariant,
-  { table: string; th: string; td: string; tr: string }
+  { table: string; th: string; td: string; tr: string; cellPadding?: string }
 > = {
   default: {
     table:
@@ -15,6 +15,14 @@ const variantTableClasses: Record<
     th: "bg-[#F8FAFC] border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider",
     td: "border-b border-slate-100 text-[13px] text-slate-700",
     tr: "hover:bg-slate-50/70 transition-colors",
+  },
+  spacious: {
+    table:
+      "w-full bg-white border border-slate-200/80 rounded-t-md rounded-b-none overflow-hidden",
+    th: "bg-[#F8FAFC] border-b border-slate-200/80 text-slate-500 font-semibold text-xs uppercase tracking-wider",
+    td: "border-b border-slate-100 text-sm text-slate-700",
+    tr: "hover:bg-slate-50/70 transition-colors",
+    cellPadding: "px-5 py-4",
   },
   striped: {
     table:
@@ -64,6 +72,7 @@ export const Table = <T,>({
   const allSelected = data.length > 0 && selectedIds.length === data.length;
   const someSelected = selectedIds.length > 0 && !allSelected;
   const styles = variantTableClasses[variant];
+  const cellPadding = styles.cellPadding || "px-3.5 py-2";
 
   return (
     <div className={`${styles.table} ${className}`}>
@@ -73,7 +82,7 @@ export const Table = <T,>({
           <thead className={styles.th}>
             <tr>
               {showCheckbox && (
-                <th className="px-3.5 py-2 w-10 text-center shrink-0">
+                <th className={`${cellPadding} w-10 text-center shrink-0`}>
                   <Checkbox
                     checked={allSelected}
                     ref={(input) => {
@@ -87,7 +96,7 @@ export const Table = <T,>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-3.5 py-2 ${
+                  className={`${cellPadding} ${
                     column.align === "center"
                       ? "text-center"
                       : column.align === "right"
@@ -132,7 +141,7 @@ export const Table = <T,>({
               ))}
 
               {rowActions && (
-                <th className="px-3.5 py-2 text-center uppercase tracking-wider shrink-0">
+                <th className={`${cellPadding} text-center uppercase tracking-wider shrink-0`}>
                   Actions
                 </th>
               )}
@@ -191,7 +200,7 @@ export const Table = <T,>({
                   >
                     {showCheckbox && (
                       <td
-                        className="px-3.5 py-2 w-10 text-center shrink-0"
+                        className={`${cellPadding} w-10 text-center shrink-0`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Checkbox
@@ -206,7 +215,7 @@ export const Table = <T,>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        className={`px-3.5 py-2 ${styles.td} ${
+                        className={`${cellPadding} ${styles.td} ${
                           column.align === "center"
                             ? "text-center"
                             : column.align === "right"
@@ -224,7 +233,7 @@ export const Table = <T,>({
                     ))}
 
                     {rowActions && (
-                      <td className="px-3.5 py-2 text-center">
+                      <td className={`${cellPadding} text-center`}>
                         <div
                           className="inline-flex items-center justify-center gap-1"
                           onClick={(e) => e.stopPropagation()}

@@ -225,12 +225,15 @@ export const getDashboardData = async (
       const remainingConverted = convertToOrgCurrency(remaining, inv.currency || orgCurrency, orgCurrency, rates);
 
       const isWrittenOff = status === "written off";
+      const isDraft = status === "draft";
 
       totalInvoicesAmount += totalConverted;
       totalPaymentsAmount += receivedConverted;
-      if (!isWrittenOff) {
+      if (!isWrittenOff && !isDraft) {
+        // Draft invoices haven't been sent/finalized, so they should never
+        // count toward pending/outstanding revenue.
         pendingInvoicesAmount += remainingConverted;
-      } else {
+      } else if (isWrittenOff) {
         writtenOffAmount += remainingConverted;
       }
 
@@ -241,7 +244,7 @@ export const getDashboardData = async (
           currentPeriodPayments += receivedConverted;
           if (isWrittenOff) {
             currentPeriodExpenses += remainingConverted;
-          } else {
+          } else if (!isDraft) {
             currentPeriodPending += remainingConverted;
           }
         } else if (invDate >= sixtyDaysAgo && invDate < thirtyDaysAgo) {
@@ -249,16 +252,14 @@ export const getDashboardData = async (
           previousPeriodPayments += receivedConverted;
           if (isWrittenOff) {
             previousPeriodExpenses += remainingConverted;
-          } else {
+          } else if (!isDraft) {
             previousPeriodPending += remainingConverted;
           }
         }
 
         if (invDate.getFullYear() === currentYear && invDate.getMonth() === currentMonth) {
-          thisMonthIncome += receivedConverted;
           if (status === "paid") thisMonthPaidCount += 1;
         } else if (invDate.getFullYear() === prevYear && invDate.getMonth() === prevMonth) {
-          prevMonthIncome += receivedConverted;
           if (status === "paid") prevMonthPaidCount += 1;
         }
       }
@@ -290,6 +291,25 @@ export const getDashboardData = async (
       if (recordedPayments > totalPaymentsAmount) {
         totalPaymentsAmount = recordedPayments;
       }
+
+      // Monthly income must be derived directly from the Payment entity
+      // (not from invoice.received via appliedInvoices), because a payment
+      // can be recorded without being applied to any invoice.
+      payments.forEach((p) => {
+        const payDate = new Date(p.paymentDate || p.createdAt);
+        if (isNaN(payDate.getTime())) return;
+        const amountConverted = convertToOrgCurrency(
+          Number(p.amountReceived || 0),
+          p.currency || orgCurrency,
+          orgCurrency,
+          rates,
+        );
+        if (payDate.getFullYear() === currentYear && payDate.getMonth() === currentMonth) {
+          thisMonthIncome += amountConverted;
+        } else if (payDate.getFullYear() === prevYear && payDate.getMonth() === prevMonth) {
+          prevMonthIncome += amountConverted;
+        }
+      });
     }
 
     const calcChange = (current: number, previous: number) => {
