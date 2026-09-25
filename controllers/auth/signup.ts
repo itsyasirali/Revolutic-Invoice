@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { SignupPayload } from "@/types/auth";
+import { validatePassword } from "@/lib/validation/password";
 import {
   AUTH_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
@@ -18,6 +19,11 @@ const signup = async (req: NextRequest) => {
         { message: "Email and password are required" },
         { status: 400 },
       );
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return NextResponse.json({ message: passwordError }, { status: 400 });
     }
 
     const normalizedEmail = email.trim().toLowerCase();

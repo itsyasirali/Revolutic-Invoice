@@ -1,23 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Mail, Phone, Info, X } from "lucide-react";
 import type { ContactsSectionProps, Contact } from "@/types/customer";
 import { useContacts } from "@/hooks/customers/useContacts";
-import { Input, Button } from "@/components/ui";
+import { Input, Button, Tooltip } from "@/components/ui";
+import { validateEmail, validatePhone, sanitizePhoneInput } from "@/lib/validation/contact";
 
 const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
   const { contacts, addContact, removeContact, updateContact } =
     useContacts(initial);
 
+  // Serialize the current contacts state into the form as JSON so it is
+  // reliably included in the submitted payload regardless of how the
+  // per-field bracket-named inputs are parsed on the server.
+  const contactsJson = useMemo(() => JSON.stringify(contacts), [contacts]);
+
   return (
     <div className="w-full">
+      <input type="hidden" name="contacts" value={contactsJson} readOnly />
       <div className="flex xs:flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
             Contacts
           </h2>
-          <Info className="w-4 h-4 text-slate-400" />
+          <Tooltip content="Add additional people associated with this customer, such as billing or purchasing contacts.">
+            <Info className="w-4 h-4 text-slate-400" />
+          </Tooltip>
         </div>
         <Button
           type="button"
@@ -84,6 +93,7 @@ const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
                 onChange={(e) => updateContact(idx, "email", e.target.value)}
                 label="Email"
                 leftIcon={Mail}
+                error={validateEmail(row.email) || undefined}
                 fullWidth
               />
 
@@ -92,9 +102,16 @@ const ContactsSection: React.FC<ContactsSectionProps> = ({ initial = [] }) => {
                 name={`contacts[${idx}].contact`}
                 placeholder="Phone number"
                 value={row.contact || ""}
-                onChange={(e) => updateContact(idx, "contact", e.target.value)}
+                onChange={(e) =>
+                  updateContact(
+                    idx,
+                    "contact",
+                    sanitizePhoneInput(e.target.value),
+                  )
+                }
                 label="Phone"
                 leftIcon={Phone}
+                error={validatePhone(row.contact) || undefined}
                 fullWidth
               />
             </div>

@@ -30,6 +30,10 @@ const useLoginSignupForm = ({
   const toggleConfirmPasswordVisibility = () =>
     setShowConfirmPassword((prev) => !prev);
 
+  const handleForgotPassword = () => {
+    router.push("/forgot-password");
+  };
+
   return {
     ...authForm,
     showPassword,
@@ -37,6 +41,7 @@ const useLoginSignupForm = ({
     handleToggle,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
+    handleForgotPassword,
   };
 };
 

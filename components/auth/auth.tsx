@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import useLoginSignupForm from "@/hooks/auth/useLoginSignupForm";
+import useOtpAuth from "@/hooks/auth/useOtpAuth";
 import { Eye, EyeOff } from "lucide-react";
 import AuthHeroPanel from "@/components/auth/AuthHeroPanel";
 import type { LoginSignupFormProps } from "@/types/auth";
@@ -32,7 +33,24 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     handleToggle,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
+    handleForgotPassword,
   } = useLoginSignupForm({ onLoginSuccess, initialMode });
+
+  const {
+    otpMode,
+    otpStage,
+    otpEmail,
+    setOtpEmail,
+    otpCode,
+    setOtpCode,
+    otpLoading,
+    otpError,
+    enterOtpMode,
+    exitOtpMode,
+    requestOtp,
+    verifyOtp,
+    handleOtpKeyPress,
+  } = useOtpAuth({ onLoginSuccess });
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
@@ -74,87 +92,140 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             {/* Title & Subtitle */}
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {isSignup ? "Sign up" : "Sign in"}
+                {otpMode ? "Sign in with OTP" : isSignup ? "Sign up" : "Sign in"}
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                {isSignup ? "to get started with Invoice" : "to access Invoice"}
+                {otpMode
+                  ? otpStage === "email"
+                    ? "Enter your email to receive a one-time code"
+                    : `Enter the code sent to ${otpEmail}`
+                  : isSignup
+                    ? "to get started with Invoice"
+                    : "to access Invoice"}
               </p>
             </div>
 
             {/* Error Alert */}
-            {error && (
+            {(otpMode ? otpError : error) && (
               <div className="mb-4 p-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-md font-medium">
-                {error}
+                {otpMode ? otpError : error}
               </div>
             )}
 
-            {/* Form */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-              className="space-y-4"
-            >
-              {/* Full Name (Sign Up only) */}
-              {isSignup && (
+            {/* OTP Form */}
+            {otpMode ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (otpStage === "email") {
+                    requestOtp();
+                  } else {
+                    verifyOtp();
+                  }
+                }}
+                className="space-y-4"
+              >
                 <Input
-                  type="text"
-                  placeholder="Full Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  type="email"
+                  placeholder="Email address"
+                  value={otpEmail}
+                  onChange={(e) => setOtpEmail(e.target.value)}
+                  onKeyDown={handleOtpKeyPress}
+                  required
+                  disabled={otpStage === "code"}
+                  showLabel={false}
+                  fullWidth
+                />
+
+                {otpStage === "code" && (
+                  <Input
+                    type="text"
+                    placeholder="6-digit code"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    onKeyDown={handleOtpKeyPress}
+                    required
+                    showLabel={false}
+                    fullWidth
+                    maxLength={6}
+                  />
+                )}
+
+                <div className="flex items-center justify-between text-xs pt-0.5">
+                  <button
+                    type="button"
+                    onClick={exitOtpMode}
+                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                  >
+                    Sign in with password instead
+                  </button>
+                  {otpStage === "code" && (
+                    <button
+                      type="button"
+                      onClick={requestOtp}
+                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                    >
+                      Resend code
+                    </button>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={otpLoading}
+                  loading={otpLoading}
+                  variant="primary"
+                  fullWidth
+                  className="mt-3"
+                >
+                  {otpLoading
+                    ? "Processing..."
+                    : otpStage === "email"
+                      ? "Send Code"
+                      : "Verify & Sign In"}
+                </Button>
+              </form>
+            ) : (
+              /* Form */
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+                className="space-y-4"
+              >
+                {/* Full Name (Sign Up only) */}
+                {isSignup && (
+                  <Input
+                    type="text"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    required
+                    showLabel={false}
+                    fullWidth
+                  />
+                )}
+
+                {/* Email Input */}
+                <Input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={handleKeyPress}
                   required
                   showLabel={false}
                   fullWidth
                 />
-              )}
 
-              {/* Email Input */}
-              <Input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={handleKeyPress}
-                required
-                showLabel={false}
-                fullWidth
-              />
-
-              {/* Password Input */}
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handleKeyPress}
-                required
-                showLabel={false}
-                fullWidth
-                suffix={
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                }
-              />
-
-              {/* Confirm Password (Sign Up only) */}
-              {isSignup && (
+                {/* Password Input */}
                 <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={handleKeyPress}
                   required
                   showLabel={false}
@@ -162,11 +233,11 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   suffix={
                     <button
                       type="button"
-                      onClick={toggleConfirmPasswordVisibility}
+                      onClick={togglePasswordVisibility}
                       className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                      aria-label="Toggle confirm password visibility"
+                      aria-label="Toggle password visibility"
                     >
-                      {showConfirmPassword ? (
+                      {showPassword ? (
                         <EyeOff className="w-4 h-4" />
                       ) : (
                         <Eye className="w-4 h-4" />
@@ -174,39 +245,68 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                     </button>
                   }
                 />
-              )}
 
-              {/* Sub-links row */}
-              {!isSignup && (
-                <div className="flex items-center justify-between text-xs pt-0.5">
-                  <button
-                    type="button"
-                    onClick={handleToggle}
-                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
-                  >
-                    Sign in using email OTP
-                  </button>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-              )}
+                {/* Confirm Password (Sign Up only) */}
+                {isSignup && (
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    required
+                    showLabel={false}
+                    fullWidth
+                    suffix={
+                      <button
+                        type="button"
+                        onClick={toggleConfirmPasswordVisibility}
+                        className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                        aria-label="Toggle confirm password visibility"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    }
+                  />
+                )}
 
-              {/* Action Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                loading={loading}
-                variant="primary"
-                fullWidth
-                className="mt-3"
-              >
-                {loading ? "Processing..." : isSignup ? "Sign up" : "Sign in"}
-              </Button>
-            </form>
+                {/* Sub-links row */}
+                {!isSignup && (
+                  <div className="flex items-center justify-between text-xs pt-0.5">
+                    <button
+                      type="button"
+                      onClick={enterOtpMode}
+                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                    >
+                      Sign in using email OTP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  loading={loading}
+                  variant="primary"
+                  fullWidth
+                  className="mt-3"
+                >
+                  {loading ? "Processing..." : isSignup ? "Sign up" : "Sign in"}
+                </Button>
+              </form>
+            )}
           </div>
 
           {/* Bottom actions */}
@@ -226,6 +326,9 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
               variant="outline"
               fullWidth
               title="Continue with Google"
+              onClick={() => {
+                window.location.href = "/api/auth/google";
+              }}
               icon={
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path

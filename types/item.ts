@@ -1,6 +1,4 @@
-// Item type enum (UI-only concept — the backend entity/DTOs below have no
-// "type" column/field at all, so this value is never persisted or returned
-// by the API; preserved as-is from the original frontend types)
+// Item type enum
 export type ItemType = "Goods" | "Service";
 
 // Main Item interface (UI-facing shape, matches the API's response shape)
@@ -51,6 +49,7 @@ export interface ItemFormData {
 // --- Backend request payload shapes (mirrors api/src/items/dto/*) ---
 
 export interface CreateItemPayload {
+  type?: ItemType;
   name: string;
   unit: string;
   sellingPrice: number;

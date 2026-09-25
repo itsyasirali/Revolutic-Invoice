@@ -18,6 +18,7 @@ import type {
 import type { Item } from "@/types/item";
 import type { Contact } from "@/types/customer";
 import { getNavState, setNavState } from "@/lib/clientNavState";
+import axios from "@/lib/axios";
 
 export const useInvoiceForm = () => {
   const router = useRouter();
@@ -34,6 +35,8 @@ export const useInvoiceForm = () => {
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [formPopulated, setFormPopulated] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     {
@@ -176,30 +179,64 @@ export const useInvoiceForm = () => {
 
   useEffect(() => {
     if (isEditMode && id) {
-      queueMicrotask(() => {
-        setFormPopulated(false);
-        namePopulatedRef.current = false;
+      setFormPopulated(false);
+      namePopulatedRef.current = false;
+      setInvoiceError(null);
 
-        const navInvoice = getNavState<Invoice>(`invoice:${id}`);
-        if (navInvoice) {
-          setInvoice(
-            ((navInvoice as unknown as { raw?: Invoice }).raw ?? navInvoice) as Invoice
-          );
-          return;
-        }
-
-        const foundInvoice = invoicesList.find(
-          (inv) => String(inv.id) === String(id)
+      const navInvoice = getNavState<Invoice>(`invoice:${id}`);
+      if (navInvoice) {
+        setInvoice(
+          ((navInvoice as unknown as { raw?: Invoice }).raw ?? navInvoice) as Invoice
         );
-        if (foundInvoice && foundInvoice.raw) {
-          setInvoice(foundInvoice.raw);
-        }
-      });
+        return;
+      }
+
+      const foundInvoice = invoicesList.find(
+        (inv) => String(inv.id) === String(id)
+      );
+      if (foundInvoice && foundInvoice.raw) {
+        setInvoice(foundInvoice.raw);
+        return;
+      }
+
+      // Neither the nav state nor the already-fetched invoices list has
+      // this invoice (e.g. a hard refresh or a direct link to the edit
+      // page) — fall back to fetching it directly from the API by id.
+      let cancelled = false;
+      setInvoiceLoading(true);
+      axios
+        .get(`/invoices/${id}`)
+        .then((res) => {
+          if (cancelled) return;
+          const fetched = res.data?.invoice || res.data;
+          if (fetched) {
+            setInvoice(fetched as Invoice);
+          } else {
+            setInvoiceError("Invoice not found.");
+          }
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          console.error("Failed to fetch invoice:", err);
+          const status = err?.response?.status;
+          setInvoiceError(
+            status === 404
+              ? "Invoice not found."
+              : err?.response?.data?.message || "Failed to load invoice."
+          );
+        })
+        .finally(() => {
+          if (!cancelled) setInvoiceLoading(false);
+        });
+
+      return () => {
+        cancelled = true;
+      };
     } else {
-      queueMicrotask(() => {
-        setInvoice(null);
-        setFormPopulated(false);
-      });
+      setInvoice(null);
+      setFormPopulated(false);
+      setInvoiceLoading(false);
+      setInvoiceError(null);
     }
   }, [id, isEditMode, invoicesList]);
 
@@ -725,6 +762,8 @@ export const useInvoiceForm = () => {
     items,
     invoiceData,
     invoice,
+    invoiceLoading,
+    invoiceError,
     customerDropdownOpen,
     customerSearchTerm,
     itemDropdownOpen,

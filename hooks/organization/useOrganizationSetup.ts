@@ -19,7 +19,7 @@ import type { UseOrganizationSetupReturn } from "@/types/organization";
 
 export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
-  const { user, refetchProfile, logout } = useAuth();
+  const { user, refetchProfile } = useAuth();
   const {
     organizations,
     hasOrganization,
@@ -193,11 +193,15 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
 
   const handleBack = useCallback(() => {
     if (isAddingNewOrg) {
+      // Only the "additional org" flow redirects to the organizations list.
       router.push("/organizations");
     } else {
-      logout();
+      // Mandatory initial org setup: simply dismiss it without logging the
+      // user out. Send them to a safe default route; useAuthRedirect will
+      // route them back here again if they still lack an organization.
+      router.push("/");
     }
-  }, [isAddingNewOrg, router, logout]);
+  }, [isAddingNewOrg, router]);
 
   return {
     organizationName,

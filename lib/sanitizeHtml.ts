@@ -14,6 +14,20 @@ const safeHref = (attrs: string): string | null => {
  * formatting tags, drops every attribute except a safe <a href>, and removes
  * script/style blocks. Works on the server and in the browser.
  */
+/**
+ * Strips ALL HTML tags, script/style blocks, comments and HTML entities'
+ * angle brackets from a plain-text field (e.g. names, free-text inputs)
+ * to prevent stored XSS when the value is later rendered in the UI.
+ */
+export const sanitizePlainText = (value: string | null | undefined): string => {
+  if (!value) return "";
+  return String(value)
+    .replace(/<(script|style)[\s\S]*?<\/\1\s*>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<[^>]*>/g, "")
+    .trim();
+};
+
 export const sanitizeHtml = (html: string | null | undefined): string => {
   if (!html) return "";
   return html

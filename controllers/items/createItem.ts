@@ -15,7 +15,7 @@ const createItem = async (req: NextRequest) => {
 
   try {
     const body: CreateItemPayload = await req.json();
-    const { name, unit, description, status } = body;
+    const { name, unit, description, status, type } = body;
     const sellingPriceRaw = body.sellingPrice;
 
     if (!name || String(name).trim().length === 0) {
@@ -58,6 +58,7 @@ const createItem = async (req: NextRequest) => {
     const itemsRepository = db.getRepository(Item);
 
     const newItem = itemsRepository.create({
+      type: type === "Service" ? "Service" : "Goods",
       name: String(name).trim(),
       unit: unit && String(unit).trim() ? String(unit).trim() : undefined,
       sellingPrice,

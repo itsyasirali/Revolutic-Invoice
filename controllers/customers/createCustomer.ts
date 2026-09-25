@@ -6,6 +6,7 @@ import { extractFormFields, saveUploadedFile } from "@/lib/upload";
 import {
   parseContactsFromBody,
   buildDocumentPaths,
+  validateContacts,
 } from "@/utils/customers/customersHelper";
 
 const createCustomer = async (req: NextRequest) => {
@@ -40,6 +41,11 @@ const createCustomer = async (req: NextRequest) => {
     }
 
     const contacts = parseContactsFromBody(fields) || [];
+    const contactsError = validateContacts(contacts);
+    if (contactsError) {
+      return NextResponse.json({ message: contactsError }, { status: 400 });
+    }
+
     const savedFiles = files.length > 0
       ? await Promise.all(
           files.map((file) => saveUploadedFile(file, req.nextUrl.pathname)),

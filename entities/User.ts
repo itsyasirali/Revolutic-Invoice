@@ -36,6 +36,18 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   image?: string;
 
+  @Column({ type: "varchar", nullable: true })
+  resetPasswordTokenHash?: string | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  resetPasswordExpiresAt?: Date | null;
+
+  @Column({ type: "varchar", nullable: true })
+  otpCodeHash?: string | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  otpExpiresAt?: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

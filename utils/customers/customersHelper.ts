@@ -4,6 +4,7 @@ import path from "path";
 import { Contact } from "@/types/customer";
 import { SavedUpload } from "@/lib/upload";
 import { deleteCloudinaryAsset } from "@/lib/cloudinary";
+import { validateEmail, validatePhone } from "@/lib/validation/contact";
 
 export const parseContactsFromBody = (
   body: Record<string, unknown>,
@@ -35,6 +36,30 @@ export const parseContactsFromBody = (
   return Object.keys(contactsMap)
     .sort((a, b) => Number(a) - Number(b))
     .map((k) => contactsMap[Number(k)]);
+};
+
+/**
+ * Validates email format and phone format/length for each submitted contact.
+ * Returns a human-readable error message for the first invalid contact, or
+ * null if all contacts are valid.
+ */
+export const validateContacts = (contacts: Contact[]): string | null => {
+  if (!Array.isArray(contacts)) return null;
+  for (let i = 0; i < contacts.length; i += 1) {
+    const contact = contacts[i];
+    if (!contact) continue;
+
+    const emailError = validateEmail(contact.email);
+    if (emailError) {
+      return `Contact #${i + 1}: ${emailError}`;
+    }
+
+    const phoneError = validatePhone(contact.contact);
+    if (phoneError) {
+      return `Contact #${i + 1}: ${phoneError}`;
+    }
+  }
+  return null;
 };
 
 export const buildDocumentPaths = (

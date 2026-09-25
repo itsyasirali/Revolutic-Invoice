@@ -7,6 +7,7 @@ import {
   parseContactsFromBody,
   buildDocumentPaths,
   deleteFileIfExists,
+  validateContacts,
 } from "@/utils/customers/customersHelper";
 
 const updateCustomer = async (
@@ -67,6 +68,10 @@ const updateCustomer = async (
     }
 
     const contacts = parseContactsFromBody(fields) || [];
+    const contactsError = validateContacts(contacts);
+    if (contactsError) {
+      return NextResponse.json({ message: contactsError }, { status: 400 });
+    }
 
     let existingFilesFromClient: string[] = [];
     const rawExisting = fields.existingDocuments ?? fields.existingFiles;

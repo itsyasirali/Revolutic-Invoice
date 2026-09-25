@@ -12,7 +12,9 @@ import {
   AlertModal,
   PageHeader,
   LoadingSpinner,
+  Tooltip,
 } from "@/components/ui";
+import { resolveFileUrl } from "@/lib/fileUrl";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
 
@@ -61,7 +63,9 @@ const CustomerForm: React.FC = () => {
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Customer Type
-                <Info className="w-4 h-4 text-gray-400" />
+                <Tooltip content="Choose Business if this customer is a company, or Individual for a single person. This determines whether Company Name applies.">
+                  <Info className="w-4 h-4 text-gray-400" />
+                </Tooltip>
               </label>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -103,14 +107,20 @@ const CustomerForm: React.FC = () => {
               fullWidth
             />
 
-            <Input
-              type="text"
-              name="companyName"
-              label="Company Name"
-              placeholder="Enter company name"
-              defaultValue={customer?.companyName || ""}
-              fullWidth
-            />
+            {customerType === "Business" ? (
+              <Input
+                type="text"
+                name="companyName"
+                label="Company Name"
+                placeholder="Enter company name"
+                defaultValue={customer?.companyName || ""}
+                fullWidth
+              />
+            ) : (
+              // Individual customers have no company; submit an empty value
+              // so the field is explicitly cleared server-side on update.
+              <input type="hidden" name="companyName" value="" readOnly />
+            )}
 
             <Select
               name="currency"
@@ -145,7 +155,9 @@ const CustomerForm: React.FC = () => {
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Documents
-                <Info className="w-4 h-4 text-gray-400" />
+                <Tooltip content="Attach relevant PDF documents for this customer, such as contracts or ID proof.">
+                  <Info className="w-4 h-4 text-gray-400" />
+                </Tooltip>
               </label>
               {existingFiles.length > 0 && (
                 <ul className="mb-4 space-y-2">
@@ -155,18 +167,14 @@ const CustomerForm: React.FC = () => {
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-100"
                     >
                       <a
-                        href={
+                        href={resolveFileUrl(
                           typeof doc === "object" &&
-                          doc !== null &&
-                          "url" in doc &&
-                          doc.url
-                            ? String(doc.url).startsWith("http")
-                              ? String(doc.url)
-                              : `/${String(doc.url).replace(/^\//, "")}`
-                            : String(doc).startsWith("http")
-                              ? String(doc)
-                              : `/${String(doc).replace(/^\//, "")}`
-                        }
+                            doc !== null &&
+                            "url" in doc &&
+                            doc.url
+                            ? String(doc.url)
+                            : String(doc),
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm font-medium text-primary hover:underline flex-1 truncate"

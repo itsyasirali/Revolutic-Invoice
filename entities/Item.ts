@@ -16,6 +16,9 @@ export class Item {
   @PrimaryGeneratedColumn("increment")
   id!: number;
 
+  @Column({ default: "Goods" })
+  type!: string; // 'Goods' | 'Service'
+
   @Column()
   name!: string;
 

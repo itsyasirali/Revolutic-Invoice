@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import axios from "@/lib/axios";
+import { validatePassword } from "@/lib/validation/password";
 
 interface UseAuthFormOptions {
   onLoginSuccess?: () => void;
@@ -66,6 +68,10 @@ export const useAuthForm = ({
     if (password !== confirmPassword) {
       return setError("Passwords do not match");
     }
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return setError(passwordError);
+    }
 
     setError("");
     setLoading(true);
@@ -78,8 +84,11 @@ export const useAuthForm = ({
       } else {
         setError("Signup failed. Try again.");
       }
-    } catch {
-      setError("Signup failed. Try again.");
+    } catch (err: unknown) {
+      const serverMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : undefined;
+      setError(serverMessage || "Signup failed. Try again.");
     } finally {
       setLoading(false);
     }

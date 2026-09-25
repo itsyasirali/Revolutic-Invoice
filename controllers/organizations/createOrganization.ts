@@ -14,6 +14,8 @@ import {
 } from "@/lib/session";
 
 import { CreateOrganizationPayload } from "@/types/organization";
+import { sanitizePlainText } from "@/lib/sanitizeHtml";
+import { validateEmail, validatePhone } from "@/lib/validation/contact";
 
 export const MAX_ORGANIZATIONS_PER_USER = 5;
 
@@ -34,7 +36,32 @@ const createOrganization = async (req: NextRequest) => {
       );
     }
 
-    const trimmedName = String(name).trim();
+    const trimmedName = sanitizePlainText(String(name).trim());
+    if (trimmedName.length === 0) {
+      return NextResponse.json(
+        { message: "Organization name is required" },
+        { status: 400 },
+      );
+    }
+
+    const emailError = validateEmail(body.email);
+    if (emailError) {
+      return NextResponse.json({ message: emailError }, { status: 400 });
+    }
+
+    const phoneError = validatePhone(body.phone);
+    if (phoneError) {
+      return NextResponse.json({ message: phoneError }, { status: 400 });
+    }
+
+    const sanitizedAddress = sanitizePlainText(body.address || undefined) || null;
+    const sanitizedStreetAddress =
+      sanitizePlainText(body.streetAddress || undefined) || null;
+    const sanitizedCity = sanitizePlainText(body.city || undefined) || null;
+    const sanitizedZipCode = sanitizePlainText(body.zipCode || undefined) || null;
+    const sanitizedStateProvince =
+      sanitizePlainText(body.stateProvince || undefined) || null;
+
     const db = await getDatabase();
     const orgRepo = db.getRepository(Organization);
     const templateRepo = db.getRepository(Template);
@@ -69,11 +96,11 @@ const createOrganization = async (req: NextRequest) => {
       userId,
       industry: body.industry || "Web Development",
       businessLocation: body.businessLocation || "Pakistan",
-      stateProvince: body.stateProvince || null,
-      streetAddress: body.streetAddress || null,
-      city: body.city || null,
-      zipCode: body.zipCode || null,
-      address: body.address || null,
+      stateProvince: sanitizedStateProvince,
+      streetAddress: sanitizedStreetAddress,
+      city: sanitizedCity,
+      zipCode: sanitizedZipCode,
+      address: sanitizedAddress,
       currency: body.currency || "PKR",
       language: body.language || "English",
       timeZone: body.timeZone || "(GMT 5:00) Pakistan Time (Asia/Karachi)",

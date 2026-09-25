@@ -17,6 +17,8 @@ const InvoiceForm = () => {
     isEditMode,
     items,
     invoiceData,
+    invoiceLoading,
+    invoiceError,
     isSubmitting,
     filteredCustomers,
     customersLoading,
@@ -182,6 +184,31 @@ const InvoiceForm = () => {
 
     return opts;
   };
+
+  if (isEditMode && invoiceLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <PageHeader title="Edit Invoice" onBack={handleCancel} />
+        <div className="flex-1 flex items-center justify-center text-gray-500">
+          Loading invoice...
+        </div>
+      </div>
+    );
+  }
+
+  if (isEditMode && invoiceError) {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <PageHeader title="Edit Invoice" onBack={handleCancel} />
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-gray-600">
+          <p>{invoiceError}</p>
+          <Button type="button" onClick={handleCancel} variant="primary" size="md">
+            Back to Invoices
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white">

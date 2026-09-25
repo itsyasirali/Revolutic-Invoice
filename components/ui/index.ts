@@ -18,3 +18,4 @@ export { Tabs } from "./Tabs";
 export { ComingSoon } from "./ComingSoon";
 export { ToastContainer, toast } from "./Toast";
 export { SearchDropdown } from "./SearchDropdown";
+export { Tooltip } from "./Tooltip";

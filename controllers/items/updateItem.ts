@@ -39,6 +39,7 @@ const updateItem = async (
 
     const body: UpdateItemPayload = await req.json();
 
+    if (body.type !== undefined) existingItem.type = body.type === "Service" ? "Service" : "Goods";
     if (body.name !== undefined) existingItem.name = String(body.name).trim();
     if (body.unit !== undefined) existingItem.unit = body.unit ? String(body.unit).trim() : null as unknown as string;
     if (body.sellingPrice !== undefined) existingItem.sellingPrice = Number(body.sellingPrice);
