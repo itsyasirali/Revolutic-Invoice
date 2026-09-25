@@ -48,7 +48,11 @@ const InvoiceForm = () => {
     includePreviousRemaining,
     setIncludePreviousRemaining,
     getPreviousRemainingBase,
+    customNumbering,
+    toggleCustomNumbering,
   } = useInvoiceForm();
+
+  const hasCustomer = !!invoiceData.customerId;
 
   const customerOptions: SelectOption[] = useMemo(() => {
     const list =
@@ -314,12 +318,25 @@ const InvoiceForm = () => {
                     <div className="relative">
                       <Input
                         label="Invoice Number"
-                        value={invoiceData.invoiceNumber}
+                        value={
+                          customNumbering
+                            ? invoiceData.invoiceNumber
+                            : invoiceData.invoiceNumber ||
+                              (hasCustomer
+                                ? "Auto-generated on save"
+                                : "Select a customer first")
+                        }
                         onChange={(e) =>
                           handleInvoiceChange("invoiceNumber", e.target.value)
                         }
+                        readOnly={!customNumbering || !hasCustomer}
+                        disabled={!hasCustomer}
                         fullWidth
-                        className="pr-10"
+                        className={`pr-10 ${
+                          !customNumbering || !hasCustomer
+                            ? "bg-gray-50/50 text-gray-400"
+                            : ""
+                        }`}
                       />
                       <Settings
                         className="absolute right-3 top-[34px] w-4 h-4 text-gray-400 cursor-pointer hover:text-primary transition-colors"
@@ -327,10 +344,22 @@ const InvoiceForm = () => {
                       />
                     </div>
 
+                    {!isEditMode && (
+                      <label className="flex items-center gap-2 -mt-2 text-xs text-gray-500 cursor-pointer select-none">
+                        <Checkbox
+                          checked={customNumbering}
+                          onChange={toggleCustomNumbering}
+                          disabled={!hasCustomer}
+                        />
+                        Use a custom number for this customer (e.g. Ahmad-1)
+                      </label>
+                    )}
+
                     <Select
                       label="Payment Terms"
                       value={invoiceData.terms}
                       onChange={(e) => handleTermsChange(e.target.value)}
+                      disabled={!hasCustomer}
                       fullWidth
                       options={[
                         {
@@ -359,6 +388,7 @@ const InvoiceForm = () => {
                       onChange={(e) =>
                         handleInvoiceChange("invoiceDate", e.target.value)
                       }
+                      disabled={!hasCustomer}
                       fullWidth
                     />
 
@@ -430,10 +460,13 @@ const InvoiceForm = () => {
                             }}
                             options={getItemOptions(item.itemId, item.id)}
                             placeholder={
-                              itemsLoading
-                                ? "Loading items..."
-                                : "Select an item"
+                              !hasCustomer
+                                ? "Select a customer first"
+                                : itemsLoading
+                                  ? "Loading items..."
+                                  : "Select an item"
                             }
+                            disabled={!hasCustomer}
                             searchable
                             searchPlaceholder="Search items..."
                             fullWidth
@@ -469,6 +502,7 @@ const InvoiceForm = () => {
                                 );
                               }
                             }}
+                            disabled={!hasCustomer}
                             fullWidth
                             className="text-center"
                           />
@@ -515,7 +549,12 @@ const InvoiceForm = () => {
                 </div>
 
                 <div className="bg-gray-50 p-4 border-t border-gray-50">
-                  <Button variant="primary" size="md" onClick={addNewRow}>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={addNewRow}
+                    disabled={!hasCustomer}
+                  >
                     Add New Row
                   </Button>
                 </div>

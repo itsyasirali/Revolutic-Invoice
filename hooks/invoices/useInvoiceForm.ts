@@ -56,7 +56,7 @@ export const useInvoiceForm = () => {
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
-    invoiceNumber: "INV-0000001",
+    invoiceNumber: "",
     invoiceDate: new Date().toISOString().split("T")[0],
     terms: "Due on Receipt",
     dueDate: new Date().toISOString().split("T")[0],
@@ -75,6 +75,10 @@ export const useInvoiceForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [includePreviousRemaining, setIncludePreviousRemaining] = useState(true);
+  // Off (default) = server assigns the general organization-wide sequence
+  // (INV-0001, INV-0002, ...). On = a per-customer number like "Ahmad-1",
+  // "Ahmad-2" is suggested instead, still editable before saving.
+  const [customNumbering, setCustomNumbering] = useState(false);
 
   const customerDropdownRef = useRef<HTMLDivElement>(null);
   const itemDropdownRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
@@ -435,6 +439,42 @@ export const useInvoiceForm = () => {
       return endOfNextMonth.toISOString().split("T")[0];
     }
     return date.toISOString().split("T")[0];
+  };
+
+  const numberingKeyRef = useRef("");
+
+  useEffect(() => {
+    if (isEditMode || !invoiceData.customerId) return;
+    const key = `${invoiceData.customerId}:${customNumbering}`;
+    if (numberingKeyRef.current === key) return;
+    numberingKeyRef.current = key;
+
+    if (customNumbering) {
+      const base =
+        invoiceData.customerName ||
+        selectedCustomer?.displayName ||
+        selectedCustomer?.companyName ||
+        "Customer";
+      const nextSeq = customerInvoices.length + 1;
+      setInvoiceData((prev) => ({
+        ...prev,
+        invoiceNumber: `${base}-${nextSeq}`,
+      }));
+    } else {
+      setInvoiceData((prev) => ({ ...prev, invoiceNumber: "" }));
+    }
+  }, [
+    invoiceData.customerId,
+    invoiceData.customerName,
+    customNumbering,
+    customerInvoices,
+    selectedCustomer,
+    isEditMode,
+  ]);
+
+  const toggleCustomNumbering = () => {
+    numberingKeyRef.current = "";
+    setCustomNumbering((prev) => !prev);
   };
 
   const selectCustomer = (customer: InvoiceCustomer) => {
@@ -803,6 +843,8 @@ export const useInvoiceForm = () => {
     includePreviousRemaining,
     setIncludePreviousRemaining,
     getPreviousRemainingBase,
+    customNumbering,
+    toggleCustomNumbering,
   };
 };
 

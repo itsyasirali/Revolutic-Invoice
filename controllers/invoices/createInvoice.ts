@@ -67,18 +67,36 @@ export const createInvoiceRecord = async (
   // Get template (provided or default)
   const finalTemplateId = template?.id;
 
-  // Calculate next invoice number scoped to organization
-  const lastInvoice = await invoiceRepository.findOne({
-    where: { organizationId: orgId },
-    order: { id: "DESC" },
-  });
-  let nextInvoiceSequence = 1;
-  if (lastInvoice?.invoiceNumber) {
-    const match = String(lastInvoice.invoiceNumber).match(/(\d+)\s*$/);
-    const lastSequence = match ? parseInt(match[1], 10) : 0;
-    nextInvoiceSequence = (Number.isNaN(lastSequence) ? 0 : lastSequence) + 1;
+  // A custom (e.g. per-customer, "Ahmad-1") invoice number can be supplied
+  // by the client; otherwise fall back to the general auto-incrementing
+  // organization-wide sequence.
+  const requestedInvoiceNumber = String(invoiceData.invoiceNumber || "").trim();
+  let invoiceNumber: string;
+
+  if (requestedInvoiceNumber) {
+    const duplicate = await invoiceRepository.findOne({
+      where: { organizationId: orgId, invoiceNumber: requestedInvoiceNumber },
+    });
+    if (duplicate) {
+      throw new InvoiceOperationError(
+        `Invoice number "${requestedInvoiceNumber}" is already in use`,
+        409,
+      );
+    }
+    invoiceNumber = requestedInvoiceNumber;
+  } else {
+    const lastInvoice = await invoiceRepository.findOne({
+      where: { organizationId: orgId },
+      order: { id: "DESC" },
+    });
+    let nextInvoiceSequence = 1;
+    if (lastInvoice?.invoiceNumber) {
+      const match = String(lastInvoice.invoiceNumber).match(/(\d+)\s*$/);
+      const lastSequence = match ? parseInt(match[1], 10) : 0;
+      nextInvoiceSequence = (Number.isNaN(lastSequence) ? 0 : lastSequence) + 1;
+    }
+    invoiceNumber = `INV-${String(nextInvoiceSequence).padStart(4, "0")}`;
   }
-  const invoiceNumber = `INV-${String(nextInvoiceSequence).padStart(4, "0")}`;
 
   // Calculate totals
   const calculatedData = calculateInvoiceTotals({
