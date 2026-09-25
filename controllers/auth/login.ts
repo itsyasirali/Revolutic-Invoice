@@ -41,6 +41,13 @@ const login = async (req: NextRequest) => {
       );
     }
 
+    if (user.pendingSignup) {
+      return NextResponse.json(
+        { message: "Please verify your email to finish creating your account." },
+        { status: 403 },
+      );
+    }
+
     // Fetch user's organization (if any)
     const organization = await orgRepository.findOne({
       where: { userId: user.id },

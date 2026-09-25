@@ -26,6 +26,7 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
+  verifySignupOtp: (email: string, otp: string) => Promise<boolean>;
   logout: () => Promise<void>;
   refetchProfile: (opts?: { silent?: boolean }) => Promise<void>;
 }
@@ -132,6 +133,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  // Step 1: sends a verification code to the given email. The account isn't
+  // created yet — that happens once verifySignupOtp succeeds.
   const signup = async (
     name: string,
     email: string,
@@ -141,6 +144,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setError(null);
     try {
       const response = await axios.post("/auth/signup", { name, email, password });
+      return Boolean(response.data?.message);
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message || "Signup failed"
+        : "Signup failed";
+      setError(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: verifies the OTP sent by signup(), finalizing account creation
+  // and logging the user in.
+  const verifySignupOtp = async (
+    email: string,
+    otp: string,
+  ): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.post("/auth/signup/verify", { email, otp });
       if (response.data?.user) {
         setUser(response.data.user);
         if (response.data?.token) {
@@ -155,8 +180,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       return false;
     } catch (err: unknown) {
       const msg = axios.isAxiosError(err)
-        ? err.response?.data?.message || "Signup failed"
-        : "Signup failed";
+        ? err.response?.data?.message || "Verification failed"
+        : "Verification failed";
       setError(msg);
       throw err;
     } finally {
@@ -190,6 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         error,
         login,
         signup,
+        verifySignupOtp,
         logout,
         refetchProfile: fetchProfile,
       }}

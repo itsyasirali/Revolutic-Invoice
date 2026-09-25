@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
-import { Organization } from "@/entities/Organization";
+import { hashOtp } from "@/lib/otp";
 import {
   AUTH_COOKIE_NAME,
   TOKEN_MAX_AGE_SECONDS,
   signAuthToken,
 } from "@/lib/session";
 
-const hashOtp = (otp: string) =>
-  crypto.createHash("sha256").update(otp).digest("hex");
-
-const otpVerify = async (req: NextRequest) => {
+// Step 2 of signup: verifies the OTP sent by signup.ts and finalizes the
+// pending account into a real, logged-in one.
+const signupVerify = async (req: NextRequest) => {
   try {
-    const { email, otp, name } = await req.json();
+    const { email, otp } = await req.json();
 
     if (!email || !otp) {
       return NextResponse.json(
@@ -26,13 +24,17 @@ const otpVerify = async (req: NextRequest) => {
     const normalizedEmail = String(email).trim().toLowerCase();
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
-    const orgRepository = db.getRepository(Organization);
 
     const user = await usersRepository.findOne({
       where: { email: normalizedEmail },
     });
 
-    if (!user || !user.otpCodeHash || !user.otpExpiresAt) {
+    if (
+      !user ||
+      !user.pendingSignup ||
+      !user.otpCodeHash ||
+      !user.otpExpiresAt
+    ) {
       return NextResponse.json(
         { message: "Invalid or expired verification code" },
         { status: 400 },
@@ -54,53 +56,36 @@ const otpVerify = async (req: NextRequest) => {
       );
     }
 
-    // Consume the OTP and finalize the account (in case it was a
-    // passwordless pending record created by otpRequest.ts).
+    user.pendingSignup = false;
+    user.emailVerified = new Date();
     user.otpCodeHash = null;
     user.otpExpiresAt = null;
-    user.pendingSignup = false;
-    if (!user.emailVerified) {
-      user.emailVerified = new Date();
-    }
-    if (name && typeof name === "string" && !user.name) {
-      user.name = name.trim();
-    }
     const savedUser = await usersRepository.save(user);
-
-    const organization = await orgRepository.findOne({
-      where: { userId: savedUser.id },
-      order: { createdAt: "ASC" },
-    });
 
     const sessionPayload = {
       id: savedUser.id.toString(),
-      name:
-        savedUser.name ||
-        `${savedUser.firstName || ""} ${savedUser.lastName || ""}`.trim() ||
-        null,
+      name: savedUser.name || null,
       email: savedUser.email,
       companyName: savedUser.companyName || null,
       firstName: savedUser.firstName || null,
       lastName: savedUser.lastName || null,
-      organizationId: organization?.id ?? null,
+      organizationId: null,
     };
 
     const token = await signAuthToken(sessionPayload);
 
     const response = NextResponse.json(
       {
-        message: "Signed in successfully",
+        message: "Account created successfully",
         user: {
           id: savedUser.id,
           name: savedUser.name,
           email: savedUser.email,
-          companyName: organization?.name || savedUser.companyName,
-          organizationId: organization?.id ?? null,
-          organization: organization ?? null,
+          organizationId: null,
         },
         token,
       },
-      { status: 200 },
+      { status: 201 },
     );
 
     response.cookies.set({
@@ -115,7 +100,7 @@ const otpVerify = async (req: NextRequest) => {
 
     return response;
   } catch (error) {
-    console.error("OTP verify error:", error);
+    console.error("Signup verify error:", error);
     return NextResponse.json(
       { message: "Server error, please try again later" },
       { status: 500 },
@@ -123,4 +108,4 @@ const otpVerify = async (req: NextRequest) => {
   }
 };
 
-export default otpVerify;
+export default signupVerify;

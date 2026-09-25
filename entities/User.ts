@@ -48,6 +48,11 @@ export class User {
   @Column({ type: "timestamp", nullable: true })
   otpExpiresAt?: Date | null;
 
+  // True while a password-based signup is awaiting OTP verification; the
+  // account isn't considered real/complete until this flips back to false.
+  @Column({ type: "boolean", default: false })
+  pendingSignup!: boolean;
+
   @CreateDateColumn()
   createdAt!: Date;
 

@@ -34,6 +34,11 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
     handleForgotPassword,
+    signupOtpStage,
+    signupOtp,
+    setSignupOtp,
+    handleResendSignupOtp,
+    cancelSignupOtp,
   } = useLoginSignupForm({ onLoginSuccess, initialMode });
 
   const {
@@ -92,16 +97,24 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             {/* Title & Subtitle */}
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {otpMode ? "Sign in with OTP" : isSignup ? "Sign up" : "Sign in"}
+                {otpMode
+                  ? "Sign in with OTP"
+                  : isSignup && signupOtpStage
+                    ? "Verify your email"
+                    : isSignup
+                      ? "Sign up"
+                      : "Sign in"}
               </h1>
               <p className="text-sm text-slate-500 mt-1">
                 {otpMode
                   ? otpStage === "email"
                     ? "Enter your email to receive a one-time code"
                     : `Enter the code sent to ${otpEmail}`
-                  : isSignup
-                    ? "to get started with Invoice"
-                    : "to access Invoice"}
+                  : isSignup && signupOtpStage
+                    ? `Enter the code sent to ${email}`
+                    : isSignup
+                      ? "to get started with Invoice"
+                      : "to access Invoice"}
               </p>
             </div>
 
@@ -194,84 +207,119 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                 }}
                 className="space-y-4"
               >
-                {/* Full Name (Sign Up only) */}
-                {isSignup && (
-                  <Input
-                    type="text"
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    required
-                    showLabel={false}
-                    fullWidth
-                  />
-                )}
-
-                {/* Email Input */}
-                <Input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  required
-                  showLabel={false}
-                  fullWidth
-                />
-
-                {/* Password Input */}
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  required
-                  showLabel={false}
-                  fullWidth
-                  suffix={
-                    <button
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                      aria-label="Toggle password visibility"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  }
-                />
-
-                {/* Confirm Password (Sign Up only) */}
-                {isSignup && (
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    required
-                    showLabel={false}
-                    fullWidth
-                    suffix={
+                {isSignup && signupOtpStage ? (
+                  <>
+                    {/* Verification code (Sign Up OTP stage) */}
+                    <Input
+                      type="text"
+                      placeholder="6-digit code"
+                      value={signupOtp}
+                      onChange={(e) => setSignupOtp(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      required
+                      showLabel={false}
+                      fullWidth
+                      maxLength={6}
+                    />
+                    <div className="flex items-center justify-between text-xs pt-0.5">
                       <button
                         type="button"
-                        onClick={toggleConfirmPasswordVisibility}
-                        className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                        aria-label="Toggle confirm password visibility"
+                        onClick={cancelSignupOtp}
+                        className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                       >
-                        {showConfirmPassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
+                        Back
                       </button>
-                    }
-                  />
+                      <button
+                        type="button"
+                        onClick={handleResendSignupOtp}
+                        className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                      >
+                        Resend code
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Full Name (Sign Up only) */}
+                    {isSignup && (
+                      <Input
+                        type="text"
+                        placeholder="Full Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        required
+                        showLabel={false}
+                        fullWidth
+                      />
+                    )}
+
+                    {/* Email Input */}
+                    <Input
+                      type="email"
+                      placeholder="Email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      required
+                      showLabel={false}
+                      fullWidth
+                    />
+
+                    {/* Password Input */}
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      required
+                      showLabel={false}
+                      fullWidth
+                      suffix={
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                          aria-label="Toggle password visibility"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      }
+                    />
+
+                    {/* Confirm Password (Sign Up only) */}
+                    {isSignup && (
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        required
+                        showLabel={false}
+                        fullWidth
+                        suffix={
+                          <button
+                            type="button"
+                            onClick={toggleConfirmPasswordVisibility}
+                            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                            aria-label="Toggle confirm password visibility"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </button>
+                        }
+                      />
+                    )}
+                  </>
                 )}
 
                 {/* Sub-links row */}
@@ -303,13 +351,20 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   fullWidth
                   className="mt-3"
                 >
-                  {loading ? "Processing..." : isSignup ? "Sign up" : "Sign in"}
+                  {loading
+                    ? "Processing..."
+                    : isSignup && signupOtpStage
+                      ? "Verify & Create Account"
+                      : isSignup
+                        ? "Sign up"
+                        : "Sign in"}
                 </Button>
               </form>
             )}
           </div>
 
           {/* Bottom actions */}
+          {!(isSignup && signupOtpStage) && (
           <div className="mt-3 space-y-3">
             {/* Divider */}
             <div className="flex items-center gap-3">
@@ -369,6 +424,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
               </Link>
             </p>
           </div>
+          )}
         </div>
 
         {/* ================= RIGHT COLUMN: MARKETING HERO ================= */}

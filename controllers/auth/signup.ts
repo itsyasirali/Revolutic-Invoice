@@ -4,12 +4,11 @@ import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { SignupPayload } from "@/types/auth";
 import { validatePassword } from "@/lib/validation/password";
-import {
-  AUTH_COOKIE_NAME,
-  TOKEN_MAX_AGE_SECONDS,
-  signAuthToken,
-} from "@/lib/session";
+import { OTP_TTL_MS, generateOtp, hashOtp, sendOtpEmail } from "@/lib/otp";
 
+// Step 1 of signup: validates the submitted details, stashes a pending
+// (unverified) account holding the hashed password, and emails an OTP.
+// The account only becomes real once verified via signupVerify.ts.
 const signup = async (req: NextRequest) => {
   try {
     const { name, email, password }: SignupPayload = await req.json();
@@ -30,10 +29,18 @@ const signup = async (req: NextRequest) => {
     const db = await getDatabase();
     const usersRepository = db.getRepository(User);
 
-    const userExist = await usersRepository.findOne({
+    const existingUser = await usersRepository.findOne({
       where: { email: normalizedEmail },
     });
-    if (userExist) {
+
+    // A "real" account is one that already has a password and isn't itself
+    // still awaiting OTP verification. Anything else (no account yet, or a
+    // passwordless OTP-login stub, or a previous incomplete signup attempt)
+    // can be (re)claimed by this signup.
+    const isRealExistingAccount =
+      existingUser && existingUser.password && !existingUser.pendingSignup;
+
+    if (isRealExistingAccount) {
       return NextResponse.json(
         { message: "This email already exists in the record" },
         { status: 409 },
@@ -41,51 +48,37 @@ const signup = async (req: NextRequest) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = usersRepository.create({
-      name: name?.trim(),
+    const otp = generateOtp();
+    const otpCodeHash = hashOtp(otp);
+    const otpExpiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    const pendingUser = usersRepository.create({
+      ...existingUser,
       email: normalizedEmail,
+      name: name?.trim(),
       password: hashedPassword,
+      pendingSignup: true,
+      otpCodeHash,
+      otpExpiresAt,
     });
-    const savedUser = await usersRepository.save(newUser);
+    await usersRepository.save(pendingUser);
 
-    const sessionPayload = {
-      id: savedUser.id.toString(),
-      name: savedUser.name || null,
-      email: savedUser.email,
-      companyName: savedUser.companyName || null,
-      firstName: savedUser.firstName || null,
-      lastName: savedUser.lastName || null,
-      organizationId: null,
-    };
+    try {
+      await sendOtpEmail(normalizedEmail, otp, {
+        subject: "Verify your email to finish signing up",
+        intro: "Your account verification code is:",
+      });
+    } catch {
+      return NextResponse.json(
+        { message: "Failed to send verification code. Please try again later." },
+        { status: 502 },
+      );
+    }
 
-    const token = await signAuthToken(sessionPayload);
-
-    const response = NextResponse.json(
-      {
-        message: "User created successfully",
-        user: {
-          id: savedUser.id,
-          name: savedUser.name,
-          email: savedUser.email,
-          organizationId: null,
-        },
-        token,
-      },
-      { status: 201 },
+    return NextResponse.json(
+      { message: "A verification code has been sent to your email." },
+      { status: 200 },
     );
-
-    // Set HTTP-only session cookie for Web browsers
-    response.cookies.set({
-      name: AUTH_COOKIE_NAME,
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: TOKEN_MAX_AGE_SECONDS,
-    });
-
-    return response;
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
