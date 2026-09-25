@@ -50,6 +50,7 @@ const InvoiceForm = () => {
     getPreviousRemainingBase,
     customNumbering,
     toggleCustomNumbering,
+    previewInvoiceNumber,
   } = useInvoiceForm();
 
   const hasCustomer = !!invoiceData.customerId;
@@ -131,7 +132,8 @@ const InvoiceForm = () => {
           String(invItem.id) === String(currentItemId) ||
           (String(invItem.status || "Active").toLowerCase() !== "inactive" &&
             !items.some(
-              (i) => i.itemId === String(invItem.id) && i.id !== currentItemRowId,
+              (i) =>
+                i.itemId === String(invItem.id) && i.id !== currentItemRowId,
             )),
       )
       .map((invItem) => {
@@ -207,7 +209,12 @@ const InvoiceForm = () => {
         <PageHeader title="Edit Invoice" onBack={handleCancel} />
         <div className="flex-1 flex flex-col items-center justify-center gap-4 text-gray-600">
           <p>{invoiceError}</p>
-          <Button type="button" onClick={handleCancel} variant="primary" size="md">
+          <Button
+            type="button"
+            onClick={handleCancel}
+            variant="primary"
+            size="md"
+          >
             Back to Invoices
           </Button>
         </div>
@@ -323,7 +330,7 @@ const InvoiceForm = () => {
                             ? invoiceData.invoiceNumber
                             : invoiceData.invoiceNumber ||
                               (hasCustomer
-                                ? "Auto-generated on save"
+                                ? previewInvoiceNumber
                                 : "Select a customer first")
                         }
                         onChange={(e) =>
@@ -351,7 +358,7 @@ const InvoiceForm = () => {
                           onChange={toggleCustomNumbering}
                           disabled={!hasCustomer}
                         />
-                        Use a custom number for this customer (e.g. Ahmad-1)
+                        Use Custom
                       </label>
                     )}
 
@@ -475,7 +482,11 @@ const InvoiceForm = () => {
                             <textarea
                               value={item.description || ""}
                               onChange={(e) =>
-                                updateItem(item.id, "description", e.target.value)
+                                updateItem(
+                                  item.id,
+                                  "description",
+                                  e.target.value,
+                                )
                               }
                               rows={2}
                               placeholder="Item description (optional) - supports %Placeholders%"

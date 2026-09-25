@@ -89,6 +89,23 @@ export const useInvoiceForm = () => {
 
   const lastProcessedCustomerId = useRef<string>("");
 
+  // Preview of the next general auto-generated invoice number, computed the
+  // same way as the server (createInvoice.ts) so it can be shown to the
+  // user before they've actually saved anything.
+  const previewInvoiceNumber = useMemo(() => {
+    let maxSeq = 0;
+    invoicesList.forEach((inv) => {
+      const raw = inv?.raw || inv;
+      const num = String(raw?.invoiceNumber || "");
+      const match = num.match(/(\d+)\s*$/);
+      if (match) {
+        const seq = parseInt(match[1], 10);
+        if (!Number.isNaN(seq) && seq > maxSeq) maxSeq = seq;
+      }
+    });
+    return `INV-${String(maxSeq + 1).padStart(4, "0")}`;
+  }, [invoicesList]);
+
   const customerInvoices = useMemo(() => {
     const customerIdStr = String(invoiceData.customerId || "");
     if (!customerIdStr) return [];
@@ -845,6 +862,7 @@ export const useInvoiceForm = () => {
     getPreviousRemainingBase,
     customNumbering,
     toggleCustomNumbering,
+    previewInvoiceNumber,
   };
 };
 
