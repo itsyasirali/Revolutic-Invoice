@@ -81,7 +81,10 @@ const reverseWriteOff = async (
     } else {
       invoice.status = "Paid";
     }
-    await invoiceRepository.save(invoice);
+    await invoiceRepository.update(invoice.id, {
+      remaining: invoice.remaining,
+      status: invoice.status,
+    });
 
     return NextResponse.json({
       message: "Write-off reversed successfully",

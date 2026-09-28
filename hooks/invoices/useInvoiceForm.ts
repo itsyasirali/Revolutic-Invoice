@@ -199,6 +199,28 @@ export const useInvoiceForm = () => {
   }, [customers, customersLoading, isEditMode, invoiceData.customerId]);
 
   useEffect(() => {
+    if (!isEditMode || !selectedCustomer) return;
+    const email = selectedCustomer.contacts?.[0]?.email || "";
+    const phone = selectedCustomer.contacts?.[0]?.contact || "";
+    const address = selectedCustomer.address || "";
+    setInvoiceData((prev) => {
+      if (
+        (prev.customerEmail || !email) &&
+        (prev.customerPhone || !phone) &&
+        (prev.customerAddress || !address)
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        customerEmail: prev.customerEmail || email,
+        customerPhone: prev.customerPhone || phone,
+        customerAddress: prev.customerAddress || address,
+      };
+    });
+  }, [isEditMode, selectedCustomer]);
+
+  useEffect(() => {
     if (isEditMode && id) {
       setFormPopulated(false);
       namePopulatedRef.current = false;
@@ -419,9 +441,9 @@ export const useInvoiceForm = () => {
           : invoice.customerId
       ) === String(invoiceData.customerId)
     ) {
-      return invoice.previousRemaining || 0;
+      return Number(invoice.previousRemaining) || 0;
     }
-    return selectedCustomer?.receivables || 0;
+    return Number(selectedCustomer?.receivables) || 0;
   };
 
   const getPreviousRemainingAmount = (): number =>

@@ -130,7 +130,10 @@ const useInvoiceDetails = () => {
   // Derived from total/received/writeOffs rather than trusting a persisted
   // `remaining` field, so the numbers always add up even if that field
   // drifts (e.g. a write-off recorded without `remaining` being updated).
-  const balanceDue = Math.max(0, total - amountPaid - totalWrittenOff);
+  const balanceDue = Math.max(
+    0,
+    Number((total - amountPaid - totalWrittenOff).toFixed(2)),
+  );
 
   const statusText = useMemo(() => {
     if (!invoice?.status) return "Draft";

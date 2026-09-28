@@ -48,6 +48,20 @@ const createPayment = async (req: NextRequest) => {
       );
     }
 
+    const requestedAmount = Number(body.amountReceived);
+    if (!Number.isFinite(requestedAmount) || requestedAmount < 0) {
+      return NextResponse.json(
+        { message: "Amount received must be a valid non-negative number" },
+        { status: 400 },
+      );
+    }
+    if (body.status !== "Draft" && requestedAmount <= 0) {
+      return NextResponse.json(
+        { message: "Amount received must be greater than zero" },
+        { status: 400 },
+      );
+    }
+
     const newPayment = paymentRepo.create({
       paymentDate: new Date(body.paymentDate || Date.now()),
       paymentNumber: nextPaymentNumber,
@@ -73,9 +87,19 @@ const createPayment = async (req: NextRequest) => {
     if (body.appliedInvoices && Array.isArray(body.appliedInvoices)) {
       // Validate up-front (before persisting any applied-invoice records)
       let totalAppliedAmount = 0;
+      const seenInvoiceIds = new Set<number>();
       for (const item of body.appliedInvoices) {
         const invId = Number(item.invoiceId);
         const amountApplied = Number(item.amount) || 0;
+
+        if (amountApplied < 0 || (invId && seenInvoiceIds.has(invId))) {
+          await paymentRepo.delete(savedPayment.id);
+          return NextResponse.json(
+            { message: "Invalid applied invoice amounts" },
+            { status: 400 },
+          );
+        }
+        if (invId) seenInvoiceIds.add(invId);
 
         if (invId && amountApplied > 0) {
           const targetInvoice = await invoiceRepo.findOne({
@@ -116,6 +140,20 @@ const createPayment = async (req: NextRequest) => {
         );
       }
 
+      if (
+        body.status !== "Draft" &&
+        totalAppliedAmount > 0 &&
+        Number((amountReceived - totalAppliedAmount).toFixed(2)) > 0
+      ) {
+        await paymentRepo.delete(savedPayment.id);
+        return NextResponse.json(
+          {
+            message: `Amount received (${amountReceived.toFixed(2)}) exceeds the total applied to invoices (${totalAppliedAmount.toFixed(2)})`,
+          },
+          { status: 400 },
+        );
+      }
+
       for (const item of body.appliedInvoices) {
         const invId = Number(item.invoiceId);
         const amountApplied = Number(item.amount) || 0;
@@ -131,13 +169,21 @@ const createPayment = async (req: NextRequest) => {
           // Update invoice state
           const targetInvoice = await invoiceRepo.findOne({
             where: { id: invId, organizationId: orgId },
+            relations: ["writeOffs"],
           });
 
           if (targetInvoice) {
+            const writtenOff = (targetInvoice.writeOffs || []).reduce(
+              (sum, w) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+              0,
+            );
             const currentReceived = Number(targetInvoice.received) || 0;
             const newReceived = currentReceived + amountApplied;
             const total = Number(targetInvoice.total) || 0;
-            const newRemaining = Math.max(0, total - newReceived);
+            const newRemaining = Math.max(
+              0,
+              Number((total - newReceived - writtenOff).toFixed(2)),
+            );
             const newStatus =
               newRemaining <= 0
                 ? "Paid"

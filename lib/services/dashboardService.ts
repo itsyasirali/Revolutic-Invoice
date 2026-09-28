@@ -168,7 +168,7 @@ export const getDashboardData = async (
     const [invoices, payments] = await Promise.all([
       invoiceRepo.find({
         where: whereScope,
-        relations: ["customer"],
+        relations: ["customer", "writeOffs"],
         order: { createdAt: "DESC" },
       }),
       paymentRepo.find({
@@ -201,9 +201,11 @@ export const getDashboardData = async (
     let currentPeriodPending = 0;
     let previousPeriodPending = 0;
 
-    let writtenOffAmount = 0;
-    let currentPeriodExpenses = 0;
-    let previousPeriodExpenses = 0;
+    // Real expenses only. Write-offs are intentionally excluded; there is no
+    // Expense data source yet, so these stay at 0 until one is added.
+    const totalExpensesAmount = 0;
+    const currentPeriodExpenses = 0;
+    const previousPeriodExpenses = 0;
 
     let thisMonthIncome = 0;
     let prevMonthIncome = 0;
@@ -218,7 +220,11 @@ export const getDashboardData = async (
       const status = String(inv.status ?? "").toLowerCase();
       const total = Number(inv.total ?? 0);
       const received = Number(inv.received ?? 0);
-      const remaining = Math.max(0, total - received);
+      const writtenOff = (inv.writeOffs || []).reduce(
+        (sum, w) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+        0,
+      );
+      const remaining = Math.max(0, total - received - writtenOff);
 
       const totalConverted = convertToOrgCurrency(total, inv.currency || orgCurrency, orgCurrency, rates);
       const receivedConverted = convertToOrgCurrency(received, inv.currency || orgCurrency, orgCurrency, rates);
@@ -233,8 +239,6 @@ export const getDashboardData = async (
         // Draft invoices haven't been sent/finalized, so they should never
         // count toward pending/outstanding revenue.
         pendingInvoicesAmount += remainingConverted;
-      } else if (isWrittenOff) {
-        writtenOffAmount += remainingConverted;
       }
 
       const invDate = new Date(inv.invoiceDate || inv.createdAt);
@@ -242,17 +246,13 @@ export const getDashboardData = async (
         if (invDate >= thirtyDaysAgo && invDate <= now) {
           currentPeriodInvoices += totalConverted;
           currentPeriodPayments += receivedConverted;
-          if (isWrittenOff) {
-            currentPeriodExpenses += remainingConverted;
-          } else if (!isDraft) {
+          if (!isWrittenOff && !isDraft) {
             currentPeriodPending += remainingConverted;
           }
         } else if (invDate >= sixtyDaysAgo && invDate < thirtyDaysAgo) {
           previousPeriodInvoices += totalConverted;
           previousPeriodPayments += receivedConverted;
-          if (isWrittenOff) {
-            previousPeriodExpenses += remainingConverted;
-          } else if (!isDraft) {
+          if (!isWrittenOff && !isDraft) {
             previousPeriodPending += remainingConverted;
           }
         }
@@ -355,7 +355,7 @@ export const getDashboardData = async (
       },
       totalExpenses: {
         label: "Total Expenses",
-        amount: Math.round(writtenOffAmount),
+        amount: Math.round(totalExpensesAmount),
         currency: orgSymbol,
         changePercent: expensesTrend.percent,
         isIncrease: expensesTrend.isIncrease,

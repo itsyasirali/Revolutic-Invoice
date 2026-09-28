@@ -114,7 +114,16 @@ export const buildPlaceholderValues = ({
   Object.assign(values, {
     CustomerName: customerName,
     CustomerFirstName: contact?.firstName || String(customerName).split(/\s+/)[0] || "",
-    CompanyName: customer.companyName || "",
+    // Fall back to the customer's display name so the tag never renders blank
+    // when the customer has no company or the relation wasn't expanded.
+    CompanyName:
+      customer.companyName ||
+      source?.companyName ||
+      source?.customerCompanyName ||
+      customer.displayName ||
+      source?.customerDisplayName ||
+      source?.customerName ||
+      "",
     CustomerEmail: source?.customerEmail || customer.email || contact?.email || "",
     CustomerPhone: customer.phone || contact?.contact || "",
     CustomerAddress: source?.customerAddress || customer.address || "",

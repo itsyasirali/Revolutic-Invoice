@@ -12,13 +12,22 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
     return initialCustomer?.customerType || "Business";
   });
 
-  const [files, setFiles] = useState<FileList | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<MaybeFile[]>([]);
   const [loading, setLoading] = useState(false);
   const { alert, showAlert, dismissAlert } = useAlert();
 
+  // Newly chosen files are appended to the current selection (an <input
+  // type="file"> would otherwise replace it on every pick).
   const handleFileChange = (fileList: FileList | null) => {
-    setFiles(fileList);
+    if (!fileList || fileList.length === 0) return;
+    // Copy now: the FileList is live and is emptied when the input is reset.
+    const picked = Array.from(fileList);
+    setFiles((prev) => [...prev, ...picked]);
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = useCallback(
@@ -26,8 +35,9 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
       e: React.FormEvent<HTMLFormElement> | Event,
       customer?: { id?: string | number },
       currentExistingFiles: MaybeFile[] = [],
-    ) => {
+    ): Promise<boolean> => {
       e.preventDefault();
+      let success = false;
       setLoading(true);
       dismissAlert();
 
@@ -56,18 +66,26 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
         } catch {
           parsedContacts = [];
         }
-        const hasValidContact = parsedContacts.some(
-          (c) =>
-            c &&
-            ((c.email && c.email.trim()) || (c.contact && c.contact.trim())),
-        );
-        if (!hasValidContact) {
-          showAlert(
-            "error",
-            "At least one contact with an email or phone number is required",
-          );
+        const contactError = (() => {
+          if (parsedContacts.length === 0) {
+            return "At least one contact with an email and phone number is required";
+          }
+          for (let i = 0; i < parsedContacts.length; i += 1) {
+            const c = parsedContacts[i];
+            if (!c) continue;
+            if (!c.email || !c.email.trim()) {
+              return `Contact #${i + 1}: Email is required`;
+            }
+            if (!c.contact || !c.contact.trim()) {
+              return `Contact #${i + 1}: Phone number is required`;
+            }
+          }
+          return null;
+        })();
+        if (contactError) {
+          showAlert("error", contactError);
           setLoading(false);
-          return;
+          return false;
         }
 
         if (customer && customer.id) {
@@ -85,8 +103,8 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
 
         // Delete any empty/dummy File entry captured from the DOM file input
         formData.delete("documents");
-        if (files && files.length > 0) {
-          Array.from(files).forEach((file) => {
+        if (files.length > 0) {
+          files.forEach((file) => {
             if (file && file.size > 0 && file.name) {
               formData.append("documents", file);
             }
@@ -118,7 +136,8 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
           );
         }
 
-        setFiles(null);
+        setFiles([]);
+        success = response.status === 200 || response.status === 201;
       } catch (err: unknown) {
         console.error("Error saving customer:", err);
         const error = err as {
@@ -131,6 +150,7 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
       } finally {
         setLoading(false);
       }
+      return success;
     },
     [customerType, files, showAlert, dismissAlert],
   );
@@ -138,7 +158,9 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
   return {
     customerType,
     setCustomerType,
+    files,
     handleFileChange,
+    removeSelectedFile,
     handleSubmit,
     loading,
     existingFiles,

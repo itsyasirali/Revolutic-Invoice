@@ -74,6 +74,15 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
         currency: paymentSource.currency || "PKR",
       });
 
+      if (Array.isArray(paymentSource.appliedInvoices)) {
+        const existing: Record<string, number> = {};
+        paymentSource.appliedInvoices.forEach((a: any) => {
+          const invId = a?.invoiceId ?? a?.invoice?.id;
+          if (invId != null) existing[String(invId)] = Number(a.amount) || 0;
+        });
+        setAppliedAmounts(existing);
+      }
+
       if (paymentSource.customer) {
         setSelectedCustomerData(paymentSource.customer);
         setCustomerSearchTerm(
@@ -102,7 +111,17 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
         const eligible = invoices
           .filter((inv: any) => {
             const status = (inv.status || "").toLowerCase();
-            const remaining = Number(inv.remaining || 0);
+            // `remaining` can still be at its 0 default on invoices that were
+            // never paid, so derive it from total - received in that case.
+            const storedRemaining = Number(inv.remaining || 0);
+            const remaining =
+              storedRemaining > 0 || status === "paid"
+                ? storedRemaining
+                : Math.max(
+                    0,
+                    Number(inv.total || 0) - Number(inv.received || 0),
+                  );
+            inv.remaining = remaining;
             const validStatus = [
               "sent",
               "partially paid",
@@ -240,8 +259,46 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     })
     .map((customer) => ({ ...customer, id: String(customer.id) }));
 
+  const getAmountError = (): string | null => {
+    const received =
+      typeof paymentData.amountReceived === "number"
+        ? paymentData.amountReceived
+        : 0;
+    if (!Number.isFinite(received) || received <= 0) {
+      return "Amount received must be greater than zero";
+    }
+    // Allocation can't be changed when editing; the server checks the amount
+    // against what is already applied.
+    if (isEditMode) return null;
+    for (const [invoiceId, amount] of Object.entries(appliedAmounts)) {
+      if (!(amount > 0)) continue;
+      const inv = unpaidInvoices.find(
+        (i) => String(i.id) === String(invoiceId)
+      );
+      const remaining = Number(inv?.remaining || 0);
+      if (inv && amount > remaining) {
+        return `Amount applied to ${inv.invoiceNumber} exceeds its remaining balance of ${remaining.toFixed(2)}`;
+      }
+    }
+    if (totalApplied > received) {
+      return `Total applied amount (${totalApplied.toFixed(2)}) exceeds the amount received (${received.toFixed(2)})`;
+    }
+    if (
+      (unpaidInvoices.length > 0 || totalApplied > 0) &&
+      Number((received - totalApplied).toFixed(2)) > 0
+    ) {
+      return `Amount received (${received.toFixed(2)}) exceeds the amount applied to invoices (${totalApplied.toFixed(2)}). Reduce the amount received to match the invoice balance.`;
+    }
+    return null;
+  };
+
   const handleSaveDraft = async () => {
     if (isSaving || isSubmitting) return;
+    const amountError = getAmountError();
+    if (amountError) {
+      toast.error(amountError, "Invalid Amount");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -298,6 +355,11 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
 
   const handleSaveAndSend = async () => {
     if (isSubmitting || isSaving) return;
+    const amountError = getAmountError();
+    if (amountError) {
+      toast.error(amountError, "Invalid Amount");
+      return;
+    }
 
     setIsSubmitting(true);
     try {

@@ -42,12 +42,12 @@ export const WriteOffModal: React.FC<WriteOffModalProps> = ({
   if (!isOpen || !mounted) return null;
 
   const handleConfirm = () => {
-    const numericAmount = Number(amount);
+    const numericAmount = Number(Number(amount).toFixed(2));
     if (!numericAmount || numericAmount <= 0) {
       setError("Enter a valid amount greater than 0");
       return;
     }
-    if (numericAmount > remainingAmount) {
+    if (numericAmount - remainingAmount > 0.005) {
       setError(`Amount cannot exceed the remaining balance (${remainingAmount})`);
       return;
     }
@@ -55,6 +55,7 @@ export const WriteOffModal: React.FC<WriteOffModalProps> = ({
       setError("A reason is required to write off this invoice");
       return;
     }
+    setError("");
     onConfirm(numericAmount, reason.trim());
   };
 

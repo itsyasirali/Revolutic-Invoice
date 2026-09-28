@@ -130,7 +130,7 @@ const RevenueOverviewChart = ({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={visibleData}
-            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             barGap={4}
           >
             <defs>
@@ -156,6 +156,8 @@ const RevenueOverviewChart = ({
               dy={8}
             />
             <YAxis
+              width={72}
+              allowDecimals={false}
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#94A3B8", fontSize: 11 }}

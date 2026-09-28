@@ -287,6 +287,12 @@ const PaymentForm: React.FC = () => {
             </div>
           </div>
 
+          {selectedCustomerData && unpaidInvoices.length === 0 && (
+            <div className="mt-8 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+              This customer has no unpaid invoices to allocate this payment to.
+            </div>
+          )}
+
           {selectedCustomerData && unpaidInvoices.length > 0 && (
             <div className="mt-8">
               <label className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 block">

@@ -38,6 +38,7 @@ const updatePayment = async (
 
     const payment = await paymentRepo.findOne({
       where: { id: paymentId, organizationId: orgId },
+      relations: ["appliedInvoices"],
     });
 
     if (!payment) {
@@ -60,7 +61,29 @@ const updatePayment = async (
       payment.referenceNo = body.referenceNo;
     }
     if (body.amountReceived !== undefined) {
-      payment.amountReceived = Number(body.amountReceived);
+      const newAmount = Number(body.amountReceived);
+      if (!Number.isFinite(newAmount) || newAmount < 0) {
+        return NextResponse.json(
+          { message: "Amount received must be a valid non-negative number" },
+          { status: 400 }
+        );
+      }
+      const totalApplied = (payment.appliedInvoices || []).reduce(
+        (sum, a) => sum + Number(a.amount || 0),
+        0,
+      );
+      if (
+        totalApplied > 0 &&
+        Number((newAmount - totalApplied).toFixed(2)) !== 0
+      ) {
+        return NextResponse.json(
+          {
+            message: `Amount received must equal the total applied to invoices (${totalApplied.toFixed(2)})`,
+          },
+          { status: 400 }
+        );
+      }
+      payment.amountReceived = newAmount;
     }
     if (body.notes !== undefined) {
       payment.notes = body.notes;

@@ -38,10 +38,10 @@ const useWriteOffInvoice = (refetch?: () => void) => {
         refetch?.();
         setTarget(null);
       } catch (err: any) {
-        const msg =
-          err?.response?.data?.message ||
-          err.message ||
-          "Failed to write off invoice";
+        const data = err?.response?.data;
+        const msg = data?.error
+          ? `${data.message}: ${data.error}`
+          : data?.message || err.message || "Failed to write off invoice";
         toast.error(msg, "Write-off Failed");
       } finally {
         setLoading(false);

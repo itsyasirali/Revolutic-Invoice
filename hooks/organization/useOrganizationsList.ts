@@ -5,12 +5,18 @@ import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { useOrganization } from "@/context/OrganizationContext";
 import { toast } from "@/components/ui";
+import { setOrgSwitching } from "@/lib/orgSwitchGuard";
 import type { OrganizationData } from "@/types/organization";
 
 export const useOrganizationsList = () => {
   const router = useRouter();
-  const { organization, organizations, loading, refreshOrganizations } =
-    useOrganization();
+  const {
+    organization,
+    organizations,
+    loading,
+    refreshOrganizations,
+    switchOrganization,
+  } = useOrganization();
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<OrganizationData | null>(
@@ -18,12 +24,21 @@ export const useOrganizationsList = () => {
   );
 
   const handleOpenOrg = useCallback(
-    (org: OrganizationData) => {
-      if (org.slug) {
-        router.push(`/${org.slug}/dashboard`);
+    async (org: OrganizationData) => {
+      if (!org.slug) return;
+      // Switch directly (no confirmation) when opening from the list.
+      if (org.id !== organization?.id) {
+        setOrgSwitching(true);
+        const switched = await switchOrganization(org.id);
+        if (!switched) {
+          // switchOrganization already shows its own error toast
+          setOrgSwitching(false);
+          return;
+        }
       }
+      router.push(`/${org.slug}/dashboard`);
     },
-    [router],
+    [router, organization?.id, switchOrganization],
   );
 
   const handleAddNew = useCallback(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { Info, X } from "lucide-react";
 import currenciesData from "@/data/CurrencyData";
 import type { MaybeFile } from "@/types/customer";
@@ -18,6 +18,36 @@ import { resolveFileUrl } from "@/lib/fileUrl";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
 
+const PdfIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 48 48"
+    className={className}
+    role="img"
+    aria-label="PDF document"
+  >
+    <path
+      d="M10 4h20l10 10v28a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"
+      fill="#fff"
+      stroke="#DC2626"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <path d="M30 4v10h10" fill="#FEE2E2" stroke="#DC2626" strokeWidth="2" strokeLinejoin="round" />
+    <rect x="4" y="22" width="30" height="14" rx="2" fill="#DC2626" />
+    <text
+      x="19"
+      y="32.5"
+      textAnchor="middle"
+      fontSize="9"
+      fontWeight="700"
+      fontFamily="Arial, Helvetica, sans-serif"
+      fill="#fff"
+    >
+      PDF
+    </text>
+  </svg>
+);
+
 const CustomerForm: React.FC = () => {
   const {
     customer,
@@ -25,7 +55,9 @@ const CustomerForm: React.FC = () => {
     saving,
     customerType,
     setCustomerType,
+    selectedFiles,
     handleFileChange,
+    removeSelectedFile,
     existingFiles,
     handleRemoveExistingFile,
     handleFormSubmit,
@@ -33,6 +65,19 @@ const CustomerForm: React.FC = () => {
     alert,
     dismissAlert,
   } = useCustomerFormView();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const openSelectedFile = (file: File) => {
+    const url = URL.createObjectURL(file);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
+
+  const formatSize = (bytes: number) =>
+    bytes >= 1024 * 1024
+      ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
   if (loading) {
     return (
@@ -155,59 +200,114 @@ const CustomerForm: React.FC = () => {
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Documents
-                <Tooltip content="Attach relevant PDF documents for this customer, such as contracts or ID proof.">
-                  <Info className="w-4 h-4 text-gray-400" />
-                </Tooltip>
+                {/* Reset the label's uppercase/bold styling so the tooltip text
+                    matches the other tooltips on this screen. */}
+                <span className="normal-case font-normal tracking-normal text-sm">
+                  <Tooltip content="Attach relevant PDF documents for this customer, such as contracts or ID proof.">
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </Tooltip>
+                </span>
               </label>
-              {existingFiles.length > 0 && (
-                <ul className="mb-4 space-y-2">
-                  {existingFiles.map((doc: MaybeFile, index: number) => (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-100"
-                    >
-                      <a
-                        href={resolveFileUrl(
-                          typeof doc === "object" &&
-                            doc !== null &&
-                            "url" in doc &&
-                            doc.url
-                            ? String(doc.url)
-                            : String(doc),
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-primary hover:underline flex-1 truncate"
+              {(existingFiles.length > 0 || selectedFiles.length > 0) && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {existingFiles.map((doc: MaybeFile, index: number) => {
+                    const name =
+                      typeof doc === "object" && doc !== null && doc.name
+                        ? doc.name
+                        : String(
+                            typeof doc === "object" && doc !== null
+                              ? doc.url || doc.path || ""
+                              : doc,
+                          )
+                            .split("/")
+                            .pop();
+                    const href = resolveFileUrl(
+                      typeof doc === "object" && doc !== null && doc.url
+                        ? String(doc.url)
+                        : String(doc),
+                    );
+                    return (
+                      <div
+                        key={`existing-${index}`}
+                        className="relative group w-36 rounded-md border border-gray-200 bg-white p-3 hover:border-primary hover:shadow-sm transition"
                       >
-                        {typeof doc === "object" &&
-                        doc !== null &&
-                        "name" in doc &&
-                        doc.name
-                          ? doc.name
-                          : String(doc).split("/").pop()}
-                      </a>
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={name}
+                          className="flex flex-col items-center gap-2 text-center"
+                        >
+                          <PdfIcon className="w-11 h-11" />
+                          <span className="w-full truncate text-xs font-medium text-gray-700">
+                            {name}
+                          </span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">
+                            PDF
+                          </span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingFile(index)}
+                          aria-label={`Remove ${name}`}
+                          className="absolute top-1 right-1 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
 
+                  {selectedFiles.map((file: File, index: number) => (
+                    <div
+                      key={`selected-${file.name}-${index}`}
+                      className="relative group w-36 rounded-md border border-gray-200 bg-white p-3 hover:border-primary hover:shadow-sm transition"
+                    >
                       <button
                         type="button"
-                        onClick={() => handleRemoveExistingFile(index)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors ml-2 cursor-pointer"
+                        onClick={() => openSelectedFile(file)}
+                        title={file.name}
+                        className="flex w-full flex-col items-center gap-2 text-center cursor-pointer"
                       >
-                        <X className="w-4 h-4" />
+                        <PdfIcon className="w-11 h-11" />
+                        <span className="w-full truncate text-xs font-medium text-gray-700">
+                          {file.name}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase">
+                          PDF · {formatSize(file.size)}
+                        </span>
                       </button>
-                    </li>
+                      <button
+                        type="button"
+                        onClick={() => removeSelectedFile(index)}
+                        aria-label={`Remove ${file.name}`}
+                        className="absolute top-1 right-1 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
-              <div className="relative">
-                <input
-                  type="file"
-                  name="documents"
-                  multiple
-                  accept="application/pdf"
-                  onChange={(e) => handleFileChange(e.target.files)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-primary/5 file:text-primary hover:file:bg-primary/10 transition-all cursor-pointer"
-                />
-              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  handleFileChange(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Choose Files
+              </Button>
             </div>
 
             {/* Contacts Section */}

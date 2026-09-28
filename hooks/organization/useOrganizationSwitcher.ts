@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useOrganization } from "@/context/OrganizationContext";
+import { setOrgSwitching } from "@/lib/orgSwitchGuard";
 import type { OrganizationData, UseOrganizationSwitcherReturn } from "@/types/organization";
 
 const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
@@ -61,10 +62,18 @@ const useOrganizationSwitcher = (): UseOrganizationSwitcherReturn => {
 
   const confirmSwitch = useCallback(async () => {
     if (!pendingOrg) return;
-    const switchedOrg = await switchOrganization(pendingOrg.id);
-    setPendingOrg(null);
-    if (switchedOrg?.slug) {
-      router.push(`/${switchedOrg.slug}/dashboard`);
+    setOrgSwitching(true);
+    try {
+      const switchedOrg = await switchOrganization(pendingOrg.id);
+      setPendingOrg(null);
+      if (switchedOrg?.slug) {
+        router.push(`/${switchedOrg.slug}/dashboard`);
+      } else {
+        setOrgSwitching(false);
+      }
+    } catch (error) {
+      setOrgSwitching(false);
+      throw error;
     }
   }, [pendingOrg, switchOrganization, router]);
 

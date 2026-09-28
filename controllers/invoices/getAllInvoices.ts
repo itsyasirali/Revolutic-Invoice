@@ -25,6 +25,22 @@ const getAllInvoices = async (req: NextRequest) => {
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
+    // Repair invoices fully settled by payments + write-offs that were left
+    // in an open status (older payments ignored write-offs).
+    await invoiceRepository
+      .createQueryBuilder()
+      .update(Invoice)
+      .set({ status: "Paid", remaining: 0 })
+      .where("organizationId = :organizationId", { organizationId })
+      .andWhere('"received" > 0')
+      .andWhere("LOWER(status) IN (:...open)", {
+        open: ["overdue", "partially paid", "sent"],
+      })
+      .andWhere(
+        `"total" - "received" - COALESCE((SELECT SUM(w."amount") FROM "invoice_write_offs" w WHERE w."invoiceId" = "invoices"."id" AND w."reversedAt" IS NULL), 0) <= 0`,
+      )
+      .execute();
+
     await invoiceRepository
       .createQueryBuilder()
       .update(Invoice)

@@ -77,9 +77,11 @@ const writeOffInvoice = async (
       0,
       Number((Number(invoice.total || 0) - Number(invoice.received || 0) - existingWrittenOff).toFixed(2)),
     );
-    const amount = Number.isFinite(requestedAmount) && requestedAmount > 0
-      ? requestedAmount
+    let amount = Number.isFinite(requestedAmount) && requestedAmount > 0
+      ? Number(requestedAmount.toFixed(2))
       : remaining;
+    // Tolerate sub-cent float noise from the client (e.g. 19.000000000000004).
+    if (Math.abs(amount - remaining) < 0.005) amount = remaining;
 
     if (amount <= 0 || amount > remaining) {
       return NextResponse.json(
@@ -102,7 +104,13 @@ const writeOffInvoice = async (
     if (invoice.remaining <= 0) {
       invoice.status = "Written Off";
     }
-    await invoiceRepository.save(invoice);
+    // Update only the invoice's own columns. Saving the entity would also
+    // diff its loaded `writeOffs` relation and try to detach the write-off
+    // just inserted above (invoiceId NOT NULL -> 500).
+    await invoiceRepository.update(invoice.id, {
+      remaining: invoice.remaining,
+      status: invoice.status,
+    });
 
     return NextResponse.json({
       message: "Invoice written off successfully",

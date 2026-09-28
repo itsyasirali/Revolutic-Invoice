@@ -12,7 +12,9 @@ export const useCustomerFormView = () => {
   const {
     customerType,
     setCustomerType,
+    files: selectedFiles,
     handleFileChange,
+    removeSelectedFile,
     handleSubmit,
     loading: saving,
     existingFiles,
@@ -42,11 +44,12 @@ export const useCustomerFormView = () => {
   const handleFormSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      await handleSubmit(
+      const saved = await handleSubmit(
         e as React.FormEvent<HTMLFormElement>,
         customer || undefined,
         existingFiles,
       );
+      if (!saved) return;
       router.refresh();
       router.push("/customers");
     },
@@ -63,7 +66,9 @@ export const useCustomerFormView = () => {
     saving,
     customerType,
     setCustomerType,
+    selectedFiles,
     handleFileChange,
+    removeSelectedFile,
     existingFiles,
     handleRemoveExistingFile,
     handleFormSubmit,
