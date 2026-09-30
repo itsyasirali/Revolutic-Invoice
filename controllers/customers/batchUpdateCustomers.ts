@@ -20,9 +20,16 @@ const batchUpdateCustomers = async (req: NextRequest) => {
 
   try {
     const body: BatchUpdateCustomerPayload = await req.json();
-    const { status, customers: customerIds } = body;
+    const { customers: customerIds } = body;
+    const normalizedStatus = String(body.status || "").toLowerCase();
+    const status =
+      normalizedStatus === "active"
+        ? "Active"
+        : normalizedStatus === "inactive"
+          ? "inActive"
+          : "";
 
-    if (!status || (status !== "Active" && status !== "inActive")) {
+    if (!status) {
       return NextResponse.json(
         { message: "Invalid status value" },
         { status: 400 },
@@ -35,7 +42,9 @@ const batchUpdateCustomers = async (req: NextRequest) => {
       );
     }
 
-    const parsedCustomerIds = customerIds.map((id) => parseInt(id));
+    const parsedCustomerIds = customerIds
+      .map((id) => parseInt(id))
+      .filter((id) => Number.isFinite(id));
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
@@ -43,6 +52,13 @@ const batchUpdateCustomers = async (req: NextRequest) => {
     const updateFilter = { id: In(parsedCustomerIds), organizationId: orgId };
 
     const result = await customersRepository.update(updateFilter, { status });
+
+    if (!result.affected) {
+      return NextResponse.json(
+        { message: "No matching customers found to update" },
+        { status: 404 },
+      );
+    }
 
     return NextResponse.json({
       message: "Status updated",

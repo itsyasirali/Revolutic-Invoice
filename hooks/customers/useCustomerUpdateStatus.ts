@@ -35,9 +35,9 @@ const useUpdateCustomerStatus = () => {
           customers: selectedIds.map(String),
         });
 
-        await invalidateCustomers();
         // Success alert suppressed as per user request
-        if (refetch) refetch();
+        if (refetch) await refetch();
+        else await invalidateCustomers();
       } catch (err: unknown) {
         const error = err as {
           response?: { data?: { message?: string } };

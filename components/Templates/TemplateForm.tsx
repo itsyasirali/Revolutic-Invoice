@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Upload, GripVertical, Plus, Trash2 } from "lucide-react";
-import { Button, Input, Checkbox } from "@/components/ui";
+import { Button, Input, Checkbox, Tooltip } from "@/components/ui";
 import TemplatePreview from "./TemplatePreview";
 import useTemplateFormView from "@/hooks/templates/useTemplateFormView";
 import ColorInput from "./components/ColorInput";
@@ -36,6 +36,17 @@ const TemplateForm: React.FC = () => {
     handlePreviewSelection,
   } = useTemplateFormView();
 
+  const [nameError, setNameError] = useState("");
+
+  const handleSaveClick = () => {
+    if (!formData.templateName.trim()) {
+      setNameError("Template name is required");
+      return;
+    }
+    setNameError("");
+    handleSubmit(false);
+  };
+
   return (
     <div className="flex h-screen bg-white overflow-hidden">
       <aside className="w-[320px] bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden">
@@ -55,7 +66,12 @@ const TemplateForm: React.FC = () => {
                 <Input
                   type="text"
                   value={formData.templateName}
-                  onChange={(e) => handleChange("templateName", e.target.value)}
+                  onChange={(e) => {
+                    handleChange("templateName", e.target.value);
+                    if (nameError) setNameError("");
+                  }}
+                  error={nameError}
+                  required
                   placeholder="Standard Template"
                   showLabel={false}
                   fullWidth
@@ -65,9 +81,11 @@ const TemplateForm: React.FC = () => {
               <div className="px-4 py-4 border-b border-gray-200">
                 <label className="block text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
                   Paper Size
-                  <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
-                    ?
-                  </span>
+                  <Tooltip content="Page size used when this template is previewed, printed or exported as a PDF.">
+                    <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
+                      ?
+                    </span>
+                  </Tooltip>
                 </label>
                 <div className="flex gap-4">
                   {["A5", "A4", "Letter"].map((size) => (
@@ -161,9 +179,11 @@ const TemplateForm: React.FC = () => {
                     }
                     label="Include Payment Stub"
                   />
-                  <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
-                    ?
-                  </span>
+                  <Tooltip content="Adds a payment stub section to the invoice that the customer can return with their payment.">
+                    <span className="w-4 h-4 bg-gray-200 rounded-md text-xs flex items-center justify-center text-gray-500">
+                      ?
+                    </span>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -885,7 +905,7 @@ const TemplateForm: React.FC = () => {
 
         <div className="p-4 border-t border-gray-200 shrink-0">
           <Button
-            onClick={() => handleSubmit(false)}
+            onClick={handleSaveClick}
             loading={loading}
             variant="primary"
             className="w-full bg-primary text-white hover:bg-blue-700"

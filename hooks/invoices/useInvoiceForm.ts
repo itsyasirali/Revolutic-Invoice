@@ -456,26 +456,30 @@ export const useInvoiceForm = () => {
     return subTotal - discountAmount + getPreviousRemainingAmount();
   };
 
+  // "YYYY-MM-DD" strings parse as UTC midnight, so all date math here is done
+  // in UTC; mixing in local-time getters/setters shifts the result by a day
+  // in timezones ahead of UTC.
   const calculateDueDate = (terms: string, invoiceDate: string): string => {
     const date = new Date(invoiceDate);
     if (isNaN(date.getTime())) return invoiceDate;
 
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const netDays: Record<string, number> = {
+      "Net 15": 15,
+      "Net 30": 30,
+      "Net 45": 45,
+      "Net 60": 60,
+    };
+
     if (terms === "Due on Receipt") {
       return invoiceDate;
-    } else if (terms === "Net 15") {
-      date.setDate(date.getDate() + 15);
-    } else if (terms === "Net 30") {
-      date.setDate(date.getDate() + 30);
-    } else if (terms === "Net 45") {
-      date.setDate(date.getDate() + 45);
-    } else if (terms === "Net 60") {
-      date.setDate(date.getDate() + 60);
+    } else if (netDays[terms]) {
+      date.setUTCDate(date.getUTCDate() + netDays[terms]);
     } else if (terms === "Due end of the month") {
-      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      return endOfMonth.toISOString().split("T")[0];
+      return new Date(Date.UTC(year, month + 1, 0)).toISOString().split("T")[0];
     } else if (terms === "Due end of next month") {
-      const endOfNextMonth = new Date(date.getFullYear(), date.getMonth() + 2, 0);
-      return endOfNextMonth.toISOString().split("T")[0];
+      return new Date(Date.UTC(year, month + 2, 0)).toISOString().split("T")[0];
     }
     return date.toISOString().split("T")[0];
   };
@@ -619,6 +623,7 @@ export const useInvoiceForm = () => {
   };
 
   const handleSaveDraft = async () => {
+    if (isSubmitting || saving || updating) return;
     const payload = {
       invoiceNumber: invoiceData.invoiceNumber,
       invoiceDate: invoiceData.invoiceDate,
@@ -703,6 +708,9 @@ export const useInvoiceForm = () => {
           .filter((email: string) => !!email) || [],
       previousRemaining: getPreviousRemainingAmount(),
       status: isEditMode && invoice ? invoice.status : "Draft",
+      // Tells the preview page to show these unsaved values as-is instead of
+      // replacing them with the stored copy of the invoice.
+      unsavedPreview: true,
     };
 
     const previewId = isEditMode && id ? id : "draft";
@@ -826,6 +834,10 @@ export const useInvoiceForm = () => {
   );
 
   const filteredCustomers = customers.filter((customer) => {
+    const isInactive = String(customer.status || "").toLowerCase() === "inactive";
+    if (isInactive && String(customer.id) !== String(invoiceData.customerId)) {
+      return false;
+    }
     const searchLower = customerSearchTerm.toLowerCase();
     const displayName = (
       customer.displayName ||

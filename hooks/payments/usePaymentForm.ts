@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
@@ -46,6 +46,8 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
   const [payAllRemaining, setPayAllRemaining] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  // Amounts this payment already applied to each invoice (edit mode only).
+  const originalAppliedRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     const navPayment = id ? getNavState<any>(`payment:${id}`) : null;
@@ -80,6 +82,7 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
           const invId = a?.invoiceId ?? a?.invoice?.id;
           if (invId != null) existing[String(invId)] = Number(a.amount) || 0;
         });
+        originalAppliedRef.current = existing;
         setAppliedAmounts(existing);
       }
 
@@ -114,13 +117,23 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
             // `remaining` can still be at its 0 default on invoices that were
             // never paid, so derive it from total - received in that case.
             const storedRemaining = Number(inv.remaining || 0);
-            const remaining =
+            let remaining =
               storedRemaining > 0 || status === "paid"
                 ? storedRemaining
                 : Math.max(
                     0,
                     Number(inv.total || 0) - Number(inv.received || 0),
                   );
+            // The invoice's stored balance already has this payment taken
+            // off it; add it back so the balance shown is what was open
+            // before this payment.
+            const alreadyApplied = originalAppliedRef.current[String(inv.id)] || 0;
+            if (alreadyApplied > 0) {
+              remaining = Math.min(
+                Number(inv.total || 0),
+                remaining + alreadyApplied,
+              );
+            }
             inv.remaining = remaining;
             const validStatus = [
               "sent",
@@ -243,6 +256,11 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
 
   const filteredCustomers: CustomerOption[] = customers
     .filter((customer) => {
+      const isInactive =
+        String(customer.status || "").toLowerCase() === "inactive";
+      if (isInactive && String(customer.id) !== String(paymentData.customerId)) {
+        return false;
+      }
       const searchLower = customerSearchTerm.toLowerCase();
       const displayName = (
         customer.displayName ||

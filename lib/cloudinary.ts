@@ -35,21 +35,25 @@ const uploadBufferToCloudinary = async (
     const extMatch = fileName?.match(/\.[^/.]+$/);
     const extension = extMatch ? extMatch[0] : "";
     const baseName = fileName
-      ? fileName.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_")
+      ? fileName.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_\- ()]/g, "_")
       : undefined;
     // "image"/"video" resources get their extension auto-appended by
     // Cloudinary on delivery, but "raw" resources are served byte-for-byte
     // under whatever public_id was given — so the extension must be baked
     // into the public_id itself, or downloads come back with no extension.
+    // Uniqueness comes from a per-upload subfolder rather than a suffix on the
+    // name, so the stored/displayed filename matches what the user uploaded.
     const cleanPublicId = baseName
       ? resourceType === "raw"
-        ? `${baseName}-${Date.now()}${extension}`
-        : `${baseName}-${Date.now()}`
+        ? `${baseName}${extension}`
+        : baseName
       : undefined;
 
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: `revolutic/${folder}`,
+        folder: cleanPublicId
+          ? `revolutic/${folder}/${Date.now()}`
+          : `revolutic/${folder}`,
         public_id: cleanPublicId,
         // Non-image files (PDFs, etc.) must go through "raw" — Cloudinary
         // blocks direct delivery of PDFs uploaded/served as "image" by

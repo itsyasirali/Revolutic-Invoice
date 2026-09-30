@@ -16,15 +16,21 @@ export const SWR_KEYS = {
 
 export const invalidateItems = () => mutate(SWR_KEYS.items);
 
-export const invalidateInvoices = () =>
-  mutate(
-    (key) => typeof key === "string" && key.startsWith(SWR_KEYS.invoices),
-    undefined,
-    { revalidate: true },
-  );
-
 export const invalidateCustomers = () => mutate(SWR_KEYS.customers);
 
-export const invalidatePayments = () => mutate(SWR_KEYS.payments);
+// Invoices and payments feed each customer's remaining/received balances,
+// so the cached customer list must be refreshed alongside them.
+export const invalidateInvoices = () =>
+  Promise.all([
+    mutate(
+      (key) => typeof key === "string" && key.startsWith(SWR_KEYS.invoices),
+      undefined,
+      { revalidate: true },
+    ),
+    invalidateCustomers(),
+  ]);
+
+export const invalidatePayments = () =>
+  Promise.all([mutate(SWR_KEYS.payments), invalidateCustomers()]);
 
 export const invalidateTemplates = () => mutate(SWR_KEYS.templates);

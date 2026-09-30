@@ -47,7 +47,9 @@ export const useInvoicePreview = () => {
         (navStateInvoice as { raw?: unknown }).raw ?? navStateInvoice
       );
     }
-    fetchInvoice();
+    if (!(navStateInvoice as { unsavedPreview?: boolean } | undefined)?.unsavedPreview) {
+      fetchInvoice();
+    }
   }, [id]);
 
   const invoice = fetchedInvoice;

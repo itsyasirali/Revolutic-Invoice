@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useProfile } from "@/hooks/auth/useProfile";
 import axios from "@/lib/axios";
+import { validatePassword } from "@/lib/validation/password";
+import { isValidEmail } from "@/lib/validation/email";
 
 export type TabType = "personal" | "security";
 
@@ -35,6 +37,8 @@ export const useProfileView = () => {
   const { user, loading: fetchLoading, refetch } = useProfile();
   const [activeTab, setActiveTab] = useState<TabType>("personal");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: "",
@@ -86,6 +90,7 @@ export const useProfileView = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
+    setErrors((prev) => (prev[name] ? { ...prev, [name]: "" } : prev));
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
@@ -99,33 +104,46 @@ export const useProfileView = () => {
 
     const isUpdatingPassword = Boolean(formData.newPassword);
 
-    if (activeTab === "security") {
-      if (!formData.newPassword) {
-        setAlert({
-          show: true,
-          type: "error",
-          message: "Please enter a new password to update.",
-        });
-        return;
+    const nextErrors: Record<string, string> = {};
+
+    if (activeTab === "personal") {
+      if (!formData.firstName.trim()) {
+        nextErrors.firstName = "Name is required";
+      }
+      if (!isValidEmail(formData.email)) {
+        nextErrors.email = "Please enter a valid email address";
+      }
+    } else {
+      if (!formData.currentPassword) {
+        nextErrors.currentPassword = "Current password is required";
+      }
+      const passwordError = validatePassword(formData.newPassword);
+      if (passwordError) {
+        nextErrors.newPassword = passwordError;
+      } else if (formData.newPassword === formData.currentPassword) {
+        nextErrors.newPassword =
+          "New password must be different from the current password";
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        setAlert({
-          show: true,
-          type: "error",
-          message: "New password and confirm password do not match.",
-        });
-        return;
+        nextErrors.confirmPassword =
+          "New password and confirm password do not match";
       }
     }
 
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     try {
       setSaving(true);
-      const payload: Record<string, any> = {
-        name: formData.firstName.trim(),
-        email: formData.email.trim(),
-      };
+      const payload: Record<string, any> =
+        activeTab === "personal"
+          ? {
+              name: formData.firstName.trim(),
+              email: formData.email.trim(),
+            }
+          : {};
 
-      if (formData.newPassword) {
+      if (activeTab === "security") {
         payload.currentPassword = formData.currentPassword;
         payload.newPassword = formData.newPassword;
       }
@@ -163,9 +181,56 @@ export const useProfileView = () => {
     }
   };
 
-  const userFullName =
-    `${formData.firstName} ${formData.lastName}`.trim() || user?.name || "User Profile";
-  const userInitial = (formData.firstName || userFullName || "U").charAt(0).toUpperCase();
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAlert({ show: true, type: "error", message: "Please select an image file." });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setAlert({ show: true, type: "error", message: "Image must be 2MB or smaller." });
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      const body = new FormData();
+      body.append("image", file);
+      const response = await axios.post("/auth/profile/avatar", body, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      await refetch();
+      setAlert({
+        show: true,
+        type: "success",
+        message: response.data?.message || "Profile picture updated successfully!",
+      });
+    } catch (err: any) {
+      setAlert({
+        show: true,
+        type: "error",
+        message: String(
+          err.response?.data?.message ||
+            "Failed to upload profile picture. Please try again.",
+        ),
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // The header reflects the last *saved* profile, not unsaved form edits.
+  const savedName =
+    `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
+    user?.name ||
+    "";
+  const userFullName = savedName || "User Profile";
+  const userInitial = userFullName.charAt(0).toUpperCase();
+  const userEmail = user?.email || "";
+  const userImage = user?.image || null;
 
   return {
     user,
@@ -178,8 +243,13 @@ export const useProfileView = () => {
     dismissAlert,
     handleChange,
     handleSave,
+    handleAvatarChange,
+    uploadingAvatar,
+    errors,
     userFullName,
     userInitial,
+    userEmail,
+    userImage,
   };
 };
 

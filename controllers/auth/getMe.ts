@@ -40,6 +40,7 @@ const getMe = async (req: NextRequest) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        image: user.image || null,
         companyName: activeOrg?.name || user.companyName,
         firstName: user.firstName,
         lastName: user.lastName,

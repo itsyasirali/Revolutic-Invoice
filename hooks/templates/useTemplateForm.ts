@@ -435,6 +435,10 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
 
   const handleSubmit = useCallback(
     async (setAsDefault = false) => {
+      if (!formData.templateName?.trim()) {
+        toast.error("Template name is required", "Validation Error");
+        return;
+      }
       try {
         setLoading(true);
 

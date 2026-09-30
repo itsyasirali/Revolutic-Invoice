@@ -5,7 +5,7 @@ import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerFinancials } from "./useCustomerFinancials";
-import { getDownloadUrl } from "@/lib/fileUrl";
+import { getDownloadUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 
 export type CustomerTab = "invoices" | "transactions" | "contacts" | "documents";
 
@@ -165,7 +165,7 @@ export const useCustomerDetailsView = () => {
         : String(doc);
       const name =
         (isObject && (doc as { name?: string }).name) ||
-        rawPath.split("/").pop() ||
+        getFileNameFromUrl(rawPath) ||
         `Document ${idx + 1}`;
       return {
         id: idx,

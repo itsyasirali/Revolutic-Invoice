@@ -119,20 +119,26 @@ const CustomerDetails: React.FC = () => {
       label: "NAME",
       width: "30%",
       render: (item) => (
-        <span className="font-bold text-gray-900">{item.name}</span>
+        <span className="font-bold text-gray-900" title={item.name}>
+          {item.name}
+        </span>
       ),
     },
     {
       key: "email",
       label: "EMAIL",
       width: "40%",
-      render: (item) => <span className="text-gray-600">{item.email}</span>,
+      render: (item) => <span className="text-gray-600 break-all" title={item.email}>
+          {item.email}
+        </span>,
     },
     {
       key: "phone",
       label: "PHONE",
       width: "30%",
-      render: (item) => <span className="text-gray-600">{item.phone}</span>,
+      render: (item) => <span className="text-gray-600" title={item.phone}>
+          {item.phone}
+        </span>,
     },
   ];
 
@@ -144,7 +150,9 @@ const CustomerDetails: React.FC = () => {
       render: (item) => (
         <span className="flex items-center gap-2 font-bold text-gray-900 min-w-0">
           <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
-          <span className="truncate">{item.name}</span>
+          <span className="truncate" title={item.name}>
+            {item.name}
+          </span>
         </span>
       ),
     },
@@ -317,11 +325,15 @@ const CustomerDetails: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 min-w-0">
                     <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="truncate">{phone}</span>
+                    <span className="truncate" title={phone}>
+                      {phone}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 min-w-0">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="truncate">{customerLocation}</span>
+                    <span className="truncate" title={customerLocation}>
+                      {customerLocation}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -335,7 +347,7 @@ const CustomerDetails: React.FC = () => {
                   <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5 leading-snug">
                     {billingAddressLines.map((line, idx) => (
-                      <p key={idx} className="truncate sm:whitespace-normal">
+                      <p key={idx} className="truncate sm:whitespace-normal" title={line}>
                         {line}
                       </p>
                     ))}

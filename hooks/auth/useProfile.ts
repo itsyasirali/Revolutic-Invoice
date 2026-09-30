@@ -8,6 +8,7 @@ export interface User {
   firstName?: string | null;
   lastName?: string | null;
   email: string;
+  image?: string | null;
   companyName?: string | null;
 }
 

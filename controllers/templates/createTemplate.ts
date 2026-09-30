@@ -71,6 +71,13 @@ const createTemplate = async (req: NextRequest) => {
     const rawFields = await parseFields(req);
     const fields = sanitizeTemplateFields(rawFields);
 
+    if (!String(fields.templateName ?? "").trim()) {
+      return NextResponse.json(
+        { message: "Template name is required" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 
@@ -82,7 +89,7 @@ const createTemplate = async (req: NextRequest) => {
       ...fields,
       userId,
       organizationId,
-      templateName: (fields.templateName as string) || "Custom Template",
+      templateName: String(fields.templateName).trim(),
     } as unknown as Template);
 
     const savedTemplate = await templateRepo.save(newTemplate);

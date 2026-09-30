@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -30,8 +30,12 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const isAddingNewOrg = hasOrganization;
   const limitReached = isAddingNewOrg && organizations.length >= MAX_ORGANIZATIONS_PER_USER;
 
+  // Creating the 5th org bumps organizations.length to the limit while this
+  // page is still mounted; that must not surface as a "Limit Reached" error.
+  const justCreatedRef = useRef(false);
+
   useEffect(() => {
-    if (limitReached) {
+    if (limitReached && !justCreatedRef.current) {
       toast.error(
         `You can create up to ${MAX_ORGANIZATIONS_PER_USER} organizations. Delete an existing organization first.`,
         "Limit Reached",
@@ -137,6 +141,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
           timeZone,
         });
 
+        justCreatedRef.current = true;
         const savedOrg = response.data?.organization;
         if (savedOrg) {
           setOrganization(savedOrg);

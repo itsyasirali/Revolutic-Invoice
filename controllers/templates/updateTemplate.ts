@@ -84,6 +84,16 @@ const updateTemplate = async (
     const rawFields = await parseFields(req);
     const fields = sanitizeTemplateFields(rawFields);
 
+    if (
+      "templateName" in fields &&
+      !String(fields.templateName ?? "").trim()
+    ) {
+      return NextResponse.json(
+        { message: "Template name is required" },
+        { status: 400 },
+      );
+    }
+
     const db = await getDatabase();
     const templateRepo = db.getRepository(Template);
 

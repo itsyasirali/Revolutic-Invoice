@@ -14,7 +14,7 @@ import {
   LoadingSpinner,
   Tooltip,
 } from "@/components/ui";
-import { resolveFileUrl } from "@/lib/fileUrl";
+import { resolveFileUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
 
@@ -108,9 +108,11 @@ const CustomerForm: React.FC = () => {
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Customer Type
-                <Tooltip content="Choose Business if this customer is a company, or Individual for a single person. This determines whether Company Name applies.">
-                  <Info className="w-4 h-4 text-gray-400" />
-                </Tooltip>
+                <span className="normal-case font-normal tracking-normal text-sm">
+                  <Tooltip content="Choose Business if this customer is a company, or Individual for a single person. This determines whether Company Name applies.">
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </Tooltip>
+                </span>
               </label>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -214,13 +216,13 @@ const CustomerForm: React.FC = () => {
                     const name =
                       typeof doc === "object" && doc !== null && doc.name
                         ? doc.name
-                        : String(
-                            typeof doc === "object" && doc !== null
-                              ? doc.url || doc.path || ""
-                              : doc,
-                          )
-                            .split("/")
-                            .pop();
+                        : getFileNameFromUrl(
+                            String(
+                              typeof doc === "object" && doc !== null
+                                ? doc.url || doc.path || ""
+                                : doc,
+                            ),
+                          );
                     const href = resolveFileUrl(
                       typeof doc === "object" && doc !== null && doc.url
                         ? String(doc.url)

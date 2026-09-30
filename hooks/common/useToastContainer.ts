@@ -5,6 +5,7 @@ import type { ToastType, ToastMessage, ToastListener } from "@/types/common";
 
 class ToastManager {
   private listeners: ToastListener[] = [];
+  private recent = new Map<string, number>();
 
   subscribe(listener: ToastListener) {
     this.listeners.push(listener);
@@ -19,6 +20,14 @@ class ToastManager {
     title?: string,
     duration = 4000,
   ) {
+    const now = Date.now();
+    const key = `${type}|${title ?? ""}|${message}`;
+    // Ignore an identical toast that is already on screen (e.g. the same
+    // failure reported by several layers, or a double-clicked action).
+    if (this.recent.get(key) && now - (this.recent.get(key) as number) < duration) {
+      return;
+    }
+    this.recent.set(key, now);
     const id = Math.random().toString(36).substring(2, 9);
     const toast: ToastMessage = { id, type, title, message, duration };
     this.listeners.forEach((listener) => listener(toast));

@@ -1,7 +1,16 @@
 "use client";
 
-import React from "react";
-import { User, Lock, Save, Camera, Mail, ShieldCheck } from "lucide-react";
+import React, { useRef, useState } from "react";
+import {
+  User,
+  Lock,
+  Save,
+  Camera,
+  Mail,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import {
   PageHeader,
   Input,
@@ -11,7 +20,33 @@ import {
 } from "@/components/ui";
 import useProfileView, { type TabType } from "@/hooks/profile/useProfileView";
 
+interface PasswordFieldProps
+  extends Omit<React.ComponentProps<typeof Input>, "type" | "suffix"> {
+  name: string;
+}
+
+const PasswordField: React.FC<PasswordFieldProps> = (props) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <Input
+      {...props}
+      type={visible ? "text" : "password"}
+      suffix={
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? "Hide password" : "Show password"}
+          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      }
+    />
+  );
+};
+
 const Profile: React.FC = () => {
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const {
     fetchLoading,
     activeTab,
@@ -22,8 +57,13 @@ const Profile: React.FC = () => {
     dismissAlert,
     handleChange,
     handleSave,
+    handleAvatarChange,
+    uploadingAvatar,
+    errors,
     userFullName,
     userInitial,
+    userEmail,
+    userImage,
   } = useProfileView();
 
   if (fetchLoading) {
@@ -45,18 +85,50 @@ const Profile: React.FC = () => {
         onClose={dismissAlert}
       />
 
-      <form onSubmit={handleSave} className="flex-1 flex flex-col">
+      <form onSubmit={handleSave} noValidate className="flex-1 flex flex-col">
         <div className="flex-1 py-8 px-8 max-w-3xl">
           {/* User Header Info - Left Aligned */}
           <div className="flex items-center gap-5 mb-8 pb-6 border-b border-gray-100">
-            <div className="relative group cursor-pointer shrink-0">
-              <div className="w-16 h-16 bg-primary rounded-md flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all">
-                {userInitial}
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              aria-label="Change profile picture"
+              className="relative group cursor-pointer shrink-0 disabled:cursor-wait"
+            >
+              <div className="w-16 h-16 bg-primary rounded-md flex items-center justify-center text-white font-bold text-2xl shadow-sm group-hover:opacity-90 transition-all overflow-hidden">
+                {userImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={userImage}
+                    alt={userFullName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitial
+                )}
               </div>
-              <div className="absolute inset-0 bg-black/40 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera size={18} className="text-white" />
+              <div
+                className={`absolute inset-0 bg-black/40 rounded-md flex items-center justify-center transition-opacity ${
+                  uploadingAvatar
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              >
+                {uploadingAvatar ? (
+                  <LoadingSpinner size="xs" color="white" />
+                ) : (
+                  <Camera size={18} className="text-white" />
+                )}
               </div>
-            </div>
+            </button>
 
             <div className="flex flex-col gap-1 text-left">
               <div className="flex items-center gap-2.5">
@@ -70,7 +142,7 @@ const Profile: React.FC = () => {
               </div>
               <p className="text-xs text-gray-500 flex items-center gap-1.5">
                 <Mail size={13} className="text-gray-400" />
-                {formData.email || "user@example.com"}
+                {userEmail}
               </p>
             </div>
           </div>
@@ -111,6 +183,7 @@ const Profile: React.FC = () => {
                 placeholder="Enter full name"
                 value={formData.firstName}
                 onChange={handleChange}
+                error={errors.firstName}
                 required
                 fullWidth
               />
@@ -122,6 +195,7 @@ const Profile: React.FC = () => {
                 placeholder="name@company.com"
                 value={formData.email}
                 onChange={handleChange}
+                error={errors.email}
                 required
                 fullWidth
               />
@@ -130,30 +204,30 @@ const Profile: React.FC = () => {
 
           {activeTab === "security" && (
             <div className="flex flex-col gap-y-6">
-              <Input
-                type="password"
+              <PasswordField
                 name="currentPassword"
                 label="Current Password"
                 placeholder="Enter current password"
+                error={errors.currentPassword}
                 value={formData.currentPassword}
                 onChange={handleChange}
                 fullWidth
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Input
-                  type="password"
+                <PasswordField
                   name="newPassword"
                   label="New Password"
-                  placeholder="Minimum 8 characters"
+                  placeholder="Min 8 chars, letter & number"
+                  error={errors.newPassword}
                   value={formData.newPassword}
                   onChange={handleChange}
                   fullWidth
                 />
-                <Input
-                  type="password"
+                <PasswordField
                   name="confirmPassword"
                   label="Confirm New Password"
                   placeholder="Re-enter new password"
+                  error={errors.confirmPassword}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   fullWidth

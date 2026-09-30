@@ -4,6 +4,8 @@ import { getDatabase } from "@/lib/database";
 import { User } from "@/entities/User";
 import { UpdateProfilePayload } from "@/types/auth";
 import { getAuthUserId } from "@/lib/session";
+import { validatePassword } from "@/lib/validation/password";
+import { isValidEmail } from "@/lib/validation/email";
 
 const updateProfile = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -33,8 +35,19 @@ const updateProfile = async (req: NextRequest) => {
 
     const updateData: Partial<User> = {};
 
+    if (body.email !== undefined && !isValidEmail(body.email)) {
+      return NextResponse.json(
+        { message: "Please enter a valid email address" },
+        { status: 400 },
+      );
+    }
+
     if (body.name && body.name.trim()) {
-      updateData.name = body.name.trim();
+      const fullName = body.name.trim();
+      const [first, ...rest] = fullName.split(/\s+/);
+      updateData.name = fullName;
+      updateData.firstName = first;
+      updateData.lastName = rest.join(" ");
     }
 
     if (
@@ -55,17 +68,25 @@ const updateProfile = async (req: NextRequest) => {
     }
 
     if (body.newPassword) {
-      if (body.currentPassword) {
-        const isMatch = await bcrypt.compare(
-          body.currentPassword,
-          user.password,
+      const passwordError = validatePassword(body.newPassword);
+      if (passwordError) {
+        return NextResponse.json({ message: passwordError }, { status: 400 });
+      }
+      if (!body.currentPassword) {
+        return NextResponse.json(
+          { message: "Current password is required to set a new password" },
+          { status: 400 },
         );
-        if (!isMatch) {
-          return NextResponse.json(
-            { message: "Current password is incorrect" },
-            { status: 400 },
-          );
-        }
+      }
+      const isMatch = await bcrypt.compare(
+        body.currentPassword,
+        user.password || "",
+      );
+      if (!isMatch) {
+        return NextResponse.json(
+          { message: "Current password is incorrect" },
+          { status: 400 },
+        );
       }
       updateData.password = await bcrypt.hash(body.newPassword, 10);
     }
@@ -82,6 +103,7 @@ const updateProfile = async (req: NextRequest) => {
       id: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,
+      image: updatedUser.image ?? null,
     };
 
     const successMessage = body.newPassword

@@ -28,3 +28,18 @@ export const getDownloadUrl = (value: string | null | undefined): string => {
   if (url.includes("fl_attachment")) return url;
   return url.replace("/upload/", "/upload/fl_attachment/");
 };
+
+/**
+ * Human-readable filename for a stored file reference. Decodes URL escapes
+ * and drops the "-<13 digit timestamp>" suffix that older uploads carry.
+ */
+export const getFileNameFromUrl = (value: string | null | undefined): string => {
+  const last = String(value || "").split("?")[0].split("/").pop() || "";
+  let name = last;
+  try {
+    name = decodeURIComponent(last);
+  } catch {
+    // keep the raw segment if it isn't valid percent-encoding
+  }
+  return name.replace(/-\d{13}(?=\.[^.]+$|$)/, "");
+};

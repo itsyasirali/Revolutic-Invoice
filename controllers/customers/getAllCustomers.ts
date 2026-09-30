@@ -54,7 +54,7 @@ const getAllCustomers = async (req: NextRequest) => {
 
       customerInvoices.forEach((invoice) => {
         const status = (invoice.status || "").toLowerCase();
-        if (status === "draft" || status === "cancelled") return;
+        if (status === "cancelled") return;
 
         const invoiceTotal = parseFloat(invoice.total?.toString() || "0");
         const invoiceReceived = parseFloat(
