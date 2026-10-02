@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
+import { encryptedText } from "@/lib/encryption";
 import type { User } from "./User";
 import type { Organization } from "./Organization";
 
@@ -19,16 +20,16 @@ export class Item {
   @Column({ default: "Goods" })
   type!: string; // 'Goods' | 'Service'
 
-  @Column()
+  @Column({ transformer: encryptedText })
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: encryptedText })
   unit!: string;
 
   @Column("decimal", { precision: 10, scale: 2, default: 0 })
   sellingPrice!: number;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   description!: string;
 
   @Column({ default: "Active" })

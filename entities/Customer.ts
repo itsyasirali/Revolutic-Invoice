@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
+import { encryptedText, encryptedArray, encryptedJson } from "@/lib/encryption";
 import type { User } from "./User";
 import type { Organization } from "./Organization";
 
@@ -19,28 +20,28 @@ export class Customer {
   @Column()
   customerType!: string; // 'Business' | 'Individual'
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: encryptedText })
   companyName!: string;
 
-  @Column()
+  @Column({ transformer: encryptedText })
   displayName!: string;
 
   @Column({ default: "USD" })
   currency!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   address!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   remarks!: string;
 
   @Column({ default: "Active" })
   status!: string;
 
-  @Column("simple-array", { nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedArray })
   documents!: string[]; // Stores relative paths to documents
 
-  @Column("jsonb", { nullable: true, default: [] })
+  @Column("jsonb", { nullable: true, default: [], transformer: encryptedJson })
   contacts!: {
     firstName?: string;
     lastName?: string;

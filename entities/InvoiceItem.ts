@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
+import { encryptedText } from "@/lib/encryption";
 import type { Invoice } from "./Invoice";
 import type { Item } from "./Item";
 
@@ -14,10 +15,10 @@ export class InvoiceItem {
   @PrimaryGeneratedColumn("increment")
   id!: number;
 
-  @Column()
+  @Column({ transformer: encryptedText })
   title!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   description!: string;
 
   @Column("decimal", { precision: 12, scale: 2 })

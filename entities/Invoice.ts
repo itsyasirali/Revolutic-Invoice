@@ -9,6 +9,7 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
+import { encryptedText, encryptedArray } from "@/lib/encryption";
 import type { User } from "./User";
 import type { Customer } from "./Customer";
 import type { Template } from "./Template";
@@ -51,10 +52,10 @@ export class Invoice {
   @Column({ default: "Draft" })
   status!: string; // 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled' | 'Written Off'
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   notes!: string;
 
-  @Column("simple-array", { nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedArray })
   recipients!: string[];
 
   @Column("float", { default: 0 })

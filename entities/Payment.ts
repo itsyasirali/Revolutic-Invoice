@@ -9,6 +9,7 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
+import { encryptedText } from "@/lib/encryption";
 import type { User } from "./User";
 import type { Customer } from "./Customer";
 import type { Template } from "./Template";
@@ -26,7 +27,7 @@ export class Payment {
   @Column({ nullable: true })
   paymentNumber!: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: encryptedText })
   referenceNo!: string;
 
   @ManyToOne("users")
@@ -50,10 +51,10 @@ export class Payment {
   @Column()
   customerId!: number;
 
-  @Column()
+  @Column({ transformer: encryptedText })
   customerDisplayName!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: encryptedText })
   customerEmail!: string;
 
   @ManyToOne("templates", { nullable: true })
@@ -81,7 +82,7 @@ export class Payment {
   @Column({ default: "PKR" })
   currency!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, transformer: encryptedText })
   notes!: string;
 
   @OneToMany(
