@@ -5,6 +5,12 @@ const MAP: Record<string, BadgeVariant> = {
   unbilled: "warning",
   invoiced: "success",
   "non-billable": "gray",
+  // invoices
+  paid: "success",
+  overdue: "danger",
+  "partially paid": "warning",
+  "written off": "muted",
+  billed: "success",
   // projects
   active: "success",
   "on hold": "warning",

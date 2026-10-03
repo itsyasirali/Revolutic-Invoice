@@ -32,6 +32,7 @@ import CustomerRelatedTable, { type RelatedTab } from "./CustomerRelatedTable";
 import useCustomerDetailsView, {
   type CustomerTab,
 } from "@/hooks/customers/useCustomerDetailsView";
+import CustomerPortalCard from "@/components/portal/CustomerPortalCard";
 
 const CustomerDetails: React.FC = () => {
   const {
@@ -409,6 +410,11 @@ const CustomerDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <CustomerPortalCard
+        customerId={Number(customer.id)}
+        contactEmails={(customer.contacts || []).map((c) => c.email || "")}
+      />
 
       {/* 4. Tabs & Lists */}
       <div className="flex flex-col mt-4">

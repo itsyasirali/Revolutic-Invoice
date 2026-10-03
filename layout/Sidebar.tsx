@@ -22,6 +22,7 @@ import {
   StickyNote,
   ScrollText,
   FolderKanban,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -62,6 +63,7 @@ const MENU_ITEMS = [
   { icon: Timer, label: "Time Tracking", path: "/time-tracking" },
   { icon: Layout, label: "Invoice Templates", path: "/templates" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
+  { icon: Globe, label: "Customer Portal", path: "/settings/portal" },
   { icon: Braces, label: "Placeholders", path: "/settings/placeholders" },
 ];
 

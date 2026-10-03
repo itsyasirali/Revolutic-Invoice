@@ -64,6 +64,10 @@ export class Organization {
   @Column({ type: "varchar", nullable: true })
   website!: string | null;
 
+  // Customer Portal configuration (merged over defaults in types/portal.ts).
+  @Column("jsonb", { nullable: true })
+  portalSettings!: Record<string, unknown> | null;
+
   // Owner
   @ManyToOne("users")
   @JoinColumn({ name: "userId" })

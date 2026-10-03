@@ -25,6 +25,7 @@ import type { Invoice } from "@/types/invoice";
 import usePlaceholderResolver from "@/hooks/common/usePlaceholderResolver";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import type { TableColumn } from "@/types/common";
+import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
 const NON_WRITE_OFF_STATUSES = ["draft", "paid", "cancelled", "written off"];
 
@@ -605,6 +606,7 @@ const InvoiceDetails: React.FC = () => {
           </div>
         </div>
       )}
+      <BusinessPortalComments entityType="invoice" entityId={invoice.id} />
     </div>
   );
 };

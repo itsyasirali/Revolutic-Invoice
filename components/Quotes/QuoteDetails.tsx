@@ -36,6 +36,7 @@ import useBatchDelete from "@/hooks/common/useBatchDelete";
 import { invalidateQuotes } from "@/lib/swr";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
+import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
 const QuoteDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
@@ -343,6 +344,7 @@ const QuoteDetails: React.FC = () => {
           ]}
         />
       </div>
+      <BusinessPortalComments entityType="quote" entityId={quote.id} />
     </div>
   );
 };

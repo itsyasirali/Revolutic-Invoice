@@ -18,6 +18,9 @@ import { Quote } from "@/entities/Quote";
 import { QuoteItem } from "@/entities/QuoteItem";
 import { Project } from "@/entities/Project";
 import { ProjectTask } from "@/entities/ProjectTask";
+import { PortalUser } from "@/entities/PortalUser";
+import { PortalComment } from "@/entities/PortalComment";
+import { PortalActivity } from "@/entities/PortalActivity";
 
 const globalForDb = globalThis as unknown as {
   dataSource?: DataSource;
@@ -63,6 +66,9 @@ const ENTITIES = [
   QuoteItem,
   Project,
   ProjectTask,
+  PortalUser,
+  PortalComment,
+  PortalActivity,
 ];
 
 // Ensure entity class names are preserved in production builds to prevent TypeORM
@@ -86,6 +92,9 @@ const ENTITIES = [
   [QuoteItem, "QuoteItem"],
   [Project, "Project"],
   [ProjectTask, "ProjectTask"],
+  [PortalUser, "PortalUser"],
+  [PortalComment, "PortalComment"],
+  [PortalActivity, "PortalActivity"],
 ].forEach(([cls, name]) => {
   try {
     Object.defineProperty(cls, "name", { value: name, configurable: true });

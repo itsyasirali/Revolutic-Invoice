@@ -63,6 +63,17 @@ const updateTimeEntry = async (
       throw new HttpError("A customer is required for billable time", 400);
     }
 
+    // Editing project time invalidates any earlier customer approval.
+    if (
+      entry.projectId &&
+      ["date", "startTime", "endTime", "hourlyRate", "billable"].some(
+        (k) => (body as Record<string, unknown>)[k] !== undefined,
+      )
+    ) {
+      entry.approvalStatus = "Pending";
+      entry.approvedAt = null;
+    }
+
     Object.assign(
       entry,
       computeTimeFields({

@@ -24,6 +24,7 @@ export interface TimeEntry {
   billable: boolean;
   invoiced: boolean;
   status: TimeEntryStatus;
+  approvalStatus?: "Pending" | "Approved" | "Rejected";
 }
 
 export interface TimeEntryListProps {

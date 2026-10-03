@@ -97,6 +97,13 @@ export class TimeEntry {
   @Column({ default: "Unbilled" })
   status!: string;
 
+  // Customer review of billable time in the portal: 'Pending' | 'Approved' | 'Rejected'
+  @Column({ default: "Pending" })
+  approvalStatus!: string;
+
+  @Column({ type: "timestamp", nullable: true })
+  approvedAt!: Date | null;
+
   @ManyToOne("organizations", { nullable: true })
   @JoinColumn({ name: "organizationId" })
   organization!: Organization;

@@ -24,7 +24,8 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     pathname.startsWith("/industries") ||
     pathname.startsWith("/resources") ||
     pathname.startsWith("/blog") ||
-    pathname.startsWith("/customers-stories");
+    pathname.startsWith("/customers-stories") ||
+    pathname.startsWith("/portal");
 
   React.useEffect(() => {
     if (!authLoading && !user && !isPublicRoute) {

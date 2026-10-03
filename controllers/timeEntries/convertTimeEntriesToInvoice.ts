@@ -10,6 +10,7 @@ import {
   releaseClaim,
   linkToInvoice,
   parseIds,
+  timeApprovalRequired,
 } from "@/lib/services/billingService";
 import { round2 } from "@/lib/numbering";
 
@@ -39,6 +40,13 @@ const convertTimeEntriesToInvoice = async (req: NextRequest) => {
         where: { id: In(claimed), organizationId: orgId },
         order: { date: "ASC", id: "ASC" },
       });
+
+      if (
+        (await timeApprovalRequired(db, orgId)) &&
+        entries.some((e) => e.projectId && e.approvalStatus !== "Approved")
+      ) {
+        throw new HttpError("Project time must be approved by the customer before it is invoiced", 409);
+      }
 
       const customerIds = new Set(entries.map((e) => e.customerId));
       if (customerIds.size !== 1 || !entries[0].customerId) {

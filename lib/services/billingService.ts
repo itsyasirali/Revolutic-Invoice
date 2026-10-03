@@ -1,6 +1,15 @@
 import type { DataSource } from "typeorm";
 import { HttpError } from "@/lib/requestContext";
 import { queryRows } from "@/lib/services/sqlRows";
+import { Organization } from "@/entities/Organization";
+import { resolvePortalSettings, type PortalSettings } from "@/types/portal";
+
+/** True when the organization requires customer approval before billing project time. */
+export const timeApprovalRequired = async (db: DataSource, orgId: number) => {
+  const org = await db.getRepository(Organization).findOne({ where: { id: orgId } });
+  return resolvePortalSettings(org?.portalSettings as Partial<PortalSettings> | null)
+    .requireTimeApproval;
+};
 
 export type BillableTable = "expenses" | "time_entries";
 

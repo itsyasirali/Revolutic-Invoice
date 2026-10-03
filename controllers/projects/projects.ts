@@ -14,6 +14,7 @@ import {
   claimBillable,
   releaseClaim,
   linkToInvoice,
+  timeApprovalRequired,
 } from "@/lib/services/billingService";
 import { queryRows } from "@/lib/services/sqlRows";
 import { loadQuote } from "@/controllers/quotes/quotePayload";
@@ -398,13 +399,15 @@ export const billProject = async (req: NextRequest, { params }: Ctx) => {
     const fixed = project.billingMethod === "Fixed";
     const billFixedFee = fixed && !project.fixedInvoiceId && Number(project.fixedAmount) > 0;
 
+    const needsApproval = await timeApprovalRequired(db, orgId);
     const pending = async (table: "time_entries" | "expenses") =>
       (
         await queryRows<{ id: number }>(
           db,
           `SELECT "id" FROM "${table}"
            WHERE "projectId" = $1 AND "organizationId" = $2
-             AND "billable" = true AND "invoiced" = false`,
+             AND "billable" = true AND "invoiced" = false
+             ${table === "time_entries" && needsApproval ? `AND "approvalStatus" = 'Approved'` : ""}`,
           [projectId, orgId],
         )
       ).map((r) => r.id);

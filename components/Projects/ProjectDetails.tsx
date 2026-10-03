@@ -24,6 +24,7 @@ import { formatDuration, type TimeEntry } from "@/types/timeEntry";
 import type { Expense } from "@/types/expense";
 import type { ProjectInvoiceRef } from "@/types/project";
 import type { TableColumn } from "@/types/common";
+import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
 type Tab = "tasks" | "time" | "expenses" | "invoices";
 
@@ -353,6 +354,7 @@ const ProjectDetails: React.FC = () => {
           />
         )}
       </div>
+      <BusinessPortalComments entityType="project" entityId={project.id} />
     </div>
   );
 };
