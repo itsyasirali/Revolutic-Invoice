@@ -144,6 +144,11 @@ export interface Invoice {
   remaining?: number;
   previousRemaining?: number;
 
+  // Source records (present on the invoice detail response)
+  quote?: { id: number; quoteNumber: string } | null;
+  expenses?: Array<{ id: number; expenseNumber: string }>;
+  timeEntries?: Array<{ id: number; entryNumber: string }>;
+
   status: InvoiceStatus;
   notes?: string;
   recipients?: string[];

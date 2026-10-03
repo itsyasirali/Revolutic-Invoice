@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/ui";
+import TimeEntryList from "@/components/TimeTracking/TimeEntryList";
 
-const TimeTrackingPage = () => <ComingSoon title="Time Tracking" />;
+const TimeTrackingPage = () => <TimeEntryList />;
 
 export default TimeTrackingPage;

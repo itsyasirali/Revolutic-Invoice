@@ -11,6 +11,13 @@ import { Template } from "@/entities/Template";
 import { Organization } from "@/entities/Organization";
 import { CustomPlaceholder } from "@/entities/CustomPlaceholder";
 import { InvoiceWriteOff } from "@/entities/InvoiceWriteOff";
+import { Expense } from "@/entities/Expense";
+import { ExpenseCategory } from "@/entities/ExpenseCategory";
+import { TimeEntry } from "@/entities/TimeEntry";
+import { Quote } from "@/entities/Quote";
+import { QuoteItem } from "@/entities/QuoteItem";
+import { Project } from "@/entities/Project";
+import { ProjectTask } from "@/entities/ProjectTask";
 
 const globalForDb = globalThis as unknown as {
   dataSource?: DataSource;
@@ -49,6 +56,13 @@ const ENTITIES = [
   Organization,
   CustomPlaceholder,
   InvoiceWriteOff,
+  Expense,
+  ExpenseCategory,
+  TimeEntry,
+  Quote,
+  QuoteItem,
+  Project,
+  ProjectTask,
 ];
 
 // Ensure entity class names are preserved in production builds to prevent TypeORM
@@ -65,6 +79,13 @@ const ENTITIES = [
   [Organization, "Organization"],
   [CustomPlaceholder, "CustomPlaceholder"],
   [InvoiceWriteOff, "InvoiceWriteOff"],
+  [Expense, "Expense"],
+  [ExpenseCategory, "ExpenseCategory"],
+  [TimeEntry, "TimeEntry"],
+  [Quote, "Quote"],
+  [QuoteItem, "QuoteItem"],
+  [Project, "Project"],
+  [ProjectTask, "ProjectTask"],
 ].forEach(([cls, name]) => {
   try {
     Object.defineProperty(cls, "name", { value: name, configurable: true });

@@ -28,6 +28,8 @@ export const createInvoiceRecord = async (
   userId: number,
   payload: CreateInvoicePayload,
   orgId?: number | null,
+  // Internal-only (Quote -> Invoice conversion); never read from the request body.
+  options?: { quoteId?: number | null },
 ): Promise<Invoice> => {
   const { customerId, templateId, items, ...invoiceData } = payload;
 
@@ -125,6 +127,7 @@ export const createInvoiceRecord = async (
     customerId,
     templateId: finalTemplateId || null,
     status: "Draft",
+    quoteId: options?.quoteId ?? null,
   } as unknown as Invoice);
 
   const savedInvoice = (await invoiceRepository.save(invoice)) as unknown as Invoice;

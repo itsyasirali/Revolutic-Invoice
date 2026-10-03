@@ -64,6 +64,18 @@ const getSearchConfig = (routePath: string) => {
       basePath: "/payments",
     };
   }
+  if (routePath.startsWith("/projects")) {
+    return { type: "projects", placeholder: "Search projects...", basePath: "/projects" };
+  }
+  if (routePath.startsWith("/quotes")) {
+    return { type: "quotes", placeholder: "Search quotes...", basePath: "/quotes" };
+  }
+  if (routePath.startsWith("/expenses")) {
+    return { type: "expenses", placeholder: "Search expenses...", basePath: "/expenses" };
+  }
+  if (routePath.startsWith("/time-tracking")) {
+    return { type: "time entries", placeholder: "Search time entries...", basePath: "/time-tracking" };
+  }
   if (routePath.startsWith("/templates")) {
     return {
       type: "templates",
@@ -219,6 +231,86 @@ const HeaderSearch = () => {
               category: "Template",
               icon: Layout,
               href: `/templates/edit/${t.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "projects") {
+          const res = await axios.get("/projects");
+          return (res.data?.projects || [])
+            .filter((p: any) =>
+              [p.projectNumber, p.name, p.customer?.displayName, p.customer?.companyName].some((v) =>
+                String(v || "").toLowerCase().includes(lower),
+              ),
+            )
+            .map((p: any) => ({
+              id: p.id,
+              title: p.name,
+              subtitle: `${p.projectNumber} \u2022 ${p.customer?.displayName || "Customer"}`,
+              category: "Project",
+              badge: p.status,
+              badgeVariant: p.status === "Active" ? "success" : "warning",
+              icon: FileText,
+              href: `/projects/${p.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "quotes") {
+          const res = await axios.get("/quotes");
+          return (res.data?.quotes || [])
+            .filter((q: any) =>
+              [q.quoteNumber, q.referenceNumber, q.customer?.displayName, q.customer?.companyName].some((v) =>
+                String(v || "").toLowerCase().includes(lower),
+              ),
+            )
+            .map((q: any) => ({
+              id: q.id,
+              title: q.quoteNumber,
+              subtitle: `${q.customer?.displayName || "Customer"} • ${q.currency || ""} ${q.total ?? 0}`,
+              category: "Quote",
+              badge: q.status,
+              badgeVariant: "warning",
+              icon: FileText,
+              href: `/quotes/${q.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "expenses") {
+          const res = await axios.get("/expenses");
+          return (res.data?.expenses || [])
+            .filter((e: any) =>
+              [e.expenseNumber, e.vendor, e.description, e.category?.name, e.customer?.displayName].some((v) =>
+                String(v || "").toLowerCase().includes(lower),
+              ),
+            )
+            .map((e: any) => ({
+              id: e.id,
+              title: e.expenseNumber,
+              subtitle: `${e.vendor || e.category?.name || "Expense"} • ${e.currency || ""} ${e.total ?? 0}`,
+              category: "Expense",
+              badge: e.status,
+              badgeVariant: "warning",
+              icon: DollarSign,
+              href: `/expenses/${e.id}`,
+            }));
+        }
+
+        if (searchConfig.type === "time entries") {
+          const res = await axios.get("/time-tracking");
+          return (res.data?.timeEntries || [])
+            .filter((t: any) =>
+              [t.entryNumber, t.project, t.description, t.customer?.displayName].some((v) =>
+                String(v || "").toLowerCase().includes(lower),
+              ),
+            )
+            .map((t: any) => ({
+              id: t.id,
+              title: t.entryNumber || `Entry ${t.id}`,
+              subtitle: [t.customer?.displayName, t.project, t.description].filter(Boolean).join(" • "),
+              category: "Time Entry",
+              badge: t.status,
+              badgeVariant: "warning",
+              icon: FileText,
+              href: `/time-tracking/${t.id}`,
             }));
         }
 

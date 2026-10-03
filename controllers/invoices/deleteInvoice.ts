@@ -1,3 +1,4 @@
+import { releaseInvoiceSourceLinks } from "@/lib/services/invoiceSourceLinks";
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
@@ -59,6 +60,7 @@ const deleteInvoice = async (
       );
     }
 
+    await releaseInvoiceSourceLinks(db, invoiceId, orgId);
     await invoiceRepository.delete({ id: invoiceId, organizationId: orgId });
 
     return NextResponse.json({ message: "Invoice deleted successfully" });

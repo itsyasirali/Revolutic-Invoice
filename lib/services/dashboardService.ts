@@ -12,6 +12,10 @@ import type {
 } from "@/types/dashboard";
 
 import { getCurrencySymbol } from "@/data/countries/countries";
+import {
+  getBusinessInsights,
+  emptyBusinessInsights,
+} from "@/lib/services/businessInsightsService";
 export { getCurrencySymbol };
 
 const getCurrencyRates = async (baseCurrency: string = "PKR") => {
@@ -112,6 +116,7 @@ const buildEmptyDashboardData = (currencySymbol: string): DashboardData => ({
   },
   revenueOverview: [],
   revenueOverviewWeekly: [],
+  insights: emptyBusinessInsights(),
   salesOverview: {
     totalSales: 0,
     currency: currencySymbol,
@@ -201,11 +206,33 @@ export const getDashboardData = async (
     let currentPeriodPending = 0;
     let previousPeriodPending = 0;
 
-    // Real expenses only. Write-offs are intentionally excluded; there is no
-    // Expense data source yet, so these stay at 0 until one is added.
-    const totalExpensesAmount = 0;
-    const currentPeriodExpenses = 0;
-    const previousPeriodExpenses = 0;
+    // Real expenses (Expenses module), converted to the org currency.
+    // Write-offs are intentionally excluded.
+    const { insights, expenseRows } = await getBusinessInsights(
+      orgId,
+      orgCurrency,
+      rates,
+      convertToOrgCurrency,
+    );
+    const sumExpenses = (from: Date, to: Date) =>
+      expenseRows.reduce(
+        (sum, r) => (r.date >= from && r.date <= to ? sum + r.amount : sum),
+        0,
+      );
+    const totalExpensesAmount = expenseRows.reduce((sum, r) => sum + r.amount, 0);
+    const currentPeriodExpenses = sumExpenses(thirtyDaysAgo, now);
+    const previousPeriodExpenses = sumExpenses(
+      sixtyDaysAgo,
+      new Date(thirtyDaysAgo.getTime() - 1),
+    );
+    const thisMonthExpenses = sumExpenses(
+      new Date(currentYear, currentMonth, 1),
+      new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999),
+    );
+    const prevMonthExpenses = sumExpenses(
+      new Date(prevYear, prevMonth, 1),
+      new Date(prevYear, prevMonth + 1, 0, 23, 59, 59, 999),
+    );
 
     let thisMonthIncome = 0;
     let prevMonthIncome = 0;
@@ -327,6 +354,12 @@ export const getDashboardData = async (
     const expensesTrend = calcChange(currentPeriodExpenses, previousPeriodExpenses);
     const monthIncomeTrend = calcChange(thisMonthIncome, prevMonthIncome);
     const monthPaidCountTrend = calcChange(thisMonthPaidCount, prevMonthPaidCount);
+    const monthExpensesTrend = calcChange(thisMonthExpenses, prevMonthExpenses);
+    const monthNetProfit = thisMonthIncome - thisMonthExpenses;
+    const monthNetTrend = calcChange(
+      Math.max(0, monthNetProfit),
+      Math.max(0, prevMonthIncome - prevMonthExpenses),
+    );
 
     const kpis: DashboardKPIs = {
       totalInvoices: {
@@ -387,7 +420,9 @@ export const getDashboardData = async (
       revenueOverview.push({
         month: mName,
         income: Math.round(monthSales),
-        expenses: 0,
+        expenses: Math.round(
+          sumExpenses(new Date(mYr, mIdx, 1), new Date(mYr, mIdx + 1, 0, 23, 59, 59, 999)),
+        ),
       });
     }
 
@@ -433,7 +468,12 @@ export const getDashboardData = async (
       revenueOverviewWeekly.push({
         month: `Week ${idx + 1}`,
         income: Math.round(weekSales),
-        expenses: 0,
+        expenses: Math.round(
+          sumExpenses(
+            weekStart,
+            new Date(weekEnd.getFullYear(), weekEnd.getMonth(), weekEnd.getDate(), 23, 59, 59, 999),
+          ),
+        ),
       });
     });
 
@@ -509,16 +549,16 @@ export const getDashboardData = async (
       },
       {
         label: "Expenses",
-        value: `${orgSymbol} 0`,
-        changePercent: 0,
-        isPositive: true,
+        value: `${orgSymbol} ${Math.round(thisMonthExpenses).toLocaleString()}`,
+        changePercent: monthExpensesTrend.percent,
+        isPositive: !monthExpensesTrend.isIncrease,
         type: "expenses",
       },
       {
         label: "Net Profit",
-        value: `${orgSymbol} ${Math.round(thisMonthIncome).toLocaleString()}`,
-        changePercent: monthIncomeTrend.percent,
-        isPositive: monthIncomeTrend.isIncrease,
+        value: `${orgSymbol} ${Math.round(monthNetProfit).toLocaleString()}`,
+        changePercent: monthNetTrend.percent,
+        isPositive: monthNetTrend.isIncrease,
         type: "netProfit",
       },
       {
@@ -537,6 +577,7 @@ export const getDashboardData = async (
       salesOverview,
       recentInvoices,
       monthlySummary,
+      insights,
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);

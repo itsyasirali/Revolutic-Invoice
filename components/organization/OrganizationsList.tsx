@@ -6,6 +6,7 @@ import {
   Building2,
   Plus,
   Trash2,
+  Pencil,
   Briefcase,
   Coins,
   MapPin,
@@ -29,6 +30,7 @@ export const OrganizationsList: React.FC = () => {
     pendingDelete,
     handleOpenOrg,
     handleAddNew,
+    handleEdit,
     requestDelete,
     cancelDelete,
     confirmDelete,
@@ -149,6 +151,15 @@ export const OrganizationsList: React.FC = () => {
                     className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-xs font-semibold bg-primary text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Open Organization
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(org)}
+                    className="p-2 text-slate-300 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors cursor-pointer shrink-0"
+                    title="Edit Organization"
+                  >
+                    <Pencil className="w-4 h-4" />
                   </button>
 
                   <button

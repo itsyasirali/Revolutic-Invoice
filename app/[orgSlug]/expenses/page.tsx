@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/ui";
+import ExpenseList from "@/components/Expenses/ExpenseList";
 
-const ExpensesPage = () => <ComingSoon title="Expenses" />;
+const ExpensesPage = () => <ExpenseList />;
 
 export default ExpensesPage;

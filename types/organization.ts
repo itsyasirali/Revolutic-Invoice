@@ -127,6 +127,7 @@ export interface UseOrganizationSetupReturn {
   error: string | null;
   userName: string;
   isAddingNewOrg: boolean;
+  isEditing: boolean;
   limitReached: boolean;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleBack: () => void;

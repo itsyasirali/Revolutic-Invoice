@@ -21,6 +21,7 @@ import {
   Sigma,
   StickyNote,
   ScrollText,
+  FolderKanban,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -53,11 +54,13 @@ const MENU_ITEMS = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: User, label: "Customers", path: "/customers" },
   { icon: ShoppingBag, label: "Items", path: "/items" },
+  { icon: FileText, label: "Quotes", path: "/quotes" },
   { icon: ScrollText, label: "Invoices", path: "/invoices" },
-  { icon: Layout, label: "Invoice Templates", path: "/templates" },
   { icon: CircleArrowDown, label: "Payments", path: "/payments" },
+  { icon: FolderKanban, label: "Projects", path: "/projects" },
   { icon: Bookmark, label: "Expenses", path: "/expenses" },
   { icon: Timer, label: "Time Tracking", path: "/time-tracking" },
+  { icon: Layout, label: "Invoice Templates", path: "/templates" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
   { icon: Braces, label: "Placeholders", path: "/settings/placeholders" },
 ];

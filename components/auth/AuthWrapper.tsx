@@ -49,7 +49,8 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     const isCreatingNewOrg =
       typeof window !== "undefined" &&
       (window.location.search.includes("new=true") ||
-        window.location.search.includes("create=true"));
+        window.location.search.includes("create=true") ||
+        window.location.search.includes("edit="));
 
     if (
       !authLoading &&

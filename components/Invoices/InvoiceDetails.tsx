@@ -382,6 +382,56 @@ const InvoiceDetails: React.FC = () => {
         </div>
       </div>
 
+      {/* Source records: quote this invoice was created from, billed expenses / time entries */}
+      {(invoice.quote ||
+        (invoice.expenses && invoice.expenses.length > 0) ||
+        (invoice.timeEntries && invoice.timeEntries.length > 0)) && (
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-3">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">
+            Source
+          </h2>
+          {invoice.quote && (
+            <p className="text-sm text-slate-600">
+              Created from Quote{" "}
+              <Link
+                href={`/quotes/${invoice.quote.id}`}
+                className="text-primary font-semibold hover:underline"
+              >
+                {invoice.quote.quoteNumber}
+              </Link>
+            </p>
+          )}
+          {invoice.expenses && invoice.expenses.length > 0 && (
+            <div className="text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>Includes:</span>
+              {invoice.expenses.map((e: { id: number; expenseNumber: string }) => (
+                <Link
+                  key={`exp-${e.id}`}
+                  href={`/expenses/${e.id}`}
+                  className="text-primary font-semibold hover:underline"
+                >
+                  Expense #{e.expenseNumber}
+                </Link>
+              ))}
+            </div>
+          )}
+          {invoice.timeEntries && invoice.timeEntries.length > 0 && (
+            <div className="text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>Includes:</span>
+              {invoice.timeEntries.map((t: { id: number; entryNumber: string }) => (
+                <Link
+                  key={`time-${t.id}`}
+                  href={`/time-tracking/${t.id}`}
+                  className="text-primary font-semibold hover:underline"
+                >
+                  Time Entry #{t.entryNumber}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 4. Line Items Table & Financial Breakdown */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-6">
         <div>

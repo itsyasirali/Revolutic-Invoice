@@ -28,6 +28,7 @@ import {
 } from "@/components/ui";
 import type { UIInvoiceListItem, PaymentTransaction } from "@/types/customer";
 import type { TableColumn } from "@/types/common";
+import CustomerRelatedTable, { type RelatedTab } from "./CustomerRelatedTable";
 import useCustomerDetailsView, {
   type CustomerTab,
 } from "@/hooks/customers/useCustomerDetailsView";
@@ -39,6 +40,7 @@ const CustomerDetails: React.FC = () => {
     financials,
     customerInvoices,
     customerTransactions,
+    related,
     activeTab,
     setActiveTab,
     mounted,
@@ -463,6 +465,12 @@ const CustomerDetails: React.FC = () => {
               showCheckbox={false}
               variant="spacious"
             />
+          )}
+
+          {(activeTab === "quotes" ||
+            activeTab === "expenses" ||
+            activeTab === "timeTracking") && (
+            <CustomerRelatedTable tab={activeTab as RelatedTab} related={related} />
           )}
 
           {activeTab === "transactions" && (

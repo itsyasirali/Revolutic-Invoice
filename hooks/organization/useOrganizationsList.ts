@@ -45,6 +45,13 @@ export const useOrganizationsList = () => {
     router.push("/organization-setup?new=true");
   }, [router]);
 
+  const handleEdit = useCallback(
+    (org: OrganizationData) => {
+      router.push(`/organization-setup?edit=${org.id}`);
+    },
+    [router],
+  );
+
   const requestDelete = useCallback((org: OrganizationData) => {
     setPendingDelete(org);
   }, []);
@@ -79,6 +86,7 @@ export const useOrganizationsList = () => {
     pendingDelete,
     handleOpenOrg,
     handleAddNew,
+    handleEdit,
     requestDelete,
     cancelDelete,
     confirmDelete,

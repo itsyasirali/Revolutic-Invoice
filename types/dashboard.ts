@@ -65,6 +65,23 @@ export interface DashboardInvoice {
   currency: string;
 }
 
+export interface BusinessInsights {
+  expenses: { thisMonth: number; billable: number; unbilled: number };
+  time: {
+    trackedHours: number;
+    billableHours: number;
+    unbilledHours: number;
+    unbilledAmount: number;
+  };
+  quotes: {
+    total: number;
+    draft: number;
+    pending: number;
+    accepted: number;
+    value: number;
+  };
+}
+
 export interface DashboardData {
   kpis: DashboardKPIs;
   revenueOverview: RevenuePoint[];
@@ -73,6 +90,7 @@ export interface DashboardData {
   recentInvoices: DashboardInvoice[];
   monthlySummary: MonthlySummaryMetric[];
   currencyStats?: { currency: string; received: number; remaining: number }[];
+  insights: BusinessInsights;
 }
 
 export interface SalesOverviewDonutProps {

@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import OrganizationSetup from "@/components/organization/OrganizationSetup";
 
-const OrganizationSetupPage = () => <OrganizationSetup />;
+const OrganizationSetupPage = () => (
+  <Suspense fallback={null}>
+    <OrganizationSetup />
+  </Suspense>
+);
 
 export default OrganizationSetupPage;

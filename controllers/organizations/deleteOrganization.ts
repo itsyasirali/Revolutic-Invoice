@@ -6,6 +6,9 @@ import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Item } from "@/entities/Item";
 import { Payment } from "@/entities/Payment";
+import { Quote } from "@/entities/Quote";
+import { Expense } from "@/entities/Expense";
+import { TimeEntry } from "@/entities/TimeEntry";
 import {
   getAuthUserId,
   getAuthToken,
@@ -69,21 +72,27 @@ const deleteOrganization = async (
 
     const checkFilter = { organizationId };
 
-    const [customerCount, invoiceCount, itemCount, paymentCount] =
+    const [customerCount, invoiceCount, itemCount, paymentCount, extraCount] =
       await Promise.all([
         customerRepo.count({ where: checkFilter }),
         invoiceRepo.count({ where: checkFilter }),
         itemRepo.count({ where: checkFilter }),
         paymentRepo.count({ where: checkFilter }),
+        Promise.all([
+          db.getRepository(Quote).count({ where: checkFilter }),
+          db.getRepository(Expense).count({ where: checkFilter }),
+          db.getRepository(TimeEntry).count({ where: checkFilter }),
+        ]).then((counts) => counts.reduce((a, b) => a + b, 0)),
       ]);
 
-    const dataCount = customerCount + invoiceCount + itemCount + paymentCount;
+    const dataCount =
+      customerCount + invoiceCount + itemCount + paymentCount + extraCount;
 
     if (dataCount > 0) {
       return NextResponse.json(
         {
           message:
-            "Cannot delete organization: it still has customers, invoices, items, or payments. Please delete them first.",
+            "Cannot delete organization: it still has customers, invoices, quotes, expenses, time entries, items, or payments. Please delete them first.",
         },
         { status: 400 },
       );

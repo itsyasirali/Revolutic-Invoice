@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
 import { useOrganization } from "@/context/OrganizationContext";
@@ -21,14 +21,19 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
   const { user, refetchProfile } = useAuth();
   const {
+    organization,
     organizations,
     hasOrganization,
     refreshOrganizations,
     setOrganization,
   } = useOrganization();
 
+  const editId = Number(useSearchParams()?.get("edit")) || null;
+  const editingOrg = editId ? organizations.find((o) => o.id === editId) || null : null;
+  const isEditing = !!editingOrg;
+
   const isAddingNewOrg = hasOrganization;
-  const limitReached = isAddingNewOrg && organizations.length >= MAX_ORGANIZATIONS_PER_USER;
+  const limitReached = isAddingNewOrg && !editId && organizations.length >= MAX_ORGANIZATIONS_PER_USER;
 
   // Creating the 5th org bumps organizations.length to the limit while this
   // page is still mounted; that must not surface as a "Limit Reached" error.
@@ -96,6 +101,29 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Prefill the form once when editing an existing organization
+  const prefilledRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!editingOrg || prefilledRef.current === editingOrg.id) return;
+    prefilledRef.current = editingOrg.id;
+    const loc = editingOrg.businessLocation || LOCATIONS[0];
+    const states = getStatesForCountry(loc);
+    setOrganizationName(editingOrg.name);
+    setIndustry(editingOrg.industry || INDUSTRIES[0]);
+    setLocation(loc);
+    setProvincesList(states);
+    setProvince(editingOrg.stateProvince || states[0] || "");
+    setCurrency(editingOrg.currency || getCurrencyForCountry(loc));
+    setLanguage(editingOrg.language || LANGUAGES[0]);
+    setTimeZone(editingOrg.timeZone || getTimezoneForCountry(loc));
+    if (editingOrg.streetAddress || editingOrg.city || editingOrg.zipCode) {
+      setShowAddress(true);
+      setStreetAddress(editingOrg.streetAddress || "");
+      setCity(editingOrg.city || "");
+      setZipCode(editingOrg.zipCode || "");
+    }
+  }, [editingOrg]);
+
   const userName = user?.firstName || user?.name?.split(" ")[0] || "there";
 
   const handleSubmit = useCallback(
@@ -130,7 +158,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
               .join(", ")
           : location;
 
-        const response = await axios.post("/organizations", {
+        const payload = {
           name: organizationName.trim(),
           industry,
           currency,
@@ -139,7 +167,24 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
           stateProvince: province !== "State/Province" ? province : undefined,
           language,
           timeZone,
-        });
+        };
+
+        if (editingOrg) {
+          const res = await axios.put(`/organizations/${editingOrg.id}`, {
+            ...payload,
+            ...(showAddress ? { streetAddress, city, zipCode } : {}),
+            address: showAddress ? fullAddress : undefined,
+          });
+          await refreshOrganizations();
+          if (res.data?.organization?.id === organization?.id) {
+            setOrganization(res.data.organization);
+          }
+          toast.success(`"${payload.name}" has been updated.`, "Organization Updated");
+          router.push("/organizations");
+          return;
+        }
+
+        const response = await axios.post("/organizations", payload);
 
         justCreatedRef.current = true;
         const savedOrg = response.data?.organization;
@@ -189,6 +234,8 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
       timeZone,
       isAddingNewOrg,
       limitReached,
+      editingOrg,
+      organization,
       setOrganization,
       refreshOrganizations,
       refetchProfile,
@@ -237,6 +284,7 @@ export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
     error,
     userName,
     isAddingNewOrg,
+    isEditing,
     limitReached,
     handleSubmit,
     handleBack,

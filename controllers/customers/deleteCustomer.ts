@@ -3,6 +3,9 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
+import { Quote } from "@/entities/Quote";
+import { Expense } from "@/entities/Expense";
+import { TimeEntry } from "@/entities/TimeEntry";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 
@@ -57,6 +60,20 @@ const deleteCustomer = async (
       return NextResponse.json(
         { message: "Customer not found" },
         { status: 404 },
+      );
+    }
+
+    const [quoteCount, expenseCount, timeEntryCount] = await Promise.all([
+      db.getRepository(Quote).count({ where: orgFilter }),
+      db.getRepository(Expense).count({ where: orgFilter }),
+      db.getRepository(TimeEntry).count({ where: orgFilter }),
+    ]);
+    if (quoteCount + expenseCount + timeEntryCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete customer: ${quoteCount} quote(s), ${expenseCount} expense(s) and ${timeEntryCount} time entr${timeEntryCount === 1 ? "y" : "ies"} are linked to this customer. Please delete them first.`,
+        },
+        { status: 400 },
       );
     }
 

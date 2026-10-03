@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/ui";
+import QuoteList from "@/components/Quotes/QuoteList";
 
-const QuotesPage = () => <ComingSoon title="Quotes" />;
+const QuotesPage = () => <QuoteList />;
 
 export default QuotesPage;

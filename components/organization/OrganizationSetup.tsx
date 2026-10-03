@@ -40,6 +40,7 @@ export const OrganizationSetup: React.FC = () => {
     error,
     userName,
     isAddingNewOrg,
+    isEditing,
     limitReached,
     handleSubmit,
     handleBack,
@@ -72,7 +73,7 @@ export const OrganizationSetup: React.FC = () => {
             </div>
             <div className="h-6 w-[1.5px] bg-slate-300 mx-1 sm:mx-2" />
             <span className="text-sm sm:text-base font-semibold text-slate-800 tracking-tight">
-              {isAddingNewOrg ? "New Organization" : "Organization Setup"}
+              {isEditing ? "Edit Organization" : isAddingNewOrg ? "New Organization" : "Organization Setup"}
             </span>
           </div>
 
@@ -92,13 +93,17 @@ export const OrganizationSetup: React.FC = () => {
           <div className="space-y-1">
             <h1 className="text-xl sm:text-[22px] font-bold text-slate-900 flex items-center gap-2 tracking-tight">
               <span>
-                {isAddingNewOrg
+                {isEditing
+                  ? "Edit Organization"
+                  : isAddingNewOrg
                   ? "Create a New Organization"
                   : `Welcome aboard, ${userName}!`}
               </span>
             </h1>
             <p className="text-sm text-slate-500">
-              {isAddingNewOrg
+              {isEditing
+                ? "Update this organization's business profile, currency, and address."
+                : isAddingNewOrg
                 ? "Set up a separate business profile, currency, and address for this workspace."
                 : "Enter your organization details to get started with Invoice Smarty."}
             </p>
@@ -281,7 +286,7 @@ export const OrganizationSetup: React.FC = () => {
                     <span>Saving...</span>
                   </>
                 ) : (
-                  "Create Organization"
+                  isEditing ? "Update Organization" : "Create Organization"
                 )}
               </button>
 

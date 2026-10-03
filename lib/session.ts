@@ -119,6 +119,45 @@ export const getAuthUserId = async (
   return parsed;
 };
 
+// Short-lived cache so org-ownership checks don't hit the DB on every request.
+const ORG_OWNERSHIP_TTL_MS = 30_000;
+const orgOwnershipCache = new Map<string, { ok: boolean; at: number }>();
+
+/**
+ * A client-supplied organization id (x-organization-id header or
+ * active_org_id cookie) is only a *selection*: it is honoured solely when the
+ * authenticated user actually owns that organization.
+ */
+export const userOwnsOrganization = async (
+  userId: number,
+  organizationId: number,
+): Promise<boolean> => {
+  const key = `${userId}:${organizationId}`;
+  const cached = orgOwnershipCache.get(key);
+  if (cached && Date.now() - cached.at < ORG_OWNERSHIP_TTL_MS) return cached.ok;
+
+  try {
+    const { getDatabase } = await import("@/lib/database");
+    const { Organization } = await import("@/entities/Organization");
+    const db = await getDatabase();
+    const count = await db
+      .getRepository(Organization)
+      .count({ where: { id: organizationId, userId } });
+    const ok = count > 0;
+    orgOwnershipCache.set(key, { ok, at: Date.now() });
+    return ok;
+  } catch (err) {
+    console.error("Failed to verify organization ownership:", err);
+    return false;
+  }
+};
+
+const parsePositiveInt = (raw: string | undefined | null): number | null => {
+  if (!raw) return null;
+  const parsed = parseInt(raw, 10);
+  return !Number.isNaN(parsed) && parsed > 0 ? parsed : null;
+};
+
 export const ACTIVE_ORG_COOKIE_NAME = "active_org_id";
 // UX-only cookie read by middleware.ts to redirect legacy bare paths; never used for authorization.
 export const ACTIVE_ORG_SLUG_COOKIE_NAME = "active_org_slug";
@@ -133,22 +172,22 @@ export const ACTIVE_ORG_SLUG_COOKIE_NAME = "active_org_slug";
 export const getAuthOrgId = async (
   req: NextRequest,
 ): Promise<number | null> => {
-  // 1. Check explicit header
-  const headerOrgId = req.headers.get("x-organization-id");
-  if (headerOrgId) {
-    const parsed = parseInt(headerOrgId, 10);
-    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
-  }
-
-  // 2. Check active organization cookie
-  const cookieOrgId = req.cookies.get(ACTIVE_ORG_COOKIE_NAME)?.value;
-  if (cookieOrgId) {
-    const parsed = parseInt(cookieOrgId, 10);
-    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
-  }
-
-  // 3. Check JWT token claim
   const token = await getAuthToken(req);
+  const authUserId = parsePositiveInt(String(token?.id || token?.sub || ""));
+
+  // 1 & 2. Client-selected organization (header / cookie): never trusted on
+  // its own. It is used only if the authenticated user owns it.
+  const selected = [
+    parsePositiveInt(req.headers.get("x-organization-id")),
+    parsePositiveInt(req.cookies.get(ACTIVE_ORG_COOKIE_NAME)?.value),
+  ];
+  for (const candidate of selected) {
+    if (candidate && authUserId && (await userOwnsOrganization(authUserId, candidate))) {
+      return candidate;
+    }
+  }
+
+  // 3. Check JWT token claim (signed, so trusted)
   const rawOrgId = token?.organizationId;
   if (rawOrgId) {
     const parsed = parseInt(String(rawOrgId), 10);
@@ -194,8 +233,13 @@ export const getServerSessionUser = async (): Promise<AuthUserSession | null> =>
     // Check if active_org_id cookie overrides or provides the active organization
     const activeOrgCookie = cookieStore.get(ACTIVE_ORG_COOKIE_NAME)?.value;
     if (activeOrgCookie) {
-      const parsedOrg = parseInt(activeOrgCookie, 10);
-      if (!Number.isNaN(parsedOrg) && parsedOrg > 0) {
+      const parsedOrg = parsePositiveInt(activeOrgCookie);
+      const sessionUserId = parsePositiveInt(String(session.id || session.sub || ""));
+      if (
+        parsedOrg &&
+        sessionUserId &&
+        (await userOwnsOrganization(sessionUserId, parsedOrg))
+      ) {
         session.organizationId = parsedOrg;
         return session;
       }

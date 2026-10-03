@@ -5,6 +5,7 @@ import RevenueOverviewChart from "./RevenueOverviewChart";
 import SalesOverviewDonut from "./SalesOverviewDonut";
 import RecentInvoicesTable from "./RecentInvoicesTable";
 import MonthlySummaryCard from "./MonthlySummaryCard";
+import BusinessInsightsCards from "./BusinessInsightsCards";
 import getDashboardData from "@/lib/services/dashboardService";
 import { getServerSessionUser } from "@/lib/session";
 
@@ -52,6 +53,12 @@ export const DashboardMain = async () => {
           <MonthlySummaryCard metrics={dashboardData.monthlySummary} />
         </div>
       </div>
+
+      {/* Expenses, Time Tracking & Quotes (real records) */}
+      <BusinessInsightsCards
+        insights={dashboardData.insights}
+        currency={dashboardData.kpis.totalInvoices.currency}
+      />
     </div>
   );
 };

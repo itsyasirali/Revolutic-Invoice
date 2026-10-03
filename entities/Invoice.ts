@@ -16,6 +16,9 @@ import type { Template } from "./Template";
 import type { InvoiceItem } from "./InvoiceItem";
 import type { Organization } from "./Organization";
 import type { InvoiceWriteOff } from "./InvoiceWriteOff";
+import type { Quote } from "./Quote";
+import type { Expense } from "./Expense";
+import type { TimeEntry } from "./TimeEntry";
 
 @Entity("invoices")
 export class Invoice {
@@ -95,6 +98,20 @@ export class Invoice {
 
   @OneToMany("invoice_write_offs", "invoice")
   writeOffs!: InvoiceWriteOff[];
+
+  // Source quote when this invoice was created via Quote -> Invoice conversion.
+  @ManyToOne("quotes", { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "quoteId" })
+  quote!: Quote;
+
+  @Column({ type: "integer", nullable: true })
+  quoteId!: number | null;
+
+  @OneToMany("expenses", "invoice")
+  expenses!: Expense[];
+
+  @OneToMany("time_entries", "invoice")
+  timeEntries!: TimeEntry[];
 
   @CreateDateColumn()
   createdAt!: Date;

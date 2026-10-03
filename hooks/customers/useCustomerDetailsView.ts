@@ -5,9 +5,17 @@ import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteCustomer from "./useCustomerDelete";
 import { useCustomerDetails } from "./useCustomerDetails";
 import { useCustomerFinancials } from "./useCustomerFinancials";
+import { useCustomerRelatedRecords } from "./useCustomerRelatedRecords";
 import { getDownloadUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 
-export type CustomerTab = "invoices" | "transactions" | "contacts" | "documents";
+export type CustomerTab =
+  | "invoices"
+  | "transactions"
+  | "contacts"
+  | "documents"
+  | "quotes"
+  | "expenses"
+  | "timeTracking";
 
 export const useCustomerDetailsView = () => {
   const router = useRouter();
@@ -20,6 +28,8 @@ export const useCustomerDetailsView = () => {
   } = useCustomerDetails();
   const { financials, customerInvoices, customerTransactions } =
     useCustomerFinancials(customer);
+
+  const related = useCustomerRelatedRecords(customer?.id);
 
   const [activeTab, setActiveTab] = useState<CustomerTab>("contacts");
   const [mounted, setMounted] = useState(false);
@@ -180,6 +190,13 @@ export const useCustomerDetailsView = () => {
       { label: "Contacts", value: "contacts", count: contactList.length },
       { label: "Documents", value: "documents", count: documentList.length },
       { label: "Invoices", value: "invoices", count: customerInvoices.length },
+      { label: "Quotes", value: "quotes", count: related.quotes.length },
+      { label: "Expenses", value: "expenses", count: related.expenses.length },
+      {
+        label: "Time Tracking",
+        value: "timeTracking",
+        count: related.timeEntries.length,
+      },
       {
         label: "Transactions",
         value: "transactions",
@@ -191,6 +208,9 @@ export const useCustomerDetailsView = () => {
       documentList.length,
       customerInvoices.length,
       customerTransactions.length,
+      related.quotes.length,
+      related.expenses.length,
+      related.timeEntries.length,
     ],
   );
 
@@ -202,6 +222,7 @@ export const useCustomerDetailsView = () => {
     financials,
     customerInvoices,
     customerTransactions,
+    related,
     activeTab,
     setActiveTab,
     mounted,

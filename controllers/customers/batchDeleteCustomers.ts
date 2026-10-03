@@ -4,6 +4,9 @@ import { getDatabase } from "@/lib/database";
 import { Customer } from "@/entities/Customer";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
+import { Quote } from "@/entities/Quote";
+import { Expense } from "@/entities/Expense";
+import { TimeEntry } from "@/entities/TimeEntry";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { deleteFileIfExists } from "@/utils/customers/customersHelper";
 import { BatchDeleteCustomerPayload } from "@/types/customer";
@@ -75,6 +78,20 @@ const batchDeleteCustomers = async (req: NextRequest) => {
         where: checkFilter,
       }),
     ]);
+
+    const [quoteCount, expenseCount, timeEntryCount] = await Promise.all([
+      db.getRepository(Quote).count({ where: checkFilter }),
+      db.getRepository(Expense).count({ where: checkFilter }),
+      db.getRepository(TimeEntry).count({ where: checkFilter }),
+    ]);
+    if (quoteCount + expenseCount + timeEntryCount > 0) {
+      return NextResponse.json(
+        {
+          message: `Cannot delete customer(s): ${quoteCount} quote(s), ${expenseCount} expense(s) and ${timeEntryCount} time entr${timeEntryCount === 1 ? "y" : "ies"} are linked to these customers. Please delete them first.`,
+        },
+        { status: 400 },
+      );
+    }
 
     if (invoiceCount > 0) {
       return NextResponse.json(
