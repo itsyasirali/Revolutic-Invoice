@@ -57,6 +57,23 @@ const createItem = async (req: NextRequest) => {
     const db = await getDatabase();
     const itemsRepository = db.getRepository(Item);
 
+    const cleanName = String(name).trim().toLowerCase();
+    const cleanUnit = (unit ? String(unit).trim() : "").toLowerCase();
+    const existing = await itemsRepository.find({ where: { organizationId } });
+    const duplicate = existing.some(
+      (e) =>
+        (e.name || "").trim().toLowerCase() === cleanName &&
+        (e.unit || "").trim().toLowerCase() === cleanUnit &&
+        Number(e.sellingPrice) === sellingPrice &&
+        (e.type || "Goods") === (type === "Service" ? "Service" : "Goods"),
+    );
+    if (duplicate) {
+      return NextResponse.json(
+        { message: "An item with identical details already exists" },
+        { status: 409 },
+      );
+    }
+
     const newItem = itemsRepository.create({
       type: type === "Service" ? "Service" : "Goods",
       name: String(name).trim(),

@@ -389,7 +389,8 @@ export const generateInvoicePDF = (
         }
 
         const termsLabel = template?.termsLabel ?? "";
-        if (termsLabel || termsText) {
+        // Terms drive the due date but are intentionally not printed on the PDF.
+        if (false as boolean) {
           if (termsLabel) {
             doc
               .fontSize(baseFontSize)

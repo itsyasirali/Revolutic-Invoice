@@ -111,7 +111,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     logoPreview:
       data.branding?.logoPreview ||
       (data.logoUrl
-        ? data.logoUrl.startsWith("http")
+        ? /^(https?:|data:|blob:)/i.test(data.logoUrl)
           ? data.logoUrl
           : `/${data.logoUrl.replace(/^\//, "")}`
         : ""),
@@ -239,6 +239,29 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
       "Thank you for your business. Please remit payment within 30 days via bank transfer.",
   };
 
+  const inferTerms = (invoiceDate?: string | Date, dueDate?: string | Date): string => {
+    if (!invoiceDate || !dueDate) return "";
+    const days = Math.round(
+      (new Date(dueDate).getTime() - new Date(invoiceDate).getTime()) / 86400000,
+    );
+    if (days === 0) return "Due on Receipt";
+    if ([15, 30, 45, 60].includes(days)) return `Net ${days}`;
+    return "";
+  };
+
+  const allHourly =
+    !!invoice?.items?.length &&
+    invoice.items.every((it: any) =>
+      /^\s*(h|hr|hrs|hour|hours)\s*$/i.test(String(it.unit || it.item?.unit || "")),
+    );
+  const columnLabel = (col: { key?: string; label?: string }): string =>
+    invoice &&
+    (col.key === "quantity" || col.key === "qty") &&
+    /^\s*hours?\s*$/i.test(col.label || "") &&
+    !allHourly
+      ? "Qty"
+      : col.label || "";
+
   const activeInvoice = invoice
     ? {
         number: invoice.invoiceNumber ?? DUMMY_INVOICE_DATA.number,
@@ -258,7 +281,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                 year: "numeric",
               })
             : DUMMY_INVOICE_DATA.dueDate),
-        terms: invoice.terms ?? DUMMY_INVOICE_DATA.terms,
+        terms: invoice.terms || inferTerms(invoice.invoiceDate, invoice.dueDate),
         client: {
           name:
             invoice.customerDisplayName ||
@@ -364,6 +387,45 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const isLandscape = orientation === "Landscape";
   const paper = paperSizes[paperSize] || paperSizes["A4"];
   const minHeight = isLandscape ? paper.width : paper.height;
+
+  const renderDueDate = () => (
+    <>
+              {data.showDueDate !== false && (
+                <div className="flex justify-between items-center w-full gap-4">
+                  <SelectableElement
+                    id="due-date-label"
+                    selectedElement={selectedElement}
+                    onSelect={onSelectElement}
+                  >
+                    <span
+                      style={{
+                        fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
+                        color: dueDateLabelColor,
+                      }}
+                    >
+                      {data.dueDateLabel ? `${data.dueDateLabel} :` : ""}
+                    </span>
+                  </SelectableElement>
+                  <SelectableElement
+                    id="due-date-value"
+                    selectedElement={selectedElement}
+                    onSelect={onSelectElement}
+                  >
+                    <span
+                      style={{
+                        fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
+                        fontWeight: "bold",
+                        color: dueDateValueColor,
+                      }}
+                    >
+                      {activeInvoice.dueDate}
+                    </span>
+                  </SelectableElement>
+                </div>
+              )}
+    </>
+  );
+
 
   return (
     <div
@@ -552,6 +614,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             </SelectableElement>
 
             <div className="flex flex-col items-end min-w-[220px]">
+              {/* Terms stay on the invoice (they drive the due date) but are hidden on real invoice PDFs. */}
+              {!invoice && (
               <div className="flex justify-between items-center w-full gap-4">
                 <SelectableElement
                   id="terms-label"
@@ -583,6 +647,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   </span>
                 </SelectableElement>
               </div>
+              )}
+              {invoice && renderDueDate()}
             </div>
           </div>
 
@@ -604,39 +670,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             </SelectableElement>
 
             <div className="flex flex-col items-end min-w-[220px]">
-              {data.showDueDate !== false && (
-                <div className="flex justify-between items-center w-full gap-4">
-                  <SelectableElement
-                    id="due-date-label"
-                    selectedElement={selectedElement}
-                    onSelect={onSelectElement}
-                  >
-                    <span
-                      style={{
-                        fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
-                        color: dueDateLabelColor,
-                      }}
-                    >
-                      {data.dueDateLabel ? `${data.dueDateLabel} :` : ""}
-                    </span>
-                  </SelectableElement>
-                  <SelectableElement
-                    id="due-date-value"
-                    selectedElement={selectedElement}
-                    onSelect={onSelectElement}
-                  >
-                    <span
-                      style={{
-                        fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
-                        fontWeight: "bold",
-                        color: dueDateValueColor,
-                      }}
-                    >
-                      {activeInvoice.dueDate}
-                    </span>
-                  </SelectableElement>
-                </div>
-              )}
+              {invoice ? null : renderDueDate()}
             </div>
           </div>
         </div>
@@ -684,7 +718,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                         lineHeight: 1.2,
                       }}
                     >
-                      {col.label}
+                      {columnLabel(col)}
                     </th>
                   ))}
                 </tr>

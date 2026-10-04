@@ -114,7 +114,7 @@ export class Template {
   @Column({ default: "Terms" }) termsLabel!: string;
   @Column({ default: "Item & Description" }) itemsLabel!: string;
   @Column({ default: "Description" }) descriptionLabel!: string;
-  @Column({ default: "Hours" }) quantityLabel!: string;
+  @Column({ default: "Qty" }) quantityLabel!: string;
   @Column({ default: "Rate" }) rateLabel!: string;
   @Column({ default: "Amount" }) amountLabel!: string;
   @Column({ default: "Sub Total" }) subtotalLabel!: string;

@@ -306,10 +306,10 @@ export const useInvoiceForm = () => {
         const daysDiff = Math.floor(
           (dueDate.getTime() - invoiceDate.getTime()) / (1000 * 60 * 60 * 24)
         );
-        let terms = "Due on Receipt";
-        if (daysDiff === 15) terms = "Net 15";
-        else if (daysDiff === 30) terms = "Net 30";
-        else if (daysDiff === 60) terms = "Net 60";
+        let terms = (invoice as { terms?: string }).terms || "Due on Receipt";
+        if (!(invoice as { terms?: string }).terms && daysDiff === 15) terms = "Net 15";
+        else if (!(invoice as { terms?: string }).terms && daysDiff === 30) terms = "Net 30";
+        else if (!(invoice as { terms?: string }).terms && daysDiff === 60) terms = "Net 60";
 
         const customerObj =
           typeof invoice.customerId === "object" && invoice.customerId !== null

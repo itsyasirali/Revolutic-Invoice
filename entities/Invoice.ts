@@ -34,6 +34,9 @@ export class Invoice {
   @Column({ nullable: true })
   dueDate!: Date;
 
+  @Column({ type: "varchar", nullable: true })
+  terms?: string;
+
   @Column("decimal", { precision: 12, scale: 2, default: 0 })
   subTotal!: number;
 

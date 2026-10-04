@@ -29,6 +29,14 @@ const DEFAULT_COLUMNS: TableColumn[] = [
   { key: "amount", label: "Amount", width: 70, align: "right", enabled: true },
 ];
 
+// Logos are stored as absolute (Cloudinary) or data: URLs; only bare paths
+// need a leading slash.
+const resolveLogoUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (/^(https?:|data:|blob:)/i.test(url)) return url;
+  return `/${url.replace(/^\//, "")}`;
+};
+
 const DEFAULT_FORM_DATA: TemplateFormData = {
   templateName: "",
   isDefault: false,
@@ -98,7 +106,7 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   termsLabel: "Terms",
   itemsLabel: "Item & Description",
   descriptionLabel: "Description",
-  quantityLabel: "Hours",
+  quantityLabel: "Qty",
   rateLabel: "Rate",
   amountLabel: "Amount",
   subtotalLabel: "Sub Total",
@@ -216,9 +224,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setBranding({
           brandName: (data.brandName as string) || "",
           tagline: (data.tagline as string) || "",
-          logoPreview: data.logoUrl
-            ? `/${(data.logoUrl as string).replace(/^\//, "")}`
-            : "",
+          logoPreview: resolveLogoUrl(data.logoUrl as string | undefined),
         });
 
         if (
@@ -293,9 +299,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setBranding({
           brandName: data.brandName || "",
           tagline: data.tagline || "",
-          logoPreview: data.logoUrl
-            ? `/${data.logoUrl.replace(/^\//, "")}`
-            : "",
+          logoPreview: resolveLogoUrl(data.logoUrl),
         });
 
         if (data.tableColumnSettings && data.tableColumnSettings.length > 0) {

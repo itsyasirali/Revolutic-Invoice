@@ -154,7 +154,11 @@ const HeaderSearch = () => {
               badge: i.status,
               badgeVariant: i.status === "Active" ? "success" : "default",
               icon: Package,
-              href: `/items/edit/${i.id}`,
+              href: `/items/${i.id}`,
+              onClick: () => {
+                setNavState(`item:${i.id}`, i);
+                router.push(`/items/${i.id}`);
+              },
             }));
         }
 
