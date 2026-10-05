@@ -1,4 +1,4 @@
-import { parseCsv, type CsvRow } from "./csv";
+import { parseCsvRecords as parseCsv, type CsvRow } from "@/lib/csv";
 import type {
   CustomerDraft,
   ImportDrafts,

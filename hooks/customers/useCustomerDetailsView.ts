@@ -9,6 +9,7 @@ import { useCustomerRelatedRecords } from "./useCustomerRelatedRecords";
 import { getDownloadUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 
 export type CustomerTab =
+  | "overview"
   | "invoices"
   | "transactions"
   | "contacts"
@@ -19,7 +20,13 @@ export type CustomerTab =
 
 export const useCustomerDetailsView = () => {
   const router = useRouter();
-  const { deleteCustomers, loading: deleteLoading } = useDeleteCustomer();
+  const {
+    deleteCustomers,
+    loading: deleteLoading,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
+  } = useDeleteCustomer();
 
   const {
     customer,
@@ -31,7 +38,7 @@ export const useCustomerDetailsView = () => {
 
   const related = useCustomerRelatedRecords(customer?.id);
 
-  const [activeTab, setActiveTab] = useState<CustomerTab>("contacts");
+  const [activeTab, setActiveTab] = useState<CustomerTab>("overview");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -187,8 +194,7 @@ export const useCustomerDetailsView = () => {
 
   const tabs = useMemo(
     () => [
-      { label: "Contacts", value: "contacts", count: contactList.length },
-      { label: "Documents", value: "documents", count: documentList.length },
+      { label: "Overview", value: "overview" },
       { label: "Invoices", value: "invoices", count: customerInvoices.length },
       { label: "Quotes", value: "quotes", count: related.quotes.length },
       { label: "Expenses", value: "expenses", count: related.expenses.length },
@@ -204,8 +210,6 @@ export const useCustomerDetailsView = () => {
       },
     ],
     [
-      contactList.length,
-      documentList.length,
       customerInvoices.length,
       customerTransactions.length,
       related.quotes.length,
@@ -240,6 +244,9 @@ export const useCustomerDetailsView = () => {
     handleEdit,
     handleNewInvoice,
     handleDelete,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
     handleBackClick,
     handleInvoiceClick,
     handleTransactionClick,

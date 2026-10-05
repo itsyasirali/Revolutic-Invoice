@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Trash2, Plus, X } from "lucide-react";
 import axios from "@/lib/axios";
@@ -238,8 +238,13 @@ const errorData = (err: unknown) =>
  * editable records and shown in a preview; nothing is saved until the user
  * confirms, and the edited records are what get saved.
  */
-export const ImportButton: React.FC<{ kind: ImportKind }> = ({ kind }) => {
+export const ImportButton: React.FC<{
+  kind: ImportKind;
+  /** Render your own trigger (e.g. a menu item) instead of the default button. */
+  renderTrigger?: (inputId: string, loading: boolean) => React.ReactNode;
+}> = ({ kind, renderTrigger }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const schema = SCHEMAS[kind];
   const entity = KIND_ENTITY[kind];
 
@@ -354,20 +359,25 @@ export const ImportButton: React.FC<{ kind: ImportKind }> = ({ kind }) => {
     <>
       <input
         ref={inputRef}
+        id={inputId}
         type="file"
         accept=".csv,text/csv"
         className="hidden"
         onChange={(e) => onFile(e.target.files?.[0])}
       />
-      <Button
-        variant="outline"
-        size="sm"
-        loading={loading && !open}
-        disabled={loading}
-        onClick={() => inputRef.current?.click()}
-      >
-        Import {schema.label}
-      </Button>
+      {renderTrigger ? (
+        renderTrigger(inputId, loading)
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          loading={loading && !open}
+          disabled={loading}
+          onClick={() => inputRef.current?.click()}
+        >
+          Import {schema.label}
+        </Button>
+      )}
 
       {open &&
         createPortal(

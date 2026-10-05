@@ -17,6 +17,7 @@ const useInvoiceDetails = () => {
   const {
     invoice,
     handleSend,
+    handleEdit,
     writeOffTarget,
     writeOffLoading,
     openWriteOff,
@@ -155,6 +156,7 @@ const useInvoiceDetails = () => {
     mounted,
     invoice,
     handleSend,
+    handleEdit,
     handlePreviewPdf,
     invoiceNumberDisplay,
     currency,

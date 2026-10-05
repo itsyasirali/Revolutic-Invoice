@@ -1,5 +1,5 @@
-import ExpenseDetails from "@/components/Expenses/ExpenseDetails";
+import ExpenseSplitView from "@/components/Expenses/ExpenseSplitView";
 
-const ExpenseDetailsPage = () => <ExpenseDetails />;
+const DetailsPage = () => <ExpenseSplitView />;
 
-export default ExpenseDetailsPage;
+export default DetailsPage;

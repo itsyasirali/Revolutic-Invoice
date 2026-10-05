@@ -54,3 +54,19 @@ export const parseCsv = (text: string): string[][] => {
   if (row.some((c) => c.trim() !== "")) rows.push(row);
   return rows;
 };
+
+export type CsvRow = Record<string, string>;
+
+/** Parses CSV text into one object per row, keyed by the header line. */
+export const parseCsvRecords = (text: string): CsvRow[] => {
+  const [header, ...rows] = parseCsv(text);
+  if (!header) return [];
+  const keys = header.map((h) => h.trim());
+  return rows.map((cells) => {
+    const row: CsvRow = {};
+    keys.forEach((k, i) => {
+      row[k] = cells[i] ?? "";
+    });
+    return row;
+  });
+};

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import useSWR from "swr";
-import { Copy, Mail, UserX } from "lucide-react";
+import { Copy, Globe, Mail, UserX, X } from "lucide-react";
 import axios from "@/lib/axios";
 import { swrFetcher } from "@/lib/swr";
-import { Button, Input, Select, StatusBadge, toast } from "@/components/ui";
+import { Button, Select, StatusBadge, toast } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 
 interface PortalUserRow {
@@ -30,18 +31,24 @@ const CustomerPortalCard: React.FC<{ customerId: number; contactEmails: string[]
   });
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const [enableOpen, setEnableOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [link, setLink] = useState<{ email: string; url: string; emailed: boolean } | null>(null);
 
   const users = data?.users || [];
   const options = contactEmails.filter(Boolean).map((e) => ({ label: e, value: e }));
+  // Portal is "enabled" once someone has been invited or is active; removed access doesn't count.
+  const portalEnabled = users.some((u) => u.status !== "Disabled");
 
   const invite = async (address: string) => {
     if (!address.trim()) return;
     setBusy(true);
     try {
       const res = await axios.post(key, { email: address.trim() });
-      setLink({ email: address.trim(), url: res.data.link, emailed: res.data.emailed });
+      setLink(res.data.emailed ? null : { email: address.trim(), url: res.data.link, emailed: false });
       setEmail("");
+      setEnableOpen(false);
       await mutate();
       toast.success(
         res.data.emailed ? `Invitation emailed to ${address}` : "Invitation link created",
@@ -115,46 +122,90 @@ const CustomerPortalCard: React.FC<{ customerId: number; contactEmails: string[]
         </ul>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-        {options.length > 0 && (
-          <div className="sm:w-72">
-            <Select
-              label="Invite a contact"
-              placeholder="Choose a contact email"
-              options={options}
-              value={email}
-              onValueChange={setEmail}
-              fullWidth
-            />
-          </div>
-        )}
-        <div className="sm:w-72">
-          <Input
-            label={options.length ? "or enter an email" : "Email address"}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-          />
+      {data && !portalEnabled && (
+        <div>
+          <Button
+            variant="primary"
+            size="md"
+            icon={<Globe className="w-4 h-4" />}
+            onClick={() => setEnableOpen(true)}
+          >
+            Enable Portal
+          </Button>
         </div>
-        <Button
-          variant="primary"
-          size="md"
-          icon={<Mail className="w-4 h-4" />}
-          loading={busy}
-          disabled={!email.trim() || busy}
-          onClick={() => invite(email)}
-        >
-          Send Invitation
-        </Button>
-      </div>
+      )}
+
+      {mounted &&
+        enableOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-start justify-center px-4 overflow-y-auto">
+            <div
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => !busy && setEnableOpen(false)}
+            />
+            <div className="relative z-10 w-full max-w-md rounded-b-xl border-x border-b border-slate-200 bg-white shadow-2xl">
+              <div className="flex items-start gap-4 p-6 pb-4">
+                <div className="p-2.5 rounded-md bg-white shadow-sm shrink-0 text-primary">
+                  <Globe className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-bold text-slate-900">Enable Customer Portal</h3>
+                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                    Send an invitation so this customer can view quotes, invoices, payments and projects online.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  onClick={() => setEnableOpen(false)}
+                  disabled={busy}
+                  className="p-1 text-slate-400 hover:text-slate-700 rounded-md transition-colors cursor-pointer shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="px-6 pb-2">
+                {options.length > 0 ? (
+                  <Select
+                    label="Invite a contact"
+                    placeholder="Choose a contact email"
+                    options={options}
+                    value={email}
+                    onValueChange={setEmail}
+                    fullWidth
+                  />
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    Add a contact with an email address to this customer to enable portal access.
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2.5 justify-end px-6 py-4">
+                <Button variant="outline" size="sm" onClick={() => setEnableOpen(false)} disabled={busy}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Mail className="w-4 h-4" />}
+                  loading={busy}
+                  disabled={!email.trim() || busy || options.length === 0}
+                  onClick={() => invite(email)}
+                >
+                  Send Invitation
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {link && (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
           <p className="font-semibold text-slate-700 mb-1">
-            {link.emailed
-              ? `Invitation emailed to ${link.email}. You can also share this link:`
-              : `Email is not configured. Share this link with ${link.email}:`}
+            Email is not configured. Share this link with {link.email}:
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 truncate text-slate-600">{link.url}</code>

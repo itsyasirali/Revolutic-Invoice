@@ -1,5 +1,5 @@
-import ProjectDetails from "@/components/Projects/ProjectDetails";
+import ProjectSplitView from "@/components/Projects/ProjectSplitView";
 
-const ProjectDetailsPage = () => <ProjectDetails />;
+const DetailsPage = () => <ProjectSplitView />;
 
-export default ProjectDetailsPage;
+export default DetailsPage;

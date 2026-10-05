@@ -1,5 +1,5 @@
-import TimeEntryDetails from "@/components/TimeTracking/TimeEntryDetails";
+import TimeEntrySplitView from "@/components/TimeTracking/TimeEntrySplitView";
 
-const TimeEntryDetailsPage = () => <TimeEntryDetails />;
+const DetailsPage = () => <TimeEntrySplitView />;
 
-export default TimeEntryDetailsPage;
+export default DetailsPage;

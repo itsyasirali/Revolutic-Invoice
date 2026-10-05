@@ -15,7 +15,8 @@ import {
   Table,
   Tabs,
 } from "@/components/ui";
-import { DetailBreadcrumb, InfoCard, InfoField } from "@/components/ui/DetailParts";
+import { InfoCard, InfoField } from "@/components/ui/DetailParts";
+import DetailHeader from "@/components/ui/DetailHeader";
 import useProject, { addTask, updateTask, deleteTask, billProject } from "@/hooks/projects/useProject";
 import useProjectDelete from "@/hooks/projects/useProjectDelete";
 import { statusVariant } from "@/lib/statusVariants";
@@ -156,46 +157,30 @@ const ProjectDetails: React.FC = () => {
         onCancel={del.hideConfirmDialog}
       />
 
-      <DetailBreadcrumb section="Projects" href="/projects" current={project.projectNumber} />
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">{project.name}</h1>
+      <DetailHeader
+        title={project.name}
+        subtitle={
+          <>
             <StatusBadge status={project.status} variant={statusVariant(project.status)} />
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            {project.projectNumber} · {customerLabel(project.customer)} · {project.billingMethod}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="success"
-            size="sm"
-            onClick={createInvoice}
-            loading={billing}
-            disabled={unbilledTotal <= 0}
-          >
-            Create Invoice
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push(`/time-tracking/new?projectId=${project.id}`)}>
-            Log Time
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push(`/expenses/new?projectId=${project.id}`)}>
-            Add Expense
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push(`/projects/edit/${project.id}`)}>
-            Edit
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => del.requestDelete([project.id], () => router.push("/projects"))}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
+            <span>
+              {project.projectNumber} · {customerLabel(project.customer)} · {project.billingMethod}
+            </span>
+          </>
+        }
+        onEdit={() => router.push(`/projects/edit/${project.id}`)}
+        editTitle="Edit project"
+        onClose={() => router.push("/projects")}
+        menu={[
+          { label: "Create Invoice", disabled: billing || unbilledTotal <= 0, onClick: createInvoice },
+          { label: "Log Time", onClick: () => router.push(`/time-tracking/new?projectId=${project.id}`) },
+          { label: "Add Expense", onClick: () => router.push(`/expenses/new?projectId=${project.id}`) },
+          {
+            label: "Delete",
+            danger: true,
+            onClick: () => del.requestDelete([project.id], () => router.push("/projects")),
+          },
+        ]}
+      />
 
       <InfoCard title="Project Information">
         <InfoField label="Customer">

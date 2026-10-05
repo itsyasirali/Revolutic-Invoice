@@ -7,14 +7,14 @@ import { FileQuestion } from "lucide-react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import {
-  Button,
   StatusBadge,
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
   toast,
 } from "@/components/ui";
-import { DetailBreadcrumb, InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
+import { InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
+import DetailHeader from "@/components/ui/DetailHeader";
 import { useTimeEntry } from "@/hooks/timeTracking/useTimeEntryForm";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
 import { invalidateTimeEntries, invalidateTimeEntriesAndInvoices } from "@/lib/swr";
@@ -85,44 +85,35 @@ const TimeEntryDetails: React.FC = () => {
         onCancel={del.hideConfirmDialog}
       />
 
-      <DetailBreadcrumb section="Time Tracking" href="/time-tracking" current={entry.entryNumber} />
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              {entry.entryNumber}
-            </h1>
+      <DetailHeader
+        title={entry.entryNumber}
+        subtitle={
+          <>
             <StatusBadge status={entry.status} variant={statusVariant(entry.status)} />
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            {formatDuration(entry.duration)} · {formatDate(entry.date)}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {entry.billable && !entry.invoiced && (
-            <Button variant="success" size="sm" onClick={convert} loading={converting}>
-              Create Invoice
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={entry.invoiced}
-            onClick={() => router.push(`/time-tracking/edit/${entry.id}`)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            disabled={entry.invoiced}
-            onClick={() => del.requestDelete([entry.id], () => router.push("/time-tracking"))}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
+            <span>
+              {formatDuration(entry.duration)} · {formatDate(entry.date)}
+            </span>
+          </>
+        }
+        onEdit={() => router.push(`/time-tracking/edit/${entry.id}`)}
+        editDisabled={entry.invoiced}
+        editTitle={entry.invoiced ? "Invoiced entries cannot be edited" : "Edit time entry"}
+        onClose={() => router.push("/time-tracking")}
+        menu={[
+          {
+            label: "Create Invoice",
+            hidden: !(entry.billable && !entry.invoiced),
+            disabled: converting,
+            onClick: convert,
+          },
+          {
+            label: "Delete",
+            danger: true,
+            disabled: entry.invoiced,
+            onClick: () => del.requestDelete([entry.id], () => router.push("/time-tracking")),
+          },
+        ]}
+      />
 
       <InfoCard title="Time Information">
         <InfoField label="Date">{formatDate(entry.date)}</InfoField>

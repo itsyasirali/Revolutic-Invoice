@@ -1,17 +1,12 @@
 "use client";
 
 import React from "react";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
-  Home,
-  ChevronRight,
   Mail,
   Phone,
   FileText,
   MapPin,
   Calendar,
-  Pencil,
-  Plus,
   CheckCircle2,
   Clock,
   DollarSign,
@@ -24,7 +19,7 @@ import {
   StatusBadge,
   Tabs,
   CurrencyDisplay,
-  Button,
+  ConfirmDialog,
 } from "@/components/ui";
 import type { UIInvoiceListItem, PaymentTransaction } from "@/types/customer";
 import type { TableColumn } from "@/types/common";
@@ -33,6 +28,7 @@ import useCustomerDetailsView, {
   type CustomerTab,
 } from "@/hooks/customers/useCustomerDetailsView";
 import CustomerPortalCard from "@/components/portal/CustomerPortalCard";
+import DetailHeader from "@/components/ui/DetailHeader";
 
 const CustomerDetails: React.FC = () => {
   const {
@@ -45,7 +41,6 @@ const CustomerDetails: React.FC = () => {
     activeTab,
     setActiveTab,
     mounted,
-    customerInitials,
     customerIdDisplay,
     customerSince,
     billingAddressLines,
@@ -58,6 +53,10 @@ const CustomerDetails: React.FC = () => {
 
     tabs,
     handleBackClick,
+    handleDelete,
+    confirmDialog,
+    confirmDelete,
+    hideConfirmDialog,
     handleEdit,
     handleNewInvoice,
     handleInvoiceClick,
@@ -240,72 +239,41 @@ const CustomerDetails: React.FC = () => {
 
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
-      {/* 1. Breadcrumb */}
-      <nav
-        className="flex items-center gap-2 text-sm text-slate-500"
-        aria-label="Breadcrumb"
-      >
-        <Link
-          href="/dashboard"
-          className="text-primary hover:text-primary/80 transition-colors flex items-center"
-          title="Dashboard"
-        >
-          <Home className="w-4 h-4" />
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <Link
-          href="/customers"
-          className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
-        >
-          Customers
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
-          {customer.displayName || "Customer Details"}
-        </span>
-      </nav>
+      <ConfirmDialog
+        isOpen={confirmDialog.show}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={hideConfirmDialog}
+      />
 
-      {/* 2. Customer Header Profile */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left: Avatar + Title + Status + Customer ID */}
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0 shadow-xs">
-            {customerInitials}
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                {customer.displayName || "Customer"}
-              </h1>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-              Customer ID: {customerIdDisplay}
-            </p>
-          </div>
-        </div>
+      <DetailHeader
+        title={customer.displayName || "Customer"}
+        subtitle={<>Customer ID: {customerIdDisplay}</>}
+        onEdit={handleEdit}
+        editTitle="Edit customer"
+        onClose={handleBackClick}
+        menu={[
+          { label: "New Invoice", onClick: handleNewInvoice },
+          { label: "Delete", onClick: handleDelete, danger: true },
+        ]}
+      />
 
-        {/* Right: Actions */}
-        <div className="flex items-center flex-col-reverse gap-3 shrink-0">
-          <Button
-            onClick={handleEdit}
-            variant="outline"
-            size="md"
-            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
-          >
-            Edit Customer
-          </Button>
-          <Button
-            onClick={handleNewInvoice}
-            variant="primary"
-            size="md"
-            className="font-medium rounded-lg shadow-xs"
-          >
-            New Invoice
-          </Button>
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <Tabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(value) => setActiveTab(value as CustomerTab)}
+        />
       </div>
 
-      {/* 3. Overview Card (Customer Information + Financial Summary) */}
+      {activeTab === "overview" && (
+        <div className="space-y-6">
+          {/* Overview Card (Customer Information + Financial Summary) */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Customer Information (Left Side) */}
@@ -416,18 +384,11 @@ const CustomerDetails: React.FC = () => {
         contactEmails={(customer.contacts || []).map((c) => c.email || "")}
       />
 
-      {/* 4. Tabs & Lists */}
-      <div className="flex flex-col mt-4">
-        <div className="mb-6">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={(value) => setActiveTab(value as CustomerTab)}
-          />
-        </div>
 
-        <div>
-          {activeTab === "contacts" && (
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Contacts ({contactList.length})
+            </h2>
             <Table
               columns={contactColumns}
               data={contactList}
@@ -440,9 +401,12 @@ const CustomerDetails: React.FC = () => {
               showCheckbox={false}
               variant="spacious"
             />
-          )}
+          </section>
 
-          {activeTab === "documents" && (
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Documents ({documentList.length})
+            </h2>
             <Table
               columns={documentColumns}
               data={documentList}
@@ -455,8 +419,11 @@ const CustomerDetails: React.FC = () => {
               showCheckbox={false}
               variant="spacious"
             />
-          )}
+          </section>
+        </div>
+      )}
 
+      <div>
           {activeTab === "invoices" && (
             <Table
               columns={invoiceColumns}
@@ -494,7 +461,6 @@ const CustomerDetails: React.FC = () => {
               variant="spacious"
             />
           )}
-        </div>
       </div>
     </div>
   );

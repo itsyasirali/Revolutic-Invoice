@@ -3,33 +3,24 @@
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  Send,
-  Eye,
-  Download,
-  Copy,
-  Edit,
-  Trash2,
   FileCheck2,
-  CheckCircle2,
-  XCircle,
   ScrollText,
   Mail,
   MapPin,
   Calendar,
   Clock,
   FileQuestion,
-  FolderKanban,
 } from "lucide-react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import {
-  Button,
   StatusBadge,
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
 } from "@/components/ui";
-import { DetailBreadcrumb, ActivityList } from "@/components/ui/DetailParts";
+import { ActivityList } from "@/components/ui/DetailParts";
+import DetailHeader from "@/components/ui/DetailHeader";
 import useQuote, { runQuoteAction } from "@/hooks/quotes/useQuote";
 import { createProjectFromQuote } from "@/hooks/projects/useProject";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
@@ -97,8 +88,6 @@ const QuoteDetails: React.FC = () => {
     if (project) router.push(`/projects/${project.id}`);
   };
 
-  const actionButton = "font-medium rounded-lg shadow-2xs";
-
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
       <ConfirmDialog
@@ -112,106 +101,38 @@ const QuoteDetails: React.FC = () => {
         onCancel={del.hideConfirmDialog}
       />
 
-      <DetailBreadcrumb section="Quotes" href="/quotes" current={quote.quoteNumber} />
-
-      {/* Quote Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-white shrink-0 shadow-xs">
-            <ScrollText className="w-7 h-7 sm:w-8 sm:h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                {quote.quoteNumber}
-              </h1>
-              <StatusBadge status={status} variant={statusVariant(status)} />
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+      <DetailHeader
+        title={quote.quoteNumber}
+        subtitle={
+          <>
+            <StatusBadge status={status} variant={statusVariant(status)} />
+            <span>
               {customerLabel(quote.customer)} · {formatMoney(quote.total)} {quote.currency}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 sm:w-52 shrink-0">
-          {canSend && (
-            <Button
-              onClick={() => router.push(`/quotes/${quote.id}/email`)}
-              variant="primary"
-              size="md"
-              fullWidth
-              icon={<Send className="w-4 h-4" />}
-              className={actionButton}
-            >
-              Send Quote
-            </Button>
-          )}
-          {canConvert && (
-            <Button
-              onClick={() => act("convert")}
-              loading={acting}
-              variant="success"
-              size="md"
-              fullWidth
-              icon={<FileCheck2 className="w-4 h-4" />}
-              className={actionButton}
-            >
-              Convert to Invoice
-            </Button>
-          )}
-          {canCreateProject && (
-            <Button onClick={makeProject} loading={acting} variant="outline" size="md" fullWidth icon={<FolderKanban className="w-4 h-4" />} className={actionButton}>
-              Create Project
-            </Button>
-          )}
-          {quote.projectId ? (
-            <Button onClick={() => router.push(`/projects/${quote.projectId}`)} variant="outline" size="md" fullWidth icon={<FolderKanban className="w-4 h-4" />} className={actionButton}>
-              View Project
-            </Button>
-          ) : null}
-          {status === "Sent" && (
-            <Button onClick={() => act("viewed")} disabled={acting} variant="outline" size="md" fullWidth icon={<Eye className="w-4 h-4" />} className={actionButton}>
-              Mark Viewed
-            </Button>
-          )}
-          {canRespond && (
-            <>
-              <Button onClick={() => act("accept")} disabled={acting} variant="success" size="md" fullWidth icon={<CheckCircle2 className="w-4 h-4" />} className={actionButton}>
-                Mark Accepted
-              </Button>
-              <Button onClick={() => act("decline")} disabled={acting} variant="warning" size="md" fullWidth icon={<XCircle className="w-4 h-4" />} className={actionButton}>
-                Mark Declined
-              </Button>
-            </>
-          )}
-          <Button onClick={() => router.push(`/quotes/preview/${quote.id}`)} variant="outline" size="md" fullWidth icon={<Eye className="w-4 h-4" />} className={actionButton}>
-            Preview
-          </Button>
-          <Button onClick={() => router.push(`/quotes/preview/${quote.id}?download=1`)} variant="outline" size="md" fullWidth icon={<Download className="w-4 h-4" />} className={actionButton}>
-            Download PDF
-          </Button>
-          <Button onClick={() => act("clone")} disabled={acting} variant="outline" size="md" fullWidth icon={<Copy className="w-4 h-4" />} className={actionButton}>
-            Clone
-          </Button>
-          {canEdit && (
-            <Button onClick={() => router.push(`/quotes/edit/${quote.id}`)} variant="outline" size="md" fullWidth icon={<Edit className="w-4 h-4" />} className={actionButton}>
-              Edit
-            </Button>
-          )}
-          {canDelete && (
-            <Button
-              onClick={() => del.requestDelete([quote.id], () => router.push("/quotes"))}
-              variant="danger"
-              size="md"
-              fullWidth
-              icon={<Trash2 className="w-4 h-4" />}
-              className={actionButton}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
-      </div>
+            </span>
+          </>
+        }
+        onEdit={canEdit ? () => router.push(`/quotes/edit/${quote.id}`) : undefined}
+        editTitle="Edit quote"
+        onClose={() => router.push("/quotes")}
+        menu={[
+          { label: "Send Quote", hidden: !canSend, onClick: () => router.push(`/quotes/${quote.id}/email`) },
+          { label: "Convert to Invoice", hidden: !canConvert, disabled: acting, onClick: () => act("convert") },
+          { label: "Create Project", hidden: !canCreateProject, disabled: acting, onClick: makeProject },
+          { label: "View Project", hidden: !quote.projectId, onClick: () => router.push(`/projects/${quote.projectId}`) },
+          { label: "Mark Viewed", hidden: status !== "Sent", disabled: acting, onClick: () => act("viewed") },
+          { label: "Mark Accepted", hidden: !canRespond, disabled: acting, onClick: () => act("accept") },
+          { label: "Mark Declined", hidden: !canRespond, disabled: acting, onClick: () => act("decline") },
+          { label: "Preview", onClick: () => router.push(`/quotes/preview/${quote.id}`) },
+          { label: "Download PDF", onClick: () => router.push(`/quotes/preview/${quote.id}?download=1`) },
+          { label: "Clone", disabled: acting, onClick: () => act("clone") },
+          {
+            label: "Delete",
+            hidden: !canDelete,
+            danger: true,
+            onClick: () => del.requestDelete([quote.id], () => router.push("/quotes")),
+          },
+        ]}
+      />
 
       {/* Customer + Quote information */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">

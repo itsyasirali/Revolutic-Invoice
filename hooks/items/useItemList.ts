@@ -95,6 +95,8 @@ export const useItemList = (initialItems?: Item[]) => {
   }, []);
 
   return {
+    items,
+    refetch,
     loading: busy,
     statusFilter,
     setStatusFilter,

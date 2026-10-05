@@ -3,8 +3,6 @@
 import React from "react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
-  Home,
-  ChevronRight,
   Mail,
   Phone,
   ScrollText,
@@ -13,13 +11,14 @@ import {
   Clock,
   CheckCircle2,
   DollarSign,
-  Eye,
-  Send,
   Ban,
   RotateCcw,
 } from "lucide-react";
-import { Table, StatusBadge, Button } from "@/components/ui";
+import { Table, StatusBadge, Button, ConfirmDialog } from "@/components/ui";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
 import WriteOffModal from "./WriteOffModal";
+import DetailHeader from "@/components/ui/DetailHeader";
 import useInvoiceDetails from "@/hooks/invoices/useInvoiceDetails";
 import type { Invoice } from "@/types/invoice";
 import usePlaceholderResolver from "@/hooks/common/usePlaceholderResolver";
@@ -34,6 +33,7 @@ const InvoiceDetails: React.FC = () => {
     mounted,
     invoice,
     handleSend,
+    handleEdit,
     handlePreviewPdf,
     invoiceNumberDisplay,
     currency,
@@ -60,6 +60,8 @@ const InvoiceDetails: React.FC = () => {
     reverseWriteOff,
   } = useInvoiceDetails();
   const { resolve } = usePlaceholderResolver("invoice", invoice);
+  const router = useRouter();
+  const deleteHook = useDeleteInvoices();
 
   const columns: TableColumn<Invoice["items"][0]>[] = [
     {
@@ -148,93 +150,43 @@ const InvoiceDetails: React.FC = () => {
         onCancel={closeWriteOff}
         onConfirm={submitWriteOff}
       />
-      {/* 1. Breadcrumb */}
-      <nav
-        className="flex items-center gap-2 text-sm text-slate-500"
-        aria-label="Breadcrumb"
-      >
-        <Link
-          href="/dashboard"
-          className="text-primary hover:text-primary/80 transition-colors flex items-center"
-          title="Dashboard"
-        >
-          <Home className="w-4 h-4" />
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <Link
-          href="/invoices"
-          className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
-        >
-          Invoices
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
-          {invoiceNumberDisplay}
-        </span>
-      </nav>
+      <ConfirmDialog
+        isOpen={deleteHook.confirmDialog.show}
+        title="Delete Invoice"
+        message="Are you sure you want to delete this invoice? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={deleteHook.confirmDelete}
+        onCancel={deleteHook.hideConfirmDialog}
+      />
 
-      {/* 2. Invoice Header Profile */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left: Avatar + Title + Status + Invoice ID */}
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold shrink-0 shadow-xs">
-            <ScrollText className="w-7 h-7 sm:w-8 sm:h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                {invoiceNumberDisplay}
-              </h1>
-              <StatusBadge status={statusText} variant={statusVariant} />
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-              Invoice ID: {invoiceNumberDisplay}
-            </p>
-          </div>
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex flex-col flex-wrap gap-3 shrink-0 w-48">
-          <Button
-            onClick={handleSend}
-            variant="primary"
-            size="md"
-            fullWidth
-            className="font-medium rounded-lg shadow-xs"
-            icon={<Send className="w-4 h-4" />}
-          >
-            Send Invoice
-          </Button>
-          <Button
-            onClick={handlePreviewPdf}
-            variant="outline"
-            size="md"
-            fullWidth
-            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg shadow-2xs"
-            icon={<Eye className="w-4 h-4" />}
-          >
-            Preview PDF
-          </Button>
-          {canWriteOff && (
-            <Button
-              onClick={() =>
-                openWriteOff({
-                  id: invoice.id,
-                  invoice: invoiceNumberDisplay,
-                  amount: balanceDue,
-                })
-              }
-              variant="danger"
-              size="md"
-              fullWidth
-              className="font-medium rounded-lg shadow-xs"
-              icon={<Ban className="w-4 h-4" />}
-            >
-              Write Off
-            </Button>
-          )}
-        </div>
-      </div>
+      <DetailHeader
+        title={invoiceNumberDisplay}
+        subtitle={<StatusBadge status={statusText} variant={statusVariant} />}
+        onEdit={handleEdit}
+        editTitle="Edit invoice"
+        onClose={() => router.push("/invoices")}
+        menu={[
+          { label: "Send Invoice", onClick: handleSend },
+          { label: "Preview PDF", onClick: handlePreviewPdf },
+          {
+            label: "Write Off",
+            hidden: !canWriteOff,
+            onClick: () =>
+              openWriteOff({
+                id: invoice.id,
+                invoice: invoiceNumberDisplay,
+                amount: balanceDue,
+              }),
+          },
+          {
+            label: "Delete",
+            danger: true,
+            onClick: () => deleteHook.deleteInvoices([invoice.id], () => router.push("/invoices")),
+          },
+        ]}
+      />
 
       {/* 3. Overview Card (Invoice Information + Financial Summary) */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">

@@ -1,5 +1,5 @@
-import QuoteDetails from "@/components/Quotes/QuoteDetails";
+import QuoteSplitView from "@/components/Quotes/QuoteSplitView";
 
-const QuoteDetailsPage = () => <QuoteDetails />;
+const DetailsPage = () => <QuoteSplitView />;
 
-export default QuoteDetailsPage;
+export default DetailsPage;

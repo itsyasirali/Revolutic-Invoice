@@ -1,34 +1,6 @@
 "use client";
 
 import React from "react";
-import { Home, ChevronRight } from "lucide-react";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
-
-/** Breadcrumb used on detail pages (same markup as the Item/Customer details). */
-export const DetailBreadcrumb: React.FC<{
-  section: string;
-  href: string;
-  current: string;
-}> = ({ section, href, current }) => (
-  <nav className="flex items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
-    <Link
-      href="/dashboard"
-      className="text-primary hover:text-primary/80 transition-colors flex items-center"
-      title="Dashboard"
-    >
-      <Home className="w-4 h-4" />
-    </Link>
-    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-    <Link
-      href={href}
-      className="text-primary hover:text-primary/80 font-medium hover:underline transition-colors"
-    >
-      {section}
-    </Link>
-    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-    <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">{current}</span>
-  </nav>
-);
 
 export const InfoCard: React.FC<{
   title: string;

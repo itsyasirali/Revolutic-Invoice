@@ -6,14 +6,14 @@ import axios from "@/lib/axios";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import {
-  Button,
   StatusBadge,
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
   toast,
 } from "@/components/ui";
-import { DetailBreadcrumb, InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
+import { InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
+import DetailHeader from "@/components/ui/DetailHeader";
 import useExpense from "@/hooks/expenses/useExpense";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
 import { invalidateExpenses, invalidateExpensesAndInvoices } from "@/lib/swr";
@@ -84,44 +84,30 @@ const ExpenseDetails: React.FC = () => {
         onCancel={del.hideConfirmDialog}
       />
 
-      <DetailBreadcrumb section="Expenses" href="/expenses" current={expense.expenseNumber} />
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              {expense.expenseNumber}
-            </h1>
+      <DetailHeader
+        title={expense.expenseNumber}
+        subtitle={
+          <>
             <StatusBadge status={expense.status} variant={statusVariant(expense.status)} />
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            {formatMoney(expense.total)} {expense.currency} · {formatDate(expense.expenseDate)}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {canConvert && (
-            <Button variant="success" size="sm" onClick={convert} loading={converting}>
-              Convert to Invoice
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={expense.invoiced}
-            onClick={() => router.push(`/expenses/edit/${expense.id}`)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            disabled={expense.invoiced}
-            onClick={() => del.requestDelete([expense.id], () => router.push("/expenses"))}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
+            <span>
+              {formatMoney(expense.total)} {expense.currency} · {formatDate(expense.expenseDate)}
+            </span>
+          </>
+        }
+        onEdit={() => router.push(`/expenses/edit/${expense.id}`)}
+        editDisabled={expense.invoiced}
+        editTitle={expense.invoiced ? "Invoiced expenses cannot be edited" : "Edit expense"}
+        onClose={() => router.push("/expenses")}
+        menu={[
+          { label: "Convert to Invoice", hidden: !canConvert, disabled: converting, onClick: convert },
+          {
+            label: "Delete",
+            danger: true,
+            disabled: expense.invoiced,
+            onClick: () => del.requestDelete([expense.id], () => router.push("/expenses")),
+          },
+        ]}
+      />
 
       <InfoCard title="Expense Information">
         <InfoField label="Expense #">{expense.expenseNumber}</InfoField>

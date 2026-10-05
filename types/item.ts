@@ -11,6 +11,8 @@ export interface Item {
   description?: string;
   status?: "Active" | "inActive";
   userId?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Alert/Notification state
