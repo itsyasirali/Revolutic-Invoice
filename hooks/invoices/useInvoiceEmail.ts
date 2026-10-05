@@ -50,7 +50,6 @@ export const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
   const prepareEmailData = useCallback(
     (invoiceData: any) => {
       const userEmail = user?.email || "your-email@company.com";
-      const companyName = user?.companyName || "Personal";
 
       const allCustomerEmails: string[] = [];
 

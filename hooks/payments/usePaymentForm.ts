@@ -245,13 +245,6 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     }));
   };
 
-  const handlePayInFull = (invoiceId: string, remaining: number) => {
-    setAppliedAmounts((prev) => ({
-      ...prev,
-      [invoiceId]: remaining,
-    }));
-  };
-
   const totalApplied = Object.values(appliedAmounts).reduce(
     (sum, amount) => sum + amount,
     0
@@ -501,7 +494,6 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     handleAmountReceivedChange,
     handlePayAllRemainingToggle,
     handleAppliedAmountChange,
-    handlePayInFull,
     handleSaveDraft,
     handleSaveAndSend,
     customersLoading,

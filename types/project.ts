@@ -59,9 +59,6 @@ export interface ProjectInvoiceRef {
   currency?: string;
 }
 
-/** Extras the project list carries, so the detail page needs no request of its own. */
-export type ProjectListDetail = Omit<ProjectDetailData, "project">;
-
 export interface ProjectDetailData {
   project: Project;
   tasks: ProjectTask[];

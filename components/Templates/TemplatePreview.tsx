@@ -11,7 +11,6 @@ import type {
   TemplatePreviewInvoiceItem,
   TemplatePreviewTableColumnSetting,
   TemplatePreviewInvoiceItemData,
-  TemplatePreviewInvoiceData,
   TemplatePreviewProps,
 } from "@/types/template";
 

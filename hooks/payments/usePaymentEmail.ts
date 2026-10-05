@@ -49,7 +49,6 @@ export const usePaymentEmail = (paymentId: string, initialData?: any) => {
   const prepareEmailData = useCallback(
     (paymentData: any) => {
       const userEmail = user?.email || "your-email@company.com";
-      const companyName = user?.companyName || "Personal";
 
       const allCustomerEmails: string[] = [];
 

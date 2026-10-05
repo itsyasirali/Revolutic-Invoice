@@ -236,12 +236,6 @@ export interface TabsProps {
     onTabChange: (value: string) => void;
 }
 
-// Status Badge Component Types
-export interface StatusBadgeProps {
-    status: string;
-    variant?: 'active' | 'inactive' | 'success' | 'danger' | 'warning' | 'info' | 'default';
-}
-
 export type BadgeVariant =
   | 'primary'
   | 'secondary'
@@ -269,56 +263,12 @@ export interface BadgeProps {
     className?: string;
 }
 
-// Dropdown Menu Component Types
-export interface DropdownMenuItem {
-    icon?: LucideIcon;
-    label: string;
-    onClick: () => void;
-    variant?: 'default' | 'danger' | 'success' | 'warning';
-    disabled?: boolean;
-    description?: string;
-    dividerBefore?: boolean;
-}
-
-export interface DropdownMenuProps {
-    items: DropdownMenuItem[];
-    trigger: React.ReactNode;
-    align?: 'left' | 'right' | 'center';
-    width?: string;
-    className?: string;
-}
-
-// Modal / Dialog Component Types
-export interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title?: React.ReactNode;
-    subtitle?: string;
-    children: React.ReactNode;
-    footer?: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-    closeOnOutsideClick?: boolean;
-    showCloseButton?: boolean;
-    className?: string;
-}
-
 // Checkbox Component Types
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
     label?: React.ReactNode;
     description?: string;
     error?: string;
     checkboxSize?: 'sm' | 'md' | 'lg';
-}
-
-// Switch Component Types
-export interface SwitchProps {
-    checked: boolean;
-    onChange: (checked: boolean) => void;
-    label?: React.ReactNode;
-    description?: string;
-    disabled?: boolean;
-    size?: 'sm' | 'md' | 'lg';
-    className?: string;
 }
 
 // Card Component Types
@@ -334,15 +284,6 @@ export interface CardProps {
     hoverable?: boolean;
     onClick?: () => void;
     style?: React.CSSProperties;
-}
-
-// Info Card Component Types
-export interface InfoCardProps {
-    icon: LucideIcon;
-    label: string;
-    value: string | React.ReactNode;
-    variant?: 'default' | 'primary' | 'success' | 'warning';
-    className?: string;
 }
 
 // Empty State Component Types
@@ -383,8 +324,6 @@ export interface LoadingSpinnerProps {
     color?: 'primary' | 'white' | 'gray' | 'current';
     className?: string;
 }
-
-export type ThreeDotLoaderProps = LoadingSpinnerProps;
 
 // Currency Display Component Types
 export interface CurrencyDisplayProps {

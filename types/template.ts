@@ -6,14 +6,6 @@ export type Alignment = "left" | "center" | "right";
 export type LayoutStyle = "compact" | "spacious" | "custom";
 export type ContentAlignment = "left" | "center" | "justify";
 export type PaymentStubPosition = "bottom" | "separatePage";
-export type ColumnName =
-  | "index"
-  | "itemName"
-  | "description"
-  | "quantity"
-  | "unit"
-  | "rate"
-  | "amount";
 
 export interface TemplateMargins {
   top: number;
@@ -427,20 +419,6 @@ export interface UseTemplateActionsReturn {
   hideConfirmDialog: () => void;
 }
 
-export interface UseCreateTemplateReturn {
-  createTemplate: (data: TemplateFormData) => Promise<{ id: string }>;
-  loading: boolean;
-  alert: AlertState;
-  dismissAlert: () => void;
-}
-
-export interface UseUpdateTemplateReturn {
-  updateTemplate: (id: string, data: TemplateFormData) => Promise<void>;
-  loading: boolean;
-  alert: AlertState;
-  dismissAlert: () => void;
-}
-
 export interface UseDeleteTemplatesReturn {
   deleteTemplates: (ids: string[]) => Promise<void>;
   loading: boolean;
@@ -459,12 +437,6 @@ export interface UseSetDefaultTemplateReturn {
   loading: boolean;
   alert: AlertState;
   dismissAlert: () => void;
-}
-
-export interface UseTemplateDetailsReturn {
-  template: Template | null;
-  loading: boolean;
-  error: string | null;
 }
 
 export interface ColorInputProps {

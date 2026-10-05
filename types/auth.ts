@@ -19,12 +19,6 @@ export interface UpdateProfilePayload {
   newPassword?: string;
 }
 
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-}
-
 export interface AuthWrapperProps {
   children: ReactNode;
   initialUser?: User | null;

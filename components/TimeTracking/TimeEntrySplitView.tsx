@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
+import { Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
 import { MENU_ITEM_CLASS } from "@/components/ui/SplitView";
 import TimeEntryDetails from "./TimeEntryDetails";

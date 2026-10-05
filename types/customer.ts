@@ -105,16 +105,6 @@ export interface UseCustomerActionsProps {
   setOpenDropdownId?: (id: string | number | null) => void;
 }
 
-export interface UseCustomerDetailsProps {
-  customers: Customer[];
-  invoiceItems: unknown[];
-  deleteCustomers: (
-    ids: (string | number)[],
-    callback: () => void,
-  ) => Promise<void>;
-  deleteLoading: boolean;
-}
-
 // Contacts hook return type
 export interface UseContactsReturn {
   contacts: Contact[];
@@ -126,37 +116,6 @@ export interface UseContactsReturn {
 // Props for ContactsSection component
 export interface ContactsSectionProps {
   initial?: Contact[];
-}
-
-// Customer form data interface
-export interface CustomerFormData {
-  id?: string;
-  customerType?: string;
-  companyName?: string;
-  displayName?: string;
-  currency?: string;
-  address?: string;
-  remarks?: string;
-  documents?: File[];
-  contacts?: Contact[];
-}
-
-// --- Backend request payload shapes (mirrors api/src/customers/dto/*) ---
-
-export interface CreateCustomerPayload {
-  customerType: string;
-  companyName?: string;
-  displayName: string;
-  currency?: string;
-  address?: string;
-  remarks?: string;
-  status?: string;
-  contacts?: unknown;
-}
-
-export interface UpdateCustomerPayload extends Partial<CreateCustomerPayload> {
-  existingDocuments?: string | string[];
-  existingFiles?: string | string[];
 }
 
 export interface BatchUpdateCustomerPayload {

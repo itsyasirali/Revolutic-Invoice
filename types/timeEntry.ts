@@ -27,10 +27,6 @@ export interface TimeEntry {
   approvalStatus?: "Pending" | "Approved" | "Rejected";
 }
 
-export interface TimeEntryListProps {
-  initialTimeEntries?: TimeEntry[];
-}
-
 export const formatDuration = (minutes: number) => {
   const m = Math.max(0, Math.round(minutes || 0));
   return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;

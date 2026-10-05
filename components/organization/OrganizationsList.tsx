@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import {
-  Building2,
   Plus,
   Trash2,
   Pencil,
@@ -15,11 +14,8 @@ import { ConfirmDialog, LoadingSpinner } from "@/components/ui";
 import useOrganizationsList from "@/hooks/organization/useOrganizationsList";
 import {
   MAX_ORGANIZATIONS_PER_USER,
-  ORGANIZATION_THEMES,
   getOrganizationTheme,
 } from "@/types/organization";
-
-export const THEMES = ORGANIZATION_THEMES;
 
 export const OrganizationsList: React.FC = () => {
   const {

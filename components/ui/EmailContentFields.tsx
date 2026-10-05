@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
 import { buildPlaceholderValues } from "@/lib/placeholders/context";
 import { replacePlaceholders } from "@/lib/placeholders/replace";

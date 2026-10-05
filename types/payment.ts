@@ -72,39 +72,6 @@ export interface PaymentFormData {
   notes?: string;
 }
 
-// Payment List Item for UI Display
-export interface PaymentListItem {
-  id: string;
-  paymentDate: string;
-  paymentNumber?: number;
-  referenceNo?: string;
-  customerDisplayName: string;
-  customerEmail?: string;
-  paymentMode: PaymentMode;
-  amountReceived: number;
-  bankCharges?: number;
-  currency?: string;
-  status?: PaymentStatus;
-  appliedInvoices?: AppliedInvoice[];
-}
-
-// Create Payment Payload
-export interface CreatePaymentPayload {
-  paymentDate: string; // YYYY-MM-DD
-  paymentNumber?: number;
-  referenceNo?: string;
-  customerId: string;
-  customerDisplayName: string;
-  customerEmail?: string;
-  paymentMode: PaymentMode;
-  amountReceived: number;
-  bankCharges?: number;
-  tdsApplied?: boolean;
-  currency?: string;
-  status?: PaymentStatus;
-  appliedInvoices?: AppliedInvoice[];
-}
-
 // Update Payment Payload
 export type UpdatePaymentPayload = Partial<
   Pick<
@@ -195,71 +162,6 @@ export interface UsePaymentsListReturn {
   clearSelection: () => void;
 }
 
-export interface UseCreatePaymentReturn {
-  amountReceived: number | "";
-  setAmountReceived: (value: number | "") => void;
-  bankCharges: number | "";
-  setBankCharges: (value: number | "") => void;
-  paymentDate: string;
-  setPaymentDate: (value: string) => void;
-  paymentNumber: number | "";
-  setPaymentNumber: (value: number | "") => void;
-  paymentMode: PaymentMode;
-  setPaymentMode: (value: PaymentMode) => void;
-  referenceNo: string;
-  setReferenceNo: (value: string) => void;
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  isDropdownOpen: boolean;
-  openDropdown: () => void;
-  closeDropdown: () => void;
-  filteredCustomers: CustomerOption[];
-  customersLoading: boolean;
-  handleCustomerSelect: (customer: CustomerOption) => void;
-  selectedCustomer: CustomerOption | null;
-  selectedCustomerId: string;
-  appliedAmounts: Record<string, number>;
-  handleAppliedAmountChange: (invoiceId: string, value: string) => void;
-  handlePayInFull: (invoiceId: string, remaining: number) => void;
-  handleClearApplied: () => void;
-  payAllRemaining: boolean;
-  handlePayAllRemainingToggle: () => void;
-  unpaidInvoices: InvoiceDetail[];
-  currency: string;
-  totalApplied: number;
-  amountInExcess: number;
-  formatAmount: (value: number) => string;
-  handleSubmit: (
-    event?: React.FormEvent<HTMLFormElement>,
-    saveMode?: "draft" | "paid" | "send"
-  ) => Promise<{
-    success: boolean;
-    paymentId?: string;
-    mode?: string;
-    error?: string;
-  }>;
-  creating: boolean;
-  createError: string | null;
-  handleCancel: () => void;
-}
-
-export interface UseSendPaymentReturn {
-  sendPayment: (paymentId: string, recipients: string[]) => Promise<unknown>;
-  loading: boolean;
-  alert: {
-    show: boolean;
-    type: "success" | "error" | "warning" | "info";
-    message: string;
-  };
-  dismissAlert: () => void;
-}
-
-export interface UsePaymentDetailsReturn {
-  payment: Payment | null;
-  loading: boolean;
-  error: string | null;
-}
-
 export interface UsePaymentFormReturn {
   isEditMode: boolean;
   paymentData: PaymentFormData;
@@ -287,7 +189,6 @@ export interface UsePaymentFormReturn {
   handleAmountReceivedChange: (value: string) => void;
   handlePayAllRemainingToggle: () => void;
   handleAppliedAmountChange: (invoiceId: string, value: string) => void;
-  handlePayInFull: (invoiceId: string, remaining: number) => void;
   handleSaveDraft: () => Promise<void>;
   handleSaveAndSend: () => Promise<void>;
   customersLoading: boolean;

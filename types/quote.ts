@@ -69,18 +69,3 @@ export interface Quote {
 export interface QuoteListProps {
   initialQuotes?: Quote[];
 }
-
-export interface QuoteFormPayload {
-  customerId: number | string;
-  templateId?: number | string | null;
-  quoteDate: string;
-  expiryDate?: string | null;
-  currency: string;
-  referenceNumber?: string;
-  items: QuoteItem[];
-  discountPercent: number | string;
-  shipping: number | string;
-  adjustment: number | string;
-  notes?: string;
-  terms?: string;
-}

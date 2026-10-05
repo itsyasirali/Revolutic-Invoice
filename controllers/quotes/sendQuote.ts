@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/database";
-import { Quote } from "@/entities/Quote";
 import { Template } from "@/entities/Template";
 import { Organization } from "@/entities/Organization";
 import { User } from "@/entities/User";

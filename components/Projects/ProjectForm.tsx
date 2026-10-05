@@ -13,7 +13,7 @@ import {
 import useProjectForm from "@/hooks/projects/useProjectForm";
 import currencies from "@/data/CurrencyData";
 import { toDateInput } from "@/lib/format";
-import { BILLING_METHODS, PROJECT_STATUSES, type BillingMethod } from "@/types/project";
+import { PROJECT_STATUSES, type BillingMethod } from "@/types/project";
 
 const currencyOptions = currencies.map((c) => ({
   label: `${c.code} - ${c.name}`,
