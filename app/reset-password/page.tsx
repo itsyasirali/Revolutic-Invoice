@@ -60,10 +60,10 @@ const ResetPasswordContent = () => {
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md font-medium">
             This reset link is invalid or missing required information. Please
             request a new one from the{" "}
-            <Link href="/forgot-password" className="underline font-semibold">
-              forgot password
+            <Link href="/login" className="underline font-semibold">
+              sign in
             </Link>{" "}
-            page.
+            page (use &quot;Forgot Password?&quot;).
           </div>
         ) : (
           <>

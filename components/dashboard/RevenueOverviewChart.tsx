@@ -133,16 +133,6 @@ const RevenueOverviewChart = ({
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             barGap={4}
           >
-            <defs>
-              <linearGradient id="incomeBarGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity={1} />
-                <stop offset="100%" stopColor="#93C5FD" stopOpacity={0.9} />
-              </linearGradient>
-              <linearGradient id="expenseBarGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#EF4444" stopOpacity={1} />
-                <stop offset="100%" stopColor="#FCA5A5" stopOpacity={0.9} />
-              </linearGradient>
-            </defs>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -171,16 +161,16 @@ const RevenueOverviewChart = ({
             <Bar
               name="Income"
               dataKey="income"
-              fill="url(#incomeBarGrad)"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={28}
+              fill="#3B82F6"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={14}
             />
             <Bar
               name="Expenses"
               dataKey="expenses"
-              fill="url(#expenseBarGrad)"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={28}
+              fill="#EF4444"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={14}
             />
           </BarChart>
         </ResponsiveContainer>

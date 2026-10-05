@@ -2,11 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import useLoginSignupForm from "@/hooks/auth/useLoginSignupForm";
 import useOtpAuth from "@/hooks/auth/useOtpAuth";
+import useForgotPasswordForm from "@/hooks/auth/useForgotPasswordForm";
 import { Eye, EyeOff } from "lucide-react";
-import AuthHeroPanel from "@/components/auth/AuthHeroPanel";
+import AuthLayout from "@/components/auth/AuthLayout";
 import type { LoginSignupFormProps } from "@/types/auth";
 import { Button, Input } from "@/components/ui";
 
@@ -33,7 +33,6 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     handleToggle,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
-    handleForgotPassword,
     signupOtpStage,
     signupOtp,
     setSignupOtp,
@@ -57,47 +56,21 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
     handleOtpKeyPress,
   } = useOtpAuth({ onLoginSuccess });
 
+  const [forgotMode, setForgotMode] = React.useState(false);
+  const forgot = useForgotPasswordForm();
+  const openForgot = () => setForgotMode(true);
+  const closeForgot = () => setForgotMode(false);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
-      {/* Subtle geometric polygonal background accents */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-br from-slate-200/40 via-sky-100/20 to-transparent rotate-45" />
-        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-gradient-to-bl from-slate-200/30 via-blue-100/20 to-transparent rotate-12" />
-      </div>
-
-      {/* Main Auth Container Card */}
-      <div className="relative z-10 w-full max-w-4xl bg-white rounded-md shadow-2xl shadow-slate-300/40 border border-slate-100 flex flex-col md:flex-row overflow-hidden min-h-[34rem]">
-        {/* ================= LEFT COLUMN: FORM ================= */}
-        <div className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
+    <AuthLayout>
+      <div className="w-full">
           <div>
-            {/* Logo */}
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 mb-6 group"
-            >
-              <div className="w-8 h-8 relative flex items-center justify-center shrink-0">
-                <Image
-                  src="/assets/InvoiceSmartyIcon.png"
-                  alt="InvoiceSmarty"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain rounded-md"
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900 leading-none">
-                  Invoice<span className="text-primary">Smarty</span>
-                </span>
-                <span className="text-[9px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
-                  INVOICE
-                </span>
-              </div>
-            </Link>
-
             {/* Title & Subtitle */}
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {otpMode
+              <h1 className="text-2xl xl:text-3xl font-bold text-slate-900 tracking-tight">
+                {forgotMode
+                  ? "Forgot password?"
+                  : otpMode
                   ? "Sign in with OTP"
                   : isSignup && signupOtpStage
                     ? "Verify your email"
@@ -105,8 +78,10 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                       ? "Sign up"
                       : "Sign in"}
               </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                {otpMode
+              <p className="text-sm xl:text-base text-slate-500 mt-1">
+                {forgotMode
+                  ? "Enter your email and we'll send you a link to reset your password"
+                  : otpMode
                   ? otpStage === "email"
                     ? "Enter your email to receive a one-time code"
                     : `Enter the code sent to ${otpEmail}`
@@ -119,14 +94,66 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             </div>
 
             {/* Error Alert */}
-            {(otpMode ? otpError : error) && (
+            {(forgotMode ? forgot.error : otpMode ? otpError : error) && (
               <div className="mb-4 p-2.5 bg-red-50 border border-red-200 text-red-600 text-xs rounded-md font-medium">
-                {otpMode ? otpError : error}
+                {forgotMode ? forgot.error : otpMode ? otpError : error}
               </div>
             )}
 
-            {/* OTP Form */}
-            {otpMode ? (
+            {/* Forgot password (inline) */}
+            {forgotMode ? (
+              forgot.submitted ? (
+                <div className="space-y-4">
+                  <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md font-medium">
+                    If that email exists, a password reset link has been sent. Please check your inbox.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeForgot}
+                    className="text-sm xl:text-[15px] 2xl:text-base font-medium text-primary hover:underline cursor-pointer focus:outline-none"
+                  >
+                    Back to sign in
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    forgot.handleSubmit();
+                  }}
+                  className="space-y-4"
+                >
+                  <Input
+                    type="email"
+                    placeholder="Email address"
+                    value={forgot.email}
+                    onChange={(e) => forgot.setEmail(e.target.value)}
+                    required
+                    showLabel={false}
+                    fullWidth
+                  />
+                  <div className="flex items-center justify-between gap-4 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={closeForgot}
+                      className="text-sm xl:text-[15px] 2xl:text-base font-medium text-primary hover:underline cursor-pointer focus:outline-none"
+                    >
+                      Back to sign in
+                    </button>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={forgot.loading}
+                    loading={forgot.loading}
+                    variant="primary"
+                    fullWidth
+                    className="mt-3"
+                  >
+                    {forgot.loading ? "Sending..." : "Send Reset Link"}
+                  </Button>
+                </form>
+              )
+            ) : otpMode ? (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -164,11 +191,11 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   />
                 )}
 
-                <div className="flex items-center justify-between text-xs pt-0.5">
+                <div className="flex items-center justify-between gap-4 py-2">
                   <button
                     type="button"
                     onClick={exitOtpMode}
-                    className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                    className="text-sm font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                   >
                     Sign in with password instead
                   </button>
@@ -176,7 +203,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                     <button
                       type="button"
                       onClick={requestOtp}
-                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                      className="text-sm font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                     >
                       Resend code
                     </button>
@@ -189,7 +216,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   loading={otpLoading}
                   variant="primary"
                   fullWidth
-                  className="mt-3"
+                  className="mt-4"
                 >
                   {otpLoading
                     ? "Processing..."
@@ -221,18 +248,18 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                       fullWidth
                       maxLength={6}
                     />
-                    <div className="flex items-center justify-between text-xs pt-0.5">
+                    <div className="flex items-center justify-between gap-4 py-2">
                       <button
                         type="button"
                         onClick={cancelSignupOtp}
-                        className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                        className="text-sm font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                       >
                         Back
                       </button>
                       <button
                         type="button"
                         onClick={handleResendSignupOtp}
-                        className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                        className="text-sm font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                       >
                         Resend code
                       </button>
@@ -324,18 +351,18 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
 
                 {/* Sub-links row */}
                 {!isSignup && (
-                  <div className="flex items-center justify-between text-xs pt-0.5">
+                  <div className="flex items-center justify-between gap-4 py-1">
                     <button
                       type="button"
                       onClick={enterOtpMode}
-                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                      className="text-sm xl:text-[15px] 2xl:text-base font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                     >
                       Sign in using email OTP
                     </button>
                     <button
                       type="button"
-                      onClick={handleForgotPassword}
-                      className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
+                      onClick={openForgot}
+                      className="text-sm xl:text-[15px] 2xl:text-base font-medium text-primary hover:underline hover:text-primary/80 transition-colors cursor-pointer focus:outline-none"
                     >
                       Forgot Password?
                     </button>
@@ -349,7 +376,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
                   loading={loading}
                   variant="primary"
                   fullWidth
-                  className="mt-3"
+                  className="mt-4"
                 >
                   {loading
                     ? "Processing..."
@@ -364,12 +391,12 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
           </div>
 
           {/* Bottom actions */}
-          {!(isSignup && signupOtpStage) && (
+          {!forgotMode && !(isSignup && signupOtpStage) && (
           <div className="mt-3 space-y-3">
             {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+              <span className="text-sm xl:text-[15px] 2xl:text-base text-slate-400 font-medium whitespace-nowrap">
                 Or continue with
               </span>
               <div className="flex-1 h-px bg-slate-200" />
@@ -410,7 +437,7 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             </Button>
 
             {/* Toggle Sign In / Sign Up */}
-            <p className="text-center text-xs text-slate-500">
+            <p className="text-center text-sm xl:text-[15px] 2xl:text-base text-slate-500">
               {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
               <Link
                 href={isSignup ? "/login" : "/register"}
@@ -425,19 +452,8 @@ const LoginSignupForm: React.FC<LoginSignupFormProps> = ({
             </p>
           </div>
           )}
-        </div>
-
-        {/* ================= RIGHT COLUMN: MARKETING HERO ================= */}
-        <div
-          className="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 border-t md:border-t-0 md:border-l border-white/20 flex items-center relative overflow-hidden bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/assets/authbg.png')" }}
-        >
-          {/* Ambient overlay for depth */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/15 via-transparent to-white/10 pointer-events-none" />
-          <AuthHeroPanel />
-        </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

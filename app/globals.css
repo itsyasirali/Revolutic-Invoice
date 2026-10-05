@@ -232,3 +232,14 @@ select:-webkit-autofill:active {
   }
 }
 
+
+/* Sign-in form controls grow with the screen (inputs use h-11, buttons py-2). */
+@media (min-width: 1280px) {
+  .auth-scale .h-11 { height: 3.25rem; font-size: 1rem; }
+  .auth-scale button[type="submit"] { padding-block: 0.8rem; font-size: 1rem; }
+  .auth-scale .h-11 + *, .auth-scale label { font-size: 0.9rem; }
+}
+@media (min-width: 1536px) {
+  .auth-scale .h-11 { height: 3.75rem; font-size: 1.125rem; }
+  .auth-scale button[type="submit"] { padding-block: 1rem; font-size: 1.125rem; }
+}

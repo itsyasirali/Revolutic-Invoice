@@ -19,7 +19,14 @@ export const SWR_KEYS = {
   projects: "/projects",
 } as const;
 
-export const invalidateItems = () => mutate(SWR_KEYS.items);
+// Drop the cached list even when it isn't mounted (the edit/new form page),
+// so the list refetches instead of showing stale data when we navigate back.
+export const invalidateItems = () =>
+  mutate(
+    (key) => typeof key === "string" && key.startsWith(SWR_KEYS.items),
+    undefined,
+    { revalidate: true },
+  );
 
 export const invalidateCustomers = () => mutate(SWR_KEYS.customers);
 

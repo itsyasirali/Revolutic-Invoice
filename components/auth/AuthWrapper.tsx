@@ -17,7 +17,6 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/signup") ||
-    pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/about") ||
     pathname.startsWith("/billing") ||

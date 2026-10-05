@@ -14,8 +14,10 @@ const useItemsData = (initialItems?: Item[]) => {
   >(SWR_KEYS.items, swrFetcher, {
     fallbackData: initialItems ? { items: initialItems } : undefined,
     revalidateOnFocus: false,
-    revalidateOnMount: !initialItems,
-    dedupingInterval: 15000,
+    // Server data paints instantly; always refetch on mount so edits made
+    // elsewhere (cached RSC payload / SWR cache) never show stale.
+    revalidateOnMount: true,
+    dedupingInterval: 2000,
   });
 
   const items: Item[] = Array.isArray(data)
