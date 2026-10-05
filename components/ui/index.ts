@@ -5,6 +5,7 @@ export { Textarea } from "./Textarea";
 export { Badge, Badge as StatusBadge } from "./Badge";
 export { Card } from "./Card";
 export { Checkbox } from "./Checkbox";
+export { FileUpload } from "./FileUpload";
 export { Table } from "./Table";
 export { AlertModal } from "./AlertModal";
 export { ConfirmDialog } from "./ConfirmDialog";

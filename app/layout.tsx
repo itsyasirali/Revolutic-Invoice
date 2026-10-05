@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthWrapper } from "@/components/auth/AuthWrapper";
 import MainLayout from "@/layout/Main";
 import { getServerSessionUser } from "@/lib/session";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "InvoiceSmarty",
@@ -25,7 +32,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     : null;
 
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AuthWrapper initialUser={initialUser}>
           <MainLayout>{children}</MainLayout>

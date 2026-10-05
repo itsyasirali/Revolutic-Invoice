@@ -9,6 +9,7 @@ import {
   AlertModal,
   PageHeader,
   Checkbox,
+  FileUpload,
   LoadingSpinner,
 } from "@/components/ui";
 import useExpenseForm from "@/hooks/expenses/useExpenseForm";
@@ -178,19 +179,13 @@ const ExpenseForm: React.FC = () => {
               fullWidth
             />
 
-            <div>
-              <Input type="file" name="attachment" label="Attachment" fullWidth />
-              {expense?.attachment && (
-                <a
-                  href={expense.attachment}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-primary hover:underline mt-1 inline-block"
-                >
-                  View current attachment
-                </a>
-              )}
-            </div>
+            <FileUpload
+              name="attachment"
+              label="Attachment"
+              hint="Receipt or supporting file"
+              currentUrl={expense?.attachment}
+              currentLabel="View current attachment"
+            />
           </div>
         </div>
 
