@@ -7,12 +7,12 @@ import industries from "@/data/industries/industries";
 type FooterLink = { label: string; href: string };
 
 const HELP_LINKS: FooterLink[] = [
+  { label: "Customers", href: "/customers-stories" },
+  { label: "Pricing", href: "/billing" },
   { label: "Resources", href: "/resources" },
   { label: "Blog", href: "/blog" },
-  { label: "Customer Stories", href: "/customers-stories" },
   { label: "About Us", href: "/about" },
-  { label: "Sign In", href: "/login" },
-  { label: "Get Started Free", href: "/register" },
+  { label: "Customer Portal", href: "/portal/login" },
 ];
 
 const BEST_SUITED_FOR: FooterLink[] = [

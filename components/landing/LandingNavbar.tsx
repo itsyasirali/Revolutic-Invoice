@@ -36,7 +36,7 @@ const LandingNavbar = () => {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -49,7 +49,7 @@ const LandingNavbar = () => {
           </nav>
 
           {/* Action CTAs */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
                             <Button
                   variant="ghost"
                   size="md"
@@ -72,7 +72,7 @@ const LandingNavbar = () => {
           </div>
 
           {/* Mobile Hamburger Toggle */}
-          <div className="flex md:hidden">
+          <div className="flex lg:hidden">
             <button
               type="button"
               onClick={toggleMobileMenu}
@@ -91,7 +91,7 @@ const LandingNavbar = () => {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200/80 bg-white px-6 py-6 space-y-4 shadow-xl animate-slide-up">
+        <div className="lg:hidden border-t border-slate-200/80 bg-white px-6 py-6 space-y-4 shadow-xl animate-slide-up">
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link

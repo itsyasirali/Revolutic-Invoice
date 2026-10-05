@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { getDatabase } from "@/lib/database";
 import { PortalUser } from "@/entities/PortalUser";
 import { Organization } from "@/entities/Organization";
@@ -15,6 +16,7 @@ import {
   setPortalCookie,
   signPortalToken,
 } from "@/lib/portalSession";
+import { createMailTransporter, getMailFromAddress, getMailFromName } from "@/lib/mailer";
 import { resolvePortalSettings, type PortalMe, type PortalSettings } from "@/types/portal";
 
 const MIN_PASSWORD = 8;
@@ -176,5 +178,85 @@ export const portalChangePassword = async (req: NextRequest) => {
     return NextResponse.json({ message: "Password updated" });
   } catch (error) {
     return errorResponse(error, "Failed to change password");
+  }
+};
+
+const RESET_TTL_MS = 60 * 60 * 1000; // 1 hour
+const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days, same as a portal invitation
+const MAX_RESET_ACCOUNTS = 5;
+
+/**
+ * Public: POST { email }. Emails a link to choose a new password. The reply is always the
+ * same, whether or not the email has a portal account, so it cannot be used to find accounts.
+ *
+ * A reset reuses the invitation token fields: the link opens /portal/reset-password, which
+ * checks it with /auth/invite and sets the password through /auth/accept. Accounts that
+ * were invited but never activated get a fresh invitation (7 days) instead of a 1 hour reset.
+ */
+export const portalForgotPassword = async (req: NextRequest) => {
+  const generic = {
+    message: "If that email has a customer portal account, we have sent a link to reset the password.",
+  };
+  try {
+    const body = (await req.json()) as { email?: string };
+    const email = String(body.email ?? "").trim().toLowerCase();
+    if (!email) throw new HttpError("Email is required", 400);
+
+    // Every request counts towards the limit (not only failures) so the endpoint cannot be used to send mail in bulk.
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const throttleKey = `forgot:${ip}:${email}`;
+    assertLoginAllowed(throttleKey);
+    recordLoginFailure(throttleKey);
+
+    const db = await getDatabase();
+    const repo = db.getRepository(PortalUser);
+    const users = (await repo.find({ where: { email }, order: { id: "ASC" } }))
+      .filter((u) => u.status !== "Disabled")
+      .slice(0, MAX_RESET_ACCOUNTS);
+    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+
+    for (const user of users) {
+      const isInvite = user.status === "Invited";
+      const token = crypto.randomBytes(32).toString("hex");
+      user.inviteTokenHash = hashToken(token);
+      user.inviteExpiresAt = new Date(Date.now() + (isInvite ? INVITE_TTL_MS : RESET_TTL_MS));
+      await repo.save(user);
+
+      const link = isInvite
+        ? `${origin}/portal/accept?token=${token}`
+        : `${origin}/portal/reset-password?token=${token}`;
+      try {
+        const org = await db.getRepository(Organization).findOne({ where: { id: user.organizationId } });
+        const portalName =
+          resolvePortalSettings(org?.portalSettings as Partial<PortalSettings> | null).portalName ||
+          org?.name ||
+          "your customer portal";
+        await createMailTransporter().sendMail({
+          from: `"${getMailFromName(org?.name)}" <${getMailFromAddress()}>`,
+          to: user.email,
+          subject: isInvite ? `Set up your ${portalName} account` : `Reset your ${portalName} password`,
+          html: `<div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+<p>Hello${user.name ? ` ${user.name}` : ""},</p>
+<p>${
+            isInvite
+              ? `You asked to sign in to ${portalName}. Use the button below to set up your portal account. This link expires in 7 days.`
+              : `We received a request to reset your ${portalName} password. Use the button below to choose a new one. This link expires in 1 hour.`
+          }</p>
+<p style="margin: 24px 0;"><a href="${link}" style="background:#1AA3FF;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:600;">${
+            isInvite ? "Set up your account" : "Reset password"
+          }</a></p>
+<p>If the button does not work, copy this link into your browser:</p>
+<p><a href="${link}">${link}</a></p>
+<p>If you did not ask for this, you can ignore this email. Your password will not change.</p>
+</div>`,
+        });
+      } catch (mailError) {
+        // Never reveal delivery problems to the caller: that would also reveal the account exists.
+        console.error("Portal password reset email not sent:", mailError);
+      }
+    }
+    return NextResponse.json(generic);
+  } catch (error) {
+    return errorResponse(error, "Failed to send the reset link");
   }
 };

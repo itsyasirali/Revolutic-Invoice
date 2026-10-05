@@ -7,8 +7,11 @@ import type { NavLink, UseLandingNavbarReturn } from "@/types/landing";
 const NAV_LINKS: NavLink[] = [
   { label: "Industries", href: "/industries" },
   { label: "Customers", href: "/customers-stories" },
+  { label: "Pricing", href: "/billing" },
   { label: "Resources", href: "/resources" },
+  { label: "Blog", href: "/blog" },
   { label: "About", href: "/about" },
+  { label: "Customer Portal", href: "/portal/login" },
 ];
 
 const useLandingNavbar = (): UseLandingNavbarReturn => {
