@@ -35,7 +35,6 @@ const getAllPayments = async (req: NextRequest) => {
     const queryBuilder = paymentRepository
       .createQueryBuilder("payment")
       .leftJoinAndSelect("payment.customer", "customer")
-      .leftJoinAndSelect("payment.template", "template")
       .leftJoinAndSelect("payment.appliedInvoices", "appliedInvoices")
       .leftJoinAndSelect("appliedInvoices.invoice", "invoice")
       .where(where)

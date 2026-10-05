@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 import type { Customer } from "@/types/customer";
 import { getNavState } from "@/lib/clientNavState";
+import { swrFetcher } from "@/lib/swr";
 
 export const useCustomerDetails = () => {
   const params = useParams<{ id?: string }>();
@@ -15,10 +17,26 @@ export const useCustomerDetails = () => {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const customer = useMemo(
+  const navCustomer = useMemo(
     () =>
       mounted && id ? getNavState<Customer>(`customer:${id}`) : undefined,
     [id, mounted],
+  );
+
+  // The list no longer embeds every invoice and payment, so the detail page
+  // loads its own customer's records. The list row (nav state) shows instantly.
+  const { data } = useSWR<{ customer: Customer }>(
+    mounted && id ? `/customers/${id}` : null,
+    swrFetcher,
+    { revalidateOnFocus: false, dedupingInterval: 15000 },
+  );
+
+  const customer = useMemo<Customer | undefined>(
+    () =>
+      data?.customer
+        ? { ...navCustomer, ...data.customer }
+        : navCustomer,
+    [data, navCustomer],
   );
 
   const primaryContact = useMemo(() => {
@@ -35,7 +53,7 @@ export const useCustomerDetails = () => {
   return {
     customer,
     primaryContact,
-    loading: Boolean(id) && !mounted,
+    loading: Boolean(id) && !customer,
   };
 };
 

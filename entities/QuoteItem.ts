@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -10,6 +11,7 @@ import { encryptedText } from "@/lib/encryption";
 import type { Quote } from "./Quote";
 import type { Item } from "./Item";
 
+@Index("IDX_quote_items_quoteId", ["quoteId"])
 @Entity("quote_items")
 export class QuoteItem {
   @PrimaryGeneratedColumn("increment")

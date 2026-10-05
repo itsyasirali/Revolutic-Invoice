@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -9,6 +10,8 @@ import {
 import type { Payment } from "./Payment";
 import type { Invoice } from "./Invoice";
 
+@Index("IDX_payment_applied_invoices_paymentId", ["paymentId"])
+@Index("IDX_payment_applied_invoices_invoiceId", ["invoiceId"])
 @Entity("payment_applied_invoices")
 export class PaymentAppliedInvoice {
   @PrimaryGeneratedColumn("increment")

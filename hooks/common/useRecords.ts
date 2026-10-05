@@ -16,8 +16,9 @@ const useRecords = <T,>(
     Record<string, T[]> | T[]
   >(swrKey, swrFetcher, {
     fallbackData: initial ? { [collectionKey]: initial } : undefined,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnMount: !initial,
+    dedupingInterval: 15000,
   });
 
   const records: T[] = Array.isArray(data)

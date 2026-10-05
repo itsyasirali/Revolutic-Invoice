@@ -1,8 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { FindOptionsWhere } from "typeorm";
+import { FindOptionsWhere, Repository } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
+
+// Status repairs (settled-but-open invoices, newly overdue invoices) used to run
+// as two UPDATEs on every list request. They only need to run now and then, so
+// throttle them per organization instead of rewriting rows on each read.
+const RECONCILE_INTERVAL_MS = 2 * 60 * 1000;
+const lastReconciled = new Map<number, number>();
+
+const reconcileInvoiceStatuses = async (
+  invoiceRepository: Repository<Invoice>,
+  organizationId: number,
+) => {
+  const last = lastReconciled.get(organizationId) ?? 0;
+  if (Date.now() - last < RECONCILE_INTERVAL_MS) return;
+  lastReconciled.set(organizationId, Date.now());
+
+  // Repair invoices fully settled by payments + write-offs that were left
+  // in an open status (older payments ignored write-offs).
+  await invoiceRepository
+    .createQueryBuilder()
+    .update(Invoice)
+    .set({ status: "Paid", remaining: 0 })
+    .where("organizationId = :organizationId", { organizationId })
+    .andWhere('"received" > 0')
+    .andWhere("LOWER(status) IN (:...open)", {
+      open: ["overdue", "partially paid", "sent"],
+    })
+    .andWhere(
+      `"total" - "received" - COALESCE((SELECT SUM(w."amount") FROM "invoice_write_offs" w WHERE w."invoiceId" = "invoices"."id" AND w."reversedAt" IS NULL), 0) <= 0`,
+    )
+    .execute();
+
+  await invoiceRepository
+    .createQueryBuilder()
+    .update(Invoice)
+    .set({ status: "Overdue" })
+    .where("organizationId = :organizationId", { organizationId })
+    .andWhere("dueDate < :now", { now: new Date() })
+    .andWhere("LOWER(status) NOT IN (:...excluded)", {
+      excluded: ["paid", "draft", "cancelled", "overdue", "written off"],
+    })
+    .execute();
+};
 
 const getAllInvoices = async (req: NextRequest) => {
   const userId = await getAuthUserId(req);
@@ -25,32 +67,7 @@ const getAllInvoices = async (req: NextRequest) => {
     const db = await getDatabase();
     const invoiceRepository = db.getRepository(Invoice);
 
-    // Repair invoices fully settled by payments + write-offs that were left
-    // in an open status (older payments ignored write-offs).
-    await invoiceRepository
-      .createQueryBuilder()
-      .update(Invoice)
-      .set({ status: "Paid", remaining: 0 })
-      .where("organizationId = :organizationId", { organizationId })
-      .andWhere('"received" > 0')
-      .andWhere("LOWER(status) IN (:...open)", {
-        open: ["overdue", "partially paid", "sent"],
-      })
-      .andWhere(
-        `"total" - "received" - COALESCE((SELECT SUM(w."amount") FROM "invoice_write_offs" w WHERE w."invoiceId" = "invoices"."id" AND w."reversedAt" IS NULL), 0) <= 0`,
-      )
-      .execute();
-
-    await invoiceRepository
-      .createQueryBuilder()
-      .update(Invoice)
-      .set({ status: "Overdue" })
-      .where("organizationId = :organizationId", { organizationId })
-      .andWhere("dueDate < :now", { now: new Date() })
-      .andWhere("LOWER(status) NOT IN (:...excluded)", {
-        excluded: ["paid", "draft", "cancelled", "overdue", "written off"],
-      })
-      .execute();
+    await reconcileInvoiceStatuses(invoiceRepository, organizationId);
 
     const where: FindOptionsWhere<Invoice> = { organizationId };
 
@@ -65,7 +82,6 @@ const getAllInvoices = async (req: NextRequest) => {
     const queryBuilder = invoiceRepository
       .createQueryBuilder("invoice")
       .leftJoinAndSelect("invoice.customer", "customer")
-      .leftJoinAndSelect("invoice.template", "template")
       .leftJoinAndSelect("invoice.items", "items")
       .leftJoinAndSelect("items.item", "itemDetails")
       .where(where)

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -10,6 +11,7 @@ import { encryptedText } from "@/lib/encryption";
 import type { Invoice } from "./Invoice";
 import type { Item } from "./Item";
 
+@Index("IDX_invoice_items_invoiceId", ["invoiceId"])
 @Entity("invoice_items")
 export class InvoiceItem {
   @PrimaryGeneratedColumn("increment")

@@ -21,8 +21,9 @@ const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
     mutate,
   } = useSWR<PaymentsApiResponse | Payment[]>(SWR_KEYS.payments, swrFetcher, {
     fallbackData: initialPayments ? { payments: initialPayments } : undefined,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnMount: !initialPayments,
+    dedupingInterval: 15000,
   });
 
   const payments: Payment[] = useMemo(() => {

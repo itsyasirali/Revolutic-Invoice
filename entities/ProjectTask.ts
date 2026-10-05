@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -12,6 +13,8 @@ import { encryptedText } from "@/lib/encryption";
 import type { Project } from "./Project";
 import type { Organization } from "./Organization";
 
+@Index("IDX_project_tasks_projectId", ["projectId"])
+@Index("IDX_project_tasks_organizationId", ["organizationId"])
 @Entity("project_tasks")
 export class ProjectTask {
   @PrimaryGeneratedColumn("increment")

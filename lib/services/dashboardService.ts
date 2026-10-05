@@ -23,6 +23,7 @@ const getCurrencyRates = async (baseCurrency: string = "PKR") => {
   try {
     const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${base}`, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(2500),
     });
     if (!res.ok) throw new Error("Rates fetch failed");
     const data = await res.json();
@@ -173,11 +174,31 @@ export const getDashboardData = async (
     const [invoices, payments] = await Promise.all([
       invoiceRepo.find({
         where: whereScope,
+        select: {
+          id: true,
+          invoiceNumber: true,
+          invoiceDate: true,
+          dueDate: true,
+          total: true,
+          received: true,
+          currency: true,
+          status: true,
+          createdAt: true,
+          customer: { id: true, displayName: true, companyName: true },
+          writeOffs: { id: true, amount: true, reversedAt: true },
+        },
         relations: ["customer", "writeOffs"],
         order: { createdAt: "DESC" },
       }),
       paymentRepo.find({
         where: whereScope,
+        select: {
+          id: true,
+          amountReceived: true,
+          currency: true,
+          paymentDate: true,
+          createdAt: true,
+        },
         order: { createdAt: "DESC" },
       }).catch(() => []),
     ]);

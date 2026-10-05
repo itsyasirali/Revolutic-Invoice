@@ -13,8 +13,9 @@ const useItemsData = (initialItems?: Item[]) => {
     ItemsApiResponse | Item[]
   >(SWR_KEYS.items, swrFetcher, {
     fallbackData: initialItems ? { items: initialItems } : undefined,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnMount: !initialItems,
+    dedupingInterval: 15000,
   });
 
   const items: Item[] = Array.isArray(data)

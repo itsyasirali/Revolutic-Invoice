@@ -35,8 +35,9 @@ const useCustomerData = (
     fallbackData: options.initialCustomers
       ? { customers: options.initialCustomers }
       : undefined,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnMount: !options.initialCustomers,
+    dedupingInterval: 15000,
   });
 
   const customers: Customer[] = useMemo(() => {

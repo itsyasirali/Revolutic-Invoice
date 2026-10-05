@@ -132,8 +132,9 @@ export default function useInvoicesList(
         ? initialInvoices
         : { invoices: initialInvoices }
       : undefined,
-    revalidateOnFocus: true,
-    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    revalidateOnMount: !initialInvoices,
+    dedupingInterval: 15000,
   });
 
   const rawInvoices: RawDoc[] = useMemo(() => {

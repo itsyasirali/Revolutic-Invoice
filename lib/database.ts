@@ -189,8 +189,13 @@ export const getDatabase = async (): Promise<DataSource> => {
       `[Database] Initializing connection: ${connectionUrl ? "using URL" : `host ${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`}, ssl=${Boolean(ssl)}`
     );
 
+    // Serverless: every function instance has its own pool, so keep it small and
+    // let the database pooler multiplex. Override with DB_POOL_MAX.
+    const poolMax =
+      parseInt(process.env.DB_POOL_MAX || "", 10) || (process.env.VERCEL ? 3 : 10);
+
     const poolConfig = {
-      max: 10,
+      max: poolMax,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     };

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -17,6 +18,8 @@ import type { Invoice } from "./Invoice";
 import type { Organization } from "./Organization";
 import type { ProjectTask } from "./ProjectTask";
 
+@Index("IDX_projects_organizationId", ["organizationId"])
+@Index("IDX_projects_customerId", ["customerId"])
 @Entity("projects")
 export class Project {
   @PrimaryGeneratedColumn("increment")

@@ -38,12 +38,27 @@ export const getBusinessInsights = async (
     await expireQuotes(db, orgId);
 
     const [expenses, timeEntries, quotes] = await Promise.all([
-      db.getRepository(Expense).find({ where: { organizationId: orgId } }),
+      db.getRepository(Expense).find({
+        where: { organizationId: orgId },
+        select: { id: true, total: true, currency: true, expenseDate: true, billable: true, invoiced: true },
+      }),
       db.getRepository(TimeEntry).find({
         where: { organizationId: orgId },
+        select: {
+          id: true,
+          date: true,
+          duration: true,
+          billable: true,
+          invoiced: true,
+          amount: true,
+          customer: { id: true, currency: true },
+        },
         relations: ["customer"],
       }),
-      db.getRepository(Quote).find({ where: { organizationId: orgId } }),
+      db.getRepository(Quote).find({
+        where: { organizationId: orgId },
+        select: { id: true, status: true, total: true, currency: true },
+      }),
     ]);
 
     const now = new Date();
