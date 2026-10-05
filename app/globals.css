@@ -88,6 +88,16 @@
   }
 }
 
+/* progress line of the active step in the landing "Invoice and get paid" section */
+@keyframes stepProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @keyframes marquee {
   0% {
     transform: translateX(0%);

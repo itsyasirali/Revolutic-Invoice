@@ -4,12 +4,9 @@ import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { X, Minus, Expand } from "lucide-react";
-import useHeroChatDemo from "@/hooks/landing/useHeroChatDemo";
+import DashboardMockup from "./DashboardMockup";
 
 const Hero = () => {
-  const { chatData, activeChatId, activeChat, setActiveChatId } =
-    useHeroChatDemo();
-
   return (
     <section className="relative overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24">
       <Container className="text-center">
@@ -49,7 +46,7 @@ const Hero = () => {
         </div>
 
         {/* Dashboard Mockup */}
-        <div className="mt-16 md:mt-24 relative mx-auto max-w-7xl text-left">
+        <div className="mt-16 md:mt-24 relative mx-auto max-w-[90rem] text-left">
           <div className="rounded-xl border bg-white/50 p-2 shadow-2xl backdrop-blur-xl ring-1 ring-slate-900/5">
             <div className="rounded-xl overflow-hidden border bg-slate-50">
               {/* Fake Browser Header */}
@@ -80,101 +77,10 @@ const Hero = () => {
               </div>
 
               {/* Mockup Content */}
-              <div className="h-[400px] md:h-[600px] w-full bg-slate-50 relative flex items-center justify-center">
-                {/* Simplified Chat Interface Mockup */}
-                <div className="flex h-full w-full">
-                  {/* Sidebar */}
-                  <div className="w-64 border-r bg-white hidden md:block p-4 overflow-hidden">
-                    <div className="font-semibold text-lg text-slate-800 mb-4 px-2">
-                      Recent Activity
-                    </div>
-                    <div className="space-y-1">
-                      {chatData.map((chat) => (
-                        <div
-                          key={chat.id}
-                          onClick={() => setActiveChatId(chat.id)}
-                          className={`flex gap-3 items-center p-2 rounded-lg cursor-pointer transition-colors ${activeChatId === chat.id ? "bg-slate-100" : "hover:bg-slate-50"}`}
-                        >
-                          <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0 text-sm">
-                            {chat.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center">
-                              <div className="font-semibold text-sm text-slate-700 truncate">
-                                {chat.name}
-                              </div>
-                              <div
-                                className={`text-[10px] shrink-0 ${chat.unread > 0 ? "text-primary font-medium" : "text-slate-400"}`}
-                              >
-                                {chat.time}
-                              </div>
-                            </div>
-                            <div className="flex justify-between items-center mt-0.5">
-                              <div className="text-xs text-slate-500 truncate mr-2">
-                                {chat.messages[chat.messages.length - 1].text}
-                              </div>
-                              {chat.unread > 0 && (
-                                <div className="h-4 min-w-4 px-1 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-medium shrink-0">
-                                  {chat.unread}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Main Chat */}
-                  <div className="flex-1 flex flex-col bg-slate-50/50">
-                    <div className="h-16 border-b bg-white flex items-center px-6 gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                        {activeChat.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm text-slate-700">
-                          {activeChat.name}
-                        </div>
-                        <div className="text-xs text-slate-500 flex items-center gap-1">
-                          {activeChat.online ? (
-                            <>
-                              <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>{" "}
-                              Online
-                            </>
-                          ) : (
-                            <>
-                              <span className="h-1.5 w-1.5 rounded-full bg-slate-300"></span>{" "}
-                              Offline
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex-1 p-6 space-y-6 overflow-hidden overflow-y-auto">
-                      {activeChat.messages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={`flex gap-4 max-w-lg ${msg.sender === "agent" ? "ml-auto justify-end" : ""}`}
-                        >
-                          {msg.sender === "user" && (
-                            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0 text-xs mt-auto">
-                              {activeChat.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          <div
-                            className={`${msg.sender === "agent" ? "bg-primary text-primary-foreground shadow-sm p-4 rounded-xl rounded-br-none" : "bg-white border shadow-sm p-4 rounded-xl rounded-bl-none"}`}
-                          >
-                            <p className="text-sm">{msg.text}</p>
-                            <div
-                              className={`text-[10px] mt-2 ${msg.sender === "agent" ? "text-primary-foreground/70 text-right" : "text-slate-400"}`}
-                            >
-                              {msg.time}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+              <div className="relative h-[460px] w-full overflow-hidden bg-white md:h-[680px]">
+                <DashboardMockup />
+                {/* soft fade at the bottom of the main area (not the sidebar): the dashboard continues below */}
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent lg:left-56" />
               </div>
             </div>
           </div>
