@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
 import PaymentDetails from "./PaymentDetails";
+import PaymentPreview from "./PaymentPreview";
 import usePaymentsList, { PAYMENT_MODE_FILTERS } from "@/hooks/payments/usePaymentsList";
 import usePaymentActions from "@/hooks/payments/usePaymentActions";
 import { formatMoney } from "@/lib/format";
@@ -16,7 +17,7 @@ const FILTERS = PAYMENT_MODE_FILTERS.map((m) => ({
   label: m === "All" ? "All Payments" : `${m} Payments`,
 }));
 
-const PaymentSplitView = ({ initialPayments }: { initialPayments?: Payment[] }) => {
+const PaymentSplitView = ({ initialPayments, preview = false }: { initialPayments?: Payment[]; preview?: boolean }) => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = usePaymentsList(initialPayments as never);
   const listMenu = usePaymentListMenu(list.payments);
@@ -72,7 +73,7 @@ const PaymentSplitView = ({ initialPayments }: { initialPayments?: Payment[] }) 
           </Button>
         }
       >
-        <PaymentDetails />
+        {preview ? <PaymentPreview embedded /> : <PaymentDetails />}
       </SplitView>
     </>
   );

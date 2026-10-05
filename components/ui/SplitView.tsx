@@ -3,6 +3,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, MoreHorizontal, Plus } from "lucide-react";
 import { Checkbox, LoadingSpinner } from "@/components/ui";
+import { ListMenuSideContext } from "@/components/ui/ListMenu";
 
 export interface SplitRow {
   id: string | number;
@@ -171,7 +172,7 @@ export const SplitView: React.FC<SplitViewProps> = ({
                 >
                   <Plus className="h-4 w-4" />
                 </button>
-                {moreMenu}
+                {moreMenu && <ListMenuSideContext.Provider value="right">{moreMenu}</ListMenuSideContext.Provider>}
                 {!moreMenu && menu && (
                   <div ref={menuRef} className="relative">
                     <button

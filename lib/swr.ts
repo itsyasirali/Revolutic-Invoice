@@ -28,7 +28,15 @@ export const invalidateItems = () =>
     { revalidate: true },
   );
 
-export const invalidateCustomers = () => mutate(SWR_KEYS.customers);
+// Prefix match with cleared data, so a list that is not on screen right now is
+// dropped from the cache too (it would otherwise come back stale), and customer
+// detail caches ("/customers/12") refresh together with the list.
+export const invalidateCustomers = () =>
+  mutate(
+    (key) => typeof key === "string" && key.startsWith(SWR_KEYS.customers),
+    undefined,
+    { revalidate: true },
+  );
 
 // Invoices and payments feed each customer's remaining/received balances,
 // so the cached customer list must be refreshed alongside them.
@@ -43,7 +51,14 @@ export const invalidateInvoices = () =>
   ]);
 
 export const invalidatePayments = () =>
-  Promise.all([mutate(SWR_KEYS.payments), invalidateCustomers()]);
+  Promise.all([
+    mutate(
+      (key) => typeof key === "string" && key.startsWith(SWR_KEYS.payments),
+      undefined,
+      { revalidate: true },
+    ),
+    invalidateCustomers(),
+  ]);
 
 export const invalidateTemplates = () => mutate(SWR_KEYS.templates);
 

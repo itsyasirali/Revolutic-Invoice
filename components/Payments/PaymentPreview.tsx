@@ -1,13 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Send, Edit, Download, Settings } from "lucide-react";
-import { Button, PageHeader } from "@/components/ui";
+import { Button, PageHeader, ConfirmDialog, StatusBadge, toast } from "@/components/ui";
+import DetailHeader from "@/components/ui/DetailHeader";
+import axios from "@/lib/axios";
+import { invalidatePayments } from "@/lib/swr";
+import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import PaymentTemplateSelector from "./PaymentTemplateSelector";
 import TemplatePreview from "@/components/Templates/TemplatePreview";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";
 
-const PaymentPreview: React.FC = () => {
+/**
+ * Rendered payment receipt (template preview). `embedded` is the split-view
+ * version: the shared detail header (edit / More / close) replaces the page header.
+ */
+const PaymentPreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
+  const router = useRouter();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const {
     payment,
     templatesLoading,
@@ -34,8 +45,36 @@ const PaymentPreview: React.FC = () => {
     );
   }
 
+  const deletePayment = async () => {
+    setDeleting(true);
+    try {
+      await axios.delete(`/payments/${payment.id}`);
+      await invalidatePayments();
+      toast.success("Payment deleted successfully", "Deleted");
+      setConfirmDelete(false);
+      router.push("/payments");
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      toast.error(msg || "Failed to delete payment", "Error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className={embedded ? "" : "min-h-screen"}>
+      {embedded && (
+        <ConfirmDialog
+          isOpen={confirmDelete}
+          title="Delete Payment"
+          message="Are you sure you want to delete this payment? This action cannot be undone."
+          confirmText={deleting ? "Deleting..." : "Delete"}
+          cancelText="Cancel"
+          type="danger"
+          onConfirm={deletePayment}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
       <PaymentTemplateSelector
         isOpen={showTemplateSelector}
         onClose={() => setShowTemplateSelector(false)}
@@ -48,40 +87,57 @@ const PaymentPreview: React.FC = () => {
         }
       />
 
-      <PageHeader
-        title={`Payment ${payment.paymentNumber}`}
-        showBackButton={true}
-        onBack={handleBackClick}
-        actions={
-          <>
-            <Button
-              onClick={handleDownloadPDF}
-              variant="secondary"
-              size="md"
-              className="!bg-primary !border !border-primary text-white"
-              icon={<Download className="w-4 h-4" />}
-            >
-              Download
-            </Button>
-            <Button
-              onClick={() => handleEdit(payment.id)}
-              variant="secondary"
-              size="md"
-              icon={<Edit className="w-4 h-4" />}
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={handleSendClick}
-              variant="primary"
-              size="md"
-              icon={<Send className="w-4 h-4" />}
-            >
-              Send
-            </Button>
-          </>
-        }
-      />
+      {embedded ? (
+        <div className="px-6 pt-5">
+          <DetailHeader
+            title={`Payment ${payment.paymentNumber ?? ""}`.trim()}
+            subtitle={payment.status ? <StatusBadge status={payment.status} /> : undefined}
+            onEdit={() => handleEdit(payment.id)}
+            editTitle="Edit payment"
+            onClose={() => router.push("/payments")}
+            menu={[
+              { label: "Send Receipt", onClick: handleSendClick },
+              { label: "Download PDF", onClick: handleDownloadPDF },
+              { label: "Delete", danger: true, disabled: deleting, onClick: () => setConfirmDelete(true) },
+            ]}
+          />
+        </div>
+      ) : (
+        <PageHeader
+          title={`Payment ${payment.paymentNumber}`}
+          showBackButton={true}
+          onBack={handleBackClick}
+          actions={
+            <>
+              <Button
+                onClick={handleDownloadPDF}
+                variant="secondary"
+                size="md"
+                className="!bg-primary !border !border-primary text-white"
+                icon={<Download className="w-4 h-4" />}
+              >
+                Download
+              </Button>
+              <Button
+                onClick={() => handleEdit(payment.id)}
+                variant="secondary"
+                size="md"
+                icon={<Edit className="w-4 h-4" />}
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={handleSendClick}
+                variant="primary"
+                size="md"
+                icon={<Send className="w-4 h-4" />}
+              >
+                Send
+              </Button>
+            </>
+          }
+        />
+      )}
 
       <div className="px-6 py-10 font-sans">
         <div className="relative mx-auto max-w-[210mm]">

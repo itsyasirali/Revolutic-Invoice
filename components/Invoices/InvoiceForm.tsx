@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { Settings, X, Eye, Info, Mail, Tag } from "lucide-react";
+import { Settings, X, Info, Mail, Tag } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
 import { Button, PageHeader, Input, Select, Checkbox } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
@@ -35,7 +35,6 @@ const InvoiceForm = () => {
     handleInvoiceChange,
     handleTermsChange,
     handleSaveDraft,
-    handlePreview,
     handleCancel,
     handleSaveAndSend,
     calculateTotal,
@@ -56,8 +55,11 @@ const InvoiceForm = () => {
   const hasCustomer = !!invoiceData.customerId;
 
   const customerOptions: SelectOption[] = useMemo(() => {
-    const list =
-      customers && customers.length > 0 ? customers : filteredCustomers;
+    const list = (customers && customers.length > 0 ? customers : filteredCustomers).filter(
+      (c) =>
+        String(c.status || "").toLowerCase() !== "inactive" ||
+        String(c.id) === String(invoiceData.customerId),
+    );
     const opts: SelectOption[] = list.map((customer) => {
       const name =
         customer.displayName || customer.companyName || "Unnamed Customer";
@@ -714,13 +716,14 @@ const InvoiceForm = () => {
 
           <Button
             type="button"
-            onClick={handlePreview}
+            onClick={handleSaveAndSend}
             variant="primary"
             size="md"
             disabled={busy || !isFormValid}
-            icon={<Eye className="w-4 h-4" />}
+            loading={isSubmitting}
+            title={!isFormValid ? "Please select a customer and add at least one item" : ""}
           >
-            Preview
+            {isSubmitting ? "Saving..." : "Save & Send"}
           </Button>
         </div>
       </form>

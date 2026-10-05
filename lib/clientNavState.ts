@@ -17,3 +17,13 @@ export const getNavState = <T,>(key: string): T | undefined => {
     return undefined;
   }
 };
+
+/** Forgets a cached copy (e.g. before opening a record that was just saved, so the page loads it fresh). */
+export const clearNavState = (key: string): void => {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(`nav-state:${key}`);
+  } catch {
+    // ignore storage errors
+  }
+};

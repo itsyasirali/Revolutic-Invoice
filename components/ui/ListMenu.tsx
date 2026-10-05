@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -13,6 +13,13 @@ import {
 } from "lucide-react";
 import ImportButton from "@/components/import/ImportButton";
 import type { ImportKind } from "@/lib/import/types";
+
+/**
+ * Which side submenus open on. "left" suits a menu at the right edge of a page
+ * (list screens); "right" suits a menu in a narrow left panel (split view), where
+ * opening left would run off the screen.
+ */
+export const ListMenuSideContext = createContext<"left" | "right">("left");
 
 export interface ListMenuSort {
   options: { label: string; value: string }[];
@@ -41,7 +48,9 @@ const SubMenu: React.FC<{
   onClose: () => void;
   onToggle: () => void;
   children: React.ReactNode;
-}> = ({ icon, label, open, onOpen, onClose, onToggle, children }) => (
+}> = ({ icon, label, open, onOpen, onClose, onToggle, children }) => {
+  const side = useContext(ListMenuSideContext);
+  return (
   <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
     {/* Hover opens the submenu; click still toggles it (touch screens). */}
     <button type="button" className={`${ITEM} ${open ? "bg-primary text-white" : ""}`} onClick={onToggle}>
@@ -50,11 +59,16 @@ const SubMenu: React.FC<{
       <ChevronRight className={`h-4 w-4 shrink-0 ${open ? "text-white" : "text-primary group-hover:text-white"}`} />
     </button>
     {/* Always mounted (only hidden) so the import file picker survives the menu closing. */}
-    <div className={`absolute right-full top-0 z-40 pr-2 ${open ? "block" : "hidden"}`}>
+    <div
+      className={`absolute top-0 z-40 ${side === "right" ? "left-full pl-2" : "right-full pr-2"} ${
+        open ? "block" : "hidden"
+      }`}
+    >
       <div className="w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">{children}</div>
     </div>
   </div>
-);
+  );
+};
 
 /**
  * "..." menu of a list screen: Sort by, Import, Export and Refresh List.

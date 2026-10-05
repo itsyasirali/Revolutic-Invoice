@@ -6,12 +6,13 @@ import { useParams } from "next/navigation";
 import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
 import InvoiceDetails from "./InvoiceDetails";
+import InvoicePreview from "./InvoicePreview";
 import useInvoiceList from "@/hooks/invoices/useInvoiceList";
 
 const STATUSES = ["All", "Draft", "Sent", "Paid", "Overdue", "Partially Paid", "Written Off"];
 const FILTERS = STATUSES.map((s) => ({ value: s, label: s === "All" ? "All Invoices" : `${s} Invoices` }));
 
-const InvoiceSplitView = ({ initialInvoices }: { initialInvoices?: any[] }) => {
+const InvoiceSplitView = ({ initialInvoices, preview = false }: { initialInvoices?: any[]; preview?: boolean }) => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useInvoiceList(initialInvoices as never);
   const listMenu = useInvoiceListMenu(list.filteredInvoices);
@@ -56,7 +57,7 @@ const InvoiceSplitView = ({ initialInvoices }: { initialInvoices?: any[] }) => {
           </Button>
         }
       >
-        <InvoiceDetails />
+        {preview ? <InvoicePreview embedded /> : <InvoiceDetails />}
       </SplitView>
     </>
   );

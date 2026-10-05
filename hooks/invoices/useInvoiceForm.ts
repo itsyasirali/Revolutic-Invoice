@@ -17,7 +17,7 @@ import type {
 } from "@/types/invoice";
 import type { Item } from "@/types/item";
 import type { Contact } from "@/types/customer";
-import { getNavState, setNavState } from "@/lib/clientNavState";
+import { clearNavState, getNavState, setNavState } from "@/lib/clientNavState";
 import axios from "@/lib/axios";
 
 export const useInvoiceForm = () => {
@@ -663,7 +663,8 @@ export const useInvoiceForm = () => {
       const result = await saveDraft(payload);
       if (result) {
         router.refresh();
-        router.push("/invoices");
+        // Show the saved draft in the details (split view), not the bare list.
+        router.push(result.id ? `/invoices/${result.id}` : "/invoices");
       }
     }
   };
@@ -758,6 +759,8 @@ export const useInvoiceForm = () => {
       };
 
       let invoiceId = id;
+      // The save call returns the complete stored invoice (number, customer, template, items).
+      let savedInvoice: Record<string, unknown> | null = null;
 
       if (isEditMode && id) {
         const result = await updateInvoice(id, payload);
@@ -766,6 +769,7 @@ export const useInvoiceForm = () => {
           return;
         }
         invoiceId = id;
+        savedInvoice = result as Record<string, unknown>;
       } else {
         const result = await saveDraft(payload);
         if (!result || !result.id) {
@@ -773,42 +777,16 @@ export const useInvoiceForm = () => {
           return;
         }
         invoiceId = result.id;
+        savedInvoice = result as unknown as Record<string, unknown>;
       }
 
       if (invoiceId) {
-        const currentStatus = invoice?.status || "Draft";
-        const preserveStatus =
-          isEditMode &&
-          invoice &&
-          ["Sent", "Partially Paid", "Paid"].includes(currentStatus);
-
-        const finalStatus = preserveStatus ? currentStatus : "Draft";
-        const finalReceived = preserveStatus ? invoice.received || 0 : 0;
-        const finalRemaining = calculateTotal() - finalReceived;
-
-        const navPayload = {
-          ...payload,
-          id: invoiceId,
-          items: items,
-          subTotal: calculateSubtotal(),
-          total: calculateTotal(),
-          received: finalReceived,
-          remaining: finalRemaining,
-          previousRemaining: getPreviousRemainingAmount(),
-          status: finalStatus,
-          discountPercent: Number(invoiceData.discountPercent) || 0,
-          templateId: invoiceData.templateId,
-          template:
-            templates.find(
-              (t) => String(t.id) === String(invoiceData.templateId)
-            )?.raw ||
-            templates.find(
-              (t) => String(t.id) === String(invoiceData.templateId)
-            ) ||
-            undefined,
-        };
-
-        setNavState(`invoice:${invoiceId}`, navPayload);
+        // Open the preview from the saved invoice the server just returned, so it shows
+        // immediately (no blank wait); the preview refreshes the extras in the background.
+        const { message: _message, ...stored } = savedInvoice ?? {};
+        void _message;
+        if (savedInvoice) setNavState(`invoice:${invoiceId}`, stored);
+        else clearNavState(`invoice:${invoiceId}`);
         router.push(`/invoices/preview/${invoiceId}`);
       }
     } catch (error) {

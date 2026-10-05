@@ -12,7 +12,7 @@ import type {
   UsePaymentFormReturn,
   CustomerOption,
 } from "@/types/payment";
-import { getNavState } from "@/lib/clientNavState";
+import { getNavState, clearNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
 
 export const usePaymentForm = (): UsePaymentFormReturn => {
@@ -360,7 +360,9 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
           await invalidatePayments();
           toast.success("Payment draft saved successfully", "Draft Saved");
           router.refresh();
-          router.push("/payments");
+          // Show the saved draft in the details (split view), not the bare list.
+          const newId = response.data.id || response.data.payment?.id;
+          router.push(newId ? `/payments/${newId}` : "/payments");
         }
       }
     } catch (error: any) {
@@ -417,25 +419,31 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
       };
 
       let paymentId = id;
+      // The save call returns the complete stored payment (number, customer, applied invoices).
+      let savedPayment: unknown = null;
 
       if (isEditMode && id) {
-        await axios.put(`/payments/${id}`, payload);
+        const response = await axios.put(`/payments/${id}`, payload);
+        savedPayment = response.data?.payment ?? null;
         await invalidatePayments();
         toast.success("Payment updated successfully", "Payment Updated");
       } else {
         const response = await axios.post(`/payments`, payload);
         paymentId =
           response.data.id || response.data.payment?.id;
+        savedPayment = response.data?.payment ?? null;
         await invalidatePayments();
         toast.success("Payment recorded successfully", "Payment Recorded");
       }
 
       if (paymentId) {
-        handlePreview(paymentId, {
-          ...payload,
-          id: paymentId,
-          appliedInvoices: appliedInvoicesPayload,
-        });
+        // Open the preview from the saved payment the server just returned: it has the
+        // number, customer and applied invoices, so no request is needed and nothing is blank.
+        if (savedPayment) handlePreview(paymentId, savedPayment);
+        else {
+          clearNavState(`payment:${paymentId}`);
+          handlePreview(paymentId);
+        }
       }
     } catch (error: any) {
       console.error("Error in handleSaveAndSend:", error);
