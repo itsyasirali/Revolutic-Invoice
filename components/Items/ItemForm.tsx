@@ -88,11 +88,12 @@ const ItemForm: React.FC = () => {
             />
 
             <Select
+              key={itemType}
               name="unit"
               label="Unit"
               placeholder="Select a unit"
-              options={unitOptions(item?.unit)}
-              defaultValue={item?.unit || ""}
+              options={unitOptions(itemType === item?.type ? item?.unit : null, itemType)}
+              defaultValue={itemType === item?.type ? item?.unit || "" : ""}
               fullWidth
             />
 
