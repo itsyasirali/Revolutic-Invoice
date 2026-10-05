@@ -64,7 +64,7 @@ const useExpenseForm = () => {
           id ? "Expense Updated" : "Expense Created",
         );
         router.refresh();
-        router.push("/expenses");
+        router.push(id ? `/expenses/${id}` : "/expenses");
       } catch (err) {
         const msg = (err as { response?: { data?: { message?: string } }; message?: string });
         setAlert({
@@ -96,7 +96,7 @@ const useExpenseForm = () => {
     alert,
     dismissAlert,
     handleSubmit,
-    handleCancel: () => router.push("/expenses"),
+    handleCancel: () => router.push(id ? `/expenses/${id}` : "/expenses"),
   };
 };
 

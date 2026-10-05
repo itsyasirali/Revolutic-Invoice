@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
   StatusBadge,
@@ -149,32 +148,6 @@ const TimeEntryList = () => {
           emptyMessage={list.error || "No time entries found"}
           getRowId={(r) => String(r.id)}
           onRowClick={list.handleRowClick}
-          rowActions={(r) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleEdit(r);
-                }}
-                disabled={r.invoiced}
-                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={r.invoiced ? "Invoiced entries cannot be edited" : "Edit Time Entry"}
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleDelete([r.id]);
-                }}
-                disabled={r.invoiced}
-                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={r.invoiced ? "Invoiced entries cannot be deleted" : "Delete Time Entry"}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
           showFilter
           showCheckbox
         />

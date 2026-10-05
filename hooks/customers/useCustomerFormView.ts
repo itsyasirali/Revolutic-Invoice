@@ -51,14 +51,14 @@ export const useCustomerFormView = () => {
       );
       if (!saved) return;
       router.refresh();
-      router.push("/customers");
+      router.push(customer?.id ? `/customers/${customer.id}` : "/customers");
     },
     [customer, existingFiles, handleSubmit, router],
   );
 
   const handleCancel = useCallback(() => {
-    router.push("/customers");
-  }, [router]);
+    router.push(customer?.id ? `/customers/${customer.id}` : "/customers");
+  }, [router, customer?.id]);
 
   return {
     customer,

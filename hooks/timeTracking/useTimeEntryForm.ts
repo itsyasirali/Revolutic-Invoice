@@ -104,7 +104,7 @@ const useTimeEntryForm = () => {
           id ? "Time Entry Updated" : "Time Entry Created",
         );
         router.refresh();
-        router.push("/time-tracking");
+        router.push(id ? `/time-tracking/${id}` : "/time-tracking");
       } catch (err) {
         const e = err as { response?: { data?: { message?: string } }; message?: string };
         setAlert({
@@ -149,7 +149,7 @@ const useTimeEntryForm = () => {
     alert,
     dismissAlert: () => setAlert({ show: false, type: "error", message: "" }),
     handleSubmit,
-    handleCancel: () => router.push("/time-tracking"),
+    handleCancel: () => router.push(id ? `/time-tracking/${id}` : "/time-tracking"),
   };
 };
 

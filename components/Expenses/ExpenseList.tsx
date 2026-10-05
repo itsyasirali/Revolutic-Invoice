@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
   StatusBadge,
@@ -150,32 +149,6 @@ const ExpenseList = ({ initialExpenses }: ExpenseListProps) => {
           emptyMessage={list.error || "No expenses found"}
           getRowId={(e) => String(e.id)}
           onRowClick={list.handleRowClick}
-          rowActions={(e) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleEdit(e);
-                }}
-                disabled={e.invoiced}
-                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={e.invoiced ? "Invoiced expenses cannot be edited" : "Edit Expense"}
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleDelete([e.id]);
-                }}
-                disabled={e.invoiced}
-                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={e.invoiced ? "Invoiced expenses cannot be deleted" : "Delete Expense"}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
           showFilter
           showCheckbox
         />

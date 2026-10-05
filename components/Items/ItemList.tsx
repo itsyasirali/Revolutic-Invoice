@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useItemListMenu } from "@/hooks/common/listMenus";
-import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
   StatusBadge,
@@ -32,7 +31,6 @@ const ItemList = ({ initialItems }: ItemListProps) => {
     handleSetActive,
     handleSetInactive,
     handleDelete,
-    handleEdit,
     handleRowClick,
     onSelectAll,
     onSelectRow,
@@ -189,30 +187,6 @@ const ItemList = ({ initialItems }: ItemListProps) => {
           emptyMessage="No items found"
           getRowId={(i) => String(i.id)}
           onRowClick={handleRowClick}
-          rowActions={(i) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(i);
-                }}
-                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
-                title="Edit Item"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete([i.id]);
-                }}
-                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
-                title="Delete Item"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
           showFilter
           showCheckbox
         />

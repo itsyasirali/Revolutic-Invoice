@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Input,
   Select,
@@ -16,6 +16,8 @@ import { Search, Mail } from "lucide-react";
 
 const PaymentForm: React.FC = () => {
   const router = useRouter();
+  const params = useParams();
+  const backPath = params?.id ? `/payments/${params.id}` : "/payments";
   const {
     paymentData,
     setPaymentData,
@@ -46,7 +48,7 @@ const PaymentForm: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
         title="Record Payment"
-        onBack={() => router.push("/payments")}
+        onBack={() => router.push(backPath)}
       />
 
       <div className="flex-1 py-8 px-4 w-full">
@@ -406,7 +408,7 @@ const PaymentForm: React.FC = () => {
       <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 py-5 flex items-center justify-start gap-3 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
         <Button
           onClick={() => {
-            router.push("/payments");
+            router.push(backPath);
           }}
           variant="ghost"
           size="md"

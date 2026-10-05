@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useProjectListMenu } from "@/hooks/common/listMenus";
-import { Edit, Trash2 } from "lucide-react";
 import { Table, StatusBadge, Button, PageHeader, ConfirmDialog } from "@/components/ui";
 import useProjectList from "@/hooks/projects/useProjectList";
 import { statusVariant } from "@/lib/statusVariants";
@@ -126,30 +125,6 @@ const ProjectList = ({ initialProjects }: ProjectListProps) => {
           emptyMessage={list.error || "No projects found"}
           getRowId={(p) => String(p.id)}
           onRowClick={list.handleRowClick}
-          rowActions={(p) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleEdit(p);
-                }}
-                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer"
-                title="Edit Project"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleDelete([p.id]);
-                }}
-                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
-                title="Delete Project"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
           showFilter
           showCheckbox
         />

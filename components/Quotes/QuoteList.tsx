@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useQuoteListMenu } from "@/hooks/common/listMenus";
-import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
   StatusBadge,
@@ -16,7 +15,6 @@ import { customerLabel, formatDate, formatMoney } from "@/lib/format";
 import { QUOTE_STATUSES } from "@/types/quote";
 import type { Quote, QuoteListProps } from "@/types/quote";
 
-const NON_EDITABLE = ["Accepted", "Converted"];
 
 const STATUS_OPTIONS = ["All", ...QUOTE_STATUSES];
 
@@ -129,32 +127,6 @@ const QuoteList = ({ initialQuotes }: QuoteListProps) => {
           emptyMessage={list.error || "No quotes found"}
           getRowId={(q) => String(q.id)}
           onRowClick={list.handleRowClick}
-          rowActions={(q) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleEdit(q);
-                }}
-                disabled={NON_EDITABLE.includes(q.status)}
-                className="p-1.5 text-slate-400 hover:text-primary transition-colors hover:bg-primary/5 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={NON_EDITABLE.includes(q.status) ? `${q.status} quotes cannot be edited` : "Edit Quote"}
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  list.handleDelete([q.id]);
-                }}
-                disabled={q.status === "Converted"}
-                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors hover:bg-red-50 rounded-md cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                title={q.status === "Converted" ? "Converted quotes cannot be deleted" : "Delete Quote"}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
           showFilter
           showCheckbox
         />

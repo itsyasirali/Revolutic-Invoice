@@ -353,7 +353,7 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
         await invalidatePayments();
         toast.success("Payment updated successfully", "Payment Updated");
         router.refresh();
-        router.push("/payments");
+        router.push(`/payments/${id}`);
       } else {
         const response = await axios.post(`/payments`, payload);
         if (response.data) {

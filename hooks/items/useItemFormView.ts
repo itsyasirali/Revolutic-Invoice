@@ -58,15 +58,15 @@ export const useItemFormView = () => {
       const success = await handleSubmit(payload);
       if (success) {
         router.refresh();
-        router.push("/items");
+        router.push(id ? `/items/${id}` : "/items");
       }
     },
-    [itemType, handleSubmit, router],
+    [itemType, handleSubmit, router, id],
   );
 
   const handleCancel = useCallback(() => {
-    router.push("/items");
-  }, [router]);
+    router.push(id ? `/items/${id}` : "/items");
+  }, [router, id]);
 
   return {
     item,

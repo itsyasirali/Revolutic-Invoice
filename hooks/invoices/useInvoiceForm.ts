@@ -657,7 +657,7 @@ export const useInvoiceForm = () => {
       const result = await updateInvoice(id, payload);
       if (result) {
         router.refresh();
-        router.push("/invoices");
+        router.push(`/invoices/${id}`);
       }
     } else {
       const result = await saveDraft(payload);
@@ -819,7 +819,7 @@ export const useInvoiceForm = () => {
   };
 
   const handleCancel = () => {
-    router.push("/invoices");
+    router.push(isEditMode && id ? `/invoices/${id}` : "/invoices");
   };
 
   const openTemplateSelector = () => setShowTemplateSelector(true);
