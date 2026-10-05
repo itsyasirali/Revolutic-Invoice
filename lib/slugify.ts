@@ -9,18 +9,21 @@ const slugify = (input: string): string =>
     .replace(/^-+|-+$/g, "") || "org";
 
 /**
- * Generates a slug for `name` that is unique across all organizations,
- * appending -2, -3, ... on collision.
+ * Generates the URL slug for `name`. The slug only has to be unique among the
+ * owner's own organizations (the active organization comes from the session,
+ * not the URL), so two different users can both have "/revolutic/...".
+ * A suffix (-2, -3, ...) is added only when the same owner already has that slug.
  */
 export const generateUniqueSlug = async (
   orgRepo: Repository<Organization>,
   name: string,
+  userId: number,
 ): Promise<string> => {
   const base = slugify(name);
   let candidate = base;
   let suffix = 2;
 
-  while (await orgRepo.findOne({ where: { slug: candidate } })) {
+  while (await orgRepo.findOne({ where: { slug: candidate, userId } })) {
     candidate = `${base}-${suffix}`;
     suffix += 1;
   }

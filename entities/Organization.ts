@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -11,6 +12,7 @@ import {
 import type { User } from "./User";
 
 @Entity("organizations")
+@Index("IDX_organizations_user_slug", ["userId", "slug"], { unique: true })
 export class Organization {
   @PrimaryGeneratedColumn("increment")
   id!: number;
@@ -19,7 +21,7 @@ export class Organization {
   name!: string;
 
   // Nullable so schema sync doesn't fail against pre-existing rows; backfilled lazily on read.
-  @Column({ type: "varchar", nullable: true, unique: true })
+  @Column({ type: "varchar", nullable: true })
   slug!: string | null;
 
   @Column({ type: "varchar", nullable: true })

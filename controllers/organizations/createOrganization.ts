@@ -87,7 +87,7 @@ const createOrganization = async (req: NextRequest) => {
       );
     }
 
-    const slug = await generateUniqueSlug(orgRepo, trimmedName);
+    const slug = await generateUniqueSlug(orgRepo, trimmedName, userId);
 
     // Create the organization
     const org = orgRepo.create({

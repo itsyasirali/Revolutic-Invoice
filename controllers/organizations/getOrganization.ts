@@ -38,7 +38,7 @@ const getOrganization = async (req: NextRequest) => {
     // Self-heal: backfill slugs for organizations created before the slug column existed
     for (const org of organizations) {
       if (!org.slug) {
-        org.slug = await generateUniqueSlug(orgRepo, org.name);
+        org.slug = await generateUniqueSlug(orgRepo, org.name, userId);
         await orgRepo.save(org);
       }
     }
