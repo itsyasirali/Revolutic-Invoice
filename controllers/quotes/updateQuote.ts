@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { quoteEditable } from "@/lib/editLock";
 import { getDatabase } from "@/lib/database";
 import { Quote } from "@/entities/Quote";
 import { QuoteItem } from "@/entities/QuoteItem";
@@ -11,7 +12,6 @@ import {
   validateCustomerAndTemplate,
 } from "./quotePayload";
 
-const EDITABLE = ["Draft", "Sent", "Viewed", "Expired", "Declined"];
 
 const updateQuote = async (
   req: NextRequest,
@@ -27,7 +27,7 @@ const updateQuote = async (
     const quoteRepo = db.getRepository(Quote);
     const existing = await loadQuote(db, parseInt(id), orgId);
     if (!existing) throw new HttpError("Quote not found", 404);
-    if (!EDITABLE.includes(existing.status)) {
+    if (!quoteEditable(existing.status)) {
       throw new HttpError(`A ${existing.status} quote can no longer be edited`, 409);
     }
 

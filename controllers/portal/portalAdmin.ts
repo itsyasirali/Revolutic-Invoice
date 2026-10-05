@@ -13,7 +13,7 @@ import { Project } from "@/entities/Project";
 import { getRequestContext, errorResponse, HttpError } from "@/lib/requestContext";
 import { hashToken } from "@/lib/portalSession";
 import { createMailTransporter, getMailFromAddress, getMailFromName } from "@/lib/mailer";
-import { sanitizePlainText } from "@/lib/sanitizeHtml";
+import { sanitizeHtml, sanitizePlainText } from "@/lib/sanitizeHtml";
 import { validateEmail } from "@/lib/validation/contact";
 import {
   DEFAULT_PORTAL_SETTINGS,
@@ -162,10 +162,13 @@ export const replyToComment = async (req: NextRequest) => {
     };
     const type = String(body.entityType || "");
     const id = parseInt(String(body.entityId));
-    const message = sanitizePlainText(String(body.message ?? "").trim());
+    // Business replies may carry basic formatting (bold / italic / underline); the HTML is
+    // reduced to a safe allow-list. Emptiness and length are judged on the visible text.
+    const message = sanitizeHtml(String(body.message ?? "").trim());
+    const text = sanitizePlainText(message);
     if (!Number.isInteger(id)) throw new HttpError("Invalid request", 400);
-    if (!message) throw new HttpError("Comment cannot be empty", 400);
-    if (message.length > 2000) throw new HttpError("Comment is too long", 400);
+    if (!text) throw new HttpError("Comment cannot be empty", 400);
+    if (text.length > 2000 || message.length > 6000) throw new HttpError("Comment is too long", 400);
     const customerId = await entityCustomerId(ctx.orgId, type, id);
 
     const db = await getDatabase();

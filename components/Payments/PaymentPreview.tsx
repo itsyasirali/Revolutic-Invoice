@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { paymentEditable } from "@/lib/editLock";
 import { Send, Edit, Download, Settings } from "lucide-react";
 import { Button, PageHeader, ConfirmDialog, StatusBadge, toast } from "@/components/ui";
 import DetailHeader from "@/components/ui/DetailHeader";
@@ -92,7 +93,7 @@ const PaymentPreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
           <DetailHeader
             title={`Payment ${payment.paymentNumber ?? ""}`.trim()}
             subtitle={payment.status ? <StatusBadge status={payment.status} /> : undefined}
-            onEdit={() => handleEdit(payment.id)}
+            onEdit={paymentEditable(payment.status) ? () => handleEdit(payment.id) : undefined}
             editTitle="Edit payment"
             onClose={() => router.push("/payments")}
             menu={[
@@ -118,14 +119,16 @@ const PaymentPreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
               >
                 Download
               </Button>
-              <Button
-                onClick={() => handleEdit(payment.id)}
-                variant="secondary"
-                size="md"
-                icon={<Edit className="w-4 h-4" />}
-              >
-                Edit
-              </Button>
+              {paymentEditable(payment.status) && (
+                <Button
+                  onClick={() => handleEdit(payment.id)}
+                  variant="secondary"
+                  size="md"
+                  icon={<Edit className="w-4 h-4" />}
+                >
+                  Edit
+                </Button>
+              )}
               <Button
                 onClick={handleSendClick}
                 variant="primary"

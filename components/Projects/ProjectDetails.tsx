@@ -28,7 +28,7 @@ import type { ProjectInvoiceRef } from "@/types/project";
 import type { TableColumn } from "@/types/common";
 import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
-type Tab = "overview" | "tasks" | "time" | "expenses" | "invoices";
+type Tab = "overview" | "tasks" | "time" | "expenses" | "invoices" | "comments";
 
 const noop = () => {};
 
@@ -142,6 +142,7 @@ const ProjectDetails: React.FC = () => {
     { label: "Time", value: "time", count: timeEntries.length },
     { label: "Expenses", value: "expenses", count: expenses.length },
     { label: "Invoices", value: "invoices", count: invoices.length },
+    { label: "Comments", value: "comments" },
   ];
 
   const tableBase = { selectedIds: [], onSelectAll: noop, onSelectRow: noop, showCheckbox: false, variant: "spacious" as const };
@@ -252,12 +253,10 @@ const ProjectDetails: React.FC = () => {
               </DetailRow>
             </div>
           </DetailSection>
-
-          <div className="mt-8">
-            <BusinessPortalComments entityType="project" entityId={project.id} />
-          </div>
         </div>
       )}
+
+      {tab === "comments" && <BusinessPortalComments entityType="project" entityId={project.id} />}
 
       {tab === "tasks" && (
         <div className="space-y-4">

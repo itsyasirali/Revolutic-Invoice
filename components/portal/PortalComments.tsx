@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
 import { PCard, ErrorNote, fieldClass, primaryBtn } from "./PortalUI";
+import CommentBody from "./CommentBody";
 import type { PortalComment } from "@/types/portal";
 
 /** Customer-side conversation thread on an invoice, quote or project. */
@@ -52,7 +53,7 @@ const PortalComments: React.FC<{ entityType: "invoice" | "quote" | "project"; en
               </span>{" "}
               · {new Date(c.createdAt).toLocaleString()}
             </p>
-            <p className="whitespace-pre-wrap text-slate-800">{c.message}</p>
+            <CommentBody message={c.message} className="text-slate-800" />
           </li>
         ))}
       </ul>

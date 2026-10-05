@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { invoiceEditable } from "@/lib/editLock";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { InvoiceItem } from "@/entities/InvoiceItem";
@@ -47,6 +48,14 @@ const updateInvoice = async (
       return NextResponse.json(
         { message: "Invoice not found or access denied" },
         { status: 404 },
+      );
+    }
+
+    // Sent (or settled) invoices are locked; only the print template may still change.
+    if (!invoiceEditable(invoice.status) && Object.keys(body).some((k) => k !== "templateId")) {
+      return NextResponse.json(
+        { message: `A ${invoice.status} invoice can no longer be edited` },
+        { status: 409 },
       );
     }
 

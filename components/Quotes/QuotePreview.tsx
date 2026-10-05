@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef } from "react";
+import { quoteEditable } from "@/lib/editLock";
 import { useParams, useSearchParams } from "next/navigation";
 import { Send, Edit, Download } from "lucide-react";
 import { Button, PageHeader } from "@/components/ui";
@@ -84,7 +85,7 @@ const QuotePreview: React.FC = () => {
             >
               Download
             </Button>
-            {!["Accepted", "Converted"].includes(quote.status) && (
+            {quoteEditable(quote.status) && (
               <Button
                 onClick={() => router.push(`/quotes/edit/${quote.id}`)}
                 variant="secondary"

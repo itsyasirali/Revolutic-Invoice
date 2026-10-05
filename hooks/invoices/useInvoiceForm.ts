@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { invoiceEditable, LOCKED_MESSAGE } from "@/lib/editLock";
+import { toast } from "@/components/ui";
 import { useParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useCustomerData from "@/hooks/customers/useCustomers";
@@ -36,6 +38,15 @@ export const useInvoiceForm = () => {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [formPopulated, setFormPopulated] = useState(false);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
+
+  // A sent invoice can no longer be edited: go back to its details.
+  useEffect(() => {
+    if (isEditMode && invoice && !invoiceEditable(invoice.status)) {
+      toast.error(LOCKED_MESSAGE.invoice, "Invoice Locked");
+      router.replace(`/invoices/${id}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, invoice?.status]);
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const [items, setItems] = useState<InvoiceItem[]>([

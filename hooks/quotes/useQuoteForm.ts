@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { quoteEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { useParams } from "next/navigation";
 import axios from "@/lib/axios";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
@@ -55,6 +56,15 @@ const useQuoteForm = () => {
   const { options: customerOptions, customers } = useCustomerOptions();
   const { items: catalog } = useItemsData();
   const { templates } = useTemplatesList();
+
+  // A sent quote can no longer be edited: go back to its details.
+  useEffect(() => {
+    if (quote && !quoteEditable(quote.status)) {
+      toast.error(LOCKED_MESSAGE.quote, "Quote Locked");
+      router.replace(`/quotes/${quote.id}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote?.status]);
 
   const [customerId, setCustomerId] = useState("");
   const [templateId, setTemplateId] = useState("");

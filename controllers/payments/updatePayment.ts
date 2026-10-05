@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { paymentEditable } from "@/lib/editLock";
 import { In } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
@@ -85,6 +86,11 @@ const updatePayment = async (
         relations: ["appliedInvoices"],
       });
       if (!payment) throw new UpdateError("Payment not found", 404);
+
+      // A payment whose receipt was sent is locked; only the print template may still change.
+      if (!paymentEditable(payment.status) && Object.keys(body).some((k) => k !== "templateId")) {
+        throw new UpdateError("A sent payment can no longer be edited", 409);
+      }
 
       if (body.templateId !== undefined) payment.templateId = Number(body.templateId);
       if (body.status !== undefined) payment.status = body.status;

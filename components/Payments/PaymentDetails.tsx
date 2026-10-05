@@ -1,5 +1,6 @@
 "use client";
 import DetailHeader from "@/components/ui/DetailHeader";
+import { paymentEditable } from "@/lib/editLock";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 
 import React from "react";
@@ -82,7 +83,7 @@ const PaymentDetails: React.FC = () => {
       <DetailHeader
         title={`Payment ${payment.paymentNumber || ""}`.trim()}
         subtitle={payment.status ? <>{payment.status}</> : undefined}
-        onEdit={() => handleEdit(payment.id || "")}
+        onEdit={paymentEditable(payment.status) ? () => handleEdit(payment.id || "") : undefined}
         editTitle="Edit payment"
         onClose={handleBackClick}
         menu={[

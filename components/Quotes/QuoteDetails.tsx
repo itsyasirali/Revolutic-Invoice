@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { quoteEditable } from "@/lib/editLock";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import {
@@ -38,7 +39,7 @@ const QuoteDetails: React.FC = () => {
   });
   useDocumentTitle(quote ? `${quote.quoteNumber} | Quote Details` : undefined);
   const [acting, setActing] = useState(false);
-  const [tab, setTab] = useState<"quote" | "activity">("quote");
+  const [tab, setTab] = useState<"quote" | "comments" | "activity">("quote");
 
   const del = useBatchDelete({
     endpoint: "/quotes/batch-delete",
@@ -67,7 +68,7 @@ const QuoteDetails: React.FC = () => {
   }
 
   const status = quote.status;
-  const canEdit = !["Accepted", "Converted"].includes(status);
+  const canEdit = quoteEditable(status);
   const canSend = ["Draft", "Sent", "Viewed"].includes(status);
   const canRespond = ["Sent", "Viewed"].includes(status);
   const canConvert = status === "Accepted" && !quote.convertedInvoiceId;
@@ -144,10 +145,11 @@ const QuoteDetails: React.FC = () => {
         <Tabs
           tabs={[
             { label: "Overview", value: "quote" },
+            { label: "Comments", value: "comments" },
             { label: "Activity", value: "activity" },
           ]}
           activeTab={tab}
-          onTabChange={(v) => setTab(v as "quote" | "activity")}
+          onTabChange={(v) => setTab(v as "quote" | "comments" | "activity")}
         />
       </div>
 
@@ -250,12 +252,10 @@ const QuoteDetails: React.FC = () => {
               </DetailSection>
             </div>
           )}
-
-          <div className="mt-8">
-            <BusinessPortalComments entityType="quote" entityId={quote.id} />
-          </div>
         </div>
       )}
+
+      {tab === "comments" && <BusinessPortalComments entityType="quote" entityId={quote.id} />}
 
       {tab === "activity" && (
         <div>

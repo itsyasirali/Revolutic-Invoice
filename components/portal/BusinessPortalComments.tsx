@@ -1,13 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import useSWR from "swr";
 import axios from "@/lib/axios";
 import { swrFetcher } from "@/lib/swr";
-import { Button, Checkbox, Textarea, toast } from "@/components/ui";
+import { Button, Checkbox, toast } from "@/components/ui";
+import CommentBody from "./CommentBody";
 import type { PortalComment } from "@/types/portal";
 
-/** Customer-portal conversation on a record, with replies from the business. */
+const TOOLS = [
+  { command: "bold", label: "B", title: "Bold", className: "font-bold" },
+  { command: "italic", label: "I", title: "Italic", className: "italic" },
+  { command: "underline", label: "U", title: "Underline", className: "underline" },
+] as const;
+
+/**
+ * Comments on an invoice, quote or project: a small formatting editor and the
+ * conversation with the customer through the portal ("All comments").
+ */
 const BusinessPortalComments: React.FC<{ entityType: "invoice" | "quote" | "project"; entityId: number }> = ({
   entityType,
   entityId,
@@ -16,22 +26,33 @@ const BusinessPortalComments: React.FC<{ entityType: "invoice" | "quote" | "proj
   const { data, mutate } = useSWR<{ comments: PortalComment[] }>(key, swrFetcher, {
     revalidateOnFocus: false,
   });
-  const [message, setMessage] = useState("");
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [empty, setEmpty] = useState(true);
   const [visible, setVisible] = useState(true);
   const [busy, setBusy] = useState(false);
   const comments = data?.comments || [];
 
+  const refreshEmpty = () => setEmpty(!(editorRef.current?.textContent || "").trim());
+
+  const format = (command: string) => {
+    editorRef.current?.focus();
+    document.execCommand(command);
+    refreshEmpty();
+  };
+
   const send = async () => {
-    if (!message.trim()) return;
+    const editor = editorRef.current;
+    if (!editor || !(editor.textContent || "").trim()) return;
     setBusy(true);
     try {
       await axios.post("/portal-admin/comments", {
         entityType,
         entityId,
-        message,
+        message: editor.innerHTML,
         visibleToCustomer: visible,
       });
-      setMessage("");
+      editor.innerHTML = "";
+      setEmpty(true);
       await mutate();
     } catch (err) {
       const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
@@ -42,50 +63,74 @@ const BusinessPortalComments: React.FC<{ entityType: "invoice" | "quote" | "proj
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-      <div>
-        <h2 className="text-base font-bold text-slate-900 tracking-tight">Customer Comments</h2>
-        <p className="text-xs text-slate-500 mt-0.5">Conversation with the customer through the portal.</p>
-      </div>
-      {comments.length === 0 ? (
-        <p className="text-sm text-slate-500">No comments yet.</p>
-      ) : (
-        <ul className="space-y-3">
-          {comments.map((c) => (
-            <li
-              key={c.id}
-              className={`rounded-lg px-4 py-3 text-sm ${c.authorType === "customer" ? "bg-primary/5" : "bg-slate-100"}`}
+    <div className="max-w-3xl">
+      <div className="overflow-hidden rounded-lg border border-slate-300/80 bg-white">
+        <div className="flex items-center gap-1 bg-slate-100 px-2.5 py-2">
+          {TOOLS.map((t) => (
+            <button
+              key={t.command}
+              type="button"
+              title={t.title}
+              // keep the selection in the editor while a tool is pressed
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => format(t.command)}
+              className={`flex h-7 w-8 items-center justify-center rounded text-xs text-slate-700 hover:bg-white cursor-pointer ${t.className}`}
             >
-              <p className="text-xs text-slate-500 mb-1">
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative">
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            role="textbox"
+            aria-label="Write a comment"
+            onInput={refreshEmpty}
+            onPaste={(e) => {
+              // paste as plain text so pasted styles don't leak into the comment
+              e.preventDefault();
+              document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
+            }}
+            className="min-h-[72px] px-4 py-3 text-sm text-slate-800 outline-none"
+          />
+          {empty && (
+            <span className="pointer-events-none absolute left-4 top-3 text-sm text-slate-400">Write a comment...</span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-slate-200 px-2.5 py-2.5">
+          <Button variant="outline" size="sm" onClick={send} loading={busy} disabled={busy || empty}>
+            Add Comment
+          </Button>
+          <Checkbox label="Visible to customer" checked={visible} onChange={(e) => setVisible(e.target.checked)} />
+        </div>
+      </div>
+
+      <h3 className="mt-8 border-b border-slate-200 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        All Comments
+      </h3>
+
+      {comments.length === 0 ? (
+        <p className="py-8 text-center text-sm text-slate-500">No comments yet.</p>
+      ) : (
+        <ul className="divide-y divide-slate-100">
+          {comments.map((c) => (
+            <li key={c.id} className="py-4 text-sm">
+              <p className="mb-1 text-xs text-slate-500">
                 <span className="font-semibold text-slate-700">
                   {c.authorType === "customer" ? c.authorName || "Customer" : "You"}
                 </span>{" "}
                 · {new Date(c.createdAt).toLocaleString()}
                 {c.authorType === "business" && c.visibleToCustomer === false && " · Internal note"}
               </p>
-              <p className="whitespace-pre-wrap text-slate-800">{c.message}</p>
+              <CommentBody message={c.message} className="text-slate-800" />
             </li>
           ))}
         </ul>
       )}
-      <Textarea
-        label="Reply"
-        rows={2}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Write a reply..."
-        fullWidth
-      />
-      <div className="flex items-center justify-between gap-3">
-        <Checkbox
-          label="Visible to customer"
-          checked={visible}
-          onChange={(e) => setVisible(e.target.checked)}
-        />
-        <Button variant="primary" size="sm" onClick={send} loading={busy} disabled={busy || !message.trim()}>
-          Send
-        </Button>
-      </div>
     </div>
   );
 };

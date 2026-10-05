@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { invoiceEditable } from "@/lib/editLock";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
@@ -57,7 +58,7 @@ const InvoiceDetails: React.FC = () => {
   useDocumentTitle(invoice ? `${invoiceNumberDisplay} | Invoice Details` : undefined);
   const router = useRouter();
   const deleteHook = useDeleteInvoices();
-  const [tab, setTab] = React.useState<"overview" | "activity">("overview");
+  const [tab, setTab] = React.useState<"overview" | "comments" | "activity">("overview");
 
   const columns: TableColumn<Invoice["items"][0]>[] = [
     {
@@ -162,7 +163,7 @@ const InvoiceDetails: React.FC = () => {
       <DetailHeader
         title={invoiceNumberDisplay}
         subtitle={<StatusBadge status={statusText} variant={statusVariant} />}
-        onEdit={handleEdit}
+        onEdit={invoiceEditable(statusText) ? handleEdit : undefined}
         editTitle="Edit invoice"
         onClose={() => router.push("/invoices")}
         menu={[
@@ -191,10 +192,11 @@ const InvoiceDetails: React.FC = () => {
         <Tabs
           tabs={[
             { label: "Overview", value: "overview" },
+            { label: "Comments", value: "comments" },
             { label: "Activity", value: "activity" },
           ]}
           activeTab={tab}
-          onTabChange={(v) => setTab(v as "overview" | "activity")}
+          onTabChange={(v) => setTab(v as "overview" | "comments" | "activity")}
         />
       </div>
 
@@ -344,12 +346,10 @@ const InvoiceDetails: React.FC = () => {
               </div>
             </DetailSection>
           )}
-
-          <div className="mt-8">
-            <BusinessPortalComments entityType="invoice" entityId={invoice.id} />
-          </div>
         </div>
       )}
+
+      {tab === "comments" && <BusinessPortalComments entityType="invoice" entityId={invoice.id} />}
 
       {tab === "activity" && (
         <div>

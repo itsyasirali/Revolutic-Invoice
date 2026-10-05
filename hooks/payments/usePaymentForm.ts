@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { paymentEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { useParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
@@ -53,6 +54,13 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
     const navPayment = id ? getNavState<any>(`payment:${id}`) : null;
     const paymentSource = navPayment;
 
+    // A sent payment can no longer be edited: go back to its details.
+    if (isEditMode && paymentSource && !paymentEditable(paymentSource.status)) {
+      toast.error(LOCKED_MESSAGE.payment, "Payment Locked");
+      router.replace(`/payments/${id}`);
+      return;
+    }
+
     if (paymentSource) {
       setPaymentData({
         customerId:
@@ -96,6 +104,7 @@ export const usePaymentForm = (): UsePaymentFormReturn => {
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {

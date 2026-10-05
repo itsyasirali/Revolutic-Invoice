@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Settings, X, Info, Mail, Tag } from "lucide-react";
+import CustomerAvatar from "@/components/ui/CustomerAvatar";
 import "react-quill-new/dist/quill.snow.css";
 import { Button, PageHeader, Input, Select, Checkbox } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
@@ -64,17 +65,11 @@ const InvoiceForm = () => {
       const name =
         customer.displayName || customer.companyName || "Unnamed Customer";
       const email = customer.contacts?.[0]?.email || "";
-      const initial = (name || "?").trim().charAt(0).toUpperCase();
-
       return {
         label: name,
         value: String(customer.id),
         description: email,
-        avatar: (
-          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 font-bold flex items-center justify-center text-sm shrink-0">
-            {initial}
-          </div>
-        ),
+        avatar: <CustomerAvatar name={name} />,
         subtitle: email ? (
           <span className="flex items-center gap-1.5">
             <Mail className="w-3.5 h-3.5 shrink-0" />
@@ -95,17 +90,11 @@ const InvoiceForm = () => {
     ) {
       const name = invoiceData.customerName || "Selected Customer";
       const email = invoiceData.customerEmail || "";
-      const initial = (name || "?").trim().charAt(0).toUpperCase();
-
       opts.unshift({
         label: name,
         value: String(invoiceData.customerId),
         description: email,
-        avatar: (
-          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 font-bold flex items-center justify-center text-sm shrink-0">
-            {initial}
-          </div>
-        ),
+        avatar: <CustomerAvatar name={name} />,
         subtitle: email ? (
           <span className="flex items-center gap-1.5">
             <Mail className="w-3.5 h-3.5 shrink-0" />

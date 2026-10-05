@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { invoiceEditable } from "@/lib/editLock";
 import { Send, Edit, Download, Settings } from "lucide-react";
 import {
   Button,
@@ -105,7 +106,7 @@ const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
           <DetailHeader
             title={invoice.invoiceNumber}
             subtitle={<StatusBadge status={invoice.status || "Draft"} />}
-            onEdit={handleEdit}
+            onEdit={invoiceEditable(invoice.status) ? handleEdit : undefined}
             editTitle="Edit invoice"
             onClose={() => router.push("/invoices")}
             menu={[
@@ -146,14 +147,16 @@ const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
               >
                 Download
               </Button>
-              <Button
-                onClick={handleEdit}
-                variant="secondary"
-                size="md"
-                icon={<Edit className="w-4 h-4" />}
-              >
-                Edit
-              </Button>
+              {invoiceEditable(invoice.status) && (
+                <Button
+                  onClick={handleEdit}
+                  variant="secondary"
+                  size="md"
+                  icon={<Edit className="w-4 h-4" />}
+                >
+                  Edit
+                </Button>
+              )}
               <Button
                 onClick={handleSend}
                 variant="primary"
