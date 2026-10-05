@@ -54,6 +54,8 @@ export interface AppliedInvoice {
   amount: number;
   invoiceNumber?: string;
   invoiceAmount?: number;
+  /** Linked invoice, loaded with the payment. */
+  invoice?: { id?: number | string; invoiceNumber?: string; total?: number | string };
 }
 
 // Payment Form Data

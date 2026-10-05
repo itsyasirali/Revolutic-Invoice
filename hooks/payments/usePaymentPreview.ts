@@ -190,7 +190,8 @@ const usePaymentPreview = (): UsePaymentPreviewReturn => {
       customerEmail: payment.customerEmail,
       customer: payment.customer,
       items: (payment.appliedInvoices || []).map((applied: any) => ({
-        invoiceNumber: applied.invoiceNumber || applied.invoiceId || "N/A",
+        invoiceNumber:
+          applied.invoiceNumber || applied.invoice?.invoiceNumber || applied.invoiceId || "N/A",
         invoiceAmount: (
           applied.invoiceAmount ||
           applied.invoice?.total ||
@@ -204,7 +205,7 @@ const usePaymentPreview = (): UsePaymentPreviewReturn => {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }),
-        title: `Invoice: ${applied.invoiceNumber || applied.invoiceId || "N/A"}`,
+        title: `Invoice: ${applied.invoiceNumber || applied.invoice?.invoiceNumber || applied.invoiceId || "N/A"}`,
         description: `Invoice Amount: ${applied.invoiceAmount || 0}`,
         quantity: 1,
         rate: applied.amount || 0,

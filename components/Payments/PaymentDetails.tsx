@@ -26,7 +26,7 @@ const PaymentDetails: React.FC = () => {
   };
 
   const columns: TableColumn<
-    AppliedInvoice & { invoice?: { total: number }; totalAmount?: number }
+    AppliedInvoice & { totalAmount?: number }
   >[] = [
     {
       key: "invoiceNumber",
@@ -34,7 +34,7 @@ const PaymentDetails: React.FC = () => {
       align: "left",
       render: (applied) => (
         <span className="font-medium text-gray-900">
-          {applied.invoiceNumber || applied.invoiceId || "N/A"}
+          {applied.invoiceNumber || applied.invoice?.invoiceNumber || applied.invoiceId || "N/A"}
         </span>
       ),
     },
