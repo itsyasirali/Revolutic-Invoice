@@ -7,6 +7,10 @@ import { InvoiceItem } from "@/entities/InvoiceItem";
 import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Template } from "@/entities/Template";
+import { Project } from "@/entities/Project";
+import { Quote } from "@/entities/Quote";
+import { QuoteItem } from "@/entities/QuoteItem";
+import { nextSequenceNumber } from "@/lib/numbering";
 import { HttpError } from "@/lib/requestContext";
 import type {
   CustomerDraft,
@@ -17,6 +21,8 @@ import type {
   InvoiceDraft,
   ItemDraft,
   PaymentDraft,
+  ProjectDraft,
+  QuoteDraft,
   RowStatus,
 } from "@/lib/import/types";
 
@@ -72,6 +78,7 @@ interface Run {
   customerIdsByName: Map<string, number>;
   itemIdsByName: Map<string, number>;
   invoiceIdsByNumber: Map<string, number>;
+  projectIdsByName: Map<string, number>;
 }
 
 const fail = (run: Run, entity: EntityKey, index: number, message: string) => {
@@ -166,6 +173,194 @@ const importItems = async (run: Run, drafts: ItemDraft[]) => {
     );
     existing.push(saved);
     if (!run.itemIdsByName.has(lower(name))) run.itemIdsByName.set(lower(name), saved.id);
+  }
+};
+
+const importProjects = async (run: Run, drafts: ProjectDraft[]) => {
+  const repo = run.m.getRepository(Project);
+  run.statuses.projects = drafts.map(() => "new");
+  const existing = await repo.find({ where: { organizationId: run.orgId } });
+  const BILLING = ["Hourly", "Fixed"];
+  const STATUSES = ["Active", "On Hold", "Completed"];
+
+  for (const [i, d] of drafts.entries()) {
+    const name = text(d.name);
+    if (!name) {
+      fail(run, "projects", i, "Project name is required");
+      continue;
+    }
+    const customerId = run.customerIdsByName.get(lower(d.customerName));
+    if (!customerId) {
+      fail(
+        run,
+        "projects",
+        i,
+        `${name}: customer "${text(d.customerName)}" does not exist yet. Import Customers first, or correct the name.`,
+      );
+      continue;
+    }
+    const nums = [d.hourlyRate, d.fixedAmount, d.budgetHours, d.budgetAmount].map(toNum);
+    if (!nums.every((n) => Number.isFinite(n) && n >= 0)) {
+      fail(run, "projects", i, `${name}: rate, amount and budget values must be numbers, 0 or more`);
+      continue;
+    }
+    if (!BILLING.includes(d.billingMethod) || !STATUSES.includes(d.status)) {
+      fail(run, "projects", i, `${name}: choose a valid billing method and status`);
+      continue;
+    }
+
+    const code = text(d.projectNumber);
+    const match = existing.find((p) =>
+      code
+        ? lower(p.projectNumber) === lower(code)
+        : lower(p.name) === lower(name) && p.customerId === customerId,
+    );
+    if (match) {
+      run.projectIdsByName.set(lower(name), match.id);
+      run.statuses.projects![i] = "exists";
+      continue;
+    }
+
+    const saved = await repo.save(
+      repo.create({
+        projectNumber: code || (await nextSequenceNumber(repo, "projectNumber", run.orgId, "PRJ")),
+        name,
+        description: text(d.description) || null,
+        customerId,
+        status: d.status,
+        billingMethod: d.billingMethod,
+        hourlyRate: nums[0],
+        fixedAmount: nums[1],
+        budgetHours: nums[2],
+        budgetAmount: nums[3],
+        currency: text(d.currency) || "PKR",
+        userId: run.userId,
+        organizationId: run.orgId,
+      } as unknown as Project),
+    );
+    existing.push(saved);
+    run.projectIdsByName.set(lower(name), saved.id);
+  }
+};
+
+const importQuotes = async (run: Run, drafts: QuoteDraft[]) => {
+  const repo = run.m.getRepository(Quote);
+  run.statuses.quotes = drafts.map(() => "new");
+  const template = await run.m.getRepository(Template).findOne({
+    where: { organizationId: run.orgId, isDefault: true },
+  });
+  const existing = new Set(
+    (await repo.find({ where: { organizationId: run.orgId } })).map((q) => q.quoteNumber),
+  );
+  const STATUSES = ["Draft", "Sent", "Viewed", "Accepted", "Declined", "Expired"];
+
+  for (const [i, d] of drafts.entries()) {
+    const number = text(d.quoteNumber);
+    if (!number) {
+      fail(run, "quotes", i, "Quote number is required");
+      continue;
+    }
+    const label = `Quote ${number}`;
+    if (existing.has(number)) {
+      run.statuses.quotes![i] = "exists";
+      continue;
+    }
+    const customerId = run.customerIdsByName.get(lower(d.customerName));
+    if (!customerId) {
+      fail(
+        run,
+        "quotes",
+        i,
+        `${label}: customer "${text(d.customerName)}" does not exist yet. Import Customers first, or correct the name.`,
+      );
+      continue;
+    }
+    const quoteDate = toDate(d.quoteDate);
+    if (!quoteDate) {
+      fail(run, "quotes", i, `${label}: quote date is missing or invalid`);
+      continue;
+    }
+    const expiryDate = toDate(d.expiryDate);
+    if (text(d.expiryDate) && !expiryDate) {
+      fail(run, "quotes", i, `${label}: expiry date is invalid`);
+      continue;
+    }
+    const projectName = text(d.projectName);
+    const projectId = projectName ? run.projectIdsByName.get(lower(projectName)) : undefined;
+    if (projectName && !projectId) {
+      fail(run, "quotes", i, `${label}: project "${projectName}" does not exist yet. Import Projects first, or clear it.`);
+      continue;
+    }
+    if (!STATUSES.includes(d.status)) {
+      fail(run, "quotes", i, `${label}: choose a valid status`);
+      continue;
+    }
+
+    const totals = [d.subTotal, d.discountPercent, d.discount, d.tax, d.shipping, d.adjustment, d.total].map(toNum);
+    if (!totals.every(Number.isFinite)) {
+      fail(run, "quotes", i, `${label}: amounts must be numbers`);
+      continue;
+    }
+    const [subTotal, discountPercent, discount, tax, shipping, adjustment, total] = totals;
+
+    const lines = d.lines ?? [];
+    if (lines.length === 0) {
+      fail(run, "quotes", i, `${label}: add at least one item`);
+      continue;
+    }
+    const badLine = lines.findIndex(
+      (l) =>
+        !text(l.name) ||
+        ![l.quantity, l.rate, l.discount, l.tax, l.amount].map(toNum).every(Number.isFinite) ||
+        toNum(l.quantity) <= 0,
+    );
+    if (badLine >= 0) {
+      fail(run, "quotes", i, `${label}: line ${badLine + 1} needs a name, a quantity above 0 and numeric values`);
+      continue;
+    }
+    const linesSum = round2(lines.reduce((sum, l) => sum + toNum(l.amount), 0));
+    if (linesSum !== round2(subTotal)) {
+      run.warnings.push(`${label}: line items add up to ${linesSum} but subtotal is ${subTotal}`);
+    }
+
+    await repo.save(
+      repo.create({
+        quoteNumber: number,
+        customerId,
+        templateId: template?.id ?? null,
+        quoteDate,
+        expiryDate: expiryDate ?? undefined,
+        currency: text(d.currency) || "PKR",
+        referenceNumber: text(d.referenceNumber) || undefined,
+        subTotal,
+        discountPercent,
+        discount,
+        tax,
+        shipping,
+        adjustment,
+        total,
+        notes: text(d.notes) || undefined,
+        terms: text(d.terms) || undefined,
+        status: d.status,
+        projectId: projectId ?? null,
+        userId: run.userId,
+        organizationId: run.orgId,
+        items: lines.map((l, idx) =>
+          Object.assign(new QuoteItem(), {
+            itemId: (text(l.itemName) && run.itemIdsByName.get(lower(l.itemName))) || null,
+            name: text(l.name),
+            description: text(l.description),
+            quantity: toNum(l.quantity),
+            rate: toNum(l.rate),
+            discount: toNum(l.discount),
+            tax: toNum(l.tax),
+            amount: toNum(l.amount),
+            sortOrder: idx,
+          }),
+        ),
+      } as unknown as Quote),
+    );
+    existing.add(number);
   }
 };
 
@@ -411,6 +606,7 @@ export const commitDrafts = async (
         customerIdsByName: new Map(),
         itemIdsByName: new Map(),
         invoiceIdsByNumber: new Map(),
+        projectIdsByName: new Map(),
       };
 
       for (const c of await m.getRepository(Customer).find({ where: { organizationId: orgId } })) {
@@ -419,12 +615,17 @@ export const commitDrafts = async (
       for (const i of await m.getRepository(Item).find({ where: { organizationId: orgId } })) {
         if (!run.itemIdsByName.has(lower(i.name))) run.itemIdsByName.set(lower(i.name), i.id);
       }
+      for (const p of await m.getRepository(Project).find({ where: { organizationId: orgId } })) {
+        if (!run.projectIdsByName.has(lower(p.name))) run.projectIdsByName.set(lower(p.name), p.id);
+      }
       for (const inv of await m.getRepository(Invoice).find({ where: { organizationId: orgId } })) {
         run.invoiceIdsByNumber.set(inv.invoiceNumber, inv.id);
       }
 
       if (drafts.customers) await importCustomers(run, drafts.customers);
       if (drafts.items) await importItems(run, drafts.items);
+      if (drafts.projects) await importProjects(run, drafts.projects);
+      if (drafts.quotes) await importQuotes(run, drafts.quotes);
       if (drafts.invoices) await importInvoices(run, drafts.invoices);
       if (drafts.payments) await importPayments(run, drafts.payments);
 

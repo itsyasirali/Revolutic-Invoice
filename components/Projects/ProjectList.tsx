@@ -3,6 +3,7 @@
 import React from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { Table, StatusBadge, Button, PageHeader, ConfirmDialog } from "@/components/ui";
+import ImportButton from "@/components/import/ImportButton";
 import useProjectList from "@/hooks/projects/useProjectList";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatMoney } from "@/lib/format";
@@ -89,9 +90,12 @@ const ProjectList = ({ initialProjects }: ProjectListProps) => {
           onToggle: () => list.setDropdownOpen(!list.dropdownOpen),
         }}
         actions={
-          <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
-            New Project
-          </Button>
+          <div className="flex items-center gap-2">
+            <ImportButton kind="projects" />
+            <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
+              New Project
+            </Button>
+          </div>
         }
         actionBar={
           selectedCount > 0 ? (

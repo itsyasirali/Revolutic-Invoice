@@ -4,7 +4,7 @@ import { commitDrafts, ImportValidationError } from "@/lib/services/zohoImport";
 import { buildDrafts, type ImportFiles } from "@/lib/import/zohoMapper";
 import type { ImportDrafts } from "@/lib/import/types";
 
-const FIELDS: (keyof ImportFiles)[] = ["contacts", "items", "invoices", "payments"];
+const FIELDS: (keyof ImportFiles)[] = ["contacts", "items", "projects", "quotes", "invoices", "payments"];
 
 /**
  * Two modes:

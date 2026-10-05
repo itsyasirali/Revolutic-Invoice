@@ -9,6 +9,7 @@ import {
   PageHeader,
   ConfirmDialog,
 } from "@/components/ui";
+import ImportButton from "@/components/import/ImportButton";
 import useQuoteList from "@/hooks/quotes/useQuoteList";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
@@ -88,9 +89,12 @@ const QuoteList = ({ initialQuotes }: QuoteListProps) => {
         }}
         actions={
           <>
-            <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
-              New Quote
-            </Button>
+            <div className="flex items-center gap-2">
+              <ImportButton kind="quotes" />
+              <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
+                New Quote
+              </Button>
+            </div>
           </>
         }
         actionBar={
