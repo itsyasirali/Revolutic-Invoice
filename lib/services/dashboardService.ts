@@ -18,7 +18,7 @@ import {
 } from "@/lib/services/businessInsightsService";
 export { getCurrencySymbol };
 
-const getCurrencyRates = async (baseCurrency: string = "PKR") => {
+export const getCurrencyRates = async (baseCurrency: string = "PKR") => {
   const base = (baseCurrency || "PKR").toUpperCase().trim();
   try {
     const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${base}`, {
@@ -55,7 +55,7 @@ const getCurrencyRates = async (baseCurrency: string = "PKR") => {
   }
 };
 
-const convertToOrgCurrency = (
+export const convertToOrgCurrency = (
   amount: number,
   sourceCurrency: string,
   targetCurrency: string,
