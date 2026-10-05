@@ -3,7 +3,6 @@
 import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { X, Minus, Expand } from "lucide-react";
 import DashboardMockup from "./DashboardMockup";
 
 const Hero = () => {
@@ -45,43 +44,13 @@ const Hero = () => {
           </p>
         </div>
 
-        {/* Dashboard Mockup */}
+        {/* Dashboard mock-up in a device frame: thin metal edge, thick dark bezel, rounded screen */}
         <div className="mt-16 md:mt-24 relative mx-auto max-w-[90rem] text-left">
-          <div className="rounded-xl border bg-white/50 p-2 shadow-2xl backdrop-blur-xl ring-1 ring-slate-900/5">
-            <div className="rounded-xl overflow-hidden border bg-slate-50">
-              {/* Fake Browser Header */}
-              <div className="flex h-10 items-center gap-2 border-b bg-white px-4">
-                <div className="flex gap-1.5 group/window-controls">
-                  <div className="h-3 w-3 rounded-full bg-red-400 flex items-center justify-center">
-                    <X
-                      className="h-2 w-2 text-red-900 opacity-60"
-                      strokeWidth={3}
-                    />
-                  </div>
-                  <div className="h-3 w-3 rounded-full bg-amber-400 flex items-center justify-center">
-                    <Minus
-                      className="h-2 w-2 text-amber-900 opacity-60"
-                      strokeWidth={4}
-                    />
-                  </div>
-                  <div className="h-3 w-3 rounded-full bg-green-400 flex items-center justify-center">
-                    <Expand
-                      className="h-2 w-2 text-green-900 opacity-60"
-                      strokeWidth={3}
-                    />
-                  </div>
-                </div>
-                <div className="ml-4 flex h-6 flex-1 items-center rounded-md bg-slate-100 px-3 text-xs text-slate-400">
-                  invoicesmarty.app
-                </div>
-              </div>
-
-              {/* Mockup Content */}
-              <div className="relative h-[460px] w-full overflow-hidden bg-white md:h-[680px]">
-                <DashboardMockup />
-                {/* soft fade at the bottom of the main area (not the sidebar): the dashboard continues below */}
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent lg:left-56" />
-              </div>
+          <div className="rounded-[1.75rem] border border-slate-300 bg-neutral-900 p-2.5 shadow-2xl shadow-slate-900/25 ring-1 ring-slate-900/10 sm:rounded-[2.5rem] sm:p-3.5 md:p-4">
+            <div className="relative h-[460px] w-full overflow-hidden rounded-[1.1rem] bg-white sm:rounded-[1.6rem] md:h-[680px]">
+              <DashboardMockup />
+              {/* soft fade at the bottom of the main area (not the sidebar): the dashboard continues below */}
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent lg:left-56" />
             </div>
           </div>
         </div>
