@@ -101,7 +101,7 @@ const usePaymentsList = (initialPayments?: Payment[]): UsePaymentsListReturn => 
   const onSelectAll = useCallback(
     (checked: boolean) => {
       setSelectedIds(
-        checked ? filteredPayments.map((payment) => payment.id) : []
+        checked ? filteredPayments.map((payment) => String(payment.id)) : []
       );
     },
     [filteredPayments]

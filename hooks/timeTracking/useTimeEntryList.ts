@@ -117,11 +117,14 @@ const useTimeEntryList = (initial?: TimeEntry[]) => {
   }, []);
 
   const onSelectAll = useCallback(
-    (checked: boolean) => setSelectedIds(checked ? filtered.map((r) => r.id) : []),
+    (checked: boolean) => setSelectedIds(checked ? filtered.map((r) => String(r.id)) : []),
     [filtered],
   );
   const onSelectRow = useCallback((id: string | number, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+    const stringId = String(id);
+    setSelectedIds((prev) =>
+      checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
+    );
   }, []);
 
   const handleExport = () =>

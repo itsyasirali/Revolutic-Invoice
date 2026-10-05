@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import ImportButton from "@/components/import/ImportButton";
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -143,14 +144,17 @@ const CustomerList = ({ initialCustomers }: CustomerListProps) => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <Button
-            onClick={handleNew}
-            disabled={loading}
-            variant="primary"
-            size="sm"
-          >
-            New Customer
-          </Button>
+          <div className="flex items-center gap-2">
+            <ImportButton kind="contacts" />
+    <Button
+              onClick={handleNew}
+              disabled={loading}
+              variant="primary"
+              size="sm"
+            >
+              New Customer
+            </Button>
+          </div>
         }
         actionBar={
           selectedIds.length > 0 ? (

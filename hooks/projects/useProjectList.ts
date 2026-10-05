@@ -37,11 +37,14 @@ const useProjectList = (initial?: Project[]) => {
   useEffect(() => setSelectedIds([]), [statusFilter, search]);
 
   const onSelectAll = useCallback(
-    (checked: boolean) => setSelectedIds(checked ? projects.map((p) => p.id) : []),
+    (checked: boolean) => setSelectedIds(checked ? projects.map((p) => String(p.id)) : []),
     [projects],
   );
   const onSelectRow = useCallback((id: string | number, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+    const stringId = String(id);
+    setSelectedIds((prev) =>
+      checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
+    );
   }, []);
 
   return {

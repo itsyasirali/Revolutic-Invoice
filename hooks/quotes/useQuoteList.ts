@@ -91,11 +91,14 @@ const useQuoteList = (initial?: Quote[]) => {
   }, []);
 
   const onSelectAll = useCallback(
-    (checked: boolean) => setSelectedIds(checked ? filtered.map((q) => q.id) : []),
+    (checked: boolean) => setSelectedIds(checked ? filtered.map((q) => String(q.id)) : []),
     [filtered],
   );
   const onSelectRow = useCallback((id: string | number, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+    const stringId = String(id);
+    setSelectedIds((prev) =>
+      checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
+    );
   }, []);
 
   const handleExport = () =>

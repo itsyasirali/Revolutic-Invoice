@@ -71,15 +71,16 @@ export const useCustomerList = (initialCustomers?: Customer[]) => {
 
   const onSelectAll = useCallback(
     (checked: boolean) => {
-      setSelectedIds(checked ? filteredCustomers.map((c) => c.id!) : []);
+      setSelectedIds(checked ? filteredCustomers.map((c) => String(c.id)) : []);
     },
     [filteredCustomers, setSelectedIds],
   );
 
   const onSelectRow = useCallback(
     (id: string | number, checked: boolean) => {
+      const stringId = String(id);
       setSelectedIds((prev) =>
-        checked ? [...prev, id] : prev.filter((x) => x !== id),
+        checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
       );
     },
     [setSelectedIds],

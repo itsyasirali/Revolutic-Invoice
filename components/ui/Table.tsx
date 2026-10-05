@@ -69,8 +69,12 @@ export const Table = <T,>({
   pagination,
   className = "",
 }: TableProps<T>) => {
-  const allSelected = data.length > 0 && selectedIds.length === data.length;
-  const someSelected = selectedIds.length > 0 && !allSelected;
+  // Compare ids as strings so 5 and "5" count as the same row.
+  const selectedSet = new Set(selectedIds.map(String));
+  const rowIsSelected = (item: T, index: number) =>
+    selectedSet.has(String(getRowId(item) ?? index));
+  const allSelected = data.length > 0 && data.every(rowIsSelected);
+  const someSelected = !allSelected && data.some(rowIsSelected);
   const styles = variantTableClasses[variant];
   const cellPadding = styles.cellPadding || "px-3.5 py-2";
 
@@ -188,7 +192,7 @@ export const Table = <T,>({
             ) : (
               data.map((item, index) => {
                 const id = getRowId(item) ?? index;
-                const isSelected = selectedIds.includes(id);
+                const isSelected = selectedSet.has(String(id));
 
                 return (
                   <tr

@@ -4,11 +4,13 @@ import React from "react";
 import { Info } from "lucide-react";
 import {
   Input,
+  Select,
   Textarea,
   Button,
   AlertModal,
   PageHeader,
 } from "@/components/ui";
+import { unitOptions } from "@/data/units";
 import useItemFormView from "@/hooks/items/useItemFormView";
 
 const ItemForm: React.FC = () => {
@@ -85,11 +87,11 @@ const ItemForm: React.FC = () => {
               fullWidth
             />
 
-            <Input
-              type="text"
+            <Select
               name="unit"
               label="Unit"
-              placeholder="e.g. pcs, kg, hours"
+              placeholder="Select a unit"
+              options={unitOptions(item?.unit)}
               defaultValue={item?.unit || ""}
               fullWidth
             />

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import ImportButton from "@/components/import/ImportButton";
 import type { Payment, PaymentListProps } from "@/types/payment";
 import usePaymentsList, {
   PAYMENT_MODE_FILTERS,
@@ -141,14 +142,17 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <Button
-            onClick={handleNew}
-            disabled={busy}
-            variant="primary"
-            size="sm"
-          >
-            New Payment
-          </Button>
+          <div className="flex items-center gap-2">
+            <ImportButton kind="payments" />
+    <Button
+              onClick={handleNew}
+              disabled={busy}
+              variant="primary"
+              size="sm"
+            >
+              New Payment
+            </Button>
+          </div>
         }
         actionBar={
           selectedIds.length > 0 ? (

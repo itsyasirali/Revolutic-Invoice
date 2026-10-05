@@ -82,14 +82,15 @@ export const useItemList = (initialItems?: Item[]) => {
 
   const onSelectAll = useCallback(
     (checked: boolean) => {
-      setSelectedIds(checked ? filteredItems.map((i) => i.id) : []);
+      setSelectedIds(checked ? filteredItems.map((i) => String(i.id)) : []);
     },
     [filteredItems],
   );
 
   const onSelectRow = useCallback((id: string | number, checked: boolean) => {
+    const stringId = String(id);
     setSelectedIds((prev) =>
-      checked ? [...prev, id] : prev.filter((x) => x !== id),
+      checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
     );
   }, []);
 

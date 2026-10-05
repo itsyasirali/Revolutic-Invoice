@@ -130,11 +130,14 @@ const useExpenseList = (initialExpenses?: Expense[]) => {
   }, []);
 
   const onSelectAll = useCallback(
-    (checked: boolean) => setSelectedIds(checked ? filtered.map((e) => e.id) : []),
+    (checked: boolean) => setSelectedIds(checked ? filtered.map((e) => String(e.id)) : []),
     [filtered],
   );
   const onSelectRow = useCallback((id: string | number, checked: boolean) => {
-    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+    const stringId = String(id);
+    setSelectedIds((prev) =>
+      checked ? [...prev, stringId] : prev.filter((x) => x !== stringId),
+    );
   }, []);
 
   const handleNew = () => router.push("/expenses/new");

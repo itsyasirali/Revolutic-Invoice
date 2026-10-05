@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import ImportButton from "@/components/import/ImportButton";
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -120,14 +121,17 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <Button
-            onClick={handleNew}
-            disabled={loading}
-            variant="primary"
-            size="sm"
-          >
-            New Invoice
-          </Button>
+          <div className="flex items-center gap-2">
+            <ImportButton kind="invoices" />
+    <Button
+              onClick={handleNew}
+              disabled={loading}
+              variant="primary"
+              size="sm"
+            >
+              New Invoice
+            </Button>
+          </div>
         }
         actionBar={
           selectedIds.length > 0 ? (
