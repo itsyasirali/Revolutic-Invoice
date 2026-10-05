@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
+import useSeedSwrCache from "@/hooks/common/useSeedSwrCache";
 import axios from "@/lib/axios";
 import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Payment, UpdatePaymentPayload, UsePaymentsReturn } from "@/types/payment";
@@ -13,6 +14,8 @@ type PaymentsApiResponse = {
 const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
   const [mutating, setMutating] = useState(false);
   const [mutateError, setMutateError] = useState<string | null>(null);
+
+  useSeedSwrCache(SWR_KEYS.payments, initialPayments ? { payments: initialPayments } : undefined);
 
   const {
     data,

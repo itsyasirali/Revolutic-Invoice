@@ -1,17 +1,10 @@
 import CustomerSplitView from "@/components/customer/CustomerSplitView";
-import fetchCustomersForUser from "@/lib/services/customersService";
-import { getServerSessionUser } from "@/lib/session";
 import { privateMeta } from "@/lib/pageMeta";
 
 export const metadata = privateMeta("Customer Details", "Customer profile with contacts, documents, invoices, quotes, expenses, time entries and payment history.");
 
+// No server-side data fetch here: the list is already in the client cache and the
+// opened record comes from it, so the detail view renders instantly on click.
+const DetailsPage = () => <CustomerSplitView />;
 
-const CustomerDetailsPage = async () => {
-  const user = await getServerSessionUser();
-  const orgId = user?.organizationId ? Number(user.organizationId) : null;
-  const customers = user?.id ? await fetchCustomersForUser(Number(user.id), orgId) : [];
-
-  return <CustomerSplitView initialCustomers={customers} />;
-};
-
-export default CustomerDetailsPage;
+export default DetailsPage;

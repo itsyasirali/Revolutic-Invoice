@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
+import useSeedSwrCache from "@/hooks/common/useSeedSwrCache";
 import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Customer } from "@/types/customer";
 
@@ -28,6 +29,10 @@ const useCustomerData = (
   }, [urlSearch]);
 
   const shouldFetch = options.fetchOnMount ?? true;
+  useSeedSwrCache(
+    shouldFetch ? SWR_KEYS.customers : null,
+    options.initialCustomers ? { customers: options.initialCustomers } : undefined,
+  );
 
   const { data, isLoading, isValidating, mutate } = useSWR<
     CustomersApiResponse | Customer[]

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import useSWR from "swr";
+import useSeedSwrCache from "@/hooks/common/useSeedSwrCache";
 import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 
 type RawDoc = any;
@@ -119,6 +120,10 @@ export default function useInvoicesList(
   }, [filters.status, filters.customerId, filters.startDate, filters.endDate]);
 
   const swrKey = `${SWR_KEYS.invoices}${qs}`;
+  useSeedSwrCache(
+    swrKey,
+    initialInvoices ? (Array.isArray(initialInvoices) ? initialInvoices : { invoices: initialInvoices }) : undefined,
+  );
 
   const {
     data,

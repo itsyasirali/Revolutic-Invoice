@@ -1,15 +1,10 @@
 import PaymentSplitView from "@/components/Payments/PaymentSplitView";
-import fetchPaymentsForUser from "@/lib/services/paymentsService";
-import { getServerSessionUser } from "@/lib/session";
 import { privateMeta } from "@/lib/pageMeta";
 
 export const metadata = privateMeta("Payment Details", "Payment overview with the invoices it was applied to, bank charges and activity.");
 
+// No server-side data fetch here: the list is already in the client cache and the
+// opened record comes from it, so the detail view renders instantly on click.
+const DetailsPage = () => <PaymentSplitView />;
 
-export default async function PaymentDetailsPage() {
-  const user = await getServerSessionUser();
-  const orgId = user?.organizationId ? Number(user.organizationId) : null;
-  const payments = user?.id ? await fetchPaymentsForUser(Number(user.id), orgId) : [];
-
-  return <PaymentSplitView initialPayments={payments} />;
-}
+export default DetailsPage;
