@@ -4,16 +4,19 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-import { Menu, X, ArrowRight, LayoutDashboard } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import useLandingNavbar from "@/hooks/landing/useLandingNavbar";
 
 const LandingNavbar = () => {
   const { user, navLinks, mobileMenuOpen, toggleMobileMenu, closeMobileMenu } =
     useLandingNavbar();
+  // signed-in visitors go straight to the dashboard instead of the login page
+  const signInHref = user ? "/dashboard" : "/login";
+  const startHref = user ? "/dashboard" : "/register";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 transition-all">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[90%] px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
@@ -47,27 +50,13 @@ const LandingNavbar = () => {
 
           {/* Action CTAs */}
           <div className="hidden md:flex items-center gap-4">
-            {user ? (
-              <Button
-                variant="primary"
-                size="md"
-                className="rounded-full shadow-md shadow-primary/20 font-semibold"
-                asChild
-              >
-                <Link href="/dashboard" className="flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Go to Dashboard</span>
-                </Link>
-              </Button>
-            ) : (
-              <>
-                <Button
+                            <Button
                   variant="ghost"
                   size="md"
                   className="text-slate-700 font-semibold hover:text-primary"
                   asChild
                 >
-                  <Link href="/login">Sign In</Link>
+                  <Link href={signInHref}>Sign In</Link>
                 </Button>
                 <Button
                   variant="primary"
@@ -75,13 +64,11 @@ const LandingNavbar = () => {
                   className="rounded-full shadow-md shadow-primary/20 font-semibold"
                   asChild
                 >
-                  <Link href="/register" className="flex items-center gap-2">
-                    <span>Start Free</span>
+                  <Link href={startHref} className="flex items-center gap-2">
+                    <span>Get Started Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
-              </>
-            )}
           </div>
 
           {/* Mobile Hamburger Toggle */}
@@ -119,26 +106,7 @@ const LandingNavbar = () => {
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-            {user ? (
-              <Button
-                variant="primary"
-                size="lg"
-                fullWidth
-                className="rounded-xl shadow-md font-semibold"
-                asChild
-              >
-                <Link
-                  href="/dashboard"
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-center gap-2"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Go to Dashboard</span>
-                </Link>
-              </Button>
-            ) : (
-              <>
-                <Button
+                            <Button
                   variant="outline"
                   size="lg"
                   fullWidth
@@ -146,7 +114,7 @@ const LandingNavbar = () => {
                   asChild
                 >
                   <Link
-                    href="/login"
+                    href={signInHref}
                     onClick={closeMobileMenu}
                   >
                     Sign In
@@ -160,16 +128,14 @@ const LandingNavbar = () => {
                   asChild
                 >
                   <Link
-                    href="/register"
+                    href={startHref}
                     onClick={closeMobileMenu}
                     className="flex items-center justify-center gap-2"
                   >
-                    <span>Start Free</span>
+                    <span>Get Started Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
-              </>
-            )}
           </div>
         </div>
       )}

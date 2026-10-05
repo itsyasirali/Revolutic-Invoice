@@ -12,7 +12,7 @@ const steps = [
     {
       number: "03",
       title: "Get paid faster",
-      description: "Track payments, send automatic reminders and see your revenue in real time."
+      description: "Record payments against invoices, send automatic reminders and see what is paid and what is due."
     }
   ]
 export default steps

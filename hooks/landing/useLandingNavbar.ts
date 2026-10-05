@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import type { NavLink, UseLandingNavbarReturn } from "@/types/landing";
 
 const NAV_LINKS: NavLink[] = [
-  { label: "Features", href: "/#features" },
   { label: "Industries", href: "/industries" },
   { label: "Customers", href: "/customers-stories" },
   { label: "Resources", href: "/resources" },

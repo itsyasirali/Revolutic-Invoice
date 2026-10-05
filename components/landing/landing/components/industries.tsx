@@ -3,7 +3,6 @@
 import Container from "@/components/layout/container";
 import { ArrowLeft, ArrowRight, ArrowRightIcon } from "lucide-react";
 import industries from "@/data/industries/industries";
-import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
 import useIndustriesScroller from "@/hooks/landing/useIndustriesScroller";
@@ -21,32 +20,24 @@ const Industries = () => {
             One invoicing solution, perfect for every industry
           </h2>
           <div className="flex justify-center md:justify-end gap-4 flex-1">
-            <Button
-              variant="outline"
-              size="md"
+            <button
+              type="button"
+              aria-label="Previous"
               onClick={scrollLeft}
               disabled={isAtStart}
-              className={`h-12 w-12 !rounded-full border-slate-200 text-slate-900 transition-colors ${
-                isAtStart
-                  ? "!opacity-30 !cursor-not-allowed"
-                  : "hover:bg-slate-50"
-              }`}
+              className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-slate-300 bg-white text-slate-900 transition-colors hover:border-primary hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-slate-300 disabled:hover:bg-white disabled:hover:text-slate-900"
             >
               <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="md"
+            </button>
+            <button
+              type="button"
+              aria-label="Next"
               onClick={scrollRight}
               disabled={isAtEnd}
-              className={`h-12 w-12 !rounded-full border-slate-200 text-slate-900 transition-colors ${
-                isAtEnd
-                  ? "!opacity-30 !cursor-not-allowed"
-                  : "hover:bg-slate-50"
-              }`}
+              className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-slate-300 bg-white text-slate-900 transition-colors hover:border-primary hover:bg-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-slate-300 disabled:hover:bg-white disabled:hover:text-slate-900"
             >
               <ArrowRight className="h-5 w-5" />
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -58,7 +49,7 @@ const Industries = () => {
           {industries.map((industry) => (
             <Card
               key={industry.id}
-              className="min-w-[280px] md:min-w-[calc(33.333%-11px)] h-[450px] rounded-lg relative overflow-hidden group snap-start shrink-0 border-0 p-0"
+              className="min-w-[280px] md:min-w-[calc(33.333%-11px)] h-[500px] md:h-[540px] rounded-lg relative overflow-hidden group snap-start shrink-0 border-0 p-0"
               style={{
                 backgroundImage: `url(${industry.image})`,
                 backgroundSize: "cover",

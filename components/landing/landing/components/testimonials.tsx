@@ -1,7 +1,6 @@
 import * as React from "react"
 import Container from "@/components/layout/container"
-import Card, { CardContent, CardHeader } from "@/components/ui/Card";
-import { Star } from "lucide-react"
+import { Quote } from "lucide-react"
 import testimonialData from "@/data/landing/testimonialData"
 
 const Testimonials = () => {
@@ -17,26 +16,28 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonialData.map((review, index) => (
-            <Card key={index} className="bg-slate-50 border-none shadow-sm">
-              <CardHeader>
-                <div className="flex text-amber-400 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-                <p className="text-slate-700 italic">&quot;{review.content}&quot;</p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="font-semibold text-slate-900 text-sm">{review.name}</h4>
-                    <p className="text-sm text-slate-500">{review.role}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Cards stretch to the same height; on hover a blue fill grows from the centre towards both sides */}
+        <div className="flex flex-col gap-6 md:flex-row">
+          {testimonialData.map((review) => (
+            <figure
+              key={review.name}
+              className="group relative flex min-w-0 flex-col overflow-hidden rounded-md border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-500 hover:border-primary md:flex-1"
+            >
+              <span className="pointer-events-none absolute inset-0 origin-center scale-x-0 bg-primary transition-transform duration-500 ease-out group-hover:scale-x-100" />
+              <Quote className="relative mb-3 h-10 w-10 fill-current text-primary transition-colors duration-500 group-hover:text-white" />
+              <p className="relative mb-4 text-xl font-bold uppercase tracking-wide text-primary transition-colors duration-500 group-hover:text-white">
+                Client Testimonial
+              </p>
+              <blockquote className="relative flex-1 text-base leading-relaxed text-slate-600 transition-colors duration-500 group-hover:text-white">
+                &quot;{review.content}&quot;
+              </blockquote>
+              <figcaption className="relative mt-6 border-t border-slate-100 pt-5 transition-colors duration-500 group-hover:border-white/25">
+                <span className="leading-tight">
+                  <span className="block font-bold text-slate-900 transition-colors duration-500 group-hover:text-white">{review.name}</span>
+                  <span className="text-sm text-slate-400 transition-colors duration-500 group-hover:text-white/80">{review.role}</span>
+                </span>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </Container>

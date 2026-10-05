@@ -1,36 +1,36 @@
 import React from "react"
-import { FileText, Zap, Shield, BellRing, LineChart, Globe } from "lucide-react"
+import { Bell, Bookmark, FileText, Globe, LineChart, Timer } from "lucide-react"
 
 const features = [
   {
-    title: "Professional Invoices",
-    description: "Create polished, branded invoices with line items, taxes and discounts in seconds and send them straight to your customers.",
-    icon: <FileText className="h-6 w-6" />
+    title: "Quotes",
+    description: "Outline your payment terms, deliverables, and terms of sale in a well-crafted quote. Once approved, they can automatically be converted into invoices.",
+    icon: <FileText className="h-5 w-5" />
   },
   {
-    title: "Lightning Fast Setup",
-    description: "Start invoicing in under 3 minutes. Add your business details, customers and items, no accounting expertise required.",
-    icon: <Zap className="h-6 w-6" />
+    title: "Time tracking",
+    description: "Track project hours and charge customers accurately. Your staff can log time from their personal devices, and InvoiceSmarty calculates the total amount owed.",
+    icon: <Timer className="h-5 w-5" />
   },
   {
-    title: "Bank-Grade Security",
-    description: "Your financial data is protected with end-to-end encryption and strict data protection standards.",
-    icon: <Shield className="h-6 w-6" />
+    title: "Expenses",
+    description: "Track every penny that leaves your business's pockets. Record billable expenses like fuel charges and raw material costs, and convert them into invoices.",
+    icon: <Bookmark className="h-5 w-5" />
   },
   {
-    title: "Payment Tracking & Reminders",
-    description: "See who has paid and who is overdue at a glance, and send automatic payment reminders to get paid faster.",
-    icon: <BellRing className="h-6 w-6" />
+    title: "Payment reminders",
+    description: "Following up with customers on their due payments is awkward and time consuming. InvoiceSmarty sends payment reminders to ensure you get paid on time.",
+    icon: <Bell className="h-5 w-5" />
   },
   {
-    title: "Real-Time Reports",
-    description: "Track revenue, outstanding balances and top customers through clear, actionable live dashboards.",
-    icon: <LineChart className="h-6 w-6" />
+    title: "Customer portal",
+    description: "Your customers can log in to a portal where they can view invoices and quotes, approve quotes, pay invoices, download statements, and more.",
+    icon: <Globe className="h-5 w-5" />
   },
   {
-    title: "Multi-Currency Billing",
-    description: "Invoice international customers in their own currency and get paid from anywhere in the world.",
-    icon: <Globe className="h-6 w-6" />
+    title: "Reports",
+    description: "You get a bird's-eye view of your business financials, right from the dashboard. Dive deeper with reports on best-selling products, AR aging, top customers, and more.",
+    icon: <LineChart className="h-5 w-5" />
   }
 ]
 

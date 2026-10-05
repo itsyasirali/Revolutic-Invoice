@@ -14,29 +14,26 @@ const FeatureSection = () => {
         <div className="text-center mb-20 space-y-4">
           <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Everything you need to{" "}
-            <span className="text-primary">get paid faster</span>
+            <span className="text-primary">run your billing</span>
           </h2>
           <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed pt-2">
-            Powerful features designed to help you invoice smarter, not
-            harder. Save time on billing and keep your cash flow healthy.
+            From quotes and time tracking to expenses, payment reminders, a
+            customer portal and reports, manage your whole billing workflow in
+            one place.
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <Card
-              key={index}
-              className="group border-slate-100 cursor-pointer shadow-sm hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+              key={feature.title}
+              className="group border-slate-100 shadow-sm bg-white/50 backdrop-blur-sm"
             >
-              <CardHeader className="pb-4">
-                <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300">
-                  <div className="text-primary group-hover:text-white transition-colors duration-300">
-                    {feature.icon}
-                  </div>
+              <CardHeader className="justify-start gap-4 pb-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-white [&_svg]:h-8 [&_svg]:w-8">
+                  {feature.icon}
                 </div>
-                <CardTitle className="text-xl font-bold text-slate-900">
-                  {feature.title}
-                </CardTitle>
+                <CardTitle className="text-xl font-bold text-slate-900">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base text-slate-600 leading-relaxed font-medium">

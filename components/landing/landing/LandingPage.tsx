@@ -10,14 +10,16 @@ import Solutions from "./components/solutions";
 import Industries from "./components/industries";
 import Testimonials from "./components/testimonials";
 import Container from "@/components/layout/container";
-import Button from "@/components/ui/Button";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { ArrowRight } from "lucide-react";
 
 const LandingPage = () => {
+  const { user } = useAuth();
   return (
     <div className="w-full flex flex-col">
       {/* 1. Hero Section */}
       <Hero />
+      <HowItWorks />
 
       {/* 2. Client / Partner Marquee */}
       <Clients />
@@ -26,7 +28,6 @@ const LandingPage = () => {
       <FeatureSection />
 
       {/* 4. How It Works Pipeline */}
-      <HowItWorks />
 
       {/* 5. Team Solutions */}
       <Solutions />
@@ -37,58 +38,27 @@ const LandingPage = () => {
       {/* 7. Testimonials */}
       <Testimonials />
 
-      {/* 8. Bottom High-Converting CTA Banner */}
-      <section className="py-24 relative overflow-hidden bg-gradient-to-b from-white to-slate-50 border-t border-slate-100">
+      {/* 8. Bottom CTA Banner */}
+      <section className="py-16">
         <Container>
-          <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 md:p-16 text-center text-white shadow-2xl overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
-                Ready to transform your invoicing & billing?
-              </h2>
-              <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                Join thousands of businesses managing professional invoices, tracking
-                payments, and getting paid faster with InvoiceSmarty.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto h-14 px-8 rounded-full bg-primary hover:bg-primary/90 text-white font-bold text-base shadow-lg shadow-primary/30"
-                  asChild
-                >
-                  <Link href="/register" className="flex items-center gap-2">
-                    <span>Get Started Free</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto h-14 px-8 rounded-full border-slate-700 bg-white/10 text-white hover:bg-white/20 font-semibold text-base"
-                  asChild
-                >
-                  <Link href="/login">Sign In</Link>
-                </Button>
-              </div>
-
-              <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>14-day free trial</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Setup in under 3 minutes</span>
-                </div>
-              </div>
+          <div className="rounded-md bg-primary px-6 py-14 text-center text-white md:py-16">
+            <h2 className="mx-auto max-w-6xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+              Invoicing That Gets You Paid Faster.
+            </h2>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href={user ? "/dashboard" : "/register"}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-white px-7 text-sm font-semibold text-primary transition-colors hover:bg-slate-100 sm:w-auto"
+              >
+                Get Started Free
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href={user ? "/dashboard" : "/login"}
+                className="inline-flex h-12 w-full items-center justify-center rounded-md border border-white/40 bg-white/10 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/20 sm:w-auto"
+              >
+                Sign In
+              </Link>
             </div>
           </div>
         </Container>

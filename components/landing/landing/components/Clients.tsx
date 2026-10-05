@@ -1,47 +1,34 @@
 import Container from "@/components/layout/container";
-import type { ClientBrand } from "@/types/landing";
 
-const clientBrands: ClientBrand[] = [
-  { name: "Stripe", tagline: "Financial Infrastructure" },
-  { name: "QuickBooks", tagline: "Accounting" },
-  { name: "Wise", tagline: "Cross-Border Payments" },
-  { name: "Revolut", tagline: "Business Banking" },
-  { name: "Xero", tagline: "Cloud Accounting" },
-  { name: "Shopify", tagline: "Commerce Platform" },
-  { name: "Square", tagline: "Point of Sale" },
-  { name: "PayPal", tagline: "Payment Gateway" },
-  { name: "Salesforce", tagline: "Enterprise CRM" },
-  { name: "Slack", tagline: "Team Collaboration" },
-];
+/** Client logos in public/clients (numbered files; 12 is not in the folder). */
+const clientLogos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16]
+  .map((n) => `/clients/${n}.svg`)
+  .concat("/clients/17.png");
 
 const Clients = () => {
-  const brands = [...clientBrands, ...clientBrands];
+  const logos = [...clientLogos, ...clientLogos];
 
   return (
-    <section className="py-16 overflow-hidden border-y border-slate-100/80 bg-slate-50/50">
+    <section className="overflow-hidden py-10 md:py-12">
       <Container>
-        <div className="w-full">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">
-            Trusted by 10,000+ businesses & modern finance teams worldwide
+        <div className="flex items-center gap-8">
+          <p className="shrink-0 border-r border-slate-300/70 pr-8 text-lg font-semibold leading-snug md:text-2xl text-indigo-900">
+            Trusted By
+            <br />
+            Innovative Brands
           </p>
 
-          <div className="flex relative w-full overflow-hidden mask-fade">
-            <div className="flex gap-12 min-w-max animate-marquee items-center pl-8">
-              {brands.map((brand, index) => (
-                <div
-                  key={`${brand.name}-${index}`}
-                  className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white border border-slate-200/60 shadow-xs hover:border-primary/40 hover:shadow-sm transition-all duration-200"
-                >
-                  <div className="w-2 h-2 rounded-full bg-primary/60" />
-                  <span className="font-bold text-slate-700 text-sm tracking-tight">
-                    {brand.name}
-                  </span>
-                  {brand.tagline && (
-                    <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-                      • {brand.tagline}
-                    </span>
-                  )}
-                </div>
+          <div className="relative flex min-w-0 flex-1 overflow-hidden">
+            <div className="flex min-w-max animate-marquee items-center gap-16">
+              {logos.map((src, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={`${src}-${index}`}
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  className="h-12 w-auto max-w-[11rem] md:h-16 object-contain"
+                />
               ))}
             </div>
           </div>

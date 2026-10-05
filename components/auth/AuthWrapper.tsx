@@ -24,6 +24,8 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
     pathname.startsWith("/resources") ||
     pathname.startsWith("/blog") ||
     pathname.startsWith("/customers-stories") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/privacy") ||
     pathname.startsWith("/portal");
 
   React.useEffect(() => {

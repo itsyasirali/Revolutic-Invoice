@@ -119,7 +119,7 @@ const DashboardMockup = () => (
         {NAV.map((n, i) => (
           <div
             key={n.label}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-semibold ${
+            className={`flex items-center gap-3 rounded-md   px-3 py-2 text-[13px] font-semibold ${
               i === 0 ? "bg-primary text-white" : "text-white/80"
             }`}
           >
