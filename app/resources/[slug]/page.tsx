@@ -8,6 +8,16 @@ import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import posts from "@/data/blog/posts";
 import type { ResourceDetailPageProps } from "@/types/resource";
+import type { Metadata } from "next";
+import { articleMeta } from "@/lib/pageMeta";
+
+export const generateMetadata = async ({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> => {
+  const { slug } = await params;
+  const item = posts.find((x) => x.slug === slug);
+  if (!item) return { title: "Not Found", robots: { index: false } };
+  return articleMeta(item, `/resources/${slug}`);
+};
+
 
 const ResourceDetailPage = async ({ params }: ResourceDetailPageProps) => {
   const { slug } = await params;

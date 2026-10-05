@@ -11,10 +11,38 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_DESCRIPTION =
+  "InvoiceSmarty is invoicing software for growing businesses: create invoices and quotes, record payments, track time and expenses, manage projects, and give customers a self-service portal.";
+
 export const metadata: Metadata = {
-  title: "InvoiceSmarty",
-  description:
-    "InvoiceSmarty - Modern invoicing, payments, customer billing, and PDF template management application.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://invoicesmarty.com"),
+  title: {
+    default: "InvoiceSmarty - Invoicing, Payments & Time Tracking",
+    template: "%s | InvoiceSmarty",
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: "InvoiceSmarty",
+  keywords: [
+    "invoicing software",
+    "online invoices",
+    "quotes",
+    "payments",
+    "time tracking",
+    "expense tracking",
+    "customer portal",
+    "billing",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "InvoiceSmarty",
+    title: "InvoiceSmarty - Invoicing, Payments & Time Tracking",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: "InvoiceSmarty - Invoicing, Payments & Time Tracking",
+    description: SITE_DESCRIPTION,
+  },
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {

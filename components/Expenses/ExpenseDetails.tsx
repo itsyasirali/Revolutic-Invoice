@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import axios from "@/lib/axios";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
@@ -32,6 +33,7 @@ const ExpenseDetails: React.FC = () => {
     collection: "expenses",
     singleField: "expense",
   });
+  useDocumentTitle(expense ? `${expense.expenseNumber} | Expense Details` : undefined);
   const [converting, setConverting] = useState(false);
   const [tab, setTab] = useState<"overview" | "activity">("overview");
 

@@ -6,6 +6,10 @@ import Cta from "@/components/ui/blocks/Cta";
 import Newsletter from "@/components/ui/blocks/Newsletter";
 import posts from "@/data/blog/posts";
 import blogCategories from "@/data/blog/categories";
+import { publicMeta } from "@/lib/pageMeta";
+
+export const metadata = publicMeta("Resources", "Guides and articles on invoicing, getting paid faster, cash flow and modern finance tools.", "/resources");
+
 
 const ResourcesPage = () => {
   const featured = posts.find((item) => item.featured) || posts[0];

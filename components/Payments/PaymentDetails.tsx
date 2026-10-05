@@ -1,5 +1,6 @@
 "use client";
 import DetailHeader from "@/components/ui/DetailHeader";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 
 import React from "react";
 import { Table, Tabs } from "@/components/ui";
@@ -14,6 +15,7 @@ const PaymentDetails: React.FC = () => {
     usePaymentPreview();
   const router = useRouter();
   const [tab, setTab] = React.useState<"overview" | "activity">("overview");
+  useDocumentTitle(payment ? `Payment ${payment.paymentNumber ?? ""} | Payment Details`.replace("  ", " ") : undefined);
 
   if (!payment) {
     return (

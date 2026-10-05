@@ -1,6 +1,10 @@
 import PaymentList from "@/components/Payments/PaymentList";
 import fetchPaymentsForUser from "@/lib/services/paymentsService";
 import { getServerSessionUser } from "@/lib/session";
+import { privateMeta } from "@/lib/pageMeta";
+
+export const metadata = privateMeta("Payments", "Record payments received and apply them to your customers' invoices.");
+
 
 const PaymentsPage = async () => {
   const user = await getServerSessionUser();

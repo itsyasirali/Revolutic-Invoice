@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import {
   FileText,
   DollarSign,
@@ -57,6 +58,7 @@ const CustomerDetails: React.FC = () => {
     handleInvoiceClick,
     handleTransactionClick,
   } = useCustomerDetailsView();
+  useDocumentTitle(customer ? `${customer.displayName || customer.companyName || "Customer"} | Customer Details` : undefined);
 
   const invoiceColumns: TableColumn<UIInvoiceListItem>[] = [
     {

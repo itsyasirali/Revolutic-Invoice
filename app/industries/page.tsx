@@ -6,6 +6,10 @@ import Cta from "@/components/ui/blocks/Cta";
 import Newsletter from "@/components/ui/blocks/Newsletter";
 import industries from "@/data/industries/industries";
 import industryCategories from "@/data/industries/categories";
+import { publicMeta } from "@/lib/pageMeta";
+
+export const metadata = publicMeta("Industries", "See how InvoiceSmarty fits your industry, from professional services to real estate and beyond.", "/industries");
+
 
 const IndustriesPage = () => {
   const featured = industries.find((item) => item.featured) || industries[0];

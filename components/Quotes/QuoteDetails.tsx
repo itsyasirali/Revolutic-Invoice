@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import {
   FileQuestion,
@@ -35,6 +36,7 @@ const QuoteDetails: React.FC = () => {
     collection: "quotes",
     singleField: "quote",
   });
+  useDocumentTitle(quote ? `${quote.quoteNumber} | Quote Details` : undefined);
   const [acting, setActing] = useState(false);
   const [tab, setTab] = useState<"quote" | "activity">("quote");
 

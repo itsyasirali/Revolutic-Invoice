@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import axios from "@/lib/axios";
 import { FileQuestion } from "lucide-react";
@@ -31,6 +32,7 @@ const TimeEntryDetails: React.FC = () => {
     collection: "timeEntries",
     singleField: "timeEntry",
   });
+  useDocumentTitle(entry ? `${entry.entryNumber} | Time Entry Details` : undefined);
   const [converting, setConverting] = useState(false);
 
   const del = useBatchDelete({

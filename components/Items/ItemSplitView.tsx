@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useItemListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -130,6 +131,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
   useEffect(() => setTab("Overview"), [selectedId]);
 
   const item = list.items.find((i) => String(i.id) === String(selectedId));
+  useDocumentTitle(item ? `${item.name} | Item Details` : undefined);
   const busy = list.loading || single.loading || statusUpdate.loading;
 
   const open = (i: Item) => {

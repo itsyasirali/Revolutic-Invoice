@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
   ScrollText,
@@ -53,6 +54,7 @@ const InvoiceDetails: React.FC = () => {
     reverseWriteOff,
   } = useInvoiceDetails();
   const { resolve } = usePlaceholderResolver("invoice", invoice);
+  useDocumentTitle(invoice ? `${invoiceNumberDisplay} | Invoice Details` : undefined);
   const router = useRouter();
   const deleteHook = useDeleteInvoices();
   const [tab, setTab] = React.useState<"overview" | "activity">("overview");

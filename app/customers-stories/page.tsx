@@ -5,6 +5,10 @@ import List from "@/components/ui/blocks/List";
 import Cta from "@/components/ui/blocks/Cta";
 import Newsletter from "@/components/ui/blocks/Newsletter";
 import customers from "@/data/customers/customers";
+import { publicMeta } from "@/lib/pageMeta";
+
+export const metadata = publicMeta("Customer Stories", "Real stories from businesses that use InvoiceSmarty to bill clients and get paid on time.", "/customers-stories");
+
 
 const customerCategories = [
   "All",

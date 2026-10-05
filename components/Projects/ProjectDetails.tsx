@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import { FileQuestion, Plus, Trash2, FileText, Receipt, Timer } from "lucide-react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
@@ -85,6 +86,7 @@ const ProjectDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { data, loading, notFound, refetch } = useProjectFromList(params?.id);
+  useDocumentTitle(data ? `${data.project.name} | Project Details` : undefined);
   const del = useProjectDelete();
   const [tab, setTab] = useState<Tab>("overview");
   const [billing, setBilling] = useState(false);
