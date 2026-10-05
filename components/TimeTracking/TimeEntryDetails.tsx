@@ -15,17 +15,22 @@ import {
 } from "@/components/ui";
 import { InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import { useTimeEntry } from "@/hooks/timeTracking/useTimeEntryForm";
+import useRecordFromList from "@/hooks/common/useRecordFromList";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
-import { invalidateTimeEntries, invalidateTimeEntriesAndInvoices } from "@/lib/swr";
+import { SWR_KEYS, invalidateTimeEntries, invalidateTimeEntriesAndInvoices } from "@/lib/swr";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
-import { formatDuration, userDisplayName } from "@/types/timeEntry";
+import { formatDuration, userDisplayName, type TimeEntry } from "@/types/timeEntry";
 
 const TimeEntryDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { timeEntry: entry, loading, notFound, refetch } = useTimeEntry(params?.id);
+  const { record: entry, loading, notFound, refetch } = useRecordFromList<TimeEntry>({
+    id: params?.id,
+    listKey: SWR_KEYS.timeEntries,
+    collection: "timeEntries",
+    singleField: "timeEntry",
+  });
   const [converting, setConverting] = useState(false);
 
   const del = useBatchDelete({

@@ -11,12 +11,14 @@ import {
   LoadingSpinner,
   EmptyState,
   toast,
+  Tabs,
 } from "@/components/ui";
-import { InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
+import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import useExpense from "@/hooks/expenses/useExpense";
+import useRecordFromList from "@/hooks/common/useRecordFromList";
+import type { Expense } from "@/types/expense";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
-import { invalidateExpenses, invalidateExpensesAndInvoices } from "@/lib/swr";
+import { SWR_KEYS, invalidateExpenses, invalidateExpensesAndInvoices } from "@/lib/swr";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
 import { FileQuestion } from "lucide-react";
@@ -24,8 +26,14 @@ import { FileQuestion } from "lucide-react";
 const ExpenseDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { expense, loading, notFound, refetch } = useExpense(params?.id);
+  const { record: expense, loading, notFound, refetch } = useRecordFromList<Expense>({
+    id: params?.id,
+    listKey: SWR_KEYS.expenses,
+    collection: "expenses",
+    singleField: "expense",
+  });
   const [converting, setConverting] = useState(false);
+  const [tab, setTab] = useState<"overview" | "activity">("overview");
 
   const del = useBatchDelete({
     endpoint: "/expenses/batch-delete",
@@ -109,79 +117,87 @@ const ExpenseDetails: React.FC = () => {
         ]}
       />
 
-      <InfoCard title="Expense Information">
-        <InfoField label="Expense #">{expense.expenseNumber}</InfoField>
-        <InfoField label="Date">{formatDate(expense.expenseDate)}</InfoField>
-        <InfoField label="Category">{expense.category?.name}</InfoField>
-        <InfoField label="Description" wide>
-          {expense.description}
-        </InfoField>
-      </InfoCard>
-
-      <InfoCard title="Vendor & Customer">
-        <InfoField label="Vendor">{expense.vendor}</InfoField>
-        <InfoField label="Customer">
-          {expense.customer && (
-            <Link
-              href={`/customers/${expense.customer.id}`}
-              className="text-primary hover:underline"
-            >
-              {customerLabel(expense.customer)}
-            </Link>
-          )}
-        </InfoField>
-        <InfoField label="Billable">{expense.billable ? "Yes" : "No"}</InfoField>
-        {expense.invoice && (
-          <InfoField label="Invoice">
-            <Link href={`/invoices/${expense.invoice.id}`} className="text-primary hover:underline">
-              {expense.invoice.invoiceNumber}
-            </Link>
-          </InfoField>
-        )}
-      </InfoCard>
-
-      <InfoCard title="Amount Breakdown">
-        <InfoField label="Amount">
-          {formatMoney(expense.amount)} {expense.currency}
-        </InfoField>
-        <InfoField label={`Tax (${expense.taxPercent || 0}%)`}>
-          {formatMoney(expense.tax)} {expense.currency}
-        </InfoField>
-        <InfoField label="Total">
-          {formatMoney(expense.total)} {expense.currency}
-        </InfoField>
-      </InfoCard>
-
-      <InfoCard title="Payment Information" columns={2}>
-        <InfoField label="Payment Method">{expense.paymentMethod}</InfoField>
-        <InfoField label="Reference Number">{expense.referenceNumber}</InfoField>
-      </InfoCard>
-
-      <InfoCard title="Attachment & Notes" columns={2}>
-        <InfoField label="Attachment">
-          {expense.attachment && (
-            <a
-              href={expense.attachment}
-              target="_blank"
-              rel="noreferrer"
-              className="text-primary hover:underline"
-            >
-              View attachment
-            </a>
-          )}
-        </InfoField>
-        <InfoField label="Notes">{expense.notes}</InfoField>
-      </InfoCard>
-
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-        <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">Activity</h2>
-        <ActivityList
-          entries={[
-            { label: "Expense recorded", at: expense.createdAt },
-            { label: expense.invoiced ? "Invoiced" : "Last updated", at: expense.updatedAt },
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "overview" },
+            { label: "Activity", value: "activity" },
           ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "overview" | "activity")}
         />
       </div>
+
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Expense #">{expense.expenseNumber}</DetailRow>
+            <DetailRow label="Status">{expense.status}</DetailRow>
+            <DetailRow label="Date">{formatDate(expense.expenseDate)}</DetailRow>
+            <DetailRow label="Category">{expense.category?.name}</DetailRow>
+            <DetailRow label="Vendor">{expense.vendor}</DetailRow>
+            <DetailRow label="Customer">
+              {expense.customer && (
+                <Link href={`/customers/${expense.customer.id}`} className="text-primary hover:underline">
+                  {customerLabel(expense.customer)}
+                </Link>
+              )}
+            </DetailRow>
+            <DetailRow label="Billable">{expense.billable ? "Yes" : "No"}</DetailRow>
+            <DetailRow label="Invoice">
+              {expense.invoice && (
+                <Link href={`/invoices/${expense.invoice.id}`} className="text-primary hover:underline">
+                  {expense.invoice.invoiceNumber}
+                </Link>
+              )}
+            </DetailRow>
+            <DetailRow label="Payment Method">{expense.paymentMethod}</DetailRow>
+            <DetailRow label="Reference Number">{expense.referenceNumber}</DetailRow>
+          </div>
+
+          <DetailSection title="Description">
+            <p className="py-1 text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">
+              {expense.description || <span className="text-slate-400">-</span>}
+            </p>
+          </DetailSection>
+
+          <DetailSection title="Amount Breakdown">
+            <DetailRow label="Amount">
+              {formatMoney(expense.amount)} {expense.currency}
+            </DetailRow>
+            <DetailRow label={`Tax (${expense.taxPercent || 0}%)`}>
+              {formatMoney(expense.tax)} {expense.currency}
+            </DetailRow>
+            <DetailRow label="Total">
+              {formatMoney(expense.total)} {expense.currency}
+            </DetailRow>
+          </DetailSection>
+
+          <DetailSection title="Attachment & Notes">
+            <DetailRow label="Attachment">
+              {expense.attachment && (
+                <a href={expense.attachment} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                  View attachment
+                </a>
+              )}
+            </DetailRow>
+            <DetailRow label="Notes">{expense.notes}</DetailRow>
+          </DetailSection>
+        </div>
+      )}
+
+      {tab === "activity" && (
+        <div>
+          <h3 className="mb-4 text-base font-medium text-slate-900">Activity</h3>
+          <ActivityList
+            entries={[
+              { label: "Expense recorded", at: expense.createdAt },
+              { label: expense.invoiced ? "Invoiced" : "Last updated", at: expense.updatedAt },
+            ]}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -59,6 +59,82 @@ const validateEnums = (body: ProjectBody) => {
   }
 };
 
+/**
+ * Tasks, time, expenses, quote and invoices of every given project, in a few
+ * grouped queries (not one per project), so the project detail page can open
+ * from the list without a request of its own.
+ */
+const loadProjectDetails = async (db: Awaited<ReturnType<typeof getDatabase>>, orgId: number, projects: Project[]) => {
+  const out = new Map<number, {
+    tasks: ProjectTask[];
+    timeEntries: TimeEntry[];
+    expenses: Expense[];
+    quote: Quote | null;
+    invoices: Record<string, unknown>[];
+  }>();
+  const ids = projects.map((p) => p.id);
+  if (ids.length === 0) return out;
+
+  const quoteIds = projects.map((p) => p.quoteId).filter((v): v is number => !!v);
+  const [tasks, timeEntries, expenses, quotes] = await Promise.all([
+    db.getRepository(ProjectTask).find({
+      where: { projectId: In(ids), organizationId: orgId },
+      order: { sortOrder: "ASC", id: "ASC" },
+    }),
+    db.getRepository(TimeEntry).find({
+      where: { projectId: In(ids), organizationId: orgId },
+      relations: ["task", "invoice"],
+      order: { date: "DESC", id: "DESC" },
+    }),
+    db.getRepository(Expense).find({
+      where: { projectId: In(ids), organizationId: orgId },
+      relations: ["category", "invoice"],
+      order: { expenseDate: "DESC", id: "DESC" },
+    }),
+    quoteIds.length
+      ? db.getRepository(Quote).find({ where: { id: In(quoteIds), organizationId: orgId } })
+      : Promise.resolve([] as Quote[]),
+  ]);
+
+  const invoiceIds = Array.from(
+    new Set(
+      [
+        ...projects.map((p) => p.fixedInvoiceId),
+        ...timeEntries.map((t) => t.invoiceId),
+        ...expenses.map((e) => e.invoiceId),
+      ].filter((v): v is number => !!v),
+    ),
+  );
+  const invoiceRows = invoiceIds.length
+    ? await queryRows<Record<string, unknown>>(
+        db,
+        `SELECT "id", "invoiceNumber", "status", "total", "currency" FROM "invoices"
+         WHERE "id" = ANY($1::int[]) AND "organizationId" = $2 ORDER BY "id" DESC`,
+        [invoiceIds, orgId],
+      )
+    : [];
+  const invoiceById = new Map(invoiceRows.map((r) => [Number(r.id), r]));
+
+  for (const p of projects) {
+    const pTime = timeEntries.filter((t) => t.projectId === p.id);
+    const pExpenses = expenses.filter((e) => e.projectId === p.id);
+    const refs = Array.from(
+      new Set([p.fixedInvoiceId, ...pTime.map((t) => t.invoiceId), ...pExpenses.map((e) => e.invoiceId)].filter((v): v is number => !!v)),
+    )
+      .map((id) => invoiceById.get(id))
+      .filter((r): r is Record<string, unknown> => !!r)
+      .sort((x, y) => Number(y.id) - Number(x.id));
+    out.set(p.id, {
+      tasks: tasks.filter((t) => t.projectId === p.id),
+      timeEntries: pTime,
+      expenses: pExpenses,
+      quote: quotes.find((q) => q.id === p.quoteId) ?? null,
+      invoices: refs,
+    });
+  }
+  return out;
+};
+
 export const getAllProjects = async (req: NextRequest) => {
   const ctx = await getRequestContext(req);
   if (ctx instanceof NextResponse) return ctx;
@@ -69,9 +145,12 @@ export const getAllProjects = async (req: NextRequest) => {
       relations: ["customer"],
       order: { createdAt: "DESC" },
     });
-    const stats = await loadProjectStats(db, ctx.orgId);
+    const [stats, details] = await Promise.all([
+      loadProjectStats(db, ctx.orgId),
+      loadProjectDetails(db, ctx.orgId, projects),
+    ]);
     return NextResponse.json({
-      projects: projects.map((p) => ({ ...p, stats: stats.get(p.id) ?? emptyStats() })),
+      projects: projects.map((p) => ({ ...p, stats: stats.get(p.id) ?? emptyStats(), detail: details.get(p.id) })),
     });
   } catch (error) {
     return errorResponse(error, "Failed to fetch projects");

@@ -50,3 +50,21 @@ export const ActivityList: React.FC<{ entries: ActivityEntry[] }> = ({ entries }
       ))}
   </ol>
 );
+
+/** Label / value line of a detail "Overview" (Zoho-style, no boxes). */
+export const DetailRow: React.FC<{ label: string; children?: React.ReactNode }> = ({ label, children }) => (
+  <div className="flex gap-6 py-2 text-sm">
+    <div className="w-40 shrink-0 text-slate-500">{label}</div>
+    <div className="min-w-0 break-words text-slate-900">
+      {children || <span className="text-slate-400">-</span>}
+    </div>
+  </div>
+);
+
+/** Titled block of an Overview. */
+export const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <section className="mt-8">
+    <h3 className="mb-2 text-base font-medium text-slate-900">{title}</h3>
+    {children}
+  </section>
+);

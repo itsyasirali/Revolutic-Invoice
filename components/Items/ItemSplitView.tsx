@@ -21,6 +21,7 @@ import useUpdateItemStatus from "@/hooks/items/useItemUpdateStatus";
 import axios from "@/lib/axios";
 import { invalidateItems, swrFetcher } from "@/lib/swr";
 import DetailHeader from "@/components/ui/DetailHeader";
+import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { setNavState } from "@/lib/clientNavState";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { Item } from "@/types/item";
@@ -47,20 +48,6 @@ interface Transaction {
   rate: number;
   amount: number;
 }
-
-const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-  <div className="flex gap-6 py-2 text-sm">
-    <div className="w-40 shrink-0 text-slate-500">{label}</div>
-    <div className="min-w-0 break-words text-slate-900">{children}</div>
-  </div>
-);
-
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <section className="mt-8">
-    <h3 className="mb-2 text-base font-medium text-slate-900">{title}</h3>
-    {children}
-  </section>
-);
 
 const Transactions: React.FC<{ itemId: number }> = ({ itemId }) => {
   const { data, isLoading } = useSWR<{ transactions: Transaction[] }>(
@@ -302,20 +289,20 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
               {tab === "Overview" && (
                 <>
                   <div className="space-y-1">
-                    <Row label="Item Type">Sales Items ({item.type === "Service" ? "Service" : "Goods"})</Row>
-                    {item.unit && <Row label="Unit">{item.unit}</Row>}
-                    <Row label="Created Source">User</Row>
-                    {item.description && <Row label="Description">{item.description}</Row>}
+                    <DetailRow label="Item Type">Sales Items ({item.type === "Service" ? "Service" : "Goods"})</DetailRow>
+                    {item.unit && <DetailRow label="Unit">{item.unit}</DetailRow>}
+                    <DetailRow label="Created Source">User</DetailRow>
+                    {item.description && <DetailRow label="Description">{item.description}</DetailRow>}
                   </div>
 
-                  <Section title="Sales Information">
-                    <Row label="Selling Price">PKR{formatMoney(item.sellingPrice)}</Row>
-                    <Row label="Sales Account">Sales</Row>
-                  </Section>
+                  <DetailSection title="Sales Information">
+                    <DetailRow label="Selling Price">PKR{formatMoney(item.sellingPrice)}</DetailRow>
+                    <DetailRow label="Sales Account">Sales</DetailRow>
+                  </DetailSection>
 
-                  <Section title="Reporting Tags">
+                  <DetailSection title="Reporting Tags">
                     <p className="text-sm text-primary/80">No reporting tag has been associated with this item.</p>
-                  </Section>
+                  </DetailSection>
                 </>
               )}
 
@@ -323,9 +310,9 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
 
               {tab === "History" && (
                 <div className="space-y-1">
-                  <Row label="Created">{formatDate(item.createdAt) || "-"}</Row>
-                  <Row label="Last modified">{formatDate(item.updatedAt) || "-"}</Row>
-                  <Row label="Status">{item.status === "inActive" ? "Inactive" : "Active"}</Row>
+                  <DetailRow label="Created">{formatDate(item.createdAt) || "-"}</DetailRow>
+                  <DetailRow label="Last modified">{formatDate(item.updatedAt) || "-"}</DetailRow>
+                  <DetailRow label="Status">{item.status === "inActive" ? "Inactive" : "Active"}</DetailRow>
                 </div>
               )}
             </div>

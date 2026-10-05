@@ -24,12 +24,18 @@ const getItemTransactions = async (
     const db = await getDatabase();
     const item = await db
       .getRepository(Item)
-      .findOne({ where: { id: itemId, organizationId: ctx.orgId }, select: { id: true } });
+      .findOne({ where: { id: itemId, organizationId: ctx.orgId }, select: { id: true, name: true } });
     if (!item) {
       return NextResponse.json({ message: "Item not found" }, { status: 404 });
     }
 
-    const [invoiceLines, quoteLines] = await Promise.all([
+    // Lines saved without an item link (typed by hand, or imported before the item
+    // existed) still belong to the item when their title is the item's name. Titles
+    // are encrypted, so they are matched here instead of in SQL.
+    const sameName = (title: string | null | undefined) =>
+      String(title ?? "").trim().toLowerCase() === String(item.name ?? "").trim().toLowerCase();
+
+    const [invoiceLinked, quoteLinked, invoiceUnlinked, quoteUnlinked] = await Promise.all([
       db
         .getRepository(InvoiceItem)
         .createQueryBuilder("line")
@@ -76,7 +82,54 @@ const getItemTransactions = async (
         .orderBy("quote.quoteDate", "DESC")
         .limit(LIMIT)
         .getMany(),
+      db
+        .getRepository(InvoiceItem)
+        .createQueryBuilder("line")
+        .innerJoin("line.invoice", "invoice")
+        .innerJoin("invoice.customer", "customer")
+        .select([
+          "line.id",
+          "line.title",
+          "line.quantity",
+          "line.rate",
+          "line.amount",
+          "invoice.id",
+          "invoice.invoiceNumber",
+          "invoice.invoiceDate",
+          "invoice.status",
+          "invoice.currency",
+          "customer.id",
+          "customer.displayName",
+        ])
+        .where("line.itemId IS NULL")
+        .andWhere("invoice.organizationId = :orgId", { orgId: ctx.orgId })
+        .getMany(),
+      db
+        .getRepository(QuoteItem)
+        .createQueryBuilder("line")
+        .innerJoin("line.quote", "quote")
+        .innerJoin("quote.customer", "customer")
+        .select([
+          "line.id",
+          "line.name",
+          "line.quantity",
+          "line.rate",
+          "line.amount",
+          "quote.id",
+          "quote.quoteNumber",
+          "quote.quoteDate",
+          "quote.status",
+          "quote.currency",
+          "customer.id",
+          "customer.displayName",
+        ])
+        .where("line.itemId IS NULL")
+        .andWhere("quote.organizationId = :orgId", { orgId: ctx.orgId })
+        .getMany(),
     ]);
+
+    const invoiceLines = [...invoiceLinked, ...invoiceUnlinked.filter((l) => sameName(l.title))];
+    const quoteLines = [...quoteLinked, ...quoteUnlinked.filter((l) => sameName(l.name))];
 
     const transactions = [
       ...invoiceLines.map((l) => ({

@@ -48,7 +48,13 @@ export const useInvoicePreview = () => {
         (navStateInvoice as { raw?: unknown }).raw ?? navStateInvoice
       );
     }
-    if (!(navStateInvoice as { unsavedPreview?: boolean } | undefined)?.unsavedPreview) {
+    const cached = ((navStateInvoice as { raw?: unknown } | undefined)?.raw ?? navStateInvoice) as
+      | { writeOffs?: unknown }
+      | undefined;
+    // Rows from the invoice list already include write-offs and source links, so
+    // no request is needed; older cached copies without them still refetch.
+    const complete = Array.isArray(cached?.writeOffs);
+    if (!complete && !(navStateInvoice as { unsavedPreview?: boolean } | undefined)?.unsavedPreview) {
       fetchInvoice();
     }
   }, [id]);

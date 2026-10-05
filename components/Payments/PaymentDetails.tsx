@@ -2,9 +2,8 @@
 import DetailHeader from "@/components/ui/DetailHeader";
 
 import React from "react";
-import {
-  Table,
-} from "@/components/ui";
+import { Table, Tabs } from "@/components/ui";
+import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";
 import { useRouter } from "next/navigation";
 import type { TableColumn } from "@/types/common";
@@ -14,6 +13,7 @@ const PaymentDetails: React.FC = () => {
   const { payment, handleEdit, handleSendClick, handleBackClick } =
     usePaymentPreview();
   const router = useRouter();
+  const [tab, setTab] = React.useState<"overview" | "activity">("overview");
 
   if (!payment) {
     return (
@@ -71,151 +71,108 @@ const PaymentDetails: React.FC = () => {
     },
   ];
 
+  const currency = payment.currency || "USD";
+  const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency });
+  const bankCharges = Number(payment.bankCharges || 0);
+
   return (
-    <div className="pb-8">
-      <div className="px-6 pt-5">
-        <DetailHeader
-          title={`Payment ${payment.paymentNumber || ""}`.trim()}
-          onEdit={() => handleEdit(payment.id || "")}
-          editTitle="Edit payment"
-          onClose={handleBackClick}
-          menu={[
-            { label: "Preview PDF", onClick: handlePreviewPdf },
-            { label: "Send Receipt", onClick: handleSendClick },
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
+      <DetailHeader
+        title={`Payment ${payment.paymentNumber || ""}`.trim()}
+        subtitle={payment.status ? <>{payment.status}</> : undefined}
+        onEdit={() => handleEdit(payment.id || "")}
+        editTitle="Edit payment"
+        onClose={handleBackClick}
+        menu={[
+          { label: "Preview PDF", onClick: handlePreviewPdf },
+          { label: "Send Receipt", onClick: handleSendClick },
+        ]}
+      />
+
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "overview" },
+            { label: "Activity", value: "activity" },
           ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "overview" | "activity")}
         />
       </div>
 
-      <div className="px-6 mt-6">
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-12">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Received From
-            </h2>
-            <div className="text-gray-900">
-              <p className="font-bold text-lg mb-1">
-                {payment.customerDisplayName || payment.customer?.displayName}
-              </p>
-              <p className="text-gray-600 mb-1">
-                {payment.customerEmail || payment.customer?.email}
-              </p>
-              {payment.customer?.phone && (
-                <p className="text-gray-600 mb-1">{payment.customer.phone}</p>
-              )}
-            </div>
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Payment #">{payment.paymentNumber}</DetailRow>
+            <DetailRow label="Status">{payment.status}</DetailRow>
+            <DetailRow label="Received From">
+              {payment.customerDisplayName || payment.customer?.displayName}
+            </DetailRow>
+            <DetailRow label="Email">{payment.customerEmail || payment.customer?.email}</DetailRow>
+            <DetailRow label="Phone">{payment.customer?.phone}</DetailRow>
+            <DetailRow label="Payment Date">
+              {payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : ""}
+            </DetailRow>
+            <DetailRow label="Payment Mode">{payment.paymentMode}</DetailRow>
+            <DetailRow label="Reference Number">{payment.referenceNo}</DetailRow>
+            <DetailRow label="Currency">{currency}</DetailRow>
+            <DetailRow label="Amount Received">{money(payment.amountReceived || 0)}</DetailRow>
           </div>
 
-          <div className="flex gap-12">
-            <div className="text-right">
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-gray-500 mb-1">
-                  Payment Date
-                </h2>
-                <p className="text-gray-900 font-medium">
-                  {payment.paymentDate
-                    ? new Date(payment.paymentDate).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-gray-500 mb-1">
-                  Reference Number
-                </h2>
-                <p className="text-gray-900 font-medium">
-                  {payment.referenceNo || "N/A"}
-                </p>
-              </div>
-            </div>
+          {payment.appliedInvoices && payment.appliedInvoices.length > 0 && (
+            <DetailSection title="Applied Invoices">
+              <Table
+                columns={columns}
+                data={payment.appliedInvoices}
+                showCheckbox={false}
+                variant="default"
+                className="!rounded-lg"
+                getRowId={(item) => item.invoiceId || item.invoiceNumber || Math.random().toString()}
+              />
+            </DetailSection>
+          )}
 
-            <div className="text-right">
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-gray-500 mb-1">
-                  Payment Mode
-                </h2>
-                <p className="text-gray-900 font-medium">
-                  {payment.paymentMode || "N/A"}
-                </p>
-              </div>
-              <div className="bg-green-50/50 border border-green-100 rounded-lg p-4 min-w-[160px]">
-                <h2 className="text-sm font-semibold text-gray-500 mb-1">
-                  Amount Received
-                </h2>
-                <p className="text-xl font-bold text-gray-900">
-                  {(payment.amountReceived || 0).toLocaleString("en-US", {
-                    style: "currency",
-                    currency: payment.currency || "USD",
-                  })}
-                </p>
-              </div>
+          <DetailSection title="Summary">
+            <div className="flex justify-end">
+              <dl className="w-full sm:w-80 text-sm space-y-2">
+                <div className="flex justify-between">
+                  <dt className="text-slate-500">Amount Received</dt>
+                  <dd>{money(payment.amountReceived || 0)}</dd>
+                </div>
+                {bankCharges > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Bank Charges</dt>
+                    <dd>- {money(bankCharges)}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-2 text-base font-bold text-slate-900">
+                  <dt>Total Credit</dt>
+                  <dd>{money((payment.amountReceived || 0) - bankCharges)}</dd>
+                </div>
+              </dl>
             </div>
-          </div>
+          </DetailSection>
+
+          {payment.notes && (
+            <DetailSection title="Notes">
+              <p className="text-sm text-slate-900 whitespace-pre-wrap">{payment.notes}</p>
+            </DetailSection>
+          )}
         </div>
+      )}
 
-        {/* Applied Invoices Table */}
-        {payment.appliedInvoices && payment.appliedInvoices.length > 0 && (
-          <div className="mb-8">
-            <Table
-              columns={columns}
-              data={payment.appliedInvoices}
-              showCheckbox={false}
-              variant="default"
-              className="!rounded-lg"
-              getRowId={(item) =>
-                item.invoiceId || item.invoiceNumber || Math.random().toString()
-              }
-            />
-          </div>
-        )}
-
-        {/* Summary */}
-        <div className="flex justify-end mb-12">
-          <div className="w-72 space-y-3 text-sm">
-            <div className="flex justify-between text-gray-600">
-              <span>Amount Received</span>
-              <span className="font-medium text-gray-900">
-                {(payment.amountReceived || 0).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: payment.currency || "USD",
-                })}
-              </span>
-            </div>
-            {payment.bankCharges && payment.bankCharges > 0 && (
-              <div className="flex justify-between text-gray-600">
-                <span>Bank Charges</span>
-                <span className="font-medium text-red-600">
-                  -
-                  {payment.bankCharges.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: payment.currency || "USD",
-                  })}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between text-gray-900 font-bold pt-3 border-t border-gray-200 text-base">
-              <span>Total Credit</span>
-              <span className="text-green-600">
-                {(
-                  (payment.amountReceived || 0) - (payment.bankCharges || 0)
-                ).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: payment.currency || "USD",
-                })}
-              </span>
-            </div>
-          </div>
+      {tab === "activity" && (
+        <div>
+          <h3 className="mb-4 text-base font-medium text-slate-900">Activity</h3>
+          <ActivityList
+            entries={[
+              { label: "Payment recorded", at: payment.createdAt as string | undefined },
+              { label: payment.status ? `Status: ${payment.status}` : "Last updated", at: payment.updatedAt as string | undefined },
+            ]}
+          />
         </div>
-
-        {/* Notes */}
-        {payment.notes && (
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 mb-2">Notes</h2>
-            <p className="text-gray-600 text-sm whitespace-pre-wrap">
-              {payment.notes}
-            </p>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };

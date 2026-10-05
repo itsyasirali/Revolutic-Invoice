@@ -176,6 +176,37 @@ const importItems = async (run: Run, drafts: ItemDraft[]) => {
   }
 };
 
+/**
+ * Invoice / quote lines saved before their item existed (for example invoices
+ * imported ahead of items) have no item link. Link them by name now, so the
+ * item's Transactions tab and "item is in use" checks see them.
+ */
+const linkExistingLines = async (run: Run) => {
+  const invoiceLines = await run.m
+    .getRepository(InvoiceItem)
+    .createQueryBuilder("line")
+    .innerJoin("line.invoice", "invoice")
+    .where("line.itemId IS NULL")
+    .andWhere("invoice.organizationId = :orgId", { orgId: run.orgId })
+    .getMany();
+  for (const l of invoiceLines) {
+    const itemId = run.itemIdsByName.get(lower(l.title));
+    if (itemId) await run.m.getRepository(InvoiceItem).update(l.id, { itemId });
+  }
+
+  const quoteLines = await run.m
+    .getRepository(QuoteItem)
+    .createQueryBuilder("line")
+    .innerJoin("line.quote", "quote")
+    .where("line.itemId IS NULL")
+    .andWhere("quote.organizationId = :orgId", { orgId: run.orgId })
+    .getMany();
+  for (const l of quoteLines) {
+    const itemId = run.itemIdsByName.get(lower(l.name));
+    if (itemId) await run.m.getRepository(QuoteItem).update(l.id, { itemId });
+  }
+};
+
 const importProjects = async (run: Run, drafts: ProjectDraft[]) => {
   const repo = run.m.getRepository(Project);
   run.statuses.projects = drafts.map(() => "new");
@@ -623,7 +654,10 @@ export const commitDrafts = async (
       }
 
       if (drafts.customers) await importCustomers(run, drafts.customers);
-      if (drafts.items) await importItems(run, drafts.items);
+      if (drafts.items) {
+        await importItems(run, drafts.items);
+        await linkExistingLines(run);
+      }
       if (drafts.projects) await importProjects(run, drafts.projects);
       if (drafts.quotes) await importQuotes(run, drafts.quotes);
       if (drafts.invoices) await importInvoices(run, drafts.invoices);

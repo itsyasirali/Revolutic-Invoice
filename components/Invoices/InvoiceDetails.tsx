@@ -3,18 +3,11 @@
 import React from "react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import {
-  Mail,
-  Phone,
   ScrollText,
-  MapPin,
-  Calendar,
-  Clock,
-  CheckCircle2,
-  DollarSign,
-  Ban,
   RotateCcw,
 } from "lucide-react";
-import { Table, StatusBadge, Button, ConfirmDialog } from "@/components/ui";
+import { Table, StatusBadge, Button, ConfirmDialog, Tabs } from "@/components/ui";
+import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
 import WriteOffModal from "./WriteOffModal";
@@ -62,6 +55,7 @@ const InvoiceDetails: React.FC = () => {
   const { resolve } = usePlaceholderResolver("invoice", invoice);
   const router = useRouter();
   const deleteHook = useDeleteInvoices();
+  const [tab, setTab] = React.useState<"overview" | "activity">("overview");
 
   const columns: TableColumn<Invoice["items"][0]>[] = [
     {
@@ -129,6 +123,8 @@ const InvoiceDetails: React.FC = () => {
     return null;
   }
 
+  const money = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const canWriteOff = !NON_WRITE_OFF_STATUSES.includes(
     statusText.toLowerCase(),
   );
@@ -188,377 +184,186 @@ const InvoiceDetails: React.FC = () => {
         ]}
       />
 
-      {/* 3. Overview Card (Invoice Information + Financial Summary) */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Invoice Information (Left Side) */}
-          <div className="lg:col-span-6 space-y-4">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              Invoice Information
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-1">
-              {/* Billed To */}
-              <div>
-                <h3 className="text-xs font-semibold text-slate-800 mb-3">
-                  Billed To
-                </h3>
-                <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-                  <p className="font-semibold text-slate-900 truncate">
-                    {customerName}
-                  </p>
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="truncate" title={customerEmail}>
-                      {customerEmail}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="truncate">{customerPhone}</span>
-                  </div>
-                  <div className="flex items-start gap-2 min-w-0">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                    <span className="truncate">{customerAddress}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Invoice Dates */}
-              <div>
-                <h3 className="text-xs font-semibold text-slate-800 mb-3">
-                  Invoice Dates
-                </h3>
-                <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Issue: {issueDateFormatted}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Due: {dueDateFormatted}</span>
-                  </div>
-                  {invoice.terms && (
-                    <div className="flex items-center gap-2">
-                      <ScrollText className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span>{invoice.terms}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Payment Details */}
-              <div>
-                <h3 className="text-xs font-semibold text-slate-800 mb-3">
-                  Payment Details
-                </h3>
-                <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Currency: {currency}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Status: {statusText}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Financial Summary (Right Side) */}
-          <div className="lg:col-span-6 lg:border-l lg:border-slate-100 lg:pl-8 space-y-4">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              Financial Summary
-            </h2>
-            <div
-              className={`grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 ${
-                totalWrittenOff > 0 ? "lg:grid-cols-3" : ""
-              }`}
-            >
-              {/* Received */}
-              <div className="bg-[#f0fdf4] border border-emerald-100/90 rounded-md p-4 flex flex-col justify-between min-h-[130px]">
-                <div className="text-emerald-600">
-                  <CheckCircle2 className="w-6 h-6 stroke-[2.2]" />
-                </div>
-                <div className="mt-3">
-                  <p className="text-xs font-medium text-slate-500">Received</p>
-                  <p className="text-base sm:text-lg font-bold text-emerald-700 mt-1 truncate">
-                    {currency}{" "}
-                    {Number(amountPaid).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-              </div>
-
-              {totalWrittenOff > 0 && (
-                <div className="bg-violet-50 border border-violet-200 rounded-md p-4 flex flex-col justify-between min-h-[110px]">
-                  <div className="text-violet-600">
-                    <Ban className="w-6 h-6 stroke-[2.2]" />
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-medium text-slate-500">
-                      Written Off
-                    </p>
-                    <p className="text-base sm:text-lg font-bold text-violet-700 mt-1 truncate">
-                      {currency}{" "}
-                      {totalWrittenOff.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Remaining / Balance Due */}
-              <div className="bg-[#fffbeb] border border-amber-100/90 rounded-md p-4 flex flex-col justify-between min-h-[110px]">
-                <div className="text-amber-600">
-                  <Clock className="w-6 h-6 stroke-[2.2]" />
-                </div>
-                <div className="mt-3">
-                  <p className="text-xs font-medium text-slate-500">
-                    Balance Due
-                  </p>
-                  <p className="text-base sm:text-lg font-bold text-amber-600 mt-1 truncate">
-                    {currency}{" "}
-                    {Number(balanceDue).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "overview" },
+            { label: "Activity", value: "activity" },
+          ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "overview" | "activity")}
+        />
       </div>
 
-      {/* Source records: quote this invoice was created from, billed expenses / time entries */}
-      {(invoice.quote ||
-        (invoice.expenses && invoice.expenses.length > 0) ||
-        (invoice.timeEntries && invoice.timeEntries.length > 0)) && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-3">
-          <h2 className="text-base font-bold text-slate-900 tracking-tight">
-            Source
-          </h2>
-          {invoice.quote && (
-            <p className="text-sm text-slate-600">
-              Created from Quote{" "}
-              <Link
-                href={`/quotes/${invoice.quote.id}`}
-                className="text-primary font-semibold hover:underline"
-              >
-                {invoice.quote.quoteNumber}
-              </Link>
-            </p>
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Invoice Number">{invoiceNumberDisplay}</DetailRow>
+            <DetailRow label="Status">{statusText}</DetailRow>
+            <DetailRow label="Customer">{customerName}</DetailRow>
+            <DetailRow label="Email">{customerEmail}</DetailRow>
+            <DetailRow label="Phone">{customerPhone}</DetailRow>
+            <DetailRow label="Currency">{currency}</DetailRow>
+            <DetailRow label="Issue Date">{issueDateFormatted}</DetailRow>
+            <DetailRow label="Due Date">{dueDateFormatted}</DetailRow>
+            {invoice.terms && <DetailRow label="Terms">{invoice.terms}</DetailRow>}
+          </div>
+
+          <DetailSection title="Billing Address">
+            <p className="py-1 text-sm text-slate-900 leading-relaxed">{customerAddress}</p>
+          </DetailSection>
+
+          {/* Source records: quote this invoice was created from, billed expenses / time entries */}
+          {(invoice.quote ||
+            (invoice.expenses && invoice.expenses.length > 0) ||
+            (invoice.timeEntries && invoice.timeEntries.length > 0)) && (
+            <DetailSection title="Source">
+              {invoice.quote && (
+                <DetailRow label="Created from Quote">
+                  <Link href={`/quotes/${invoice.quote.id}`} className="text-primary hover:underline">
+                    {invoice.quote.quoteNumber}
+                  </Link>
+                </DetailRow>
+              )}
+              {invoice.expenses && invoice.expenses.length > 0 && (
+                <DetailRow label="Expenses">
+                  <span className="flex flex-wrap gap-x-3 gap-y-1">
+                    {invoice.expenses.map((e: { id: number; expenseNumber: string }) => (
+                      <Link key={`exp-${e.id}`} href={`/expenses/${e.id}`} className="text-primary hover:underline">
+                        {e.expenseNumber}
+                      </Link>
+                    ))}
+                  </span>
+                </DetailRow>
+              )}
+              {invoice.timeEntries && invoice.timeEntries.length > 0 && (
+                <DetailRow label="Time Entries">
+                  <span className="flex flex-wrap gap-x-3 gap-y-1">
+                    {invoice.timeEntries.map((t: { id: number; entryNumber: string }) => (
+                      <Link key={`time-${t.id}`} href={`/time-tracking/${t.id}`} className="text-primary hover:underline">
+                        {t.entryNumber}
+                      </Link>
+                    ))}
+                  </span>
+                </DetailRow>
+              )}
+            </DetailSection>
           )}
-          {invoice.expenses && invoice.expenses.length > 0 && (
-            <div className="text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>Includes:</span>
-              {invoice.expenses.map((e: { id: number; expenseNumber: string }) => (
-                <Link
-                  key={`exp-${e.id}`}
-                  href={`/expenses/${e.id}`}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Expense #{e.expenseNumber}
-                </Link>
-              ))}
+
+          <DetailSection title="Line Items">
+            <Table
+              columns={columns}
+              data={invoice.items || []}
+              showCheckbox={false}
+              variant="default"
+              emptyMessage="No items found in this invoice"
+              emptyIcon={ScrollText}
+            />
+
+            <div className="flex justify-end pt-4">
+              <dl className="w-full sm:w-80 text-sm space-y-2">
+                <div className="flex justify-between"><dt className="text-slate-500">Subtotal</dt><dd>{money(subtotal)}</dd></div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-slate-500">Discount {discountPercent ? `(${discountPercent}%)` : ""}</dt>
+                    <dd>- {money(discountAmount)}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-2 text-base font-bold text-slate-900">
+                  <dt>Total</dt>
+                  <dd>{money(total)} {currency}</dd>
+                </div>
+                <div className="flex justify-between"><dt className="text-slate-500">Received</dt><dd>{money(amountPaid)}</dd></div>
+                {totalWrittenOff > 0 && (
+                  <div className="flex justify-between"><dt className="text-slate-500">Written Off</dt><dd>{money(totalWrittenOff)}</dd></div>
+                )}
+                <div className="flex justify-between font-bold text-slate-900">
+                  <dt>Balance Due</dt>
+                  <dd>{money(balanceDue)} {currency}</dd>
+                </div>
+              </dl>
             </div>
+          </DetailSection>
+
+          {invoice.notes && (
+            <DetailSection title="Notes & Terms">
+              <div
+                className="text-sm text-slate-900 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(resolve(invoice.notes, true)),
+                }}
+              />
+            </DetailSection>
           )}
-          {invoice.timeEntries && invoice.timeEntries.length > 0 && (
-            <div className="text-sm text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>Includes:</span>
-              {invoice.timeEntries.map((t: { id: number; entryNumber: string }) => (
-                <Link
-                  key={`time-${t.id}`}
-                  href={`/time-tracking/${t.id}`}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Time Entry #{t.entryNumber}
-                </Link>
-              ))}
-            </div>
+
+          {(activeWriteOffs.length > 0 || reversedWriteOffs.length > 0) && (
+            <DetailSection title="Write-off History">
+              <div className="flex flex-col gap-3">
+                {activeWriteOffs.map((w: any) => (
+                  <div
+                    key={w.id}
+                    className="flex items-start justify-between gap-4 p-3 rounded-md bg-violet-50 border border-violet-200"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-violet-800">
+                        {currency} {money(Number(w.amount))}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-0.5">{w.reason}</p>
+                      <p className="text-[11px] text-slate-400 mt-1">{new Date(w.writeOffDate).toLocaleString()}</p>
+                    </div>
+                    <Button
+                      onClick={() => reverseWriteOff(invoice.id)}
+                      variant="outline"
+                      size="sm"
+                      icon={<RotateCcw className="w-3.5 h-3.5" />}
+                    >
+                      Reverse
+                    </Button>
+                  </div>
+                ))}
+                {reversedWriteOffs.map((w: any) => (
+                  <div
+                    key={w.id}
+                    className="flex items-start justify-between gap-4 p-3 rounded-md bg-slate-50 border border-slate-200 opacity-70"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-600 line-through">
+                        {currency} {money(Number(w.amount))}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">{w.reason}</p>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Written off {new Date(w.writeOffDate).toLocaleDateString()} · Reversed{" "}
+                        {new Date(w.reversedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </DetailSection>
           )}
+
+          <div className="mt-8">
+            <BusinessPortalComments entityType="invoice" entityId={invoice.id} />
+          </div>
         </div>
       )}
 
-      {/* 4. Line Items Table & Financial Breakdown */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-6">
+      {tab === "activity" && (
         <div>
-          <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">
-            Line Items
-          </h2>
-          <Table
-            columns={columns}
-            data={invoice.items || []}
-            showCheckbox={false}
-            variant="default"
-            emptyMessage="No items found in this invoice"
-            emptyIcon={ScrollText}
+          <h3 className="mb-4 text-base font-medium text-slate-900">Activity</h3>
+          <ActivityList
+            entries={[
+              { label: "Invoice created", at: invoice.createdAt },
+              ...(invoice.writeOffs || []).flatMap((w: any) => [
+                { label: `Written off ${currency} ${money(Number(w.amount))}`, at: w.writeOffDate },
+                ...(w.reversedAt ? [{ label: "Write-off reversed", at: w.reversedAt }] : []),
+              ]),
+              { label: `Status: ${statusText}`, at: (invoice as { updatedAt?: string }).updatedAt },
+            ]}
           />
         </div>
-
-        {/* Totals Breakdown */}
-        <div className="flex justify-end pt-4 border-t border-slate-100">
-          <div className="w-full max-w-sm space-y-3 text-sm">
-            <div className="flex justify-between text-slate-600">
-              <span className="font-medium">Subtotal</span>
-              <span className="font-semibold text-slate-900">
-                {currency}{" "}
-                {subtotal.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-
-            {discountAmount > 0 && (
-              <div className="flex justify-between text-slate-600">
-                <span className="font-medium">
-                  Discount {discountPercent ? `(${discountPercent}%)` : ""}
-                </span>
-                <span className="font-semibold text-rose-600">
-                  - {currency}{" "}
-                  {discountAmount.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            )}
-
-            <div className="flex justify-between text-slate-900 font-bold pt-3 border-t border-slate-200 text-base">
-              <span>Total</span>
-              <span className="text-primary text-lg font-black">
-                {currency}{" "}
-                {total.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-slate-600 font-medium">
-              <span>Received</span>
-              <span className="text-emerald-700 font-bold">
-                {currency}{" "}
-                {amountPaid.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-
-            {totalWrittenOff > 0 && (
-              <div className="flex justify-between text-slate-600 font-medium">
-                <span>Written Off</span>
-                <span className="text-violet-700 font-bold">
-                  {currency}{" "}
-                  {totalWrittenOff.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            )}
-
-            <div className="flex justify-between font-bold pt-2 border-t border-slate-200 text-base">
-              <span className="text-slate-900">Balance Due</span>
-              <span
-                className={
-                  balanceDue <= 0 ? "text-emerald-600" : "text-amber-600"
-                }
-              >
-                {currency}{" "}
-                {balanceDue.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Notes */}
-        {invoice.notes && (
-          <div className="pt-4 border-t border-slate-100">
-            <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <ScrollText className="w-3.5 h-3.5 text-slate-400" /> Notes &
-              Terms
-            </h3>
-            <div
-              className="p-4 bg-slate-50/80 rounded-lg border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(resolve(invoice.notes, true)),
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* 5. Write-off History */}
-      {(activeWriteOffs.length > 0 || reversedWriteOffs.length > 0) && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-          <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">
-            Write-off History
-          </h2>
-          <div className="flex flex-col gap-3">
-            {activeWriteOffs.map((w: any) => (
-              <div
-                key={w.id}
-                className="flex items-start justify-between gap-4 p-3 rounded-md bg-violet-50 border border-violet-200"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-violet-800">
-                    {currency}{" "}
-                    {Number(w.amount).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                  <p className="text-xs text-slate-600 mt-0.5">{w.reason}</p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    {new Date(w.writeOffDate).toLocaleString()}
-                  </p>
-                </div>
-                <Button
-                  onClick={() => reverseWriteOff(invoice.id)}
-                  variant="outline"
-                  size="sm"
-                  icon={<RotateCcw className="w-3.5 h-3.5" />}
-                >
-                  Reverse
-                </Button>
-              </div>
-            ))}
-            {reversedWriteOffs.map((w: any) => (
-              <div
-                key={w.id}
-                className="flex items-start justify-between gap-4 p-3 rounded-md bg-slate-50 border border-slate-200 opacity-70"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-600 line-through">
-                    {currency}{" "}
-                    {Number(w.amount).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">{w.reason}</p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Written off {new Date(w.writeOffDate).toLocaleDateString()}{" "}
-                    · Reversed {new Date(w.reversedAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       )}
-      <BusinessPortalComments entityType="invoice" entityId={invoice.id} />
     </div>
   );
 };

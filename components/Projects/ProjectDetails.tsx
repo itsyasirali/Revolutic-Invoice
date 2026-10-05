@@ -15,9 +15,9 @@ import {
   Table,
   Tabs,
 } from "@/components/ui";
-import { InfoCard, InfoField } from "@/components/ui/DetailParts";
+import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import useProject, { addTask, updateTask, deleteTask, billProject } from "@/hooks/projects/useProject";
+import { useProjectFromList, addTask, updateTask, deleteTask, billProject } from "@/hooks/projects/useProject";
 import useProjectDelete from "@/hooks/projects/useProjectDelete";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
@@ -27,7 +27,7 @@ import type { ProjectInvoiceRef } from "@/types/project";
 import type { TableColumn } from "@/types/common";
 import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
-type Tab = "tasks" | "time" | "expenses" | "invoices";
+type Tab = "overview" | "tasks" | "time" | "expenses" | "invoices";
 
 const noop = () => {};
 
@@ -64,30 +64,29 @@ const Progress: React.FC<{ label: string; value: number; budget: number; format:
   const pct = budget > 0 ? Math.min(100, (value / budget) * 100) : 0;
   const over = budget > 0 && value > budget;
   return (
-    <div className="p-4 bg-slate-50/70 rounded-lg border border-slate-100">
-      <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-      <p className="text-sm font-semibold text-slate-900">
+    <DetailRow label={label}>
+      <div>
         {format(value)}
         {budget > 0 ? ` / ${format(budget)}` : " (no budget set)"}
-      </p>
-      {budget > 0 && (
-        <div className="mt-2 h-1.5 rounded-full bg-slate-200 overflow-hidden">
-          <div
-            className={`h-full rounded-full ${over ? "bg-red-500" : "bg-primary"}`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      )}
-    </div>
+        {budget > 0 && (
+          <div className="mt-1.5 h-1.5 w-48 rounded-full bg-slate-200 overflow-hidden">
+            <div
+              className={`h-full rounded-full ${over ? "bg-red-500" : "bg-primary"}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        )}
+      </div>
+    </DetailRow>
   );
 };
 
 const ProjectDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { data, loading, notFound, refetch } = useProject(params?.id);
+  const { data, loading, notFound, refetch } = useProjectFromList(params?.id);
   const del = useProjectDelete();
-  const [tab, setTab] = useState<Tab>("tasks");
+  const [tab, setTab] = useState<Tab>("overview");
   const [billing, setBilling] = useState(false);
   const [taskName, setTaskName] = useState("");
 
@@ -136,6 +135,7 @@ const ProjectDetails: React.FC = () => {
   };
 
   const tabs = [
+    { label: "Overview", value: "overview" },
     { label: "Tasks", value: "tasks", count: tasks.length },
     { label: "Time", value: "time", count: timeEntries.length },
     { label: "Expenses", value: "expenses", count: expenses.length },
@@ -182,164 +182,177 @@ const ProjectDetails: React.FC = () => {
         ]}
       />
 
-      <InfoCard title="Project Information">
-        <InfoField label="Customer">
-          {project.customer && (
-            <Link href={`/customers/${project.customer.id}`} className="text-primary hover:underline">
-              {customerLabel(project.customer)}
-            </Link>
-          )}
-        </InfoField>
-        <InfoField label="Quote">
-          {quote && (
-            <Link href={`/quotes/${quote.id}`} className="text-primary hover:underline">
-              {quote.quoteNumber}
-            </Link>
-          )}
-        </InfoField>
-        <InfoField label="Billing">
-          {fixed
-            ? `Fixed price ${formatMoney(project.fixedAmount)} ${project.currency}${project.fixedInvoiceId ? " (invoiced)" : ""}`
-            : `Hourly ${formatMoney(project.hourlyRate)} ${project.currency}/h`}
-        </InfoField>
-        <InfoField label="Start Date">{formatDate(project.startDate)}</InfoField>
-        <InfoField label="End Date">{formatDate(project.endDate)}</InfoField>
-        <InfoField label="Description" wide>
-          {project.description}
-        </InfoField>
-      </InfoCard>
-
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-        <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">Budget & Billing</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Progress
-            label="Hours logged"
-            value={(stats?.loggedMinutes || 0) / 60}
-            budget={Number(project.budgetHours)}
-            format={(n) => `${n.toFixed(1)}h`}
-          />
-          <Progress
-            label={`Cost vs budget (${project.currency})`}
-            value={budgetUsed}
-            budget={Number(project.budgetAmount)}
-            format={formatMoney}
-          />
-          <InfoField label="Billable / Non-billable hours">
-            {formatDuration(stats?.billableMinutes || 0)} / {formatDuration(stats?.nonBillableMinutes || 0)}
-          </InfoField>
-          <InfoField label="Unbilled time">
-            {fixed ? "Covered by fixed price" : `${formatMoney(unbilledTime)} ${project.currency}`}
-          </InfoField>
-          <InfoField label="Unbilled expenses">
-            {formatMoney(unbilledExpenses)} {project.currency}
-          </InfoField>
-          <InfoField label="Ready to invoice">
-            {formatMoney(unbilledTotal)} {project.currency}
-          </InfoField>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-5">
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
         <Tabs tabs={tabs} activeTab={tab} onTabChange={(v) => setTab(v as Tab)} />
-
-        {tab === "tasks" && (
-          <div className="space-y-4">
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <Input
-                  placeholder="New task name"
-                  value={taskName}
-                  onChange={(e) => setTaskName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      submitTask();
-                    }
-                  }}
-                  fullWidth
-                />
-              </div>
-              <Button variant="primary" size="md" icon={<Plus className="w-4 h-4" />} onClick={submitTask}>
-                Add Task
-              </Button>
-            </div>
-            {tasks.length === 0 ? (
-              <p className="text-sm text-slate-500">No tasks yet. Add one to log time against it.</p>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {tasks.map((t) => (
-                  <li key={t.id} className="flex items-center gap-3 py-2.5">
-                    <input
-                      type="checkbox"
-                      checked={t.status === "Completed"}
-                      onChange={async (e) => {
-                        if (await updateTask(project.id, t.id, { status: e.target.checked ? "Completed" : "Open" })) {
-                          await refetch();
-                        }
-                      }}
-                      className="w-4 h-4 accent-primary cursor-pointer"
-                    />
-                    <span
-                      className={`flex-1 text-sm ${t.status === "Completed" ? "line-through text-slate-400" : "text-slate-900 font-medium"}`}
-                    >
-                      {t.name}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {formatDuration(
-                        timeEntries.filter((e) => e.taskId === t.id).reduce((s, e) => s + e.duration, 0),
-                      )}
-                    </span>
-                    <button
-                      onClick={async () => {
-                        if (await deleteTask(project.id, t.id)) await refetch();
-                      }}
-                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md cursor-pointer"
-                      title="Delete task"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-
-        {tab === "time" && (
-          <Table<TimeEntry>
-            {...tableBase}
-            columns={timeColumns}
-            data={timeEntries}
-            getRowId={(t) => t.id}
-            onRowClick={(t) => router.push(`/time-tracking/${t.id}`)}
-            emptyMessage="No time logged on this project"
-            emptyIcon={Timer}
-          />
-        )}
-        {tab === "expenses" && (
-          <Table<Expense>
-            {...tableBase}
-            columns={expenseColumns}
-            data={expenses}
-            getRowId={(e) => e.id}
-            onRowClick={(e) => router.push(`/expenses/${e.id}`)}
-            emptyMessage="No expenses on this project"
-            emptyIcon={Receipt}
-          />
-        )}
-        {tab === "invoices" && (
-          <Table<ProjectInvoiceRef>
-            {...tableBase}
-            columns={invoiceColumns}
-            data={invoices}
-            getRowId={(i) => i.id}
-            onRowClick={(i) => router.push(`/invoices/${i.id}`)}
-            emptyMessage="Nothing has been invoiced yet"
-            emptyIcon={FileText}
-          />
-        )}
       </div>
-      <BusinessPortalComments entityType="project" entityId={project.id} />
+
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Project Code">{project.projectNumber}</DetailRow>
+            <DetailRow label="Status">{project.status}</DetailRow>
+            <DetailRow label="Customer">
+              {project.customer && (
+                <Link href={`/customers/${project.customer.id}`} className="text-primary hover:underline">
+                  {customerLabel(project.customer)}
+                </Link>
+              )}
+            </DetailRow>
+            <DetailRow label="Quote">
+              {quote && (
+                <Link href={`/quotes/${quote.id}`} className="text-primary hover:underline">
+                  {quote.quoteNumber}
+                </Link>
+              )}
+            </DetailRow>
+            <DetailRow label="Billing">
+              {fixed
+                ? `Fixed price ${formatMoney(project.fixedAmount)} ${project.currency}${project.fixedInvoiceId ? " (invoiced)" : ""}`
+                : `Hourly ${formatMoney(project.hourlyRate)} ${project.currency}/h`}
+            </DetailRow>
+            <DetailRow label="Currency">{project.currency}</DetailRow>
+            <DetailRow label="Start Date">{formatDate(project.startDate)}</DetailRow>
+            <DetailRow label="End Date">{formatDate(project.endDate)}</DetailRow>
+          </div>
+
+          <DetailSection title="Description">
+            <p className="py-1 text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">
+              {project.description || <span className="text-slate-400">-</span>}
+            </p>
+          </DetailSection>
+
+          <DetailSection title="Budget & Billing">
+            <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+              <Progress
+                label="Hours logged"
+                value={(stats?.loggedMinutes || 0) / 60}
+                budget={Number(project.budgetHours)}
+                format={(n) => `${n.toFixed(1)}h`}
+              />
+              <Progress
+                label={`Cost vs budget (${project.currency})`}
+                value={budgetUsed}
+                budget={Number(project.budgetAmount)}
+                format={formatMoney}
+              />
+              <DetailRow label="Billable / Non-billable">
+                {formatDuration(stats?.billableMinutes || 0)} / {formatDuration(stats?.nonBillableMinutes || 0)}
+              </DetailRow>
+              <DetailRow label="Unbilled time">
+                {fixed ? "Covered by fixed price" : `${formatMoney(unbilledTime)} ${project.currency}`}
+              </DetailRow>
+              <DetailRow label="Unbilled expenses">
+                {formatMoney(unbilledExpenses)} {project.currency}
+              </DetailRow>
+              <DetailRow label="Ready to invoice">
+                {formatMoney(unbilledTotal)} {project.currency}
+              </DetailRow>
+            </div>
+          </DetailSection>
+
+          <div className="mt-8">
+            <BusinessPortalComments entityType="project" entityId={project.id} />
+          </div>
+        </div>
+      )}
+
+      {tab === "tasks" && (
+        <div className="space-y-4">
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <Input
+                placeholder="New task name"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitTask();
+                  }
+                }}
+                fullWidth
+              />
+            </div>
+            <Button variant="primary" size="md" icon={<Plus className="w-4 h-4" />} onClick={submitTask}>
+              Add Task
+            </Button>
+          </div>
+          {tasks.length === 0 ? (
+            <p className="text-sm text-slate-500">No tasks yet. Add one to log time against it.</p>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {tasks.map((t) => (
+                <li key={t.id} className="flex items-center gap-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    checked={t.status === "Completed"}
+                    onChange={async (e) => {
+                      if (await updateTask(project.id, t.id, { status: e.target.checked ? "Completed" : "Open" })) {
+                        await refetch();
+                      }
+                    }}
+                    className="w-4 h-4 accent-primary cursor-pointer"
+                  />
+                  <span
+                    className={`flex-1 text-sm ${t.status === "Completed" ? "line-through text-slate-400" : "text-slate-900 font-medium"}`}
+                  >
+                    {t.name}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {formatDuration(
+                      timeEntries.filter((e) => e.taskId === t.id).reduce((s, e) => s + e.duration, 0),
+                    )}
+                  </span>
+                  <button
+                    onClick={async () => {
+                      if (await deleteTask(project.id, t.id)) await refetch();
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md cursor-pointer"
+                    title="Delete task"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {tab === "time" && (
+        <Table<TimeEntry>
+          {...tableBase}
+          columns={timeColumns}
+          data={timeEntries}
+          getRowId={(t) => t.id}
+          onRowClick={(t) => router.push(`/time-tracking/${t.id}`)}
+          emptyMessage="No time logged on this project"
+          emptyIcon={Timer}
+        />
+      )}
+      {tab === "expenses" && (
+        <Table<Expense>
+          {...tableBase}
+          columns={expenseColumns}
+          data={expenses}
+          getRowId={(e) => e.id}
+          onRowClick={(e) => router.push(`/expenses/${e.id}`)}
+          emptyMessage="No expenses on this project"
+          emptyIcon={Receipt}
+        />
+      )}
+      {tab === "invoices" && (
+        <Table<ProjectInvoiceRef>
+          {...tableBase}
+          columns={invoiceColumns}
+          data={invoices}
+          getRowId={(i) => i.id}
+          onRowClick={(i) => router.push(`/invoices/${i.id}`)}
+          emptyMessage="Nothing has been invoiced yet"
+          emptyIcon={FileText}
+        />
+      )}
     </div>
   );
 };

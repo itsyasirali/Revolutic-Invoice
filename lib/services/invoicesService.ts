@@ -14,7 +14,14 @@ const fetchInvoicesForUser = async (
       .leftJoinAndSelect("invoice.customer", "customer")
       .leftJoinAndSelect("invoice.template", "template")
       .leftJoinAndSelect("invoice.items", "items")
-      .leftJoinAndSelect("items.item", "itemDetails");
+      .leftJoinAndSelect("items.item", "itemDetails")
+      .leftJoinAndSelect("invoice.writeOffs", "writeOffs")
+      .leftJoin("invoice.quote", "sourceQuote")
+      .addSelect(["sourceQuote.id", "sourceQuote.quoteNumber"])
+      .leftJoin("invoice.expenses", "sourceExpense")
+      .addSelect(["sourceExpense.id", "sourceExpense.expenseNumber"])
+      .leftJoin("invoice.timeEntries", "sourceTime")
+      .addSelect(["sourceTime.id", "sourceTime.entryNumber"]);
 
     if (orgId) {
       queryBuilder.where("invoice.organizationId = :orgId", { orgId });

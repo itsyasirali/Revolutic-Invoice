@@ -84,6 +84,13 @@ const getAllInvoices = async (req: NextRequest) => {
       .leftJoinAndSelect("invoice.customer", "customer")
       .leftJoinAndSelect("invoice.items", "items")
       .leftJoinAndSelect("items.item", "itemDetails")
+      .leftJoinAndSelect("invoice.writeOffs", "writeOffs")
+      .leftJoin("invoice.quote", "sourceQuote")
+      .addSelect(["sourceQuote.id", "sourceQuote.quoteNumber"])
+      .leftJoin("invoice.expenses", "sourceExpense")
+      .addSelect(["sourceExpense.id", "sourceExpense.expenseNumber"])
+      .leftJoin("invoice.timeEntries", "sourceTime")
+      .addSelect(["sourceTime.id", "sourceTime.entryNumber"])
       .where(where)
       .orderBy("invoice.createdAt", "DESC");
 

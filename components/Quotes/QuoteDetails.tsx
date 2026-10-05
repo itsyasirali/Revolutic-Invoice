@@ -3,12 +3,6 @@
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  FileCheck2,
-  ScrollText,
-  Mail,
-  MapPin,
-  Calendar,
-  Clock,
   FileQuestion,
 } from "lucide-react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
@@ -18,13 +12,16 @@ import {
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
+  Tabs,
 } from "@/components/ui";
-import { ActivityList } from "@/components/ui/DetailParts";
+import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import useQuote, { runQuoteAction } from "@/hooks/quotes/useQuote";
+import { runQuoteAction } from "@/hooks/quotes/useQuote";
+import useRecordFromList from "@/hooks/common/useRecordFromList";
+import type { Quote } from "@/types/quote";
 import { createProjectFromQuote } from "@/hooks/projects/useProject";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
-import { invalidateQuotes } from "@/lib/swr";
+import { SWR_KEYS, invalidateQuotes } from "@/lib/swr";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
 import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
@@ -32,8 +29,14 @@ import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 const QuoteDetails: React.FC = () => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { quote, loading, notFound, refetch } = useQuote(params?.id);
+  const { record: quote, loading, notFound, refetch } = useRecordFromList<Quote>({
+    id: params?.id,
+    listKey: SWR_KEYS.quotes,
+    collection: "quotes",
+    singleField: "quote",
+  });
   const [acting, setActing] = useState(false);
+  const [tab, setTab] = useState<"quote" | "activity">("quote");
 
   const del = useBatchDelete({
     endpoint: "/quotes/batch-delete",
@@ -134,138 +137,135 @@ const QuoteDetails: React.FC = () => {
         ]}
       />
 
-      {/* Customer + Quote information */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-3">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">Customer Information</h2>
-            <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-              <p className="font-semibold text-slate-900">
-                {quote.customer ? (
-                  <Link href={`/customers/${quote.customer.id}`} className="text-primary hover:underline">
-                    {customerLabel(quote.customer)}
-                  </Link>
-                ) : (
-                  "Unnamed Customer"
-                )}
-              </p>
-              <div className="flex items-center gap-2 min-w-0">
-                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="truncate">{contact?.email || "No email provided"}</span>
-              </div>
-              <div className="flex items-start gap-2 min-w-0">
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <span>{quote.customer?.address || "No address provided"}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">Quote Information</h2>
-            <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>Quote date: {formatDate(quote.quoteDate)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>Expiry date: {formatDate(quote.expiryDate) || "None"}</span>
-              </div>
-              {quote.referenceNumber && (
-                <div className="flex items-center gap-2">
-                  <ScrollText className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>Reference: {quote.referenceNumber}</span>
-                </div>
-              )}
-              {quote.convertedInvoice && (
-                <div className="flex items-center gap-2">
-                  <FileCheck2 className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>
-                    Converted to invoice{" "}
-                    <Link href={`/invoices/${quote.convertedInvoice.id}`} className="text-primary hover:underline font-semibold">
-                      {quote.convertedInvoice.invoiceNumber}
-                    </Link>
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "quote" },
+            { label: "Activity", value: "activity" },
+          ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "quote" | "activity")}
+        />
       </div>
 
-      {/* Items */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <h2 className="text-base font-bold text-slate-900 tracking-tight p-6 pb-3">Items</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-[#F8FAFC] border-y border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
-              <tr>
-                <th className="px-4 py-2">Item</th>
-                <th className="px-4 py-2 text-right">Qty</th>
-                <th className="px-4 py-2 text-right">Rate</th>
-                <th className="px-4 py-2 text-right">Discount</th>
-                <th className="px-4 py-2 text-right">Tax</th>
-                <th className="px-4 py-2 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="text-[13px] text-slate-700">
-              {quote.items.map((item) => (
-                <tr key={item.id ?? item.name} className="border-b border-slate-100">
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-slate-900">{item.name}</p>
-                    {item.description && <p className="text-xs text-slate-500">{item.description}</p>}
-                  </td>
-                  <td className="px-4 py-3 text-right">{Number(item.quantity)}</td>
-                  <td className="px-4 py-3 text-right">{formatMoney(item.rate)}</td>
-                  <td className="px-4 py-3 text-right">{Number(item.discount) || 0}%</td>
-                  <td className="px-4 py-3 text-right">{Number(item.tax) || 0}%</td>
-                  <td className="px-4 py-3 text-right font-semibold text-slate-900">
-                    {formatMoney(item.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="p-6 flex justify-end">
-          <dl className="w-full sm:w-80 text-sm space-y-2">
-            <div className="flex justify-between"><dt className="text-slate-500">Subtotal</dt><dd>{formatMoney(quote.subTotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Discount ({quote.discountPercent || 0}%)</dt><dd>- {formatMoney(quote.discount)}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Tax (included in items)</dt><dd>{formatMoney(quote.tax)}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Shipping</dt><dd>{formatMoney(quote.shipping)}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Adjustment</dt><dd>{formatMoney(quote.adjustment)}</dd></div>
-            <div className="flex justify-between border-t pt-2 text-base font-bold text-slate-900">
-              <dt>Total</dt>
-              <dd>{formatMoney(quote.total)} {quote.currency}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      {(quote.notes || quote.terms) && (
-        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 tracking-tight mb-2">Notes</h2>
-            <p className="text-sm text-slate-600 whitespace-pre-wrap">{quote.notes || "-"}</p>
+      {tab === "quote" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Quote Number">{quote.quoteNumber}</DetailRow>
+            <DetailRow label="Status">{status}</DetailRow>
+            <DetailRow label="Customer">
+              {quote.customer ? (
+                <Link href={`/customers/${quote.customer.id}`} className="text-primary hover:underline">
+                  {customerLabel(quote.customer)}
+                </Link>
+              ) : (
+                "Unnamed Customer"
+              )}
+            </DetailRow>
+            <DetailRow label="Email">{contact?.email}</DetailRow>
+            <DetailRow label="Quote Date">{formatDate(quote.quoteDate)}</DetailRow>
+            <DetailRow label="Expiry Date">{formatDate(quote.expiryDate) || "None"}</DetailRow>
+            <DetailRow label="Reference">{quote.referenceNumber}</DetailRow>
+            <DetailRow label="Currency">{quote.currency}</DetailRow>
+            {quote.projectId ? (
+              <DetailRow label="Project">
+                <Link href={`/projects/${quote.projectId}`} className="text-primary hover:underline">
+                  View project
+                </Link>
+              </DetailRow>
+            ) : null}
+            {quote.convertedInvoice && (
+              <DetailRow label="Converted Invoice">
+                <Link href={`/invoices/${quote.convertedInvoice.id}`} className="text-primary hover:underline">
+                  {quote.convertedInvoice.invoiceNumber}
+                </Link>
+              </DetailRow>
+            )}
           </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-900 tracking-tight mb-2">Terms & Conditions</h2>
-            <p className="text-sm text-slate-600 whitespace-pre-wrap">{quote.terms || "-"}</p>
+
+          <DetailSection title="Address">
+            <p className="py-1 text-sm text-slate-900 leading-relaxed">
+              {quote.customer?.address || "No address provided"}
+            </p>
+          </DetailSection>
+
+          <DetailSection title="Items">
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-[#F8FAFC] border-b border-slate-200 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-2">Item</th>
+                    <th className="px-4 py-2 text-right">Qty</th>
+                    <th className="px-4 py-2 text-right">Rate</th>
+                    <th className="px-4 py-2 text-right">Discount</th>
+                    <th className="px-4 py-2 text-right">Tax</th>
+                    <th className="px-4 py-2 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[13px] text-slate-700">
+                  {quote.items.map((item) => (
+                    <tr key={item.id ?? item.name} className="border-b border-slate-100 last:border-b-0">
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-slate-900">{item.name}</p>
+                        {item.description && <p className="text-xs text-slate-500">{item.description}</p>}
+                      </td>
+                      <td className="px-4 py-3 text-right">{Number(item.quantity)}</td>
+                      <td className="px-4 py-3 text-right">{formatMoney(item.rate)}</td>
+                      <td className="px-4 py-3 text-right">{Number(item.discount) || 0}%</td>
+                      <td className="px-4 py-3 text-right">{Number(item.tax) || 0}%</td>
+                      <td className="px-4 py-3 text-right font-semibold text-slate-900">
+                        {formatMoney(item.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <dl className="w-full sm:w-80 text-sm space-y-2">
+                <div className="flex justify-between"><dt className="text-slate-500">Subtotal</dt><dd>{formatMoney(quote.subTotal)}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Discount ({quote.discountPercent || 0}%)</dt><dd>- {formatMoney(quote.discount)}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Tax (included in items)</dt><dd>{formatMoney(quote.tax)}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Shipping</dt><dd>{formatMoney(quote.shipping)}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Adjustment</dt><dd>{formatMoney(quote.adjustment)}</dd></div>
+                <div className="flex justify-between border-t pt-2 text-base font-bold text-slate-900">
+                  <dt>Total</dt>
+                  <dd>{formatMoney(quote.total)} {quote.currency}</dd>
+                </div>
+              </dl>
+            </div>
+          </DetailSection>
+
+          {(quote.notes || quote.terms) && (
+            <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+              <DetailSection title="Notes">
+                <p className="text-sm text-slate-900 whitespace-pre-wrap">{quote.notes || "-"}</p>
+              </DetailSection>
+              <DetailSection title="Terms & Conditions">
+                <p className="text-sm text-slate-900 whitespace-pre-wrap">{quote.terms || "-"}</p>
+              </DetailSection>
+            </div>
+          )}
+
+          <div className="mt-8">
+            <BusinessPortalComments entityType="quote" entityId={quote.id} />
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6">
-        <h2 className="text-base font-bold text-slate-900 tracking-tight mb-4">Activity</h2>
-        <ActivityList
-          entries={[
-            { label: "Quote created", at: quote.createdAt },
-            { label: `Status: ${status}`, at: (quote as { updatedAt?: string }).updatedAt },
-          ]}
-        />
-      </div>
-      <BusinessPortalComments entityType="quote" entityId={quote.id} />
+      {tab === "activity" && (
+        <div>
+          <h3 className="mb-4 text-base font-medium text-slate-900">Activity</h3>
+          <ActivityList
+            entries={[
+              { label: "Quote created", at: quote.createdAt },
+              { label: `Status: ${status}`, at: (quote as { updatedAt?: string }).updatedAt },
+            ]}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,7 @@ import {
   invalidateInvoices,
 } from "@/lib/swr";
 import { toast } from "@/components/ui";
-import type { ProjectDetailData } from "@/types/project";
+import type { Project, ProjectDetailData } from "@/types/project";
 
 /** Single project with tasks, time, expenses, quote and invoices. */
 export const useProject = (id?: string) => {
@@ -26,6 +26,39 @@ export const useProject = (id?: string) => {
     loading: isLoading,
     notFound: !!error && !data,
     refetch: () => mutate(),
+  };
+};
+
+/** Project detail taken from the loaded project list (it carries tasks, time, expenses and invoices). */
+export const useProjectFromList = (id?: string) => {
+  const list = useSWR<{ projects: (Project & { detail?: Omit<ProjectDetailData, "project"> })[] }>(
+    SWR_KEYS.projects,
+    swrFetcher,
+    { revalidateOnFocus: false, dedupingInterval: 15000 },
+  );
+  const found = id ? (list.data?.projects ?? []).find((p) => String(p.id) === String(id)) : undefined;
+  const complete = !!found?.detail;
+  const single = useSWR<ProjectDetailData>(
+    id && list.data && !complete ? `${SWR_KEYS.projects}/${id}` : null,
+    swrFetcher,
+    { revalidateOnFocus: false },
+  );
+
+  let data: ProjectDetailData | null = null;
+  if (found?.detail) {
+    const { detail, ...project } = found;
+    data = { project: project as Project, ...detail };
+  } else if (single.data) {
+    data = single.data;
+  }
+
+  return {
+    data,
+    loading: !data && (list.isLoading || single.isLoading),
+    notFound: !data && !!list.data && !!single.error,
+    refetch: async () => {
+      await list.mutate();
+    },
   };
 };
 
