@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import { useProjectListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
-import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
+import { Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import ProjectDetails from "./ProjectDetails";
 import useProjectList from "@/hooks/projects/useProjectList";
 import { PROJECT_STATUSES } from "@/types/project";
@@ -18,6 +18,7 @@ const FILTERS = ["All", ...PROJECT_STATUSES].map((s) => ({
 const ProjectSplitView = () => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useProjectList();
+  const listMenu = useProjectListMenu(list.projects);
 
   return (
     <>
@@ -33,7 +34,7 @@ const ProjectSplitView = () => {
       />
       <SplitView
         filter={{ value: list.statusFilter, options: FILTERS, onChange: list.setStatusFilter }}
-        rows={list.projects.map((p) => ({
+        rows={listMenu.rows.map((p) => ({
           id: p.id,
           title: p.name,
           subtitle: customerLabel(p.customer),
@@ -48,7 +49,7 @@ const ProjectSplitView = () => {
         }}
         onNew={list.handleNew}
         newLabel="New project"
-        menu={(close) => <ImportMenuItem kind="projects" label="Import projects" closeMenu={close} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No projects found"

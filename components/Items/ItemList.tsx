@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ImportButton from "@/components/import/ImportButton";
+import { useItemListMenu } from "@/hooks/common/listMenus";
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -37,6 +37,7 @@ const ItemList = ({ initialItems }: ItemListProps) => {
     onSelectAll,
     onSelectRow,
   } = useItemList(initialItems);
+  const listMenu = useItemListMenu(filteredItems);
 
   // Table columns
   const columns = [
@@ -126,7 +127,6 @@ const ItemList = ({ initialItems }: ItemListProps) => {
         }}
         actions={
           <div className="flex items-center gap-2">
-            <ImportButton kind="items" />
     <Button
               onClick={handleNew}
               disabled={loading}
@@ -135,6 +135,7 @@ const ItemList = ({ initialItems }: ItemListProps) => {
             >
               New Item
             </Button>
+          {listMenu.menu}
           </div>
         }
         actionBar={
@@ -180,7 +181,7 @@ const ItemList = ({ initialItems }: ItemListProps) => {
       <div className="mt-4">
         <Table<Item>
           columns={columns}
-          data={filteredItems}
+          data={listMenu.rows}
           selectedIds={selectedIds}
           onSelectAll={onSelectAll}
           onSelectRow={onSelectRow}

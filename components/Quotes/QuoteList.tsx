@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useQuoteListMenu } from "@/hooks/common/listMenus";
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -9,7 +10,6 @@ import {
   PageHeader,
   ConfirmDialog,
 } from "@/components/ui";
-import ImportButton from "@/components/import/ImportButton";
 import useQuoteList from "@/hooks/quotes/useQuoteList";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
@@ -22,6 +22,7 @@ const STATUS_OPTIONS = ["All", ...QUOTE_STATUSES];
 
 const QuoteList = ({ initialQuotes }: QuoteListProps) => {
   const list = useQuoteList(initialQuotes);
+  const listMenu = useQuoteListMenu(list.quotes);
 
   const columns = [
     {
@@ -90,11 +91,11 @@ const QuoteList = ({ initialQuotes }: QuoteListProps) => {
         actions={
           <>
             <div className="flex items-center gap-2">
-              <ImportButton kind="quotes" />
               <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
                 New Quote
               </Button>
-            </div>
+            {listMenu.menu}
+          </div>
           </>
         }
         actionBar={
@@ -120,7 +121,7 @@ const QuoteList = ({ initialQuotes }: QuoteListProps) => {
       <div className="mt-4">
         <Table<Quote>
           columns={columns}
-          data={list.quotes}
+          data={listMenu.rows}
           selectedIds={list.selectedIds}
           onSelectAll={list.onSelectAll}
           onSelectRow={list.onSelectRow}

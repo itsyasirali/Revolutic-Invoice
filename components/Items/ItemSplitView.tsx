@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useItemListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import SplitView from "@/components/ui/SplitView";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import {
@@ -119,6 +119,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
   const router = useRouter();
 
   const list = useItemList(initialItems);
+  const listMenu = useItemListMenu(list.filteredItems);
   const single = useDeleteItems();
   const statusUpdate = useUpdateItemStatus();
 
@@ -210,7 +211,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
           options: FILTERS,
           onChange: list.setStatusFilter,
         }}
-        rows={list.filteredItems.map((i) => ({
+        rows={listMenu.rows.map((i) => ({
           id: i.id,
           title: i.name,
           right: `PKR${formatMoney(i.sellingPrice)}`,
@@ -224,7 +225,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
         }}
         onNew={list.handleNew}
         newLabel="New item"
-        menu={(closeMenu) => <ImportMenuItem kind="items" label="Import items" closeMenu={closeMenu} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No items found"

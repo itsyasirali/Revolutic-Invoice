@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import { usePaymentListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import PaymentDetails from "./PaymentDetails";
 import usePaymentsList, { PAYMENT_MODE_FILTERS } from "@/hooks/payments/usePaymentsList";
 import usePaymentActions from "@/hooks/payments/usePaymentActions";
@@ -19,6 +19,7 @@ const FILTERS = PAYMENT_MODE_FILTERS.map((m) => ({
 const PaymentSplitView = ({ initialPayments }: { initialPayments?: Payment[] }) => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = usePaymentsList(initialPayments as never);
+  const listMenu = usePaymentListMenu(list.payments);
   const { handleRowClick } = usePaymentActions();
   const busy = list.loading || list.deleting;
 
@@ -46,7 +47,7 @@ const PaymentSplitView = ({ initialPayments }: { initialPayments?: Payment[] }) 
           options: FILTERS,
           onChange: (v) => list.setModeFilter(v as Parameters<typeof list.setModeFilter>[0]),
         }}
-        rows={list.payments.map((p) => ({
+        rows={listMenu.rows.map((p) => ({
           id: p.id,
           title: `Payment ${p.paymentNumber ?? ""}`.trim(),
           subtitle: p.customerDisplayName || undefined,
@@ -60,7 +61,7 @@ const PaymentSplitView = ({ initialPayments }: { initialPayments?: Payment[] }) 
         }}
         onNew={list.handleNew}
         newLabel="New payment"
-        menu={(close) => <ImportMenuItem kind="payments" label="Import payments" closeMenu={close} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No payments found"

@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import { useInvoiceListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import InvoiceDetails from "./InvoiceDetails";
 import useInvoiceList from "@/hooks/invoices/useInvoiceList";
 
@@ -14,6 +14,7 @@ const FILTERS = STATUSES.map((s) => ({ value: s, label: s === "All" ? "All Invoi
 const InvoiceSplitView = ({ initialInvoices }: { initialInvoices?: any[] }) => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useInvoiceList(initialInvoices as never);
+  const listMenu = useInvoiceListMenu(list.filteredInvoices);
 
   return (
     <>
@@ -30,7 +31,7 @@ const InvoiceSplitView = ({ initialInvoices }: { initialInvoices?: any[] }) => {
       />
       <SplitView
         filter={{ value: list.statusFilter, options: FILTERS, onChange: list.setStatusFilter }}
-        rows={list.filteredInvoices.map((inv) => ({
+        rows={listMenu.rows.map((inv) => ({
           id: inv.id,
           title: inv.invoice,
           subtitle: inv.name || undefined,
@@ -44,7 +45,7 @@ const InvoiceSplitView = ({ initialInvoices }: { initialInvoices?: any[] }) => {
         }}
         onNew={list.handleNew}
         newLabel="New invoice"
-        menu={(close) => <ImportMenuItem kind="invoices" label="Import invoices" closeMenu={close} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No invoices found"

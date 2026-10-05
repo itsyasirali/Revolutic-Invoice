@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import ImportButton from "@/components/import/ImportButton";
+import { usePaymentListMenu } from "@/hooks/common/listMenus";
 import type { Payment, PaymentListProps } from "@/types/payment";
 import usePaymentsList, {
   PAYMENT_MODE_FILTERS,
@@ -38,6 +38,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
     dismissAlert,
     selectedIds,
   } = usePaymentsList(initialPayments);
+  const listMenu = usePaymentListMenu(payments);
 
   const busy = loading || deleting;
 
@@ -143,7 +144,6 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
         }}
         actions={
           <div className="flex items-center gap-2">
-            <ImportButton kind="payments" />
     <Button
               onClick={handleNew}
               disabled={busy}
@@ -152,6 +152,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
             >
               New Payment
             </Button>
+          {listMenu.menu}
           </div>
         }
         actionBar={
@@ -217,7 +218,7 @@ const PaymentList = ({ initialPayments }: PaymentListProps) => {
       <div className="mt-4">
         <Table<Payment>
           columns={columns}
-          data={payments}
+          data={listMenu.rows}
           selectedIds={selectedIds}
           onSelectAll={onSelectAll}
           onSelectRow={onSelectRow}

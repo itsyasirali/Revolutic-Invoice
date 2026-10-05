@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import ImportButton from "@/components/import/ImportButton";
+import { useInvoiceListMenu } from "@/hooks/common/listMenus";
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -35,6 +35,7 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
     hideConfirmDialog,
     dismissAlert,
   } = useInvoiceList(initialInvoices);
+  const listMenu = useInvoiceListMenu(filteredInvoices);
 
   const columns = useMemo(
     () => [
@@ -122,7 +123,6 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
         }}
         actions={
           <div className="flex items-center gap-2">
-            <ImportButton kind="invoices" />
     <Button
               onClick={handleNew}
               disabled={loading}
@@ -131,6 +131,7 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
             >
               New Invoice
             </Button>
+          {listMenu.menu}
           </div>
         }
         actionBar={
@@ -190,7 +191,7 @@ const InvoiceList = ({ initialInvoices }: InvoiceListProps) => {
       <div className="mt-4">
         <Table<UIInvoiceListItem>
           columns={columns}
-          data={filteredInvoices}
+          data={listMenu.rows}
           selectedIds={selectedIds}
           onSelectAll={onSelectAll}
           onSelectRow={onSelectRow}

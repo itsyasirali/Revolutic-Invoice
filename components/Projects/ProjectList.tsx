@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
+import { useProjectListMenu } from "@/hooks/common/listMenus";
 import { Edit, Trash2 } from "lucide-react";
 import { Table, StatusBadge, Button, PageHeader, ConfirmDialog } from "@/components/ui";
-import ImportButton from "@/components/import/ImportButton";
 import useProjectList from "@/hooks/projects/useProjectList";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatMoney } from "@/lib/format";
@@ -14,6 +14,7 @@ const STATUS_OPTIONS = ["All", ...PROJECT_STATUSES];
 
 const ProjectList = ({ initialProjects }: ProjectListProps) => {
   const list = useProjectList(initialProjects);
+  const listMenu = useProjectListMenu(list.projects);
 
   const columns = [
     {
@@ -91,10 +92,10 @@ const ProjectList = ({ initialProjects }: ProjectListProps) => {
         }}
         actions={
           <div className="flex items-center gap-2">
-            <ImportButton kind="projects" />
             <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
               New Project
             </Button>
+          {listMenu.menu}
           </div>
         }
         actionBar={
@@ -117,7 +118,7 @@ const ProjectList = ({ initialProjects }: ProjectListProps) => {
       <div className="mt-4">
         <Table<Project>
           columns={columns}
-          data={list.projects}
+          data={listMenu.rows}
           selectedIds={list.selectedIds}
           onSelectAll={list.onSelectAll}
           onSelectRow={list.onSelectRow}

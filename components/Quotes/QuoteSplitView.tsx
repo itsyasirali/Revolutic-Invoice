@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import { useQuoteListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
-import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
+import { Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import QuoteDetails from "./QuoteDetails";
 import useQuoteList from "@/hooks/quotes/useQuoteList";
 import { QUOTE_STATUSES } from "@/types/quote";
@@ -18,6 +18,7 @@ const FILTERS = ["All", ...QUOTE_STATUSES].map((s) => ({
 const QuoteSplitView = () => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useQuoteList();
+  const listMenu = useQuoteListMenu(list.quotes);
 
   return (
     <>
@@ -33,7 +34,7 @@ const QuoteSplitView = () => {
       />
       <SplitView
         filter={{ value: list.statusFilter, options: FILTERS, onChange: list.setStatusFilter }}
-        rows={list.quotes.map((q) => ({
+        rows={listMenu.rows.map((q) => ({
           id: q.id,
           title: q.quoteNumber,
           subtitle: customerLabel(q.customer),
@@ -47,7 +48,7 @@ const QuoteSplitView = () => {
         }}
         onNew={list.handleNew}
         newLabel="New quote"
-        menu={(close) => <ImportMenuItem kind="quotes" label="Import quotes" closeMenu={close} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No quotes found"

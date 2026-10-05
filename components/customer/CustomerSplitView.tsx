@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import { useCustomerListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import { AlertModal, Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import ImportMenuItem from "@/components/import/ImportMenuItem";
 import CustomerDetails from "./CustomerDetails";
 import useCustomerList from "@/hooks/customers/useCustomerList";
 import { formatMoney } from "@/lib/format";
@@ -19,6 +19,7 @@ const FILTERS = [
 const CustomerSplitView = ({ initialCustomers }: CustomerListProps) => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useCustomerList(initialCustomers);
+  const listMenu = useCustomerListMenu(list.filteredCustomers);
 
   return (
     <>
@@ -35,7 +36,7 @@ const CustomerSplitView = ({ initialCustomers }: CustomerListProps) => {
       />
       <SplitView
         filter={{ value: list.statusFilter, options: FILTERS, onChange: list.setStatusFilter }}
-        rows={list.filteredCustomers.map((c) => ({
+        rows={listMenu.rows.map((c) => ({
           id: c.id!,
           title: c.displayName || c.companyName || "Unnamed customer",
           subtitle: c.companyName || undefined,
@@ -50,7 +51,7 @@ const CustomerSplitView = ({ initialCustomers }: CustomerListProps) => {
         }}
         onNew={list.handleNew}
         newLabel="New customer"
-        menu={(close) => <ImportMenuItem kind="contacts" label="Import customers" closeMenu={close} />}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No customers found"

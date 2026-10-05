@@ -27,6 +27,8 @@ interface SplitViewProps {
   onOpen: (id: string | number) => void;
   onNew: () => void;
   newLabel: string;
+  /** Ready-made "..." menu (e.g. ListMenu); replaces `menu`. */
+  moreMenu?: React.ReactNode;
   /** Items of the "..." menu. Always mounted, so import dialogs survive the menu closing. */
   menu?: (closeMenu: () => void) => React.ReactNode;
   selectedIds: (string | number)[];
@@ -70,6 +72,7 @@ export const SplitView: React.FC<SplitViewProps> = ({
   onNew,
   newLabel,
   menu,
+  moreMenu,
   selectedIds,
   onSelectRow,
   bulk,
@@ -168,7 +171,8 @@ export const SplitView: React.FC<SplitViewProps> = ({
                 >
                   <Plus className="h-4 w-4" />
                 </button>
-                {menu && (
+                {moreMenu}
+                {!moreMenu && menu && (
                   <div ref={menuRef} className="relative">
                     <button
                       type="button"
