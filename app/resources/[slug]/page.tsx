@@ -4,7 +4,6 @@ import MarketingLayout from "@/components/landing/MarketingLayout";
 import DetailHero from "@/components/ui/blocks/DetailHero";
 import Article from "@/components/ui/blocks/Article";
 import Context from "@/components/ui/blocks/Context";
-import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import posts from "@/data/blog/posts";
 import type { ResourceDetailPageProps } from "@/types/resource";
@@ -39,7 +38,6 @@ const ResourceDetailPage = async ({ params }: ResourceDetailPageProps) => {
           </Container>
         </section>
         <Context currentItem={item} allItems={posts} baseRoute="resources" />
-        <Cta />
       </div>
     </MarketingLayout>
   );

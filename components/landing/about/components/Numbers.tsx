@@ -16,7 +16,7 @@ const Numbers = () => {
           {numbers.map((item, idx) => (
             <div
               key={idx}
-              className="group bg-white/50 backdrop-blur-sm shadow-sm border border-slate-100 rounded-xl p-10 flex flex-col justify-between min-h-[280px] hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
+              className="group bg-white/50 backdrop-blur-sm shadow-sm border border-slate-100 rounded-xl p-10 flex flex-col justify-between min-h-[280px] hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300"
             >
               <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300 shadow-sm border border-slate-100">
                 <div className="h-5 w-5 bg-primary group-hover:bg-white rounded-sm rotate-45 transition-colors duration-300" />

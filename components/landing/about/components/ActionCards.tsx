@@ -12,7 +12,7 @@ const ActionCards = () => {
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1 - News */}
-          <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 border border-slate-100 flex flex-col hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 col-span-1 md:col-span-2 lg:col-span-1">
+          <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 border border-slate-100 flex flex-col hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 col-span-1 md:col-span-2 lg:col-span-1">
             {actionCards[0].tag && (
               <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
                 {actionCards[0].tag}
@@ -48,7 +48,7 @@ const ActionCards = () => {
 
           <div className="col-span-1 md:col-span-2 flex flex-col gap-6">
             {/* Card 2 - Join team */}
-            <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 justify-between hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex-1">
+            <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 flex-1">
               <div className="flex-1">
                 <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300 shadow-sm border border-slate-100">
                   <div className="h-4 w-6 bg-primary group-hover:bg-white rounded-sm transition-colors duration-300" />
@@ -73,7 +73,7 @@ const ActionCards = () => {
             </div>
 
             {/* Card 3 - Become partner */}
-            <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 justify-between hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 flex-1">
+            <div className="group bg-white/50 cursor-pointer backdrop-blur-sm shadow-sm rounded-xl p-8 md:p-12 border border-slate-100 flex flex-col md:flex-row gap-8 justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 flex-1">
               <div className="flex-1">
                 <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300 shadow-sm border border-slate-100">
                   <div className="h-5 w-5 rounded-full border-[3px] border-primary group-hover:border-white transition-colors duration-300" />

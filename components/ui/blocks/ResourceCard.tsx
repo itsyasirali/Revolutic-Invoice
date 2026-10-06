@@ -8,7 +8,7 @@ const ResourceCard = ({ item, baseRoute }: ResourceCardProps) => {
   return (
     <Link
       href={`/${baseRoute}/${item.slug}`}
-      className="group flex flex-col bg-white rounded-xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
+      className="group flex flex-col bg-white rounded-xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl hover:shadow-primary/10 transition-all duration-300"
     >
       {/* Thumbnail Image */}
       <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
@@ -16,7 +16,7 @@ const ResourceCard = ({ item, baseRoute }: ResourceCardProps) => {
           src={item.image}
           alt={item.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-cover"
           unoptimized={true}
         />
         <div className="absolute top-4 left-4 z-10">

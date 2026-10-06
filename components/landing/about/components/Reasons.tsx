@@ -18,7 +18,7 @@ const Reasons = () => {
             return (
               <div
                 key={idx}
-                className="group border-slate-100 cursor-pointer shadow-sm hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 bg-white/50 backdrop-blur-sm rounded-xl p-10 border"
+                className="group border-slate-100 cursor-pointer shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 bg-white/50 backdrop-blur-sm rounded-xl p-10 border"
               >
                 <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-300">
                   <Icon

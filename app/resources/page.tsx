@@ -2,8 +2,6 @@ import React from "react";
 import MarketingLayout from "@/components/landing/MarketingLayout";
 import Hero from "@/components/ui/blocks/Hero";
 import List from "@/components/ui/blocks/List";
-import Cta from "@/components/ui/blocks/Cta";
-import Newsletter from "@/components/ui/blocks/Newsletter";
 import posts from "@/data/blog/posts";
 import blogCategories from "@/data/blog/categories";
 import { publicMeta } from "@/lib/pageMeta";
@@ -27,8 +25,6 @@ const ResourcesPage = () => {
           categories={blogCategories}
           baseRoute="resources"
         />
-        <Cta />
-        <Newsletter />
       </div>
     </MarketingLayout>
   );

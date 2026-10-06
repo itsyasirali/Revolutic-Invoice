@@ -4,7 +4,6 @@ import MarketingLayout from "@/components/landing/MarketingLayout";
 import DetailHero from "@/components/ui/blocks/DetailHero";
 import Article from "@/components/ui/blocks/Article";
 import Context from "@/components/ui/blocks/Context";
-import Cta from "@/components/ui/blocks/Cta";
 import Container from "@/components/layout/container";
 import industries from "@/data/industries/industries";
 import type { IndustryDetailPageProps } from "@/types/resource";
@@ -39,7 +38,6 @@ const IndustryDetailPage = async ({ params }: IndustryDetailPageProps) => {
           </Container>
         </section>
         <Context currentItem={item} allItems={industries} baseRoute="industries" />
-        <Cta />
       </div>
     </MarketingLayout>
   );

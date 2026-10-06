@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { Menu, X, ArrowRight } from "lucide-react";
@@ -10,6 +11,8 @@ import useLandingNavbar from "@/hooks/landing/useLandingNavbar";
 const LandingNavbar = () => {
   const { user, navLinks, mobileMenuOpen, toggleMobileMenu, closeMobileMenu } =
     useLandingNavbar();
+  const pathname = usePathname();
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   // "/dashboard" is resolved by the middleware from the session cookie: straight to the
   // org dashboard when signed in, to /login when not (no waiting for a profile fetch).
   const signInHref = "/dashboard";
@@ -18,10 +21,10 @@ const LandingNavbar = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/70 transition-all">
       <div className="mx-auto max-w-[90%] px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-16 sm:h-20 items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 flex items-center justify-center">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center">
               <Image
                 src="/assets/InvoiceSmartyIcon.png"
                 alt="InvoiceSmarty"
@@ -30,19 +33,19 @@ const LandingNavbar = () => {
                 className="w-full h-full object-contain rounded-md"
               />
             </div>
-            <div className="flex items-center tracking-tight text-xl font-extrabold text-slate-900">
+            <div className="flex items-center tracking-tight text-lg sm:text-xl font-extrabold text-slate-900">
               <span>Invoice</span>
               <span className="text-primary">Smarty</span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors"
+                className={`text-sm xl:text-base font-semibold hover:text-primary transition-colors ${isActive(link.href) ? "text-primary" : "text-slate-600"}`}
               >
                 {link.label}
               </Link>
@@ -50,7 +53,7 @@ const LandingNavbar = () => {
           </nav>
 
           {/* Action CTAs */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-4">
                             <Button
                   variant="outline"
                   size="md"
@@ -92,14 +95,14 @@ const LandingNavbar = () => {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200/80 bg-white px-6 py-6 space-y-4 shadow-xl animate-slide-up">
+        <div className="lg:hidden border-t border-slate-200/80 bg-white px-4 py-4 sm:px-6 sm:py-6 space-y-4 shadow-xl animate-slide-up">
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className="text-base font-semibold text-slate-700 hover:text-primary py-2 transition-colors"
+                className={`text-sm sm:text-base font-semibold hover:text-primary py-2 transition-colors ${isActive(link.href) ? "text-primary" : "text-slate-700"}`}
               >
                 {link.label}
               </Link>

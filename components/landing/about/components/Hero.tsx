@@ -11,8 +11,8 @@ const Hero = () => {
       <Container className="text-center">
         <div className="mx-auto max-w-5xl space-y-8 mb-16 relative z-10">
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl md:text-7xl">
-            Redefining how visionary brands connect with{" "}
-            <span className="text-primary">their audience.</span>
+            Invoicing made simple for{" "}
+            <span className="text-primary">growing businesses.</span>
           </h1>
 
           <p className="mx-auto max-w-3xl text-lg text-slate-600 md:text-xl font-semibold leading-relaxed">
