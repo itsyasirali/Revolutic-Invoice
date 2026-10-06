@@ -8,9 +8,7 @@ type FooterLink = { label: string; href: string };
 
 const HELP_LINKS: FooterLink[] = [
   { label: "Customers", href: "/customers-stories" },
-  { label: "Pricing", href: "/billing" },
   { label: "Resources", href: "/resources" },
-  { label: "Blog", href: "/blog" },
   { label: "About Us", href: "/about" },
   { label: "Customer Portal", href: "/portal/login" },
 ];
