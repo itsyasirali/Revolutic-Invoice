@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
+import { invalidateInvoices } from "@/lib/swr";
 import { useProfile } from "@/hooks/auth/useProfile";
 import { getNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
@@ -174,6 +175,9 @@ Best regards,
         invoiceData: invoice,
       });
 
+      // Sending flips the invoice to "Sent" on the server; drop the cached lists so
+      // the invoice list (and customer balances) show it without a page reload.
+      await invalidateInvoices();
       toast.success("Invoice sent successfully", "Invoice Sent");
       router.push("/invoices");
     } catch (error: any) {

@@ -72,9 +72,11 @@ export const useProfileView = () => {
   // Sync profile data from hook into form state
   useEffect(() => {
     if (user) {
-      const nameParts = (user.name || user.firstName || "").split(" ");
-      const fName = user.firstName || nameParts[0] || "";
-      const lName = user.lastName || nameParts.slice(1).join(" ") || "";
+      // The form has a single "Name" field, so it carries the full saved name.
+      const fullName =
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.name || "";
+      const fName = fullName;
+      const lName = "";
 
       setFormData((prev) => ({
         ...prev,

@@ -18,12 +18,18 @@ import { resolveFileUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 import ContactsSection from "./ContactsSection";
 import useCustomerFormView from "@/hooks/customers/useCustomerFormView";
 
-const PdfIcon: React.FC<{ className?: string }> = ({ className }) => (
+// File extension shown as the type badge (e.g. "CSV"); falls back to "FILE".
+const fileTypeLabel = (name: string): string => {
+  const ext = name.includes(".") ? name.split(".").pop() || "" : "";
+  return ext && ext.length <= 4 ? ext.toUpperCase() : "FILE";
+};
+
+const FileTypeIcon: React.FC<{ className?: string; label: string }> = ({ className, label }) => (
   <svg
     viewBox="0 0 48 48"
     className={className}
     role="img"
-    aria-label="PDF document"
+    aria-label={`${label} document`}
   >
     <path
       d="M10 4h20l10 10v28a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"
@@ -43,7 +49,7 @@ const PdfIcon: React.FC<{ className?: string }> = ({ className }) => (
       fontFamily="Arial, Helvetica, sans-serif"
       fill="#fff"
     >
-      PDF
+      {label}
     </text>
   </svg>
 );
@@ -240,12 +246,12 @@ const CustomerForm: React.FC = () => {
                           title={name}
                           className="flex flex-col items-center gap-2 text-center"
                         >
-                          <PdfIcon className="w-11 h-11" />
+                          <FileTypeIcon className="w-11 h-11" label={fileTypeLabel(name)} />
                           <span className="w-full truncate text-xs font-medium text-gray-700">
                             {name}
                           </span>
                           <span className="text-[10px] font-bold text-gray-400 uppercase">
-                            PDF
+                            {fileTypeLabel(name)}
                           </span>
                         </a>
                         <button
@@ -271,12 +277,12 @@ const CustomerForm: React.FC = () => {
                         title={file.name}
                         className="flex w-full flex-col items-center gap-2 text-center cursor-pointer"
                       >
-                        <PdfIcon className="w-11 h-11" />
+                        <FileTypeIcon className="w-11 h-11" label={fileTypeLabel(file.name)} />
                         <span className="w-full truncate text-xs font-medium text-gray-700">
                           {file.name}
                         </span>
                         <span className="text-[10px] font-bold text-gray-400 uppercase">
-                          PDF · {formatSize(file.size)}
+                          {fileTypeLabel(file.name)} · {formatSize(file.size)}
                         </span>
                       </button>
                       <button

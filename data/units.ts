@@ -16,7 +16,7 @@ export const UNITS = [
 ] as const;
 
 /** Time-based units offered for Service items (hourly, monthly, ...). */
-export const SERVICE_UNITS = ["hour", "day", "week", "month", "year"] as const;
+export const SERVICE_UNITS = ["hourly", "daily", "weekly", "monthly", "yearly"] as const;
 
 /**
  * Units for the dropdown: Goods get the physical units, Services the time-based ones.
