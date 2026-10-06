@@ -1,5 +1,12 @@
 import axios from "@/lib/axios";
-import { mutate } from "swr";
+import { mutate as swrMutate } from "swr";
+
+// Revalidation is kicked off but never awaited: callers (create/update/delete
+// handlers) navigate and toast right away instead of waiting on a list refetch.
+const mutate: typeof swrMutate = ((...args: Parameters<typeof swrMutate>) => {
+  void (swrMutate as (...a: unknown[]) => Promise<unknown>)(...args).catch(() => undefined);
+  return Promise.resolve(undefined);
+}) as typeof swrMutate;
 
 export const swrFetcher = async <T = any>(url: string): Promise<T> => {
   const res = await axios.get(url);

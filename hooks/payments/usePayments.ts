@@ -47,7 +47,7 @@ const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
         const res = await axios.put(`/payments/${paymentId}`, payload);
 
         if (res.status === 200 && res.data?.payment) {
-          await mutate();
+          void mutate();
         }
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Failed to update payment";
@@ -71,7 +71,7 @@ const usePaymentsData = (initialPayments?: Payment[]): UsePaymentsReturn => {
           paymentIds.map((id) => axios.delete(`/payments/${id}`))
         );
 
-        await mutate();
+        void mutate();
       } catch (err: any) {
         const msg = err?.response?.data?.message || "Failed to delete payment(s)";
         setMutateError(msg);
