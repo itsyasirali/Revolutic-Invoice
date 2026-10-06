@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
+import { DataSource, type DataSourceOptions } from "typeorm";
 import { User } from "@/entities/User";
 import { Customer } from "@/entities/Customer";
 import { Item } from "@/entities/Item";
@@ -28,74 +28,22 @@ const globalForDb = globalThis as unknown as {
   dataSourceEntityCount?: number;
 };
 
-const getSslConfig = (connectionUrl?: string) => {
-  if (process.env.DB_SSL === "true") {
-    return { rejectUnauthorized: false };
-  }
-  if (process.env.DB_SSL === "false") {
-    return false;
-  }
-  if (
-    connectionUrl &&
-    (connectionUrl.includes("sslmode=require") ||
-      connectionUrl.includes("supabase.co") ||
-      connectionUrl.includes("neon.tech") ||
-      connectionUrl.includes("pooler.supabase.com"))
-  ) {
-    return { rejectUnauthorized: false };
-  }
-  return false;
-};
-
 const ENTITIES = [
-  User,
-  Customer,
-  Item,
-  Invoice,
-  InvoiceItem,
-  Payment,
-  PaymentAppliedInvoice,
-  Template,
-  Organization,
-  CustomPlaceholder,
-  InvoiceWriteOff,
-  Expense,
-  ExpenseCategory,
-  TimeEntry,
-  Quote,
-  QuoteItem,
-  Project,
-  ProjectTask,
-  PortalUser,
-  PortalComment,
-  PortalActivity,
+  User, Customer, Item, Invoice, InvoiceItem, Payment, PaymentAppliedInvoice,
+  Template, Organization, CustomPlaceholder, InvoiceWriteOff, Expense,
+  ExpenseCategory, TimeEntry, Quote, QuoteItem, Project, ProjectTask,
+  PortalUser, PortalComment, PortalActivity,
 ];
 
-// Ensure entity class names are preserved in production builds to prevent TypeORM
-// SubjectTopologicalSorter minification collisions ("Cyclic dependency: 'p'")
-[
-  [User, "User"],
-  [Customer, "Customer"],
-  [Item, "Item"],
-  [Invoice, "Invoice"],
-  [InvoiceItem, "InvoiceItem"],
-  [Payment, "Payment"],
-  [PaymentAppliedInvoice, "PaymentAppliedInvoice"],
-  [Template, "Template"],
-  [Organization, "Organization"],
-  [CustomPlaceholder, "CustomPlaceholder"],
-  [InvoiceWriteOff, "InvoiceWriteOff"],
-  [Expense, "Expense"],
-  [ExpenseCategory, "ExpenseCategory"],
-  [TimeEntry, "TimeEntry"],
-  [Quote, "Quote"],
-  [QuoteItem, "QuoteItem"],
-  [Project, "Project"],
-  [ProjectTask, "ProjectTask"],
-  [PortalUser, "PortalUser"],
-  [PortalComment, "PortalComment"],
-  [PortalActivity, "PortalActivity"],
-].forEach(([cls, name]) => {
+// Minified production builds mangle class names, which makes TypeORM's
+// SubjectTopologicalSorter see collisions ("Cyclic dependency: 'p'"). Pin the
+// names to the original class names (the entity map keys below).
+Object.entries({
+  User, Customer, Item, Invoice, InvoiceItem, Payment, PaymentAppliedInvoice,
+  Template, Organization, CustomPlaceholder, InvoiceWriteOff, Expense,
+  ExpenseCategory, TimeEntry, Quote, QuoteItem, Project, ProjectTask,
+  PortalUser, PortalComment, PortalActivity,
+}).forEach(([name, cls]) => {
   try {
     Object.defineProperty(cls, "name", { value: name, configurable: true });
   } catch {
@@ -103,49 +51,87 @@ const ENTITIES = [
   }
 });
 
-const ensureFindMetadataPatch = (ds: DataSource) => {
-  if ((ds as any).__findMetadataPatched) return;
-  (ds as any).__findMetadataPatched = true;
+const getSslConfig = (connectionUrl?: string) => {
+  if (process.env.DB_SSL === "true") return { rejectUnauthorized: false };
+  if (process.env.DB_SSL === "false") return false;
+  const needsSsl =
+    !!connectionUrl &&
+    ["sslmode=require", "supabase.co", "neon.tech", "pooler.supabase.com"].some((s) =>
+      connectionUrl.includes(s),
+    );
+  return needsSsl ? { rejectUnauthorized: false } : false;
+};
 
-  const origFindMetadata = (ds as any).findMetadata.bind(ds);
-  (ds as any).findMetadata = function (target: any) {
-    const result = origFindMetadata(target);
+// Lets lookups by class, class name, or table name resolve even when the class
+// identity or name was changed by bundling.
+const ensureFindMetadataPatch = (ds: DataSource) => {
+  const patched = ds as any;
+  if (patched.__findMetadataPatched) return;
+  patched.__findMetadataPatched = true;
+
+  const original = patched.findMetadata.bind(ds);
+  patched.findMetadata = (target: any) => {
+    const result = original(target);
     if (result) return result;
 
-    if (typeof target === "function" && target.name) {
-      const meta = ds.entityMetadatas.find(
-        (m) =>
-          m.name === target.name ||
-          m.targetName === target.name ||
-          m.tableName === target.name
-      );
-      if (meta) {
-        ds.entityMetadatasMap.set(target, meta);
-        return meta;
-      }
-    }
+    const name =
+      typeof target === "function" ? target.name : typeof target === "string" ? target : "";
+    if (!name) return undefined;
 
-    if (typeof target === "string") {
-      const meta = ds.entityMetadatas.find(
-        (m) =>
-          m.name === target ||
-          m.targetName === target ||
-          m.tableName === target
-      );
-      if (meta) return meta;
-    }
-
-    return undefined;
+    const meta = ds.entityMetadatas.find(
+      (m) => m.name === name || m.targetName === name || m.tableName === name,
+    );
+    if (meta && typeof target === "function") ds.entityMetadatasMap.set(target, meta);
+    return meta;
   };
+};
+
+const createDataSource = (): DataSource => {
+  const connectionUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+  if (!connectionUrl && !process.env.DB_HOST) {
+    const msg =
+      "[Database] CRITICAL: Neither DATABASE_URL nor DB_HOST environment variable is configured! Please check your Vercel Environment Variables.";
+    console.error(msg);
+    throw new Error(msg);
+  }
+
+  const ssl = getSslConfig(connectionUrl);
+  const poolMax =
+    parseInt(process.env.DB_POOL_MAX || "", 10) || (process.env.VERCEL ? 3 : 10);
+
+  const common = {
+    type: "postgres" as const,
+    entities: ENTITIES,
+    // Schema sync introspects every table over the network on each cold start, so it
+    // is opt-in: set DB_SYNCHRONIZE=true locally, keep it off in production.
+    synchronize: process.env.DB_SYNCHRONIZE === "true",
+    // Serverless instances each have their own pool: keep it small (DB_POOL_MAX to override).
+    extra: { max: poolMax, idleTimeoutMillis: 30000, connectionTimeoutMillis: 10000 },
+  };
+
+  const options: DataSourceOptions = connectionUrl
+    ? { ...common, url: connectionUrl, ssl: ssl || undefined }
+    : {
+        ...common,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        ssl,
+      };
+
+  console.log(
+    `[Database] Initializing connection: ${connectionUrl ? "using URL" : `host ${process.env.DB_HOST}:${options.port ?? 5432}`}, ssl=${Boolean(ssl)}`,
+  );
+  return new DataSource(options);
 };
 
 export const getDatabase = async (): Promise<DataSource> => {
   // Dev HMR keeps the DataSource on globalThis; if entities were added since it
   // was created, drop it so the new entity metadata gets registered.
-  if (
-    globalForDb.dataSource &&
-    globalForDb.dataSourceEntityCount !== ENTITIES.length
-  ) {
+  if (globalForDb.dataSource && globalForDb.dataSourceEntityCount !== ENTITIES.length) {
     const stale = globalForDb.dataSource;
     const pending = globalForDb.dataSourceInitPromise;
     globalForDb.dataSource = undefined;
@@ -159,97 +145,39 @@ export const getDatabase = async (): Promise<DataSource> => {
   }
   globalForDb.dataSourceEntityCount = ENTITIES.length;
 
-  // Fast-path: return cached and initialized DataSource immediately
+  // Fast path: already connected.
   if (globalForDb.dataSource?.isInitialized) {
     ensureFindMetadataPatch(globalForDb.dataSource);
     return globalForDb.dataSource;
   }
 
-  // If initialization is already in progress, wait for it
-  if (globalForDb.dataSourceInitPromise) {
-    return globalForDb.dataSourceInitPromise;
-  }
+  // Connection already being established: share it.
+  if (globalForDb.dataSourceInitPromise) return globalForDb.dataSourceInitPromise;
 
-  if (!globalForDb.dataSource) {
-    const connectionUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-    const ssl = getSslConfig(connectionUrl);
-    // Schema synchronization runs dozens of roundtrip network queries to introspect
-    // tables, columns, indexes, and constraints. Keep it disabled by default for instant
-    // connection speed unless explicitly requested via DB_SYNCHRONIZE=true.
-    const synchronize = process.env.DB_SYNCHRONIZE === "true";
+  const dataSource = (globalForDb.dataSource ??= createDataSource());
 
-    if (!connectionUrl && !process.env.DB_HOST) {
-      const missingVarsMsg =
-        "[Database] CRITICAL: Neither DATABASE_URL nor DB_HOST environment variable is configured! Please check your Vercel Environment Variables.";
-      console.error(missingVarsMsg);
-      throw new Error(missingVarsMsg);
-    }
-
-    console.log(
-      `[Database] Initializing connection: ${connectionUrl ? "using URL" : `host ${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`}, ssl=${Boolean(ssl)}`
-    );
-
-    // Serverless: every function instance has its own pool, so keep it small and
-    // let the database pooler multiplex. Override with DB_POOL_MAX.
-    const poolMax =
-      parseInt(process.env.DB_POOL_MAX || "", 10) || (process.env.VERCEL ? 3 : 10);
-
-    const poolConfig = {
-      max: poolMax,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    };
-
-    if (connectionUrl) {
-      globalForDb.dataSource = new DataSource({
-        type: "postgres",
-        url: connectionUrl,
-        ssl: ssl || undefined,
-        entities: ENTITIES,
-        synchronize,
-        extra: poolConfig,
+  globalForDb.dataSourceInitPromise = dataSource
+    .initialize()
+    .then((ds) => {
+      // Guarantee unique targetNames so SubjectTopologicalSorter never sees duplicates.
+      ds.entityMetadatas.forEach((meta) => {
+        if (!meta.targetName || meta.targetName.length <= 2) {
+          meta.targetName =
+            meta.tableName ||
+            (typeof meta.target === "function" ? meta.target.name : String(meta.target));
+        }
       });
-    } else {
-      globalForDb.dataSource = new DataSource({
-        type: "postgres",
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        ssl,
-        entities: ENTITIES,
-        synchronize:true,
-        extra: poolConfig,
-      });
-    }
-  }
-
-  if (!globalForDb.dataSourceInitPromise) {
-    globalForDb.dataSourceInitPromise = globalForDb.dataSource
-      .initialize()
-      .then((ds) => {
-        // Enforce unique targetName on all EntityMetadatas to guarantee SubjectTopologicalSorter never sees duplicate names
-        ds.entityMetadatas.forEach((meta) => {
-          if (!meta.targetName || meta.targetName.length <= 2) {
-            meta.targetName =
-              meta.tableName ||
-              (typeof meta.target === "function" ? meta.target.name : String(meta.target));
-          }
-        });
-        ensureFindMetadataPatch(ds);
-        console.log("[Database] Connected successfully.");
-        return ds;
-      })
-      .catch((err) => {
-        // Reset cached instances on failure so subsequent requests can retry
-        globalForDb.dataSource = undefined;
-        globalForDb.dataSourceInitPromise = undefined;
-        console.error("[Database] Connection initialization failed:", err?.message || err);
-        throw err;
-      });
-  }
+      ensureFindMetadataPatch(ds);
+      console.log("[Database] Connected successfully.");
+      return ds;
+    })
+    .catch((err) => {
+      // Reset so the next request can retry.
+      globalForDb.dataSource = undefined;
+      globalForDb.dataSourceInitPromise = undefined;
+      console.error("[Database] Connection initialization failed:", err?.message || err);
+      throw err;
+    });
 
   return globalForDb.dataSourceInitPromise;
 };
-

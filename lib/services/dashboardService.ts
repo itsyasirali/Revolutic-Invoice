@@ -164,7 +164,47 @@ export const getDashboardData = async (
     const invoiceRepo = db.getRepository(Invoice);
     const paymentRepo = db.getRepository(Payment);
 
-    // Resolve active organization and its configured currency
+    // Resolve active organization and its configured currency. The invoice and payment
+    // queries don't depend on it, so start them now instead of after this round trip.
+    const whereScope = { organizationId: orgId as number };
+    const invoicesPromise = orgId
+      ? invoiceRepo.find({
+          where: whereScope,
+          select: {
+            id: true,
+            invoiceNumber: true,
+            invoiceDate: true,
+            dueDate: true,
+            total: true,
+            received: true,
+            currency: true,
+            status: true,
+            createdAt: true,
+            customer: { id: true, displayName: true, companyName: true },
+            writeOffs: { id: true, amount: true, reversedAt: true },
+          },
+          relations: ["customer", "writeOffs"],
+          order: { createdAt: "DESC" },
+        })
+      : Promise.resolve([] as Invoice[]);
+    const paymentsPromise = orgId
+      ? paymentRepo
+          .find({
+            where: whereScope,
+            select: {
+              id: true,
+              amountReceived: true,
+              currency: true,
+              paymentDate: true,
+              createdAt: true,
+            },
+            order: { createdAt: "DESC" },
+          })
+          .catch(() => [] as Payment[])
+      : Promise.resolve([] as Payment[]);
+    // Avoid unhandled rejections if we return early below.
+    invoicesPromise.catch(() => undefined);
+
     if (orgId) {
       const organization = await orgRepo.findOne({ where: { id: orgId } });
       if (organization?.currency) {
@@ -184,8 +224,6 @@ export const getDashboardData = async (
       return buildEmptyDashboardData(orgSymbol);
     }
 
-    const whereScope = { organizationId: orgId };
-
     // Rates, business insights, invoices and payments are independent: run them together.
     const ratesPromise = getCurrencyRates(orgCurrency);
     const insightsPromise = getBusinessInsights(
@@ -196,35 +234,8 @@ export const getDashboardData = async (
     );
 
     const [invoices, payments, rates] = await Promise.all([
-      invoiceRepo.find({
-        where: whereScope,
-        select: {
-          id: true,
-          invoiceNumber: true,
-          invoiceDate: true,
-          dueDate: true,
-          total: true,
-          received: true,
-          currency: true,
-          status: true,
-          createdAt: true,
-          customer: { id: true, displayName: true, companyName: true },
-          writeOffs: { id: true, amount: true, reversedAt: true },
-        },
-        relations: ["customer", "writeOffs"],
-        order: { createdAt: "DESC" },
-      }),
-      paymentRepo.find({
-        where: whereScope,
-        select: {
-          id: true,
-          amountReceived: true,
-          currency: true,
-          paymentDate: true,
-          createdAt: true,
-        },
-        order: { createdAt: "DESC" },
-      }).catch(() => []),
+      invoicesPromise,
+      paymentsPromise,
       ratesPromise,
     ]);
 
