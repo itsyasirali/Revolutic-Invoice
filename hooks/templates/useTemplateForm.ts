@@ -11,6 +11,8 @@ import type {
   AlertState,
   TableColumn,
   TableColumnSetting,
+  BankAccount,
+  BankAccountDetail,
 } from "@/types/template";
 import { getNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
@@ -42,10 +44,10 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   isDefault: false,
   paperSize: "A4",
   orientation: "Portrait",
-  marginTop: 0.7,
-  marginBottom: 0.7,
-  marginLeft: 0.55,
-  marginRight: 0.4,
+  marginTop: 0.5,
+  marginBottom: 0.5,
+  marginLeft: 0.5,
+  marginRight: 0.5,
   padding: 10,
   primaryColor: "#1AA3FF",
   secondaryColor: "#1AA3FF",
@@ -146,6 +148,7 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   showShipping: false,
   showNotes: true,
   showPreviousDue: true,
+  showBankAccount: true,
   headerText: "",
   headerAlignment: "left",
   headerFontSize: 14,
@@ -187,6 +190,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
 
   const [tableColumns, setTableColumns] =
     useState<TableColumn[]>(DEFAULT_COLUMNS);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [selectedElement, setSelectedElement] = useState<string>("");
 
   const paramId = params?.id as string;
@@ -226,6 +230,11 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           tagline: (data.tagline as string) || "",
           logoPreview: resolveLogoUrl(data.logoUrl as string | undefined),
         });
+        setBankAccounts(
+          Array.isArray(data.bankAccounts)
+            ? (data.bankAccounts as BankAccount[])
+            : [],
+        );
 
         if (
           data.tableColumnSettings &&
@@ -301,6 +310,9 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           tagline: data.tagline || "",
           logoPreview: resolveLogoUrl(data.logoUrl),
         });
+        setBankAccounts(
+          Array.isArray(data.bankAccounts) ? data.bankAccounts : [],
+        );
 
         if (data.tableColumnSettings && data.tableColumnSettings.length > 0) {
           const mergedColumns = DEFAULT_COLUMNS.map((defCol) => {
@@ -425,6 +437,91 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
     setTableColumns((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
+  const addBankAccount = useCallback(() => {
+    setBankAccounts((prev) => [
+      ...prev,
+      {
+        id: `bank_${Date.now()}`,
+        name: `Bank Account ${prev.length + 1}`,
+        // The first account becomes the default automatically
+        isDefault: prev.length === 0,
+        details: [
+          { key: "Bank Name", value: "" },
+          { key: "Account Title", value: "" },
+          { key: "Account Number", value: "" },
+        ],
+      },
+    ]);
+  }, []);
+
+  const removeBankAccount = useCallback((accountId: string) => {
+    setBankAccounts((prev) => {
+      const next = prev.filter((a) => a.id !== accountId);
+      if (next.length > 0 && !next.some((a) => a.isDefault)) {
+        next[0] = { ...next[0], isDefault: true };
+      }
+      return next;
+    });
+  }, []);
+
+  const updateBankAccountName = useCallback(
+    (accountId: string, name: string) => {
+      setBankAccounts((prev) =>
+        prev.map((a) => (a.id === accountId ? { ...a, name } : a)),
+      );
+    },
+    [],
+  );
+
+  const setDefaultBankAccount = useCallback((accountId: string) => {
+    setBankAccounts((prev) =>
+      prev.map((a) => ({ ...a, isDefault: a.id === accountId })),
+    );
+  }, []);
+
+  const addBankDetail = useCallback((accountId: string) => {
+    setBankAccounts((prev) =>
+      prev.map((a) =>
+        a.id === accountId
+          ? { ...a, details: [...a.details, { key: "", value: "" }] }
+          : a,
+      ),
+    );
+  }, []);
+
+  const updateBankDetail = useCallback(
+    (
+      accountId: string,
+      index: number,
+      field: keyof BankAccountDetail,
+      value: string,
+    ) => {
+      setBankAccounts((prev) =>
+        prev.map((a) =>
+          a.id === accountId
+            ? {
+                ...a,
+                details: a.details.map((d, i) =>
+                  i === index ? { ...d, [field]: value } : d,
+                ),
+              }
+            : a,
+        ),
+      );
+    },
+    [],
+  );
+
+  const removeBankDetail = useCallback((accountId: string, index: number) => {
+    setBankAccounts((prev) =>
+      prev.map((a) =>
+        a.id === accountId
+          ? { ...a, details: a.details.filter((_, i) => i !== index) }
+          : a,
+      ),
+    );
+  }, []);
+
   const handleSelectElement = useCallback((elementId: string) => {
     setSelectedElement(elementId);
   }, []);
@@ -459,6 +556,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           "marginLeft",
           "marginRight",
           "logoPreview",
+          "bankAccounts",
         ]);
 
         Object.entries(formData).forEach(([key, value]) => {
@@ -483,6 +581,8 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
           "tableColumnSettings",
           JSON.stringify(columnSettingsToSave)
         );
+
+        submitData.set("bankAccounts", JSON.stringify(bankAccounts));
 
         submitData.set(
           "margins",
@@ -541,7 +641,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         setLoading(false);
       }
     },
-    [formData, effectiveId, router, tableColumns],
+    [formData, effectiveId, router, tableColumns, bankAccounts],
   );
 
   const dismissAlert = () => {
@@ -552,6 +652,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
     setFormData(DEFAULT_FORM_DATA);
     setBranding({ brandName: "", tagline: "", logoPreview: "" });
     setTableColumns(DEFAULT_COLUMNS);
+    setBankAccounts([]);
     setSelectedElement("");
   };
 
@@ -572,6 +673,14 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
     toggleColumn,
     addColumn,
     removeColumn,
+    bankAccounts,
+    addBankAccount,
+    removeBankAccount,
+    updateBankAccountName,
+    setDefaultBankAccount,
+    addBankDetail,
+    updateBankDetail,
+    removeBankDetail,
     selectedElement,
     handleSelectElement,
   };

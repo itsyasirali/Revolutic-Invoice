@@ -11,7 +11,7 @@ export interface CustomerTotals {
 /**
  * Per-customer receivables / received totals computed in SQL, so the customer
  * list doesn't have to load (and decrypt) every invoice and payment.
- * Cancelled invoices are ignored, same as before.
+ * Cancelled and draft invoices are ignored (a draft hasn't been issued, so it isn't owed).
  */
 export const loadCustomerTotals = async (
   db: DataSource,
@@ -24,6 +24,7 @@ export const loadCustomerTotals = async (
     .addSelect("COALESCE(SUM(inv.received), 0)", "received")
     .addSelect("COALESCE(SUM(inv.remaining), 0)", "remaining")
     .where("LOWER(COALESCE(inv.status, '')) <> 'cancelled'")
+    .andWhere("LOWER(COALESCE(inv.status, '')) <> 'draft'")
     .groupBy("inv.customerId");
 
   if ("organizationId" in whereScope) {

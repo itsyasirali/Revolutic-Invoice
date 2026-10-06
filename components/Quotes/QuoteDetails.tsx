@@ -83,7 +83,6 @@ const QuoteDetails: React.FC = () => {
     setActing(false);
     if (!data) return;
     if (action === "convert" && data.invoice) router.push(`/invoices/${data.invoice.id}`);
-    else if (action === "clone" && data.quote) router.push(`/quotes/${data.quote.id}`);
     else await refetch();
   };
 
@@ -130,7 +129,7 @@ const QuoteDetails: React.FC = () => {
           { label: "Mark Declined", hidden: !canRespond, disabled: acting, onClick: () => act("decline") },
           { label: "Preview", onClick: () => router.push(`/quotes/preview/${quote.id}`) },
           { label: "Download PDF", onClick: () => router.push(`/quotes/preview/${quote.id}?download=1`) },
-          { label: "Clone", disabled: acting, onClick: () => act("clone") },
+          { label: "Clone", disabled: acting, onClick: () => router.push(`/quotes/new?clone=${quote.id}`) },
           {
             label: "Delete",
             hidden: !canDelete,

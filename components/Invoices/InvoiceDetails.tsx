@@ -12,6 +12,7 @@ import { Table, StatusBadge, Button, ConfirmDialog, Tabs } from "@/components/ui
 import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
+import useCloneInvoice from "@/hooks/invoices/useCloneInvoice";
 import WriteOffModal from "./WriteOffModal";
 import DetailHeader from "@/components/ui/DetailHeader";
 import useInvoiceDetails from "@/hooks/invoices/useInvoiceDetails";
@@ -58,6 +59,7 @@ const InvoiceDetails: React.FC = () => {
   useDocumentTitle(invoice ? `${invoiceNumberDisplay} | Invoice Details` : undefined);
   const router = useRouter();
   const deleteHook = useDeleteInvoices();
+  const { cloneInvoice, cloning } = useCloneInvoice();
   const [tab, setTab] = React.useState<"overview" | "comments" | "activity">("overview");
 
   const columns: TableColumn<Invoice["items"][0]>[] = [
@@ -169,6 +171,7 @@ const InvoiceDetails: React.FC = () => {
         menu={[
           { label: "Send Invoice", onClick: handleSend },
           { label: "Preview PDF", onClick: handlePreviewPdf },
+          { label: "Clone", disabled: cloning, hidden: !invoice.id, onClick: () => cloneInvoice(invoice) },
           {
             label: "Write Off",
             hidden: !canWriteOff,

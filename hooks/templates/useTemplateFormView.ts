@@ -45,6 +45,7 @@ const ELEMENT_TO_TAB: Record<string, TemplateNavItem> = {
 
   "notes-label": "notes",
   notes: "notes",
+  "bank-account": "notes",
 
   background: "general",
   paper: "general",
@@ -86,6 +87,7 @@ const ELEMENT_TO_SECTION_ID: Record<string, string> = {
 
   "notes-label": "section-notes-label",
   notes: "section-notes-label",
+  "bank-account": "section-bank-accounts",
 
   background: "section-background",
   paper: "section-paper",
@@ -127,6 +129,7 @@ const ELEMENT_TO_PARENT_SECTION: Record<string, string> = {
 
   "notes-label": "notes-label",
   notes: "notes-label",
+  "bank-account": "bank-accounts",
 };
 
 export const useTemplateFormView = (): UseTemplateFormViewReturn => {
@@ -160,8 +163,14 @@ export const useTemplateFormView = (): UseTemplateFormViewReturn => {
       ...templateForm.formData,
       branding: templateForm.branding,
       tableColumns: templateForm.tableColumns,
+      bankAccounts: templateForm.bankAccounts,
     }),
-    [templateForm.formData, templateForm.branding, templateForm.tableColumns],
+    [
+      templateForm.formData,
+      templateForm.branding,
+      templateForm.tableColumns,
+      templateForm.bankAccounts,
+    ],
   );
 
   const paperDims = useMemo(() => {

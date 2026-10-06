@@ -13,6 +13,7 @@ import DetailHeader from "@/components/ui/DetailHeader";
 import WriteOffModal from "./WriteOffModal";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
+import useCloneInvoice from "@/hooks/invoices/useCloneInvoice";
 import TemplatePreviewComponent from "@/components/Templates/TemplatePreview";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import useInvoicePreview from "@/hooks/invoices/useInvoicePreview";
@@ -26,6 +27,7 @@ const NON_WRITE_OFF_STATUSES = ["draft", "paid", "cancelled", "written off"];
 const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const router = useRouter();
   const deleteHook = useDeleteInvoices();
+  const { cloneInvoice, cloning } = useCloneInvoice();
   const {
     invoice,
     templateData,
@@ -112,6 +114,7 @@ const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
             menu={[
               { label: "Send Invoice", onClick: handleSend },
               { label: "Download PDF", onClick: handleDownloadPDF },
+          { label: "Clone", disabled: cloning, hidden: !invoice.id, onClick: () => cloneInvoice(invoice) },
               {
                 label: "Write Off",
                 hidden: !canWriteOff || !invoice.id,

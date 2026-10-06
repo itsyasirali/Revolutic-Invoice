@@ -28,7 +28,7 @@ const ItemForm: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <PageHeader
-        title={item ? "Update Item" : "New Item"}
+        title={item?.id ? "Update Item" : "New Item"}
         onBack={handleCancel}
       />
 
@@ -136,7 +136,7 @@ const ItemForm: React.FC = () => {
             size="md"
             loading={loading}
           >
-            {item ? "Update Item" : "Create Item"}
+            {item?.id ? "Update Item" : "Create Item"}
           </Button>
         </div>
       </form>

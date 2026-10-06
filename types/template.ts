@@ -31,6 +31,18 @@ export interface TableColumn {
   enabled: boolean;
 }
 
+export interface BankAccountDetail {
+  key: string;
+  value: string;
+}
+
+export interface BankAccount {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  details: BankAccountDetail[];
+}
+
 export interface Template {
   id: number;
   userId: string;
@@ -151,6 +163,8 @@ export interface Template {
   showShipping: boolean;
   showNotes: boolean;
   showPreviousDue: boolean;
+  showBankAccount: boolean;
+  bankAccounts?: BankAccount[];
 
   // Header Section
   headerText?: string;
@@ -316,6 +330,7 @@ export interface TemplateFormData {
   showShipping: boolean;
   showNotes: boolean;
   showPreviousDue: boolean;
+  showBankAccount: boolean;
 
   // Header
   headerText: string;
@@ -394,6 +409,21 @@ export interface UseTemplateFormReturn {
   toggleColumn: (index: number) => void;
   addColumn: () => void;
   removeColumn: (index: number) => void;
+
+  // Bank accounts state and functions
+  bankAccounts: BankAccount[];
+  addBankAccount: () => void;
+  removeBankAccount: (accountId: string) => void;
+  updateBankAccountName: (accountId: string, name: string) => void;
+  setDefaultBankAccount: (accountId: string) => void;
+  addBankDetail: (accountId: string) => void;
+  updateBankDetail: (
+    accountId: string,
+    index: number,
+    field: keyof BankAccountDetail,
+    value: string
+  ) => void;
+  removeBankDetail: (accountId: string, index: number) => void;
 
   // Element selection
   selectedElement: string;
@@ -702,6 +732,8 @@ export interface TemplatePreviewTemplateData {
   showTotal?: boolean;
   showNotes?: boolean;
   showFooter?: boolean;
+  showBankAccount?: boolean;
+  bankAccounts?: BankAccount[];
 
   marginTop?: number;
   marginRight?: number;
@@ -732,6 +764,7 @@ export interface TemplatePreviewCustomerData {
 }
 
 export interface TemplatePreviewInvoiceData {
+  bankDetails?: { name?: string; details?: BankAccountDetail[] } | null;
   invoiceNumber?: string;
   invoiceDate?: string | Date;
   dueDate?: string | Date;

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { quoteEditable, LOCKED_MESSAGE } from "@/lib/editLock";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import { invalidateQuotes } from "@/lib/swr";
@@ -52,14 +52,17 @@ const useQuoteForm = () => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const id = params?.id;
-  const { quote, loading: quoteLoading } = useQuote(id);
+  // "Clone" opens /quotes/new?clone=<id>: the source quote pre-fills a new, unsaved quote.
+  const cloneId = useSearchParams()?.get("clone") || undefined;
+  const isClone = !id && !!cloneId;
+  const { quote, loading: quoteLoading } = useQuote(id || cloneId);
   const { options: customerOptions, customers } = useCustomerOptions();
   const { items: catalog } = useItemsData();
   const { templates } = useTemplatesList();
 
   // A sent quote can no longer be edited: go back to its details.
   useEffect(() => {
-    if (quote && !quoteEditable(quote.status)) {
+    if (id && quote && !quoteEditable(quote.status)) {
       toast.error(LOCKED_MESSAGE.quote, "Quote Locked");
       router.replace(`/quotes/${quote.id}`);
     }
@@ -92,10 +95,10 @@ const useQuoteForm = () => {
 
   // New quotes default to the customer's currency.
   useEffect(() => {
-    if (id || !customerId) return;
+    if (id || isClone || !customerId) return;
     const c = customers.find((x) => String(x.id) === customerId);
     if (c?.currency) setCurrency(c.currency);
-  }, [id, customerId, customers]);
+  }, [id, isClone, customerId, customers]);
 
   const itemOptions = useMemo(
     () =>
@@ -214,6 +217,7 @@ const useQuoteForm = () => {
 
   return {
     isEdit: !!id,
+    isClone,
     quote,
     loading: quoteLoading,
     saving,
@@ -227,8 +231,8 @@ const useQuoteForm = () => {
     shipping, setShipping,
     adjustment, setAdjustment,
     totals,
-    defaultQuoteDate: toDateInput(quote?.quoteDate),
-    defaultExpiryDate: quote?.expiryDate ? toDateInput(quote.expiryDate) : "",
+    defaultQuoteDate: isClone ? "" : toDateInput(quote?.quoteDate),
+    defaultExpiryDate: !isClone && quote?.expiryDate ? toDateInput(quote.expiryDate) : "",
     alert,
     dismissAlert: () => setAlert({ show: false, type: "error", message: "" }),
     handleSubmit,

@@ -25,6 +25,14 @@ const TemplateForm: React.FC = () => {
     toggleColumn,
     addColumn,
     removeColumn,
+    bankAccounts,
+    addBankAccount,
+    removeBankAccount,
+    updateBankAccountName,
+    setDefaultBankAccount,
+    addBankDetail,
+    updateBankDetail,
+    removeBankDetail,
     selectedElement,
     activeNav,
     fileInputRef,
@@ -133,38 +141,6 @@ const TemplateForm: React.FC = () => {
                         {orientation}
                       </span>
                     </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="px-4 py-4 border-b border-gray-200">
-                <label className="block text-xs font-medium text-gray-700 mb-2">
-                  Margins <span className="text-primary">(in inches)</span>
-                </label>
-                <div className="space-y-3">
-                  {(
-                    [
-                      { key: "marginTop", label: "Top" },
-                      { key: "marginBottom", label: "Bottom" },
-                      { key: "marginLeft", label: "Left" },
-                      { key: "marginRight", label: "Right" },
-                    ] as const
-                  ).map(({ key, label }) => (
-                    <div key={key}>
-                      <label className="text-xs text-gray-500 block mb-1">
-                        {label}
-                      </label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={formData[key] as number}
-                        onChange={(e) =>
-                          handleChange(key, parseFloat(e.target.value) || 0)
-                        }
-                        showLabel={false}
-                        fullWidth
-                      />
-                    </div>
                   ))}
                 </div>
               </div>
@@ -898,6 +874,106 @@ const TemplateForm: React.FC = () => {
                   }
                   label="Show Notes Section"
                 />
+                <Checkbox
+                  checkboxSize="sm"
+                  checked={formData.showBankAccount}
+                  onChange={(e) =>
+                    handleChange("showBankAccount", e.target.checked)
+                  }
+                  label="Show Bank Account"
+                />
+              </div>
+
+              <div
+                id="section-bank-accounts"
+                className={`border-b border-gray-200 ${
+                  selectedElement === "bank-account" ? "bg-primary/5" : ""
+                }`}
+              >
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <Button
+                    onClick={() =>
+                      bankAccounts[0]
+                        ? addBankDetail(bankAccounts[0].id)
+                        : addBankAccount()
+                    }
+                    variant="outline"
+                    size="sm"
+                    fullWidth
+                    icon={<Plus size={16} />}
+                    iconPosition="left"
+                    className="border-2 border-dashed border-primary/40 text-primary hover:bg-primary/5"
+                  >
+                    Add Bank Detail
+                  </Button>
+                </div>
+
+                <div className="px-4 py-3 space-y-2">
+                  {(bankAccounts[0]?.details ?? []).map((detail, idx) => (
+                    <div
+                      key={idx}
+                      className="border rounded-md p-3 bg-white border-gray-200"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <GripVertical
+                          size={14}
+                          className="text-gray-400 cursor-move"
+                        />
+                        <span className="text-xs text-gray-600 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                          {detail.key || "detail"}
+                        </span>
+                        <button
+                          onClick={() =>
+                            removeBankDetail(bankAccounts[0].id, idx)
+                          }
+                          className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded cursor-pointer"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-gray-500">Key</label>
+                          <Input
+                            type="text"
+                            value={detail.key}
+                            onChange={(e) =>
+                              updateBankDetail(
+                                bankAccounts[0].id,
+                                idx,
+                                "key",
+                                e.target.value,
+                              )
+                            }
+                            inputSize="sm"
+                            showLabel={false}
+                            fullWidth
+                            className="text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500">Value</label>
+                          <Input
+                            type="text"
+                            value={detail.value}
+                            onChange={(e) =>
+                              updateBankDetail(
+                                bankAccounts[0].id,
+                                idx,
+                                "value",
+                                e.target.value,
+                              )
+                            }
+                            inputSize="sm"
+                            showLabel={false}
+                            fullWidth
+                            className="text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </>
           )}

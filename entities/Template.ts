@@ -155,6 +155,16 @@ export class Template {
   @Column({ default: false }) showShipping!: boolean;
   @Column({ default: true }) showNotes!: boolean;
   @Column({ default: true }) showPreviousDue!: boolean;
+  @Column({ default: true }) showBankAccount!: boolean;
+
+  // Bank accounts shown beside the notes; the one flagged isDefault is printed on invoices
+  @Column("jsonb", { default: [] })
+  bankAccounts!: {
+    id: string;
+    name: string;
+    isDefault: boolean;
+    details: { key: string; value: string }[];
+  }[];
 
   // Header Section
   @Column({ nullable: true }) headerText!: string;

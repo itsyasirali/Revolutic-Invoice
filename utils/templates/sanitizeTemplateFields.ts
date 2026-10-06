@@ -34,6 +34,35 @@ export const sanitizeTemplateFields = (
     }
   }
 
+  // Handle bankAccounts
+  if (typeof fields.bankAccounts === "string") {
+    try {
+      fields.bankAccounts = JSON.parse(fields.bankAccounts);
+    } catch {
+      delete fields.bankAccounts;
+    }
+  }
+  if ("bankAccounts" in fields) {
+    const list = Array.isArray(fields.bankAccounts) ? fields.bankAccounts : [];
+    let defaultSeen = false;
+    fields.bankAccounts = list
+      .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
+      .map((a, i) => {
+        const isDefault = !defaultSeen && a.isDefault === true;
+        if (isDefault) defaultSeen = true;
+        const details = Array.isArray(a.details) ? a.details : [];
+        return {
+          id: String(a.id || `bank_${Date.now()}_${i}`),
+          name: String(a.name ?? ""),
+          isDefault,
+          details: details
+            .filter((d): d is Record<string, unknown> => !!d && typeof d === "object")
+            .map((d) => ({ key: String(d.key ?? ""), value: String(d.value ?? "") }))
+            .filter((d) => d.key.trim() || d.value.trim()),
+        };
+      });
+  }
+
   // Nullable numbers
   const nullableIntFields = ["headerHeight", "footerHeight"];
   for (const k of nullableIntFields) {
@@ -142,6 +171,7 @@ export const sanitizeTemplateFields = (
     "showShipping",
     "showNotes",
     "showPreviousDue",
+    "showBankAccount",
     "showHeader",
     "showFooter",
     "showPageNumbers",

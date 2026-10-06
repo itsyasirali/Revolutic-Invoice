@@ -317,12 +317,17 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           (sum: number, w: any) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
           0,
         ),
+        // Balance due = what is still owed on this invoice + the previous remaining
         total:
           invoice.remaining !== undefined
-            ? Number(invoice.remaining)
+            ? Number(invoice.remaining) + Number(invoice.previousRemaining || 0)
             : invoice.total !== undefined
               ? Number(invoice.total) + Number(invoice.previousRemaining || 0)
               : DUMMY_INVOICE_DATA.total,
+        // Total row = invoice total (sub total less discount) + previous remaining
+        totalWithPrevious:
+          Number(invoice.total ?? invoice.subTotal ?? invoice.subtotal ?? 0) +
+          Number(invoice.previousRemaining || 0),
         currency: invoice.currency ?? DUMMY_INVOICE_DATA.currency,
         notes: invoice.notes ?? DUMMY_INVOICE_DATA.notes,
       }
@@ -338,6 +343,25 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const resolvedNotes = replacePlaceholders(activeInvoice.notes, placeholderValues, {
     html: true,
   });
+
+  const hasNotes = resolvedNotes.replace(/<[^>]*>|&nbsp;/g, "").trim().length > 0;
+  const bankAccountList = Array.isArray(data.bankAccounts) ? data.bankAccounts : [];
+  const defaultBankAccountRaw = invoice?.bankDetails
+    ? {
+        id: "invoice",
+        name: invoice.bankDetails.name ?? "",
+        isDefault: true,
+        details: invoice.bankDetails.details ?? [],
+      }
+    : (bankAccountList.find((a) => a.isDefault) ?? bankAccountList[0]);
+  const defaultBankAccount =
+    defaultBankAccountRaw &&
+    (defaultBankAccountRaw.details || []).some((d) => d.key || d.value)
+      ? {
+          ...defaultBankAccountRaw,
+          details: defaultBankAccountRaw.details.filter((d) => d.key || d.value),
+        }
+      : undefined;
 
   const formatCurrency = (amount: number): string => {
     return activeInvoice.currency
@@ -372,9 +396,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     }
   };
 
-  const marginTop = (data.marginTop || 0.5) * 72;
-  const marginRight = (data.marginRight || 0.4) * 72;
-  const marginLeft = (data.marginLeft || 0.4) * 72;
+  // Fixed, even page margins (0.5in, matching the emailed PDF) instead of per-template values
+  const marginTop = 36;
+  const marginRight = 36;
+  const marginLeft = 36;
 
   const paperSizes: Record<string, { width: string; height: string }> = {
     A4: { width: "210mm", height: "296mm" },
@@ -461,7 +486,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                   id="logo-preview"
                   src={branding.logoPreview}
                   alt="Logo"
-                  className="max-w-[180px] max-h-[60px]"
+                  className="max-w-[160px] max-h-[52px]"
                 />
               ) : (
                 <div id="logo-placeholder">
@@ -977,7 +1002,11 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
                       color: staticTextColor,
                     }}
                   >
-                    {formatCurrency(activeInvoice.total)}
+                    {formatCurrency(
+                      "totalWithPrevious" in activeInvoice
+                        ? activeInvoice.totalWithPrevious
+                        : activeInvoice.total,
+                    )}
                   </span>
                 </div>
               </SelectableElement>
@@ -1025,12 +1054,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
           </div>
         </div>
 
-        {data.showNotes !== false && (
+        <div className="flex flex-col gap-6" style={{ marginBottom: "30px" }}>
+        {data.showNotes !== false && hasNotes && (
           <SelectableElement
             id="notes-label"
             selectedElement={selectedElement}
             onSelect={onSelectElement}
-            style={{ marginBottom: "30px" }}
+            className="w-full min-w-0"
+            style={{ overflowWrap: "anywhere" }}
           >
             <h3
               style={{
@@ -1056,6 +1087,43 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
             ></div>
           </SelectableElement>
         )}
+
+        {data.showBankAccount !== false && defaultBankAccount && (
+          <SelectableElement
+            id="bank-account"
+            selectedElement={selectedElement}
+            onSelect={onSelectElement}
+            className="w-full max-w-[400px]"
+          >
+            
+            <div id="bank-account-details">
+              {defaultBankAccount.details.map((d, i) => (
+                <div key={i} className="flex items-start w-full gap-2">
+                  <span
+                    className="shrink-0"
+                    style={{
+                      width: "160px",
+                      fontSize: `${data.invoiceDetailLabelFontSize || 10}pt`,
+                      color: invoiceDateLabelColor,
+                    }}
+                  >
+                    {d.key ? `${d.key}:` : ""}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: `${data.invoiceDetailValueFontSize || 10}pt`,
+                      color: invoiceDateValueColor,
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {d.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </SelectableElement>
+        )}
+        </div>
       </div>
 
       {data.showFooter !== false && (

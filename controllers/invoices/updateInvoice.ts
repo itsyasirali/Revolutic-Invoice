@@ -1,3 +1,4 @@
+import { pickDefaultBankDetails } from "@/utils/templates/defaultBankAccount";
 import { NextRequest, NextResponse } from "next/server";
 import { invoiceEditable } from "@/lib/editLock";
 import { getDatabase } from "@/lib/database";
@@ -74,6 +75,7 @@ const updateInvoice = async (
     }
 
     // Verify template if changing
+    let newTemplate: Template | null = null;
     if (templateId) {
       const template = await templateRepository.findOne({
         where: { id: templateId, organizationId: orgId },
@@ -85,6 +87,7 @@ const updateInvoice = async (
           { status: 404 },
         );
       }
+      newTemplate = template;
     }
 
     // Calculate totals using existing item data if new items not provided, or new items if provided
@@ -108,6 +111,17 @@ const updateInvoice = async (
     // Remove items from dataset to prevent cascade saving effectively handling items twice or inefficiently
     if (finalDataset["items"]) {
       delete finalDataset["items"];
+    }
+
+    // Bank details are never taken from the request; they follow the invoice's template.
+    delete finalDataset["bankDetails"];
+    if (newTemplate) {
+      finalDataset["bankDetails"] = pickDefaultBankDetails(newTemplate);
+    } else if (!invoice.bankDetails && invoice.templateId) {
+      const currentTemplate = await templateRepository.findOne({
+        where: { id: invoice.templateId, organizationId: orgId },
+      });
+      finalDataset["bankDetails"] = pickDefaultBankDetails(currentTemplate);
     }
 
     if (customerId) finalDataset["customerId"] = customerId;

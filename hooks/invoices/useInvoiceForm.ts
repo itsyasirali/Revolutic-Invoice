@@ -22,6 +22,8 @@ import type { Contact } from "@/types/customer";
 import { clearNavState, getNavState, setNavState } from "@/lib/clientNavState";
 import axios from "@/lib/axios";
 
+const DEFAULT_INVOICE_NOTES = "<p>Thanks for your business.</p>";
+
 export const useInvoiceForm = () => {
   const router = useRouter();
   const params = useParams();
@@ -71,7 +73,7 @@ export const useInvoiceForm = () => {
     invoiceDate: new Date().toISOString().split("T")[0],
     terms: "Due on Receipt",
     dueDate: new Date().toISOString().split("T")[0],
-    notes: "",
+    notes: DEFAULT_INVOICE_NOTES,
     currency: "PKR",
     recipients: [],
     discountPercent: 0,
@@ -414,6 +416,82 @@ export const useInvoiceForm = () => {
     }
   }, [invoice, isEditMode, formPopulated, itemsData]);
 
+  // "Clone" opens the new-invoice form pre-filled from another invoice (nothing is saved yet)
+  useEffect(() => {
+    if (isEditMode) return;
+    const src = getNavState<any>("invoice:clone");
+    if (!src) return;
+    clearNavState("invoice:clone");
+    queueMicrotask(() => {
+      const toDay = (d: Date) => d.toISOString().split("T")[0];
+      const customerObj =
+        typeof src.customerId === "object" && src.customerId !== null
+          ? src.customerId
+          : null;
+      const customerName =
+        src.customerDisplayName ||
+        customerObj?.displayName ||
+        customerObj?.companyName ||
+        "";
+      const templateIdValue =
+        typeof src.templateId === "object" && src.templateId !== null
+          ? String(src.templateId.id || "")
+          : String(src.templateId || "");
+
+      const today = new Date();
+      const gapDays =
+        src.invoiceDate && src.dueDate
+          ? Math.max(
+              0,
+              Math.round(
+                (new Date(src.dueDate).getTime() -
+                  new Date(src.invoiceDate).getTime()) /
+                  86400000,
+              ),
+            )
+          : 0;
+      const due = new Date(today.getTime() + gapDays * 86400000);
+
+      setInvoiceData((prev) => ({
+        ...prev,
+        customerId: String(customerObj ? customerObj.id || "" : src.customerId || ""),
+        customerName,
+        customerEmail: src.customerEmail || "",
+        customerPhone: src.customerPhone || "",
+        customerAddress: src.customerAddress || "",
+        invoiceNumber: "",
+        invoiceDate: toDay(today),
+        terms: gapDays === 0 ? "Due on Receipt" : `Net ${gapDays}`,
+        dueDate: toDay(due),
+        notes: typeof src.notes === "string" ? src.notes : prev.notes,
+        currency: src.currency || prev.currency,
+        discountPercent: src.discountPercent || 0,
+        templateId: templateIdValue || prev.templateId,
+      }));
+      setCustomerSearchTerm(customerName);
+      if (customerName) namePopulatedRef.current = true;
+
+      if (Array.isArray(src.items) && src.items.length > 0) {
+        setItems(
+          src.items.map((item: any, index: number) => {
+            const raw = item.itemId;
+            const isObj = typeof raw === "object" && raw !== null;
+            return {
+              id: index + 1,
+              itemId: isObj ? String(raw.id ?? "") : String(raw || ""),
+              name: item.title || item.name || (isObj ? String(raw.name || "") : ""),
+              description: item.description || "",
+              quantity: Number(item.quantity) || 1,
+              unit: item.unit || (isObj && raw.unit ? String(raw.unit) : ""),
+              rate: Number(item.rate) || 0,
+              amount: Number(item.amount) || 0,
+            };
+          }),
+        );
+      }
+    });
+  }, [isEditMode]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -446,6 +524,9 @@ export const useInvoiceForm = () => {
     if (
       isEditMode &&
       invoice &&
+      // A draft was never issued, so its stored figure may be stale (older
+      // versions counted other drafts); use the live customer balance instead.
+      String(invoice.status || "").toLowerCase() !== "draft" &&
       String(
         typeof invoice.customerId === "object" && invoice.customerId !== null
           ? invoice.customerId.id

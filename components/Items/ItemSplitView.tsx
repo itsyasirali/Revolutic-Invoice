@@ -14,13 +14,11 @@ import {
   ConfirmDialog,
   LoadingSpinner,
   StatusBadge,
-  toast,
 } from "@/components/ui";
 import useItemList from "@/hooks/items/useItemList";
 import useDeleteItems from "@/hooks/items/useItemsDelete";
 import useUpdateItemStatus from "@/hooks/items/useItemUpdateStatus";
-import axios from "@/lib/axios";
-import { invalidateItems, swrFetcher } from "@/lib/swr";
+import { swrFetcher } from "@/lib/swr";
 import DetailHeader from "@/components/ui/DetailHeader";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { setNavState } from "@/lib/clientNavState";
@@ -139,24 +137,18 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
     router.push(`/items/${i.id}`);
   };
 
-  const cloneItem = async () => {
+  // Opens the new-item form pre-filled from this item; nothing is saved until the user saves.
+  const cloneItem = () => {
     if (!item) return;
-    try {
-      const { data } = await axios.post<{ item: Item }>("/items", {
-        type: item.type,
-        name: `${item.name} (Copy)`,
-        unit: item.unit,
-        sellingPrice: item.sellingPrice,
-        description: item.description,
-        status: item.status,
-      });
-      await invalidateItems();
-      toast.success("Item cloned", "Cloned");
-      if (data.item?.id) router.push(`/items/${data.item.id}`);
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to clone item", "Error");
-    }
+    setNavState("item:clone", {
+      type: item.type,
+      name: `${item.name} (Copy)`,
+      unit: item.unit,
+      sellingPrice: item.sellingPrice,
+      description: item.description,
+      status: item.status,
+    });
+    router.push("/items/new");
   };
 
   const toggleStatus = async () => {

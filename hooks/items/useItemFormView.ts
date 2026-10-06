@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import { useItemForm as useDomainItemForm } from "./useItemForm";
 import type { ItemFormData } from "@/types/item";
-import { getNavState } from "@/lib/clientNavState";
+import { getNavState, clearNavState } from "@/lib/clientNavState";
 
 export const useItemFormView = () => {
   const router = useRouter();
@@ -18,7 +18,9 @@ export const useItemFormView = () => {
   // sessionStorage-backed nav state that useItemActions writes to under
   // the `item:${id}` key.
   const [item, setItem] = useState<ItemFormData | null>(() =>
-    id ? (getNavState<ItemFormData>(`item:${id}`) ?? null) : null,
+    id
+      ? (getNavState<ItemFormData>(`item:${id}`) ?? null)
+      : (getNavState<ItemFormData>("item:clone") ?? null),
   );
 
   useEffect(() => {
@@ -57,6 +59,7 @@ export const useItemFormView = () => {
 
       const success = await handleSubmit(payload);
       if (success) {
+        clearNavState("item:clone");
         router.refresh();
         router.push(id ? `/items/${id}` : "/items");
       }
@@ -65,6 +68,7 @@ export const useItemFormView = () => {
   );
 
   const handleCancel = useCallback(() => {
+    clearNavState("item:clone");
     router.push(id ? `/items/${id}` : "/items");
   }, [router, id]);
 

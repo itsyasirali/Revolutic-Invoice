@@ -59,6 +59,10 @@ export class Invoice {
   @Column("decimal", { precision: 12, scale: 2, default: 0 })
   previousRemaining!: number;
 
+  // Bank details printed on this invoice (snapshot of the template's default account)
+  @Column("jsonb", { nullable: true })
+  bankDetails!: { name: string; details: { key: string; value: string }[] } | null;
+
   @Column({ default: "Draft" })
   status!: string; // 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled' | 'Written Off'
 

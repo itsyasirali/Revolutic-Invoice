@@ -1,3 +1,4 @@
+import { pickDefaultBankDetails } from "@/utils/templates/defaultBankAccount";
 import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
@@ -108,6 +109,11 @@ export const generateInvoicePDF = (
       const headingFontSize = template?.headingFontSize || 20;
       const labelFontSize = template?.labelFontSize || 10;
       const tableFontSize = template?.tableFontSize || baseFontSize || 9;
+      // Same fallbacks as TemplatePreview so the emailed PDF matches the preview
+      const subheadingFontSize = template?.subheadingFontSize || 11;
+      const detailLabelFontSize = template?.invoiceDetailLabelFontSize || 10;
+      const detailValueFontSize = template?.invoiceDetailValueFontSize || 10;
+      const billToAddressFontSize = template?.billToAddressFontSize || 10;
 
       const doc = new PDFDocument({
         margin: 35,
@@ -228,8 +234,8 @@ export const generateInvoicePDF = (
               console.warn("Could not convert image buffer to PNG with sharp:", convErr);
             }
 
-            const logoWidth = Number(template?.logoWidth) || 150;
-            const logoHeight = Number(template?.logoHeight) || 60;
+            const logoWidth = 160;
+            const logoHeight = 52;
             const logoMarginTop = Number(template?.logoMarginTop) || 0;
             const logoY = 30 + logoMarginTop;
 
@@ -279,18 +285,18 @@ export const generateInvoicePDF = (
             .font("Helvetica-Bold")
             .fillColor(primaryColor)
             .text(invoiceLabel, 400, 35, {
-              width: 155,
+              width: 160,
               align: "right",
               lineBreak: false,
             });
         }
         if (invoice.invoiceNumber) {
           doc
-            .fontSize(baseFontSize)
-            .font("Helvetica")
+            .fontSize(subheadingFontSize)
+            .font("Helvetica-Bold")
             .fillColor(invoiceNumberColor)
             .text(`${invoice.invoiceNumber}`, 400, 60 + (headingFontSize - 20), {
-              width: 155,
+              width: 160,
               align: "right",
               lineBreak: false,
             });
@@ -326,7 +332,7 @@ export const generateInvoicePDF = (
           invoice.customerAddress || customer.address || "";
         if (customerAddress) {
           doc
-            .fontSize(baseFontSize)
+            .fontSize(billToAddressFontSize)
             .font("Helvetica")
             .fillColor(billToAddressColor)
             .text(customerAddress, 35, detailsY + 36, {
@@ -337,7 +343,7 @@ export const generateInvoicePDF = (
 
         const labelX = 330;
         const valueX = 450;
-        const valueWidth = 105;
+        const valueWidth = 110;
         const rowHeight = 20;
         let currentY = detailsY;
 
@@ -345,7 +351,7 @@ export const generateInvoicePDF = (
           const invoiceDateLabel = template?.invoiceDateLabel ?? "";
           if (invoiceDateLabel) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailLabelFontSize)
               .font("Helvetica")
               .fillColor(invoiceDateLabelColor)
               .text(
@@ -359,7 +365,7 @@ export const generateInvoicePDF = (
           }
           if (invoice.invoiceDate) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailValueFontSize)
               .font("Helvetica-Bold")
               .fillColor(invoiceDateValueColor)
               .text(
@@ -393,7 +399,7 @@ export const generateInvoicePDF = (
         if (false as boolean) {
           if (termsLabel) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailLabelFontSize)
               .font("Helvetica")
               .fillColor(termsLabelColor)
               .text(`${termsLabel} :`, labelX, currentY, {
@@ -402,7 +408,7 @@ export const generateInvoicePDF = (
           }
           if (termsText) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailValueFontSize)
               .font("Helvetica-Bold")
               .fillColor(termsValueColor)
               .text(termsText, valueX, currentY, {
@@ -418,7 +424,7 @@ export const generateInvoicePDF = (
           const dueDateLabel = template?.dueDateLabel ?? "";
           if (dueDateLabel) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailLabelFontSize)
               .font("Helvetica")
               .fillColor(dueDateLabelColor)
               .text(
@@ -432,7 +438,7 @@ export const generateInvoicePDF = (
           }
           if (invoice.dueDate) {
             doc
-              .fontSize(baseFontSize)
+              .fontSize(detailValueFontSize)
               .font("Helvetica-Bold")
               .fillColor(dueDateValueColor)
               .text(
@@ -637,7 +643,7 @@ export const generateInvoicePDF = (
                 : item.description ?? ""
               : "";
           const itemRowHeight = descText ? 34 : 22;
-          const rowTextY = yPosition + (itemRowHeight - baseFontSize) / 2 - 3.5;
+          const rowTextY = yPosition + (itemRowHeight - tableFontSize) / 2 - 3.5;
 
           if (template?.alternateRowColors !== false && index % 2 === 1) {
             doc
@@ -653,7 +659,7 @@ export const generateInvoicePDF = (
             .rect(35, yPosition, availableWidth, itemRowHeight)
             .stroke(tableBorderColor);
 
-          doc.fontSize(baseFontSize).font("Helvetica").fillColor(textColor);
+          doc.fontSize(tableFontSize).font("Helvetica").fillColor(textColor);
 
           finalColumns.forEach((col: ColumnConfig) => {
             let value = "";
@@ -712,15 +718,15 @@ export const generateInvoicePDF = (
               ["items", "item", "name", "itemName", "product"].includes(col.key ?? "")
             ) {
               doc
-                .fontSize(Math.max(baseFontSize - 1, 6))
+                .fontSize(Math.max(tableFontSize - 1, 6))
                 .fillColor(grayText)
-                .text(descText, col.x ? col.x + 5 : 40, rowTextY + baseFontSize + 3, {
+                .text(descText, col.x ? col.x + 5 : 40, rowTextY + tableFontSize + 3, {
                   width: col.w ? col.w - 10 : 40,
                   height: 11,
                   align: col.align || "left",
                   ellipsis: true,
                 });
-              doc.fontSize(baseFontSize).fillColor(textColor);
+              doc.fontSize(tableFontSize).fillColor(textColor);
             }
           });
 
@@ -840,7 +846,7 @@ export const generateInvoicePDF = (
           .font("Helvetica-Bold")
           .fillColor(textColor)
           .text(
-            formatCurrency(invoice.total || totalBalanceDue),
+            formatCurrency(total + previousRemaining),
             totalsValueX,
             yPosition,
             {
@@ -884,7 +890,19 @@ export const generateInvoicePDF = (
 
         yPosition += 40;
 
-        if (notesHtml && template?.showNotes !== false) {
+        const bankSource = pickDefaultBankDetails(template);
+        const bankAccount = invoice.bankDetails ?? bankSource;
+        const bankRows = (bankAccount?.details ?? []).filter(
+          (d) => d.key || d.value,
+        );
+        const showBank =
+          template?.showBankAccount !== false && bankRows.length > 0;
+        const showNotes = !!notesHtml && template?.showNotes !== false;
+        const notesWidth = 490;
+        const sectionStartY = yPosition;
+        let notesEndY = yPosition;
+
+        if (showNotes) {
           doc
             .fontSize(baseFontSize + 2)
             .font("Helvetica-Bold")
@@ -916,16 +934,46 @@ export const generateInvoicePDF = (
 
           const parsedText = parseHtml(notesHtml);
           const notesHeight = Math.max(
-            80,
-            doc.heightOfString(parsedText, { width: 490 }),
+            showBank ? 25 : 80,
+            doc.heightOfString(parsedText, { width: notesWidth }),
           );
 
           doc
             .fontSize(9)
             .font("Helvetica")
             .fillColor(textColor)
-            .text(parsedText, 35, yPosition + 5, { width: 490, lineGap: 1 });
+            .text(parsedText, 35, yPosition + 5, {
+              width: notesWidth,
+              lineGap: 1,
+            });
           yPosition += notesHeight + 20;
+          notesEndY = yPosition;
+        }
+
+        if (showBank) {
+          // Bank details sit below the notes, at the end of the page content
+          const bankX = 35;
+          const bankWidth = 330;
+          const keyWidth = 150;
+          let bankY = showNotes ? notesEndY + 5 : sectionStartY;
+
+          doc.fontSize(detailLabelFontSize).font("Helvetica");
+          for (const row of bankRows) {
+            const keyHeight = doc.heightOfString(`${row.key}:`, {
+              width: keyWidth - 8,
+            });
+            const valueHeight = doc.heightOfString(row.value, {
+              width: bankWidth - keyWidth,
+            });
+            doc
+              .fillColor(textColor)
+              .text(`${row.key}:`, bankX, bankY, { width: keyWidth - 8 });
+            doc.text(row.value, bankX + keyWidth, bankY, {
+              width: bankWidth - keyWidth,
+            });
+            bankY += Math.max(keyHeight, valueHeight) + 4;
+          }
+          yPosition = Math.max(notesEndY, bankY + 20);
         }
 
         if (template?.showFooter !== false && template?.footerText) {

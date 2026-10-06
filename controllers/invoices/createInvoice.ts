@@ -5,6 +5,7 @@ import { Customer } from "@/entities/Customer";
 import { Template } from "@/entities/Template";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { calculateInvoiceTotals } from "@/utils/invoices/invoiceCalculations";
+import { pickDefaultBankDetails } from "@/utils/templates/defaultBankAccount";
 import type { CreateInvoicePayload } from "@/types/invoice";
 
 // Mirrors NotFoundException from the NestJS source (InvoicesCreateService),
@@ -126,6 +127,7 @@ export const createInvoiceRecord = async (
     organizationId: orgId,
     customerId,
     templateId: finalTemplateId || null,
+    bankDetails: pickDefaultBankDetails(template),
     status: "Draft",
     quoteId: options?.quoteId ?? null,
   } as unknown as Invoice);
