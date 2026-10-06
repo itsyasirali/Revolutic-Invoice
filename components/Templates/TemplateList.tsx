@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FileText } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import useTemplateListPage from "@/hooks/templates/useTemplateListPage";
 import {
   Button,
@@ -55,27 +55,15 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
 
   return (
     <div className="pb-8">
-      <PageHeader
-        title="PDF Templates"
-        actions={
-          <Button
-            onClick={handleNew}
-            disabled={loading}
-            variant="primary"
-            size="sm"
-          >
-            New Template
-          </Button>
-        }
-      />
+      <PageHeader title="PDF Templates" />
 
-      <div className="">
+      <div className="px-2 sm:px-4 md:px-6 pt-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <LoadingSpinner size="lg" color="primary" />
           </div>
         ) : filteredTemplates.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid gap-x-6 gap-y-8 justify-start" style={{ gridTemplateColumns: "repeat(auto-fill, calc(210mm * 0.45))" }}>
             {filteredTemplates.map((template, index) => (
               <TemplateCard
                 key={template.id}
@@ -88,6 +76,23 @@ const TemplateList = ({ initialTemplates }: TemplateListProps) => {
                 onDelete={handleDeleteFromCard}
               />
             ))}
+
+            {/* "New Template" tile, same size as a template card */}
+            <div
+              className="flex flex-col justify-center rounded-md border border-dashed border-slate-300 bg-white px-6"
+              style={{ width: "calc(210mm * 0.45)", height: "calc(297mm * 0.45)" }}
+            >
+              <h3 className="text-xl font-medium text-slate-900 mb-3">New Template</h3>
+              <p className="text-sm text-slate-700 leading-relaxed mb-5">
+                Click to add a template. You can customize the template title,
+                columns, headers and bank details.
+              </p>
+              <div>
+                <Button onClick={handleNew} variant="primary" size="sm" icon={<Plus size={16} />} iconPosition="left">
+                  New
+                </Button>
+              </div>
+            </div>
           </div>
         ) : (
           <EmptyState

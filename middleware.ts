@@ -23,9 +23,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Decided on the server from cookies, so there is no client round-trip: signed in
+  // (auth cookie + active org) goes straight to the org's page, otherwise to login.
+  const hasSession = !!req.cookies.get("auth_token")?.value;
   const slug = req.cookies.get("active_org_slug")?.value;
   const url = req.nextUrl.clone();
-  url.pathname = slug ? `/${slug}${req.nextUrl.pathname}` : "/login";
+  url.pathname = hasSession && slug ? `/${slug}${req.nextUrl.pathname}` : "/login";
   return NextResponse.redirect(url);
 }
 

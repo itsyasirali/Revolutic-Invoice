@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Upload, GripVertical, Plus, Trash2 } from "lucide-react";
-import { Button, Input, Checkbox, Tooltip } from "@/components/ui";
+import { Button, Input, Checkbox, Tooltip, AlertModal } from "@/components/ui";
 import TemplatePreview from "./TemplatePreview";
 import useTemplateFormView from "@/hooks/templates/useTemplateFormView";
 import ColorInput from "./components/ColorInput";
@@ -49,6 +49,7 @@ const TemplateForm: React.FC = () => {
   const handleSaveClick = () => {
     if (!formData.templateName.trim()) {
       setNameError("Template name is required");
+      handleSubmit(false); // shows the "required field missing" modal
       return;
     }
     setNameError("");
@@ -1008,25 +1009,12 @@ const TemplateForm: React.FC = () => {
         </div>
       </main>
 
-      {alert.show && (
-        <div
-          className={`fixed bottom-4 right-4 z-50 p-4 rounded-md shadow-lg flex items-center gap-3 ${
-            alert.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : alert.type === "error"
-                ? "bg-red-50 text-red-800 border border-red-200"
-                : "bg-primary/5 text-blue-800 border border-primary/30"
-          }`}
-        >
-          <span>{alert.message}</span>
-          <button
-            onClick={dismissAlert}
-            className="text-sm font-semibold hover:underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
+      <AlertModal
+        isOpen={alert.show}
+        type={alert.type}
+        message={alert.message}
+        onClose={dismissAlert}
+      />
     </div>
   );
 };

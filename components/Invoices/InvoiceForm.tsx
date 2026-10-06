@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Settings, X, Info, Mail, Tag } from "lucide-react";
 import CustomerAvatar from "@/components/ui/CustomerAvatar";
 import "react-quill-new/dist/quill.snow.css";
-import { Button, PageHeader, Input, Select, Checkbox } from "@/components/ui";
+import { Button, PageHeader, Input, Select, Checkbox, AlertModal } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import type { InvoiceCustomer } from "@/types/invoice";
@@ -183,6 +183,23 @@ const InvoiceForm = () => {
     return opts;
   };
 
+  // Required fields that are still empty; shown in a top modal instead of silently disabling Save.
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const guardedSave = (save: () => void | Promise<void>) => {
+    const missing: string[] = [];
+    if (!invoiceData.customerId) missing.push("Customer");
+    if (!items.some((item) => item.name && item.name.trim() !== "")) {
+      missing.push("At least one item (with a name)");
+    }
+    if (!invoiceData.invoiceDate) missing.push("Invoice date");
+    if (!invoiceData.dueDate) missing.push("Due date");
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      return;
+    }
+    return save();
+  };
+
   if (isEditMode && invoiceLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-white">
@@ -218,6 +235,14 @@ const InvoiceForm = () => {
       <PageHeader
         title={isEditMode ? "Edit Invoice" : "New Invoice"}
         onBack={handleCancel}
+      />
+
+      <AlertModal
+        isOpen={missingFields.length > 0}
+        type="error"
+        title="Required fields missing"
+        message={`Please fill in: ${missingFields.join(", ")}.`}
+        onClose={() => setMissingFields([])}
       />
 
       <InvoiceTemplateSelector
@@ -694,10 +719,10 @@ const InvoiceForm = () => {
 
           <Button
             type="button"
-            onClick={handleSaveDraft}
+            onClick={() => guardedSave(handleSaveDraft)}
             variant="secondary"
             size="md"
-            disabled={busy || !isFormValid}
+            disabled={busy}
             loading={saving || updating}
           >
             {saving || updating ? "Saving..." : "Save as Draft"}
@@ -705,12 +730,11 @@ const InvoiceForm = () => {
 
           <Button
             type="button"
-            onClick={handleSaveAndSend}
+            onClick={() => guardedSave(handleSaveAndSend)}
             variant="primary"
             size="md"
-            disabled={busy || !isFormValid}
+            disabled={busy}
             loading={isSubmitting}
-            title={!isFormValid ? "Please select a customer and add at least one item" : ""}
           >
             {isSubmitting ? "Saving..." : "Save & Send"}
           </Button>

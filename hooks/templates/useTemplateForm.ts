@@ -537,7 +537,7 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
   const handleSubmit = useCallback(
     async (setAsDefault = false) => {
       if (!formData.templateName?.trim()) {
-        toast.error("Template name is required", "Validation Error");
+        setAlert({ show: true, type: "error", message: "Required field missing: Template name." });
         return;
       }
       try {
@@ -619,10 +619,8 @@ const useTemplateForm = (id?: string): UseTemplateFormReturn => {
         const successMsg = `Template ${effectiveId ? "updated" : "created"} successfully`;
         toast.success(successMsg, effectiveId ? "Template Updated" : "Template Created");
 
-        setTimeout(() => {
-          router.refresh();
-          router.push("/templates");
-        }, 1500);
+        router.refresh();
+        router.push("/templates");
       } catch (err: unknown) {
         console.error("Error submitting template:", err);
         const errorMessage = axios.isAxiosError(err)

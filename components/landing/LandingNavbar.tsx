@@ -10,8 +10,9 @@ import useLandingNavbar from "@/hooks/landing/useLandingNavbar";
 const LandingNavbar = () => {
   const { user, navLinks, mobileMenuOpen, toggleMobileMenu, closeMobileMenu } =
     useLandingNavbar();
-  // signed-in visitors go straight to the dashboard instead of the login page
-  const signInHref = user ? "/dashboard" : "/login";
+  // "/dashboard" is resolved by the middleware from the session cookie: straight to the
+  // org dashboard when signed in, to /login when not (no waiting for a profile fetch).
+  const signInHref = "/dashboard";
   const startHref = user ? "/dashboard" : "/register";
 
   return (
@@ -51,12 +52,12 @@ const LandingNavbar = () => {
           {/* Action CTAs */}
           <div className="hidden lg:flex items-center gap-4">
                             <Button
-                  variant="ghost"
+                  variant="outline"
                   size="md"
-                  className="text-slate-700 font-semibold hover:text-primary"
+                  className="rounded-full text-slate-700! font-semibold bg-transparent! hover:bg-transparent! hover:text-slate-700! border-slate-300! hover:border-slate-300! active:border-black! focus:border-black! focus-visible:border-black! active:bg-transparent! focus:bg-transparent! focus:ring-0! focus:ring-offset-0! active:scale-100! shadow-none!"
                   asChild
                 >
-                  <Link href={signInHref}>Sign In</Link>
+                  <Link href={signInHref} prefetch={false}>Sign In</Link>
                 </Button>
                 <Button
                   variant="primary"
@@ -110,7 +111,7 @@ const LandingNavbar = () => {
                   variant="outline"
                   size="lg"
                   fullWidth
-                  className="rounded-xl font-semibold"
+                  className="rounded-xl text-slate-700! font-semibold bg-transparent! hover:bg-transparent! hover:text-slate-700! border-slate-300! hover:border-slate-300! active:border-black! focus:border-black! focus-visible:border-black! active:bg-transparent! focus:bg-transparent! focus:ring-0! focus:ring-offset-0! active:scale-100! shadow-none!"
                   asChild
                 >
                   <Link

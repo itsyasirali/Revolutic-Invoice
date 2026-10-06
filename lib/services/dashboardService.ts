@@ -266,6 +266,8 @@ export const getDashboardData = async (
 
     invoices.forEach((inv) => {
       const status = String(inv.status ?? "").toLowerCase();
+      // Drafts haven't been issued, so they never count toward any dashboard total.
+      if (status === "draft") return;
       const total = Number(inv.total ?? 0);
       const received = Number(inv.received ?? 0);
       const writtenOff = (inv.writeOffs || []).reduce(
@@ -427,6 +429,7 @@ export const getDashboardData = async (
 
       let monthSales = 0;
       invoices.forEach((inv) => {
+        if (String(inv.status ?? "").toLowerCase() === "draft") return;
         const invDate = new Date(inv.invoiceDate || inv.createdAt);
         if (!isNaN(invDate.getTime()) && invDate.getMonth() === mIdx && invDate.getFullYear() === mYr) {
           monthSales += convertToOrgCurrency(
@@ -475,6 +478,7 @@ export const getDashboardData = async (
 
       let weekSales = 0;
       invoices.forEach((inv) => {
+        if (String(inv.status ?? "").toLowerCase() === "draft") return;
         const invDate = new Date(inv.invoiceDate || inv.createdAt);
         if (!isNaN(invDate.getTime()) && invDate >= weekStart && invDate <= weekEnd) {
           weekSales += convertToOrgCurrency(
