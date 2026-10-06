@@ -7,30 +7,24 @@ import { useOrganization } from "@/context/OrganizationContext";
 
 const useAuthRedirect = (initialMode: "login" | "signup") => {
   const { user, loading } = useAuth();
-  const { organization } = useOrganization();
+  const { organization, loading: orgLoading } = useOrganization();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      if (organization?.slug) {
-        router.replace(`/${organization.slug}/dashboard`);
-      } else if (user.organizationId || user.organization) {
-        // Org exists but hasn't been resolved by OrganizationContext yet; wait for it.
-      } else {
-        router.replace("/organization-setup");
-      }
-    }
-  }, [user, loading, organization?.slug, router]);
+    // Wait until the organization list has actually been fetched for this user;
+    // otherwise a fresh login looks like "no organization" and shows the setup form.
+    if (loading || orgLoading || !user) return;
 
-  const handleLoginSuccess = () => {
     if (organization?.slug) {
-      router.push(`/${organization.slug}/dashboard`);
-    } else if (user?.organizationId || user?.organization) {
-      // Org exists but hasn't been resolved by OrganizationContext yet; wait for it.
+      router.replace(`/${organization.slug}/dashboard`);
     } else {
-      router.push("/organization-setup");
+      router.replace("/organization-setup");
     }
-  };
+  }, [user, loading, orgLoading, organization?.slug, router]);
+
+  // Redirect is handled by the effect above once auth + organization have resolved
+  // (the values captured here would be stale right after login).
+  const handleLoginSuccess = () => {};
 
   return {
     initialMode,
