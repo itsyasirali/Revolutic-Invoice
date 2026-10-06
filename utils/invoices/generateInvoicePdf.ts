@@ -54,6 +54,10 @@ interface ExtendedInvoice extends Omit<
   currentReceivables?: number;
   customerDisplayName?: string;
   customerAddress?: string;
+  /** Pre-formatted text shown as the third detail value (e.g. a payment reference) */
+  formattedDueDate?: string;
+  /** Payment receipt: sized like the on-screen preview (CSS px -> PDF pt) */
+  isReceipt?: boolean;
   previousRemaining?: number;
   writeOffs?: Array<{ amount: number | string; reversedAt?: Date | null }>;
 }
@@ -237,8 +241,9 @@ export const generateInvoicePDF = (
               console.warn("Could not convert image buffer to PNG with sharp:", convErr);
             }
 
-            const logoWidth = 160;
-            const logoHeight = 52;
+            const logoScale = invoice.isReceipt ? 0.75 : 1;
+            const logoWidth = 160 * logoScale;
+            const logoHeight = 52 * logoScale;
             const logoMarginTop = Number(template?.logoMarginTop) || 0;
             const logoY = 30 + logoMarginTop;
 
@@ -285,13 +290,19 @@ export const generateInvoicePDF = (
         if (invoiceLabel) {
           doc
             .fontSize(headingFontSize)
-            .font("Helvetica-Bold")
+            .font("Helvetica")
             .fillColor(primaryColor)
+            .strokeColor(primaryColor)
+            .lineWidth(headingFontSize * 0.04)
+            // regular weight + a thin stroke ≈ semibold (PDFKit has no built-in semibold)
             .text(invoiceLabel, 400, 35, {
               width: 160,
               align: "right",
               lineBreak: false,
+              fill: true,
+              stroke: true,
             });
+          doc.lineWidth(1);
         }
         if (invoice.invoiceNumber) {
           doc
@@ -326,7 +337,7 @@ export const generateInvoicePDF = (
         if (customerName) {
           doc
             .fontSize(template?.billToNameFontSize || 10)
-            .font("Helvetica")
+            .font(invoice.isReceipt ? "Helvetica-Bold" : "Helvetica")
             .fillColor(billToNameColor)
             .text(customerName, 35, detailsY + 18, { lineBreak: false });
         }
@@ -439,13 +450,13 @@ export const generateInvoicePDF = (
                 },
               );
           }
-          if (invoice.dueDate) {
+          if (invoice.formattedDueDate || invoice.dueDate) {
             doc
               .fontSize(detailValueFontSize)
               .font("Helvetica-Bold")
               .fillColor(dueDateValueColor)
               .text(
-                new Date(invoice.dueDate).toLocaleDateString("en-US", {
+                invoice.formattedDueDate ?? new Date(invoice.dueDate as Date).toLocaleDateString("en-US", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
@@ -846,28 +857,30 @@ export const generateInvoicePDF = (
           yPosition += 25;
         }
 
-        doc
-          .fontSize(labelFontSize + 1)
-          .font("Helvetica-Bold")
-          .fillColor(textColor)
-          .text(template?.totalLabel ?? "", totalsLabelX, yPosition, {
-            lineBreak: false,
-          });
-        doc
-          .fontSize(labelFontSize + 1)
-          .font("Helvetica-Bold")
-          .fillColor(textColor)
-          .text(
-            formatCurrency(total + previousRemaining),
-            totalsValueX,
-            yPosition,
-            {
-              width: 75,
-              align: "right",
+        if ((template as { showTotal?: boolean } | undefined)?.showTotal !== false) {
+          doc
+            .fontSize(labelFontSize + 1)
+            .font("Helvetica-Bold")
+            .fillColor(textColor)
+            .text(template?.totalLabel ?? "", totalsLabelX, yPosition, {
               lineBreak: false,
-            },
-          );
-        yPosition += 22;
+            });
+          doc
+            .fontSize(labelFontSize + 1)
+            .font("Helvetica-Bold")
+            .fillColor(textColor)
+            .text(
+              formatCurrency(total + previousRemaining),
+              totalsValueX,
+              yPosition,
+              {
+                width: 75,
+                align: "right",
+                lineBreak: false,
+              },
+            );
+          yPosition += 22;
+        }
 
         const balanceBoxHeight = 26;
         doc

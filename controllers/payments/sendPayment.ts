@@ -124,7 +124,8 @@ const sendPayment = async (
         invoiceNumber: payment.paymentNumber ? `#${payment.paymentNumber}` : "N/A",
         invoiceDate: payment.paymentDate,
         terms: payment.paymentMode || "N/A",
-        dueDate: undefined,
+        formattedDueDate: payment.referenceNo || "N/A",
+        isReceipt: true,
         customer: payment.customer,
         customerDisplayName: payment.customerDisplayName,
         customerAddress: payment.customer?.address || "",
@@ -135,7 +136,7 @@ const sendPayment = async (
         total: received,
         previousRemaining: 0,
         notes: "",
-        items: (payment.appliedInvoices || []).map((a: any) => ({
+        items: [...(payment.appliedInvoices || [])].sort((x: any, y: any) => (x.id ?? 0) - (y.id ?? 0)).map((a: any) => ({
           invoiceNumber: a.invoice?.invoiceNumber || a.invoiceId || "N/A",
           invoiceAmount: num(a.invoice?.total ?? a.totalAmount),
           paymentAmount: num(a.amount),

@@ -534,7 +534,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
               <h1
                 style={{
                   fontSize: `${data.headingFontSize || 28}pt`,
-                  fontWeight: "bold",
+                  fontWeight: 600,
                   color: primaryColor,
                   margin: 0,
                   letterSpacing: "1px",
