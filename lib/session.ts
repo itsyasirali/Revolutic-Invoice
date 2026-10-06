@@ -222,13 +222,25 @@ export const getAuthOrgId = async (
  * Resolves the authenticated session inside React Server Components
  * using cookies() from next/headers.
  */
-export const getServerSessionUser = async (): Promise<AuthUserSession | null> => {
+export const getServerSessionUser = async (
+  options: { fast?: boolean } = {},
+): Promise<AuthUserSession | null> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (!token) return null;
     const session = await verifyAuthToken(token);
     if (!session) return null;
+
+    // `fast`: for rendering the shell only. Trust the signed token and the org cookie and
+    // skip the database lookups; every API call re-checks organization access itself.
+    if (options.fast) {
+      const cookieOrg = parsePositiveInt(
+        cookieStore.get(ACTIVE_ORG_COOKIE_NAME)?.value,
+      );
+      if (cookieOrg) session.organizationId = cookieOrg;
+      return session;
+    }
 
     // Check if active_org_id cookie overrides or provides the active organization
     const activeOrgCookie = cookieStore.get(ACTIVE_ORG_COOKIE_NAME)?.value;

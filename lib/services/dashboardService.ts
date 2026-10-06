@@ -18,12 +18,27 @@ import {
 } from "@/lib/services/businessInsightsService";
 export { getCurrencySymbol };
 
-export const getCurrencyRates = async (baseCurrency: string = "PKR") => {
+// Exchange rates barely move within an hour: keep them in memory so the dashboard doesn't
+// wait on an external API on every load (and share an in-flight request between callers).
+const RATES_TTL_MS = 60 * 60 * 1000;
+const ratesCache = new Map<string, { at: number; rates: Promise<Record<string, number>> }>();
+
+export const getCurrencyRates = async (
+  baseCurrency: string = "PKR",
+): Promise<Record<string, number>> => {
   const base = (baseCurrency || "PKR").toUpperCase().trim();
+  const cached = ratesCache.get(base);
+  if (cached && Date.now() - cached.at < RATES_TTL_MS) return cached.rates;
+  const pending = fetchCurrencyRates(base);
+  ratesCache.set(base, { at: Date.now(), rates: pending });
+  return pending;
+};
+
+const fetchCurrencyRates = async (base: string): Promise<Record<string, number>> => {
   try {
     const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${base}`, {
       next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(2500),
+      signal: AbortSignal.timeout(1500),
     });
     if (!res.ok) throw new Error("Rates fetch failed");
     const data = await res.json();
@@ -171,7 +186,16 @@ export const getDashboardData = async (
 
     const whereScope = { organizationId: orgId };
 
-    const [invoices, payments] = await Promise.all([
+    // Rates, business insights, invoices and payments are independent: run them together.
+    const ratesPromise = getCurrencyRates(orgCurrency);
+    const insightsPromise = getBusinessInsights(
+      orgId,
+      orgCurrency,
+      ratesPromise,
+      convertToOrgCurrency,
+    );
+
+    const [invoices, payments, rates] = await Promise.all([
       invoiceRepo.find({
         where: whereScope,
         select: {
@@ -201,10 +225,8 @@ export const getDashboardData = async (
         },
         order: { createdAt: "DESC" },
       }).catch(() => []),
+      ratesPromise,
     ]);
-
-    // Fetch exchange rates relative to the organization's currency
-    const rates = await getCurrencyRates(orgCurrency);
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -229,12 +251,7 @@ export const getDashboardData = async (
 
     // Real expenses (Expenses module), converted to the org currency.
     // Write-offs are intentionally excluded.
-    const { insights, expenseRows } = await getBusinessInsights(
-      orgId,
-      orgCurrency,
-      rates,
-      convertToOrgCurrency,
-    );
+    const { insights, expenseRows } = await insightsPromise;
     const sumExpenses = (from: Date, to: Date) =>
       expenseRows.reduce(
         (sum, r) => (r.date >= from && r.date <= to ? sum + r.amount : sum),

@@ -30,14 +30,14 @@ const hours = (minutes: number) => Math.round((minutes / 60) * 10) / 10;
 export const getBusinessInsights = async (
   orgId: number,
   orgCurrency: string,
-  rates: Record<string, number>,
+  ratesInput: Record<string, number> | Promise<Record<string, number>>,
   convert: Convert,
 ): Promise<InsightsResult> => {
   try {
     const db = await getDatabase();
     await expireQuotes(db, orgId);
 
-    const [expenses, timeEntries, quotes] = await Promise.all([
+    const [expenses, timeEntries, quotes, rates] = await Promise.all([
       db.getRepository(Expense).find({
         where: { organizationId: orgId },
         select: { id: true, total: true, currency: true, expenseDate: true, billable: true, invoiced: true },
@@ -59,6 +59,7 @@ export const getBusinessInsights = async (
         where: { organizationId: orgId },
         select: { id: true, status: true, total: true, currency: true },
       }),
+      Promise.resolve(ratesInput),
     ]);
 
     const now = new Date();

@@ -19,7 +19,8 @@ export const useLogout = (): UseLogoutReturn => {
       setLoading(true);
       setError(null);
       await doLogout();
-      window.location.reload();
+      // Straight to the login page (a full navigation also drops all in-memory app state)
+      window.location.replace("/login");
     } catch (err: unknown) {
       console.error("Logout failed:", err);
       setError("Logout failed");

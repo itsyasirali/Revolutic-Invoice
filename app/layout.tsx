@@ -46,7 +46,8 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const sessionUser = await getServerSessionUser();
+  // fast: no database round-trip before the page can start rendering
+  const sessionUser = await getServerSessionUser({ fast: true });
   const initialUser = sessionUser
     ? {
         id: sessionUser.id,
