@@ -144,6 +144,7 @@ const usePaymentPreview = (): UsePaymentPreviewReturn => {
         showTotal: false,
         showPreviousDue: false,
         showNotes: false,
+        showBankAccount: false,
         tableColumnSettings: [],
         tableColumns: [
           {

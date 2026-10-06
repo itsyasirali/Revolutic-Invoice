@@ -19,6 +19,9 @@ export interface InvoiceItemPdf {
   discount?: number;
   tax?: number;
   item?: { name?: string };
+  invoiceNumber?: string;
+  invoiceAmount?: string | number;
+  paymentAmount?: string | number;
 }
 
 export interface ColumnConfig {
@@ -692,6 +695,15 @@ export const generateInvoicePDF = (
               case "amount":
               case "total":
                 value = (Number(item.amount) || 0).toFixed(2);
+                break;
+              case "invoiceNumber":
+                value = String(item.invoiceNumber ?? "");
+                break;
+              case "invoiceAmount":
+                value = String(item.invoiceAmount ?? "");
+                break;
+              case "paymentAmount":
+                value = String(item.paymentAmount ?? "");
                 break;
               case "unit":
                 value = item.unit || "";

@@ -1,11 +1,15 @@
+"use client";
+
 import React from "react";
 import Container from "@/components/layout/container";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const Cta = () => {
+  const { user } = useAuth();
   return (
     <section className="py-16 md:py-24">
       <Container>
@@ -39,7 +43,7 @@ const Cta = () => {
                 className="rounded-full h-14 px-8 font-semibold text-base shadow-lg shadow-primary/25"
                 asChild
               >
-                <Link href="/register" className="flex items-center gap-2">
+                <Link href={user ? "/dashboard" : "/register"} className="flex items-center gap-2">
                   <span>Start Free Trial</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -50,7 +54,7 @@ const Cta = () => {
                 className="bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-full h-14 px-8 font-semibold text-base"
                 asChild
               >
-                <Link href="/login">Sign In</Link>
+                <Link href={user ? "/dashboard" : "/login"}>Sign In</Link>
               </Button>
             </div>
           </div>

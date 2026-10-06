@@ -10,7 +10,9 @@ export const metadata = publicMeta(
 
 const PrivacyPage = () => (
   <LegalPage
-    title="Privacy Policy"
+    badge="Legal / Privacy Policy"
+    title="Privacy"
+    highlight="Policy"
     intro="We take your privacy seriously. This policy explains what data we collect, why we collect it and how you stay in control."
     sections={privacySections}
   />

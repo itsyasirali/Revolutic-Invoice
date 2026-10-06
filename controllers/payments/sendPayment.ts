@@ -3,6 +3,8 @@ import { getDatabase } from "@/lib/database";
 import { Payment } from "@/entities/Payment";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
 import { User } from "@/entities/User";
+import { Template } from "@/entities/Template";
+import { generateInvoicePDF } from "@/utils/invoices/generateInvoicePdf";
 import { loadCustomPlaceholders } from "@/lib/placeholders/server";
 import { buildPlaceholderValues } from "@/lib/placeholders/context";
 import { replacePlaceholders } from "@/lib/placeholders/replace";
@@ -89,6 +91,66 @@ const sendPayment = async (
       { html: true },
     ).replace(/\n/g, "<br/>");
 
+    // Build the payment receipt PDF with the same template overrides the preview uses
+    let attachments: Array<{ filename: string; content: Buffer; contentType: string }> = [];
+    if (body.attachPDF !== false) {
+      const templateRepo = db.getRepository(Template);
+      const baseTemplate =
+        payment.template ??
+        (await templateRepo.findOne({ where: { organizationId: orgId, isDefault: true } })) ??
+        (await templateRepo.findOne({ where: { organizationId: orgId } }));
+      const num = (n: unknown) =>
+        (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const receiptTemplate = {
+        ...(baseTemplate ?? {}),
+        invoiceLabel: "PAYMENT",
+        invoiceDateLabel: "Payment Date",
+        termsLabel: "Payment Mode",
+        dueDateLabel: "Reference#",
+        subtotalLabel: "Amount Received",
+        balanceDueLabel: "Total",
+        showTotal: false,
+        showPreviousDue: false,
+        showNotes: false,
+        showBankAccount: false,
+        tableColumnSettings: [
+          { key: "invoiceNumber", label: "Invoice Number", width: 200, align: "left", enabled: true },
+          { key: "invoiceAmount", label: "Invoice Amount", width: 150, align: "right", enabled: true },
+          { key: "paymentAmount", label: "Payment Amount", width: 150, align: "right", enabled: true },
+        ],
+      };
+      const received = Number(payment.amountReceived) || 0;
+      const receipt = {
+        invoiceNumber: payment.paymentNumber ? `#${payment.paymentNumber}` : "N/A",
+        invoiceDate: payment.paymentDate,
+        terms: payment.paymentMode || "N/A",
+        dueDate: undefined,
+        customer: payment.customer,
+        customerDisplayName: payment.customerDisplayName,
+        customerAddress: payment.customer?.address || "",
+        organization: payment.organization,
+        template: receiptTemplate,
+        currency: payment.currency || "PKR",
+        subTotal: received,
+        total: received,
+        previousRemaining: 0,
+        notes: "",
+        items: (payment.appliedInvoices || []).map((a: any) => ({
+          invoiceNumber: a.invoice?.invoiceNumber || a.invoiceId || "N/A",
+          invoiceAmount: num(a.invoice?.total ?? a.totalAmount),
+          paymentAmount: num(a.amount),
+        })),
+      };
+      const pdfBuffer = await generateInvoicePDF(receipt as any, values);
+      attachments = [
+        {
+          filename: `Payment-${payment.paymentNumber || payment.id}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ];
+    }
+
     const mailOptions = {
       from: `"${companyName}" <${getMailFromAddress()}>`,
       to: recipients.join(", "),
@@ -96,6 +158,7 @@ const sendPayment = async (
       ...(bcc.length > 0 && { bcc: bcc.join(", ") }),
       subject,
       html: messageHtml,
+      ...(attachments.length > 0 && { attachments }),
     };
 
     await transporter.sendMail(mailOptions);

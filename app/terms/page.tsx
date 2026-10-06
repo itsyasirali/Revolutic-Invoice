@@ -10,7 +10,9 @@ export const metadata = publicMeta(
 
 const TermsPage = () => (
   <LegalPage
-    title="Terms & Conditions"
+    badge="Legal / Terms & Conditions"
+    title="Terms &"
+    highlight="Conditions"
     intro="Please read these terms carefully. They explain the rules for using InvoiceSmarty and what you can expect from us."
     sections={termsSections}
   />

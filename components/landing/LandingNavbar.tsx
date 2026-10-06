@@ -13,9 +13,7 @@ const LandingNavbar = () => {
     useLandingNavbar();
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  // "/dashboard" is resolved by the middleware from the session cookie: straight to the
-  // org dashboard when signed in, to /login when not (no waiting for a profile fetch).
-  const signInHref = "/dashboard";
+  const signInHref = user ? "/dashboard" : "/login";
   const startHref = user ? "/dashboard" : "/register";
 
   return (
