@@ -17,13 +17,21 @@ const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.ge
  * Start / Pause / Stop timer. Stopping saves a TimeEntry through the normal
  * API; the server recomputes duration and amount from the start/end times.
  */
-const TimerWidget: React.FC = () => {
-  const timer = useTimer();
+interface TimerWidgetProps {
+  /** When set, the timer belongs to this project (no project/customer pickers). */
+  projectId?: string | number;
+  onSaved?: () => void | Promise<void>;
+}
+
+const TimerWidget: React.FC<TimerWidgetProps> = ({ projectId: fixedProjectId, onSaved }) => {
+  const timer = useTimer(
+    fixedProjectId ? `revolutic:time-tracking:timer:project:${fixedProjectId}` : undefined,
+  );
   const { options: customerOptions } = useCustomerOptions();
   const [customerId, setCustomerId] = useState("");
   const [description, setDescription] = useState("");
   const [project, setProject] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [projectId, setProjectId] = useState(fixedProjectId ? String(fixedProjectId) : "");
   const [taskId, setTaskId] = useState("");
   const { projects, options: projectOptions, taskOptions } = useProjectOptions(projectId || null);
   const selectedProject = projects.find((p) => String(p.id) === projectId);
@@ -64,6 +72,7 @@ const TimerWidget: React.FC = () => {
       timer.reset();
       setDescription("");
       setTaskId("");
+      await onSaved?.();
     } catch (err) {
       const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
       toast.error(msg || "Failed to save time entry", "Error");
@@ -106,6 +115,7 @@ const TimerWidget: React.FC = () => {
 
           {timer.active && (
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+              {!fixedProjectId && (
               <Select
                 label="Project"
                 selectSize="sm"
@@ -117,6 +127,7 @@ const TimerWidget: React.FC = () => {
                   setTaskId("");
                 }}
               />
+              )}
               {projectId ? (
                 <Select
                   label="Task"

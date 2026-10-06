@@ -26,6 +26,7 @@ import { formatDuration, type TimeEntry } from "@/types/timeEntry";
 import type { Expense } from "@/types/expense";
 import type { ProjectInvoiceRef } from "@/types/project";
 import type { TableColumn } from "@/types/common";
+import TimerWidget from "@/components/TimeTracking/TimerWidget";
 import BusinessPortalComments from "@/components/portal/BusinessPortalComments";
 
 type Tab = "overview" | "tasks" | "time" | "expenses" | "invoices" | "comments";
@@ -322,6 +323,8 @@ const ProjectDetails: React.FC = () => {
       )}
 
       {tab === "time" && (
+        <div className="space-y-4">
+        <TimerWidget projectId={project.id} onSaved={refetch} />
         <Table<TimeEntry>
           {...tableBase}
           columns={timeColumns}
@@ -331,6 +334,7 @@ const ProjectDetails: React.FC = () => {
           emptyMessage="No time logged on this project"
           emptyIcon={Timer}
         />
+        </div>
       )}
       {tab === "expenses" && (
         <Table<Expense>

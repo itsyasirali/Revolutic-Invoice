@@ -11,10 +11,10 @@ interface TimerState {
   runningSince: number | null;
 }
 
-const STORAGE_KEY = "revolutic:time-tracking:timer";
+const DEFAULT_STORAGE_KEY = "revolutic:time-tracking:timer";
 const EMPTY: TimerState = { startedAt: null, accumulatedMs: 0, runningSince: null };
 
-const read = (): TimerState => {
+const read = (STORAGE_KEY: string): TimerState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? { ...EMPTY, ...JSON.parse(raw) } : EMPTY;
@@ -27,24 +27,24 @@ const read = (): TimerState => {
  * Stopwatch that survives page reloads (per-browser convenience only). The
  * resulting TimeEntry is still validated and priced on the server.
  */
-const useTimer = () => {
+const useTimer = (storageKey: string = DEFAULT_STORAGE_KEY) => {
   const [state, setState] = useState<TimerState>(EMPTY);
   const [now, setNow] = useState(() => Date.now());
   const loaded = useRef(false);
 
   useEffect(() => {
-    setState(read());
+    setState(read(storageKey));
     loaded.current = true;
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     if (!loaded.current) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
     } catch {
       /* storage unavailable: timer still works in-memory */
     }
-  }, [state]);
+  }, [state, storageKey]);
 
   useEffect(() => {
     if (state.runningSince === null) return;

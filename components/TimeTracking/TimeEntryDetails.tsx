@@ -105,7 +105,7 @@ const TimeEntryDetails: React.FC = () => {
         onEdit={() => router.push(`/time-tracking/edit/${entry.id}`)}
         editDisabled={entry.invoiced}
         editTitle={entry.invoiced ? "Invoiced entries cannot be edited" : "Edit time entry"}
-        onClose={() => router.push("/time-tracking")}
+        onClose={() => router.push("/projects")}
         menu={[
           {
             label: "Create Invoice",
@@ -117,7 +117,7 @@ const TimeEntryDetails: React.FC = () => {
             label: "Delete",
             danger: true,
             disabled: entry.invoiced,
-            onClick: () => del.requestDelete([entry.id], () => router.push("/time-tracking")),
+            onClick: () => del.requestDelete([entry.id], () => router.push("/projects")),
           },
         ]}
       />

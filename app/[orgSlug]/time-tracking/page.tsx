@@ -1,9 +1,9 @@
-import TimeEntryList from "@/components/TimeTracking/TimeEntryList";
-import { privateMeta } from "@/lib/pageMeta";
+import { redirect } from "next/navigation";
 
-export const metadata = privateMeta("Time Tracking", "Track billable and non-billable time against customers and projects, and invoice it.");
-
-
-const TimeTrackingPage = () => <TimeEntryList />;
+// Time is tracked inside each project now; the standalone list is gone.
+const TimeTrackingPage = async ({ params }: { params: Promise<{ orgSlug: string }> }) => {
+  const { orgSlug } = await params;
+  redirect(`/${orgSlug}/projects`);
+};
 
 export default TimeTrackingPage;
