@@ -33,6 +33,10 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [isSwitching, setIsSwitching] = useState<boolean>(false);
   const [initialFetchDone, setInitialFetchDone] = useState<boolean>(false);
+  // Which user the organization list was last loaded for. Right after a login the user
+  // changes while initialFetchDone is still true from the logged-out state, so without
+  // this the app briefly thinks "no organization" and shows the setup form.
+  const [fetchedForUserId, setFetchedForUserId] = useState<string | number | null>(null);
 
   // Restore stored organization from localStorage on client after hydration
   useEffect(() => {
@@ -140,6 +144,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (!user) {
       fetchedUserIdRef.current = null;
+      setFetchedForUserId(null);
       setOrganization(null);
       setOrganizations([]);
       setLoading(false);
@@ -157,15 +162,19 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (fetchedUserIdRef.current === user.id) return;
     fetchedUserIdRef.current = user.id;
 
-    fetchOrganization({ silent: true });
-  }, [user?.id, authLoading, fetchOrganization]);
+    const forUser = user.id;
+    fetchOrganization({ silent: true }).finally(() => setFetchedForUserId(forUser));
+  }, [user, authLoading, fetchOrganization]);
 
   return (
     <OrganizationContext.Provider
       value={{
         organization,
         organizations,
-        loading: (authLoading && !user) || (!!user && !organization && !initialFetchDone) || loading,
+        loading:
+          (authLoading && !user) ||
+          (!!user && !organization && (!initialFetchDone || fetchedForUserId !== user.id)) ||
+          loading,
         isSwitching,
         hasOrganization: !!organization,
         fetchOrganization,
