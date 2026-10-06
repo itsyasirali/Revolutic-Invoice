@@ -163,6 +163,16 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchedUserIdRef.current = user.id;
 
     const forUser = user.id;
+
+    // The login response already carries the user's organization: use it right away so
+    // the redirect to the dashboard doesn't wait on the /organizations round trip.
+    const seeded = (user as any).organization as OrganizationData | null | undefined;
+    if (seeded?.slug) {
+      setOrganization((prev) => prev ?? seeded);
+      setInitialFetchDone(true);
+      setFetchedForUserId(forUser);
+    }
+
     fetchOrganization({ silent: true }).finally(() => setFetchedForUserId(forUser));
   }, [user, authLoading, fetchOrganization]);
 
