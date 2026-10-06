@@ -59,13 +59,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const combinedClasses =
       `${baseClasses} ${variantClasses[variant]} ${sizeStyle} ${borderRadiusClass} ${widthClass} ${className}`.trim();
 
+    // When a Server Component passes the child (e.g. a <Link>) across the client boundary it
+    // can arrive as a lazy reference, not a plain element. Children.toArray resolves that, so
+    // server and client both take the same asChild branch (no hydration mismatch).
+    const onlyChild = asChild ? React.Children.toArray(children) : [];
     if (
       asChild &&
-      children &&
-      typeof children === "object" &&
-      "props" in children
+      onlyChild.length === 1 &&
+      React.isValidElement(onlyChild[0])
     ) {
-      const child = children as React.ReactElement<{ className?: string }>;
+      const child = onlyChild[0] as React.ReactElement<{ className?: string }>;
       return (
         <span className="inline-flex">
           {React.cloneElement(child, {
