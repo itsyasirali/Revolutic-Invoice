@@ -13,7 +13,6 @@ import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
 import { setNavState } from "@/lib/clientNavState";
 import { OrgLink } from "@/components/organization/OrgLink";
 import {
-  Bell,
   ChevronDown,
   User as UserIcon,
   Settings,
@@ -27,7 +26,8 @@ import {
 import { useProfile } from "@/hooks/auth/useProfile";
 import { useLogout } from "@/hooks/auth/useLogout";
 import OrganizationSwitcher from "@/components/organization/OrganizationSwitcher";
-import { SearchDropdown, LoadingSpinner, IconButton } from "@/components/ui";
+import NotificationsDrawer from "@/components/notifications/NotificationsDrawer";
+import { SearchDropdown, LoadingSpinner } from "@/components/ui";
 import type { SearchResultItem } from "@/types/common";
 import axios from "@/lib/axios";
 
@@ -344,99 +344,13 @@ const HeaderSearch = () => {
   );
 };
 
-interface NotificationItem {
-  id: string;
-  title: string;
-  description: string;
-  time: number;
-  icon: typeof FileText;
-  href: string;
-}
-
-const formatTimeAgo = (time: number) => {
-  const mins = Math.max(0, Math.floor((Date.now() - time) / 60000));
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return days < 30 ? `${days}d ago` : new Date(time).toLocaleDateString();
-};
-
-const NOTIFICATION_LIMIT = 8;
-
-const useNotifications = (enabled: boolean) => {
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [invRes, payRes] = await Promise.all([
-        axios.get("/invoices").catch(() => null),
-        axios.get("/payments").catch(() => null),
-      ]);
-      const invoices: any[] = invRes?.data?.invoices || [];
-      const payments: any[] = payRes?.data?.payments || [];
-
-      const next: NotificationItem[] = [
-        ...invoices.map((inv): NotificationItem => {
-          const status = String(inv.status || "").toLowerCase();
-          const label = inv.invoiceNumber || `INV-${inv.id}`;
-          return {
-            id: `invoice-${inv.id}`,
-            title:
-              status === "paid"
-                ? `Invoice ${label} paid`
-                : status === "draft"
-                  ? `Invoice ${label} saved as draft`
-                  : `Invoice ${label} ${status || "created"}`,
-            description: `${inv.customer?.displayName || inv.customerDisplayName || "Customer"} • ${inv.currency || "$"}${inv.total ?? 0}`,
-            time: new Date(inv.updatedAt || inv.createdAt || 0).getTime(),
-            icon: FileText,
-            href: `/invoices/preview/${inv.id}`,
-          };
-        }),
-        ...payments.map(
-          (p): NotificationItem => ({
-            id: `payment-${p.id}`,
-            title: `Payment #${p.paymentNumber || p.id} received`,
-            description: `${p.customerDisplayName || "Customer"} • ${p.currency || "$"}${p.amountReceived ?? 0}`,
-            time: new Date(p.updatedAt || p.createdAt || 0).getTime(),
-            icon: DollarSign,
-            href: `/payments/${p.id}`,
-          }),
-        ),
-      ]
-        .filter((n) => Number.isFinite(n.time) && n.time > 0)
-        .sort((a, b) => b.time - a.time)
-        .slice(0, NOTIFICATION_LIMIT);
-
-      setItems(next);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (enabled) load();
-  }, [enabled, load]);
-
-  return { items, loading };
-};
-
 const Header = () => {
   const { user, loading: profileLoading } = useProfile();
   const { logout, loading: logoutLoading } = useLogout();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
-  const { items: notifications, loading: notificationsLoading } =
-    useNotifications(isNotificationOpen);
 
   const profileRef = useRef<HTMLDivElement>(null);
-  const notificationRef = useRef<HTMLDivElement>(null);
 
   const displayName =
     user?.name || user?.firstName
@@ -461,12 +375,6 @@ const Header = () => {
       ) {
         setIsProfileOpen(false);
       }
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target as Node)
-      ) {
-        setIsNotificationOpen(false);
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -490,75 +398,8 @@ const Header = () => {
         {/* Organization Switcher */}
         <OrganizationSwitcher />
 
-        {/* Notification Bell */}
-        <div className="relative" ref={notificationRef}>
-          <IconButton
-            icon={Bell}
-            variant="ghost"
-            size="md"
-            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-            className="relative rounded-xl text-slate-500 hover:text-slate-800"
-            label="Notifications"
-          />
-          {notifications.length > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white pointer-events-none" />
-          )}
-
-          {isNotificationOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 z-50">
-              <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800">
-                  Notifications
-                </span>
-              </div>
-              {notificationsLoading && notifications.length === 0 ? (
-                <div className="py-6 flex justify-center">
-                  <LoadingSpinner size="sm" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="py-6 px-4 text-center">
-                  <Bell className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-slate-600">
-                    No new notifications
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    We will notify you when payments or invoices update.
-                  </p>
-                </div>
-              ) : (
-                <ul className="max-h-96 overflow-y-auto">
-                  {notifications.map((n) => {
-                    const Icon = n.icon;
-                    return (
-                      <li key={n.id}>
-                        <OrgLink
-                          href={n.href}
-                          onClick={() => setIsNotificationOpen(false)}
-                          className="flex items-start gap-3 px-4 py-2.5 hover:bg-slate-50"
-                        >
-                          <span className="mt-0.5 w-7 h-7 shrink-0 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-                            <Icon className="w-3.5 h-3.5" />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-xs font-semibold text-slate-800 truncate">
-                              {n.title}
-                            </span>
-                            <span className="block text-[11px] text-slate-500 truncate">
-                              {n.description}
-                            </span>
-                            <span className="block text-[10px] text-slate-400 mt-0.5">
-                              {formatTimeAgo(n.time)}
-                            </span>
-                          </span>
-                        </OrgLink>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Notifications */}
+        <NotificationsDrawer />
 
         {/* User Profile Pill */}
         <div className="relative" ref={profileRef}>
