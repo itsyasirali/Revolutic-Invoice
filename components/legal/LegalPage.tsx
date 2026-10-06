@@ -11,11 +11,11 @@ type Props = {
 /** Shared layout for the Terms & Conditions and Privacy Policy pages. */
 const LegalPage = ({ title, intro, sections }: Props) => (
   <MarketingLayout>
-    <section className="border-b border-slate-100 bg-slate-50 pb-12 pt-16 md:pt-20">
-      <Container>
+    <section className="border-b border-slate-100 pb-12 pt-24 md:pt-32">
+      <Container className="text-center">
         <p className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">Legal</p>
-        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">{title}</h1>
-        <p className="mt-4 max-w-3xl text-lg text-slate-600">{intro}</p>
+        <h1 className="mx-auto max-w-5xl text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl md:text-7xl">{title}</h1>
+        <p className="mx-auto mt-8 max-w-3xl text-lg font-semibold leading-relaxed text-slate-600 md:text-xl">{intro}</p>
         <p className="mt-4 text-sm text-slate-500">Last updated: {LEGAL_UPDATED}</p>
       </Container>
     </section>

@@ -12,16 +12,13 @@ export const metadata = publicMeta("Resources", "Guides and articles on invoicin
 
 
 const ResourcesPage = () => {
-  const featured = posts.find((item) => item.featured) || posts[0];
-
   return (
     <MarketingLayout>
       <div className="w-full">
         <Hero
-          title="Resources & Guides"
-          subtitle="Finance, Invoicing & Automation Insights"
-          featuredItem={featured}
-          baseRoute="resources"
+          title="Invoicing guides and insights for"
+          highlight="your business."
+          subtitle="Learn how to get paid faster, manage cash flow and automate billing. Practical guides, tips and strategies to run a more organized business."
         />
         <List
           title="Latest Articles & Guides"

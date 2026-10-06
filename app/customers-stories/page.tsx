@@ -16,16 +16,13 @@ const customerCategories = [
 ];
 
 const CustomerStoriesPage = () => {
-  const featured = customers.find((item) => item.featured) || customers[0];
-
   return (
     <MarketingLayout>
       <div className="w-full">
         <Hero
-          title="Customer Stories"
-          subtitle="Real Results from Growing Teams"
-          featuredItem={featured}
-          baseRoute="customers-stories"
+          title="Real results from"
+          highlight="growing businesses."
+          subtitle="See how teams use InvoiceSmarty to create invoices, cut collection time and get paid faster. Honest stories from businesses just like yours."
         />
         <List
           title="Case Studies & Success Stories"

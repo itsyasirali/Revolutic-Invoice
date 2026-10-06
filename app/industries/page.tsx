@@ -12,16 +12,13 @@ export const metadata = publicMeta("Industries", "See how InvoiceSmarty fits you
 
 
 const IndustriesPage = () => {
-  const featured = industries.find((item) => item.featured) || industries[0];
-
   return (
     <MarketingLayout>
       <div className="w-full">
         <Hero
-          title="Industry Solutions"
-          subtitle="Tailored for Your Business"
-          featuredItem={featured}
-          baseRoute="industries"
+          title="Smart invoicing solutions for"
+          highlight="your industry."
+          subtitle="Create professional invoices, track payments, and get paid faster. Tailored billing for every industry, no accounting expertise required."
         />
         <List
           title="All Industries"

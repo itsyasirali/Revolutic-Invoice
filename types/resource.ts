@@ -37,8 +37,7 @@ export interface DetailHeroProps {
 export interface HeroProps {
   title: string;
   subtitle?: string;
-  featuredItem: ResourceItem;
-  baseRoute: string;
+  highlight?: string;
 }
 
 export interface ListProps {
