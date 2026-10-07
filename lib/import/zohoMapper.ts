@@ -1,4 +1,4 @@
-import { parseCsvRecords as parseCsv, type CsvRow } from "@/lib/csv";
+import { parseCsvRecords, type CsvRow } from "@/lib/csv";
 import type {
   CustomerDraft,
   ImportDrafts,
@@ -9,6 +9,8 @@ import type {
   QuoteDraft,
 } from "./types";
 
+export class ImportFormatError extends Error {}
+
 export interface ImportFiles {
   contacts?: string;
   items?: string;
@@ -17,6 +19,86 @@ export interface ImportFiles {
   invoices?: string;
   payments?: string;
 }
+
+// Canonical (Zoho) column name -> other names commonly used by other tools.
+const HEADER_ALIASES: Record<string, string[]> = {
+  "Display Name": ["Name", "Customer", "Contact Name", "Full Name", "Client", "Client Name"],
+  "Company Name": ["Company", "Organization", "Business Name"],
+  "EmailID": ["Email", "Email Address", "E-mail", "Contact Email"],
+  "MobilePhone": ["Mobile", "Cell"],
+  "Phone": ["Phone Number", "Telephone", "Tel"],
+  "Billing Address": ["Address", "Street Address"],
+  "Billing City": ["City"],
+  "Billing State": ["State", "Province"],
+  "Billing Country": ["Country"],
+  "Billing Code": ["Zip", "Zip Code", "Postal Code", "Postcode"],
+  "Currency Code": ["Currency"],
+  "Notes": ["Note", "Remarks", "Memo"],
+  "Item Name": ["Item", "Product", "Product Name", "Service", "Name"],
+  "Item Desc": ["Item Description", "Line Description"],
+  "Description": ["Details"],
+  "Rate": ["Price", "Selling Price", "Unit Price", "Unit Cost"],
+  "Usage unit": ["Unit", "Units", "UOM"],
+  "Product Type": ["Type", "Item Type"],
+  "Invoice Number": ["Invoice No", "Invoice #", "Invoice Num", "Invoice ID", "Number"],
+  "Invoice Date": ["Date", "Issue Date", "Issued"],
+  "Due Date": ["Due", "Payment Due"],
+  "Invoice Status": ["Status"],
+  "Customer Name": ["Customer", "Client", "Client Name", "Bill To"],
+  "SubTotal": ["Sub Total", "Subtotal"],
+  "Total": ["Amount", "Grand Total", "Invoice Total"],
+  "Balance": ["Amount Due", "Balance Due", "Outstanding"],
+  "Quantity": ["Qty"],
+  "Item Price": ["Unit Price", "Price", "Item Rate"],
+  "Item Total": ["Line Total", "Line Amount"],
+  "Quote Number": ["Quote No", "Quote #", "Estimate Number", "Estimate No"],
+  "Quote Date": ["Estimate Date"],
+  "Quote Status": ["Status"],
+  "Expiry Date": ["Valid Until", "Expiration Date"],
+  "Project Name": ["Project"],
+  "Payment Number": ["Payment No", "Payment #", "Receipt Number"],
+  "Mode": ["Payment Mode", "Payment Method", "Method"],
+  "Reference Number": ["Reference", "Reference No", "Ref"],
+  "Amount": ["Payment Amount", "Amount Received"],
+  "Amount Applied to Invoice": ["Applied Amount", "Amount Applied"],
+  "Date": ["Payment Date"],
+};
+
+const normHeader = (h: string) => h.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const CANONICAL_BY_NORM = new Map(
+  Object.keys(HEADER_ALIASES).map((c) => [normHeader(c), [c]] as const),
+);
+
+// An alias can stand for several canonical columns (e.g. "Name").
+const ALIAS_LOOKUP = (() => {
+  const map = new Map<string, string[]>();
+  for (const [canonical, aliases] of Object.entries(HEADER_ALIASES)) {
+    for (const alias of aliases) {
+      const key = normHeader(alias);
+      map.set(key, [...(map.get(key) ?? []), canonical]);
+    }
+  }
+  return map;
+})();
+
+/**
+ * Parses a CSV and adds canonical (Zoho) column names for headers that match
+ * case/punctuation-insensitively or via a known alias, so exports from other
+ * tools map the same way. Exact headers always take precedence.
+ */
+const parseCsv = (text: string): CsvRow[] =>
+  parseCsvRecords(text).map((row) => {
+    const out: CsvRow = { ...row };
+    for (const [key, value] of Object.entries(row)) {
+      const norm = normHeader(key);
+      const canonicals = CANONICAL_BY_NORM.get(norm) ?? ALIAS_LOOKUP.get(norm) ?? [];
+      for (const canonical of canonicals) {
+        if (!(out[canonical] ?? "").trim()) out[canonical] = value;
+      }
+    }
+    return out;
+  });
 
 const str = (row: CsvRow, key: string) => (row[key] ?? "").trim();
 
@@ -235,6 +317,15 @@ export const buildDrafts = (files: ImportFiles): ImportDrafts => {
       parseCsv(files.payments),
       (r) => str(r, "CustomerPayment ID") || str(r, "Payment Number"),
     ).map(mapPayment);
+  }
+  const empty = (Object.keys(files) as (keyof ImportFiles)[]).filter((k) => {
+    const d = drafts[{ contacts: "customers", items: "items", projects: "projects", quotes: "quotes", invoices: "invoices", payments: "payments" }[k] as keyof ImportDrafts];
+    return files[k] && (!d || d.length === 0);
+  });
+  if (empty.length > 0) {
+    throw new ImportFormatError(
+      `No importable records found in: ${empty.join(", ")}. Make sure the first row contains column headers such as Name, Email, Invoice Number, Date and Total.`,
+    );
   }
   return drafts;
 };

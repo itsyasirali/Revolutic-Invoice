@@ -104,6 +104,7 @@ const createPayment = async (req: NextRequest) => {
         if (invId && amountApplied > 0) {
           const targetInvoice = await invoiceRepo.findOne({
             where: { id: invId, organizationId: orgId },
+            relations: ["writeOffs"],
           });
 
           if (!targetInvoice) {
@@ -114,8 +115,23 @@ const createPayment = async (req: NextRequest) => {
             );
           }
 
-          const invoiceRemaining = Number(targetInvoice.remaining) || 0;
-          if (amountApplied > invoiceRemaining) {
+          // The stored `remaining` is still 0 on invoices that were never paid,
+          // so derive the open balance from total - received - write-offs.
+          const writtenOffAmount = (targetInvoice.writeOffs || []).reduce(
+            (sum, w) => sum + (w.reversedAt ? 0 : Number(w.amount || 0)),
+            0,
+          );
+          const invoiceRemaining = Math.max(
+            0,
+            Number(
+              (
+                Number(targetInvoice.total || 0) -
+                Number(targetInvoice.received || 0) -
+                writtenOffAmount
+              ).toFixed(2),
+            ),
+          );
+          if (amountApplied > invoiceRemaining + 0.001) {
             await paymentRepo.delete(savedPayment.id);
             return NextResponse.json(
               {

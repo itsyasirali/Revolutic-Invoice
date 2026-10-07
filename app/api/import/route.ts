@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRequestContext, errorResponse } from "@/lib/requestContext";
 import { commitDrafts, ImportValidationError } from "@/lib/services/zohoImport";
-import { buildDrafts, type ImportFiles } from "@/lib/import/zohoMapper";
+import { buildDrafts, ImportFormatError, type ImportFiles } from "@/lib/import/zohoMapper";
 import type { ImportDrafts } from "@/lib/import/types";
 
 const FIELDS: (keyof ImportFiles)[] = ["contacts", "items", "projects", "quotes", "invoices", "payments"];
@@ -54,6 +54,9 @@ export const POST = async (req: NextRequest) => {
       { status: dryRun ? 200 : 201 },
     );
   } catch (error) {
+    if (error instanceof ImportFormatError) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
     if (error instanceof ImportValidationError) {
       return NextResponse.json({ message: error.message, errors: error.errors }, { status: 422 });
     }

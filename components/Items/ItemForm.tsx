@@ -3,6 +3,7 @@
 import React from "react";
 import { Info } from "lucide-react";
 import {
+  Tooltip,
   Input,
   Select,
   Textarea,
@@ -45,7 +46,11 @@ const ItemForm: React.FC = () => {
             <div>
               <label className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-3">
                 Item Type
-                <Info className="w-4 h-4 text-gray-400" />
+                <Tooltip content="Choose Goods for physical products you sell or track, or Service for work you perform. The type determines the available units.">
+                  <Tooltip content="Choose Goods for physical products you sell or track, or Service for work you perform. The type determines the available units.">
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </Tooltip>
+                </Tooltip>
               </label>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2.5 cursor-pointer group">

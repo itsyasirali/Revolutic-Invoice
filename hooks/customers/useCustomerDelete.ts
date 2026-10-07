@@ -41,12 +41,16 @@ const useDeleteCustomer = () => {
     dismissAlert();
 
     try {
-      await axios.delete(`/customers/batch-delete`, {
-        data: { customers: selectedIds.map(String) },
-      });
+      if (selectedIds.length === 1) {
+        await axios.delete(`/customers/${encodeURIComponent(selectedIds[0])}`);
+      } else {
+        await axios.delete(`/customers/batch-delete`, {
+          data: { customers: selectedIds.map(String) },
+        });
+      }
 
       await invalidateCustomers();
-      toast.error(
+      toast.success(
         selectedIds.length > 1
           ? "Customers deleted successfully"
           : "Customer deleted successfully",

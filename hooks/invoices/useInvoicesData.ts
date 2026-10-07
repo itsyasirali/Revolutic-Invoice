@@ -138,7 +138,8 @@ export default function useInvoicesList(
         : { invoices: initialInvoices }
       : undefined,
     revalidateOnFocus: false,
-    revalidateOnMount: !initialInvoices,
+    // Always refetch on mount: the server-rendered seed can be stale after a status change (e.g. Draft -> Sent).
+    revalidateOnMount: true,
     dedupingInterval: 15000,
   });
 

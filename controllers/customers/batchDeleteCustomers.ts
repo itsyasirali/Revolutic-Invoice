@@ -35,7 +35,9 @@ const batchDeleteCustomers = async (req: NextRequest) => {
       );
     }
 
-    const parsedCustomerIds = customerIds.map((id) => parseInt(id));
+    const parsedCustomerIds = customerIds
+      .map((id) => parseInt(id))
+      .filter((id) => !isNaN(id));
 
     const db = await getDatabase();
     const customersRepository = db.getRepository(Customer);
@@ -47,8 +49,8 @@ const batchDeleteCustomers = async (req: NextRequest) => {
 
     if (docs.length === 0) {
       return NextResponse.json(
-        { message: "No valid parameters provided" },
-        { status: 400 },
+        { message: "Customer(s) not found. Refresh the page and try again." },
+        { status: 404 },
       );
     }
 

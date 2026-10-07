@@ -873,13 +873,13 @@ export const useInvoiceForm = () => {
       }
 
       if (invoiceId) {
-        // Open the preview from the saved invoice the server just returned, so it shows
+        // Go to the email step with the saved invoice the server just returned, so it shows
         // immediately (no blank wait); the preview refreshes the extras in the background.
         const { message: _message, ...stored } = savedInvoice ?? {};
         void _message;
         if (savedInvoice) setNavState(`invoice:${invoiceId}`, stored);
         else clearNavState(`invoice:${invoiceId}`);
-        router.push(`/invoices/preview/${invoiceId}`);
+        router.push(`/invoices/${invoiceId}/email`);
       }
     } catch (error) {
       console.error("Error in handleSaveAndSend:", error);
