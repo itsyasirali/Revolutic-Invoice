@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { In } from "typeorm";
+import { In, Not } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { Quote } from "@/entities/Quote";
@@ -70,7 +70,7 @@ export const portalDashboard = withPortal("Failed to load dashboard", async (ctx
 
   const lastPayment = s.canViewPayments
     ? await db.getRepository(Payment).findOne({
-        where: { ...where, status: "Paid" },
+        where: { ...where, status: Not("Draft") },
         order: { paymentDate: "DESC", id: "DESC" },
       })
     : null;
@@ -284,7 +284,7 @@ export const portalPayments = withPortal("Failed to load payments", async (ctx) 
   requirePermission(ctx, "canViewPayments");
   const db = await getDatabase();
   const payments = await db.getRepository(Payment).find({
-    where: { organizationId: ctx.orgId, customerId: ctx.customerId, status: "Paid" },
+    where: { organizationId: ctx.orgId, customerId: ctx.customerId, status: Not("Draft") },
     relations: ["appliedInvoices", "appliedInvoices.invoice"],
     order: { paymentDate: "DESC", id: "DESC" },
   });
@@ -309,7 +309,7 @@ export const portalPayment = withPortal("Failed to load payment", async (ctx, _r
       id: await idOf(p),
       organizationId: ctx.orgId,
       customerId: ctx.customerId,
-      status: "Paid",
+      status: Not("Draft"),
     },
     relations: ["appliedInvoices", "appliedInvoices.invoice"],
   });
@@ -496,7 +496,7 @@ export const portalStatement = withPortal("Failed to build statement", async (ct
       order: { invoiceDate: "ASC", id: "ASC" },
     }),
     db.getRepository(Payment).find({
-      where: { organizationId: ctx.orgId, customerId: ctx.customerId, status: "Paid" },
+      where: { organizationId: ctx.orgId, customerId: ctx.customerId, status: Not("Draft") },
       order: { paymentDate: "ASC", id: "ASC" },
     }),
   ]);

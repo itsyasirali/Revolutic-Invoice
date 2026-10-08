@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { Printer, Check, X } from "lucide-react";
 import { usePortalMe, usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -175,7 +176,7 @@ export const PortalInvoiceView: React.FC = () => {
   const discount = (Number(inv.subTotal) * (inv.discountPercent || 0)) / 100;
 
   return (
-    <>
+    <div id="pdf-print-area">
       <PageTitle
         back={{ href: "/portal/invoices", label: "Back to invoices" }}
         title={`Invoice ${inv.invoiceNumber}`}
@@ -229,7 +230,7 @@ export const PortalInvoiceView: React.FC = () => {
           {inv.notes && (
             <div className="mt-6 pt-4 border-t border-slate-100">
               <p className="text-[12px] uppercase tracking-wide text-slate-500 mb-1">Notes</p>
-              <p className="text-[14px] text-slate-700 whitespace-pre-wrap">{inv.notes}</p>
+              <div className="text-[14px] text-slate-700 whitespace-pre-wrap [&_p]:m-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(inv.notes) }} />
             </div>
           )}
         </PCard>
@@ -253,7 +254,7 @@ export const PortalInvoiceView: React.FC = () => {
 
         <PortalComments entityType="invoice" entityId={inv.id} />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -356,7 +357,7 @@ export const PortalQuoteView: React.FC = () => {
   };
 
   return (
-    <>
+    <div id="pdf-print-area">
       <PageTitle
         back={{ href: "/portal/quotes", label: "Back to quotes" }}
         title={`Quote ${q.quoteNumber}`}
@@ -420,7 +421,7 @@ export const PortalQuoteView: React.FC = () => {
               {q.notes && (
                 <div>
                   <p className="text-[12px] uppercase tracking-wide text-slate-500 mb-1">Notes</p>
-                  <p className="text-[14px] text-slate-700 whitespace-pre-wrap">{q.notes}</p>
+                  <div className="text-[14px] text-slate-700 whitespace-pre-wrap [&_p]:m-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(q.notes) }} />
                 </div>
               )}
               {q.terms && (
@@ -435,7 +436,7 @@ export const PortalQuoteView: React.FC = () => {
 
         <PortalComments entityType="quote" entityId={q.id} />
       </div>
-    </>
+    </div>
   );
 };
 

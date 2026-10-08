@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { usePortalMe, portalSend, errorText } from "@/lib/portalApi";
 import { PageTitle, PCard, PageLoading, ErrorNote, fieldClass, primaryBtn, outlineBtn } from "./PortalUI";
 
@@ -13,6 +13,25 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
     <div className="mt-1.5">{children}</div>
   </label>
 );
+
+const PasswordInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input {...props} type={show ? "text" : "password"} className={`${fieldClass} pr-10`} />
+      <button
+        type="button"
+        onClick={() => setShow((v) => !v)}
+        aria-label={show ? "Hide password" : "Show password"}
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-slate-400 hover:text-slate-700 cursor-pointer"
+      >
+        {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  );
+};
+
+const MESSAGE_MS = 5000;
 
 const PortalProfile: React.FC = () => {
   const { me, loading, refresh } = usePortalMe();
@@ -27,6 +46,18 @@ const PortalProfile: React.FC = () => {
   const [next, setNext] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMessage, setPwMessage] = useState<{ type: "ok" | "error"; text: string } | null>(null);
+
+  // Success messages are transient: clear them after a few seconds.
+  useEffect(() => {
+    if (message?.type !== "ok") return;
+    const t = setTimeout(() => setMessage(null), MESSAGE_MS);
+    return () => clearTimeout(t);
+  }, [message]);
+  useEffect(() => {
+    if (pwMessage?.type !== "ok") return;
+    const t = setTimeout(() => setPwMessage(null), MESSAGE_MS);
+    return () => clearTimeout(t);
+  }, [pwMessage]);
 
   useEffect(() => {
     if (!me) return;
@@ -85,7 +116,7 @@ const PortalProfile: React.FC = () => {
     <>
       <PageTitle title="My profile" subtitle="Your account and contact details." />
 
-      <form onSubmit={save} className="space-y-4">
+      <form onSubmit={save} onChange={() => setMessage(null)} className="space-y-4">
         <PCard title="Account">
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Your name">
@@ -174,10 +205,10 @@ const PortalProfile: React.FC = () => {
         <PCard title="Password">
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Current password">
-              <input type="password" required autoComplete="current-password" className={fieldClass} value={current} onChange={(e) => setCurrent(e.target.value)} />
+              <PasswordInput required autoComplete="current-password" value={current} onChange={(e) => { setCurrent(e.target.value); setPwMessage(null); }} />
             </Field>
             <Field label="New password (min. 8 characters)">
-              <input type="password" required minLength={8} autoComplete="new-password" className={fieldClass} value={next} onChange={(e) => setNext(e.target.value)} />
+              <PasswordInput required minLength={8} autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setPwMessage(null); }} />
             </Field>
           </div>
           <div className="mt-4 space-y-3">
