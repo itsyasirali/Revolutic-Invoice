@@ -122,7 +122,9 @@ export const useInvoicePreview = () => {
 
       const targetId = id && id !== "draft" ? id : "draft";
       setNavState(`invoice:${targetId}`, invoiceToSend);
-      router.push(`/invoices/${targetId}/email`);
+      const selected = (invoice as any).customerEmail;
+      const to = selected ? `?to=${encodeURIComponent(selected)}` : "";
+      router.push(`/invoices/${targetId}/email${to}`);
     }
   };
 

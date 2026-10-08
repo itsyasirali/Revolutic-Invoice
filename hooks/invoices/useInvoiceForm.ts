@@ -883,7 +883,10 @@ export const useInvoiceForm = () => {
         void _message;
         if (savedInvoice) setNavState(`invoice:${invoiceId}`, stored);
         else clearNavState(`invoice:${invoiceId}`);
-        router.push(`/invoices/${invoiceId}/email`);
+        const to = invoiceData.customerEmail
+          ? `?to=${encodeURIComponent(invoiceData.customerEmail)}`
+          : "";
+        router.push(`/invoices/${invoiceId}/email${to}`);
       }
     } catch (error) {
       console.error("Error in handleSaveAndSend:", error);

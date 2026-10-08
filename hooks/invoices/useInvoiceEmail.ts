@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
 import { invalidateInvoices } from "@/lib/swr";
@@ -20,6 +21,8 @@ export interface EmailData {
 
 export const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
   const router = useRouter();
+  // The contact picked on the form/preview arrives as ?to=, so no lookup is needed here.
+  const selectedTo = useSearchParams().get("to");
   const { user } = useProfile();
 
   const navStateInvoice = useMemo(() => {
@@ -73,14 +76,21 @@ export const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
         });
       }
 
-      if (allCustomerEmails.length === 0 && invoiceData.customer?.email) {
+      // Saved invoices carry the customer as `customer` (with contacts), not `customerId`.
+      if (invoiceData.customer?.email && !allCustomerEmails.includes(invoiceData.customer.email)) {
         allCustomerEmails.push(invoiceData.customer.email);
       }
+      (invoiceData.customer?.contacts || []).forEach((contact: any) => {
+        if (contact?.email && !allCustomerEmails.includes(contact.email)) {
+          allCustomerEmails.push(contact.email);
+        }
+      });
 
       setAvailableEmails(allCustomerEmails);
 
-      const recipients =
-        invoiceData.recipients &&
+      const recipients = selectedTo
+        ? [selectedTo]
+        : invoiceData.recipients &&
         Array.isArray(invoiceData.recipients) &&
         invoiceData.recipients.length > 0
           ? invoiceData.recipients
@@ -118,7 +128,7 @@ Best regards,
         attachPDF: true,
       });
     },
-    [user]
+    [user, selectedTo]
   );
 
   useEffect(() => {
@@ -178,6 +188,9 @@ Best regards,
       // Sending flips the invoice to "Sent" on the server; drop the cached lists so
       // the invoice list (and customer balances) show it without a page reload.
       await invalidateInvoices();
+      // Also drop the router's cached server render of the list: it still holds the
+      // "Draft" rows and would re-seed the SWR cache with them on arrival.
+      router.refresh();
       toast.success("Invoice sent successfully", "Invoice Sent");
       router.push("/invoices");
     } catch (error: any) {
