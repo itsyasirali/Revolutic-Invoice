@@ -40,6 +40,9 @@ const TimerWidget: React.FC<TimerWidgetProps> = ({ projectId: fixedProjectId, on
   const [saving, setSaving] = useState(false);
 
   const stop = async () => {
+    // Stopping halts the clock right away, even if validation or saving fails
+    // below; the timer can then be resumed or stopped again.
+    timer.pause();
     const activeMinutes = Math.round(timer.elapsedMs / 60000);
     if (activeMinutes < 1) {
       toast.error("Run the timer for at least one minute before stopping.", "Timer too short");

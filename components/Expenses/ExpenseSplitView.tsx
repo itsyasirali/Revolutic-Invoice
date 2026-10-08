@@ -4,7 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { Button, ConfirmDialog } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
-import { MENU_ITEM_CLASS } from "@/components/ui/SplitView";
+import { useExpenseListMenu } from "@/hooks/common/listMenus";
 import ExpenseDetails from "./ExpenseDetails";
 import useExpenseList from "@/hooks/expenses/useExpenseList";
 import { customerLabel, formatMoney } from "@/lib/format";
@@ -17,6 +17,7 @@ const FILTERS = ["All", "Unbilled", "Invoiced", "Non-Billable"].map((s) => ({
 const ExpenseSplitView = () => {
   const selectedId = useParams<{ id?: string }>()?.id;
   const list = useExpenseList();
+  const listMenu = useExpenseListMenu(list.expenses);
 
   return (
     <>
@@ -32,7 +33,7 @@ const ExpenseSplitView = () => {
       />
       <SplitView
         filter={{ value: list.statusFilter, options: FILTERS, onChange: list.setStatusFilter }}
-        rows={list.expenses.map((e) => ({
+        rows={listMenu.rows.map((e) => ({
           id: e.id,
           title: e.vendor || e.category?.name || e.expenseNumber,
           subtitle: e.vendor || e.category?.name ? e.expenseNumber : customerLabel(e.customer),
@@ -46,18 +47,7 @@ const ExpenseSplitView = () => {
         }}
         onNew={list.handleNew}
         newLabel="New expense"
-        menu={(close) => (
-          <button
-            type="button"
-            className={MENU_ITEM_CLASS}
-            onClick={() => {
-              close();
-              list.handleExport();
-            }}
-          >
-            Export expenses
-          </button>
-        )}
+        moreMenu={listMenu.menu}
         selectedIds={list.selectedIds}
         onSelectRow={list.onSelectRow}
         emptyText="No expenses found"

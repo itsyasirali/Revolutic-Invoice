@@ -59,6 +59,7 @@ const QuotePreview: React.FC = () => {
 
   if (!quote || !doc || (templatesLoading && !doc.template)) return null;
 
+  const downloading = searchParams?.get("download") === "1";
   const status = quote.status.toLowerCase();
   const ribbon =
     status === "accepted" || status === "converted"
@@ -71,6 +72,11 @@ const QuotePreview: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      {downloading && (
+        <div className="fixed inset-0 z-[200] bg-white flex items-center justify-center text-sm font-medium text-slate-600">
+          Preparing your PDF…
+        </div>
+      )}
       <PageHeader
         title={`Quote ${quote.quoteNumber}`}
         onBack={() => router.push(`/quotes/${quote.id}`)}

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { invoiceEditable } from "@/lib/editLock";
 import { Send, Edit, Download, Settings } from "lucide-react";
 import {
@@ -26,6 +27,7 @@ const NON_WRITE_OFF_STATUSES = ["draft", "paid", "cancelled", "written off"];
  */
 const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const router = useRouter();
+  const downloading = useSearchParams()?.get("download") === "1";
   const deleteHook = useDeleteInvoices();
   const { cloneInvoice, cloning } = useCloneInvoice();
   const {
@@ -73,6 +75,11 @@ const InvoicePreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
 
   return (
     <div className={embedded ? "" : "min-h-screen"}>
+      {downloading && (
+        <div className="fixed inset-0 z-[200] bg-white flex items-center justify-center text-sm font-medium text-slate-600">
+          Preparing your PDF…
+        </div>
+      )}
       {embedded && (
         <>
           <WriteOffModal

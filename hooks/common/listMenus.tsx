@@ -3,6 +3,7 @@
 import useListMenu, { type ExportColumn, type SortField } from "@/hooks/common/useListMenu";
 import {
   invalidateCustomers,
+  invalidateExpenses,
   invalidateInvoices,
   invalidateItems,
   invalidatePayments,
@@ -12,6 +13,7 @@ import {
 import { customerLabel, formatDate } from "@/lib/format";
 import type { Customer } from "@/types/customer";
 import type { UIInvoiceListItem } from "@/hooks/invoices/useInvoicesData";
+import type { Expense } from "@/types/expense";
 import type { Item } from "@/types/item";
 import type { Payment } from "@/types/payment";
 import type { Project } from "@/types/project";
@@ -208,4 +210,39 @@ export const useProjectListMenu = (rows: Project[]) =>
     importKind: "projects",
     importLabel: "Import Projects",
     onRefresh: invalidateProjects,
+  });
+
+// ----------------------------------------------------------------- expenses
+const expenseSort: SortField<Expense>[] = [
+  { label: "Date", value: "date", get: (e) => time(e.expenseDate) },
+  { label: "Expense #", value: "number", get: (e) => e.expenseNumber },
+  { label: "Vendor", value: "vendor", get: (e) => e.vendor },
+  { label: "Customer Name", value: "customer", get: (e) => customerLabel(e.customer) },
+  { label: "Category", value: "category", get: (e) => e.category?.name },
+  { label: "Amount", value: "amount", get: (e) => Number(e.total ?? 0) },
+  { label: "Status", value: "status", get: (e) => e.status },
+];
+const expenseExport: ExportColumn<Expense>[] = [
+  { header: "Expense #", get: (e) => e.expenseNumber },
+  { header: "Date", get: (e) => formatDate(e.expenseDate) },
+  { header: "Vendor", get: (e) => e.vendor },
+  { header: "Customer", get: (e) => customerLabel(e.customer) },
+  { header: "Category", get: (e) => e.category?.name },
+  { header: "Description", get: (e) => e.description },
+  { header: "Amount", get: (e) => e.amount },
+  { header: "Tax", get: (e) => e.tax },
+  { header: "Total", get: (e) => e.total },
+  { header: "Currency", get: (e) => e.currency },
+  { header: "Payment Method", get: (e) => e.paymentMethod },
+  { header: "Reference", get: (e) => e.referenceNumber },
+  { header: "Billable", get: (e) => (e.billable ? "Yes" : "No") },
+  { header: "Status", get: (e) => e.status },
+];
+export const useExpenseListMenu = (rows: Expense[]) =>
+  useListMenu({
+    rows,
+    sortFields: expenseSort,
+    exportColumns: expenseExport,
+    filename: "expenses",
+    onRefresh: invalidateExpenses,
   });

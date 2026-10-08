@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Settings, X, Info, Mail, Tag } from "lucide-react";
 import CustomerAvatar from "@/components/ui/CustomerAvatar";
 import "react-quill-new/dist/quill.snow.css";
-import { Button, PageHeader, Input, Select, Checkbox, AlertModal } from "@/components/ui";
+import { Button, PageHeader, Input, Select, Checkbox, AlertModal, Tooltip } from "@/components/ui";
 import useInvoiceForm from "@/hooks/invoices/useInvoiceForm";
 import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
 import type { InvoiceCustomer } from "@/types/invoice";
@@ -27,6 +27,7 @@ const InvoiceForm = () => {
     saving,
     updating,
     customers,
+    selectedCustomer,
     itemsData,
     selectCustomer,
     selectItem,
@@ -265,7 +266,11 @@ const InvoiceForm = () => {
               <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
                   Customer Details
-                  <Info className="w-4 h-4 text-gray-400" />
+                  <span className="normal-case font-normal tracking-normal text-sm">
+                    <Tooltip content="Choose the customer this invoice is for. Their email, phone and address are filled in automatically.">
+                      <Info className="w-4 h-4 text-gray-400" />
+                    </Tooltip>
+                  </span>
                 </label>
 
                 <div>
@@ -314,9 +319,10 @@ const InvoiceForm = () => {
                       label="Phone"
                       value={invoiceData.customerPhone}
                       placeholder="Customer Phone"
-                      readOnly
+                      onChange={(e) => handleInvoiceChange("customerPhone", e.target.value)}
+                      readOnly={!hasCustomer || !!selectedCustomer?.contacts?.[0]?.contact}
                       fullWidth
-                      className="bg-gray-50/50"
+                      className={`${!hasCustomer || selectedCustomer?.contacts?.[0]?.contact ? "bg-gray-50/50" : ""}`}
                     />
                     <Input
                       label="Address"
@@ -333,7 +339,11 @@ const InvoiceForm = () => {
               <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
                   Invoice Details
-                  <Settings className="w-4 h-4 text-gray-400" />
+                  <span className="normal-case font-normal tracking-normal text-sm">
+                    <Tooltip content="Set the invoice number, dates, payment terms and currency for this invoice.">
+                      <Settings className="w-4 h-4 text-gray-400" />
+                    </Tooltip>
+                  </span>
                 </label>
 
                 <div>

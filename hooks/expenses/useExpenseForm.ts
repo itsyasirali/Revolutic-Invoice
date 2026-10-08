@@ -47,6 +47,9 @@ const useExpenseForm = () => {
       form.set("billable", String(billableValue));
       form.set("customerId", customerValue);
       form.set("projectId", projectValue);
+      const newCategory = String(form.get("newCategory") ?? "").trim();
+      if (newCategory) form.set("categoryName", newCategory);
+      form.delete("newCategory");
       if (!(form.get("attachment") as File | null)?.size) form.delete("attachment");
 
       setSaving(true);

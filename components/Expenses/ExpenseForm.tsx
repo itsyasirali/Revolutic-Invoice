@@ -89,21 +89,22 @@ const ExpenseForm: React.FC = () => {
               />
             </div>
 
-            <div>
-              <Input
-                type="text"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Select
                 name="categoryName"
                 label="Category"
-                placeholder="Select or type a new category"
-                list="expense-categories"
+                placeholder="Select category"
+                options={[{ label: "No category", value: "" }, ...f.categories.map((c) => ({ label: c.name, value: c.name }))]}
                 defaultValue={expense?.category?.name || ""}
                 fullWidth
               />
-              <datalist id="expense-categories">
-                {f.categories.map((c) => (
-                  <option key={c.id} value={c.name} />
-                ))}
-              </datalist>
+              <Input
+                type="text"
+                name="newCategory"
+                label="New Category"
+                placeholder="Or type a new category"
+                fullWidth
+              />
             </div>
 
             <Textarea

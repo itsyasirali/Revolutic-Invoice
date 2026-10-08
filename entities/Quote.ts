@@ -43,7 +43,7 @@ export class Quote {
   @Column("decimal", { precision: 12, scale: 2, default: 0 })
   subTotal!: number;
 
-  // Discount % applies to (items net + shipping + adjustment), like the invoice engine.
+  // Discount % applies to the items subtotal only (not shipping or adjustment).
   @Column("float", { default: 0 })
   discountPercent!: number;
 

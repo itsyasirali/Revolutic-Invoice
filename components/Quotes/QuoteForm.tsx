@@ -122,7 +122,7 @@ const QuoteForm: React.FC = () => {
                         onValueChange={(v) => f.pickItem(line.key, v)}
                       />
                     </div>
-                    <div className="col-span-2 md:col-span-3">
+                    <div className="col-span-2 md:col-span-2">
                       <Input
                         label="Name"
                         inputSize="sm"
@@ -181,8 +181,8 @@ const QuoteForm: React.FC = () => {
                         fullWidth
                       />
                     </div>
-                    <div className="col-span-2 md:col-span-1 flex items-center justify-between md:justify-end gap-2 pb-2">
-                      <span className="text-sm font-bold text-slate-900">
+                    <div className="col-span-2 md:col-span-2 flex items-center justify-between md:justify-end gap-2 pb-2 min-w-0">
+                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap" title={formatMoney(lineAmounts[index] ?? 0)}>
                         {formatMoney(lineAmounts[index] ?? 0)}
                       </span>
                       <button

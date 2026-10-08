@@ -25,10 +25,9 @@ const num = (v: unknown) => {
 /**
  * Server-side quote math (never trust client totals).
  *   line amount = qty x rate - line discount% + line tax%
- *   base        = sum(line amounts) + shipping + adjustment
- *   total       = base - base x discount%
- * Discount applies to the same base the invoice engine uses, so a converted
- * invoice (items + shipping/adjustment lines + discountPercent) matches exactly.
+ *   discount    = sum(line amounts) x discount%   (items only)
+ *   total       = sum(line amounts) - discount + shipping + adjustment
+ * Quote-level discount never applies to shipping or adjustment.
  */
 export const calculateQuoteTotals = (input: QuoteTotalsInput) => {
   let taxTotal = 0;
@@ -58,9 +57,8 @@ export const calculateQuoteTotals = (input: QuoteTotalsInput) => {
   const shipping = round2(num(input.shipping));
   const adjustment = round2(num(input.adjustment));
   const discountPercent = Math.min(100, Math.max(0, num(input.discountPercent)));
-  const base = subTotal + shipping + adjustment;
-  const discount = round2((base * discountPercent) / 100);
-  const total = round2(Math.max(0, base - discount));
+  const discount = round2((subTotal * discountPercent) / 100);
+  const total = round2(Math.max(0, subTotal - discount + shipping + adjustment));
 
   return {
     items,

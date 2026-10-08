@@ -516,6 +516,10 @@ export const useInvoiceForm = () => {
     return quantity * rate;
   };
 
+  // Blank placeholder rows are not line items; saving them shows up as "Unnamed Item".
+  const savableItems = () =>
+    items.filter((item) => item.name?.trim() || item.itemId || Number(item.amount) > 0);
+
   const calculateSubtotal = (): number => {
     return items.reduce((sum, item) => sum + item.amount, 0);
   };
@@ -726,7 +730,7 @@ export const useInvoiceForm = () => {
       customerPhone: invoiceData.customerPhone,
       customerAddress: invoiceData.customerAddress,
       currency: invoiceData.currency,
-      items: items.map((item) => ({
+      items: savableItems().map((item) => ({
         itemId: item.itemId,
         title: item.name,
         description: item.description || "",
@@ -772,7 +776,7 @@ export const useInvoiceForm = () => {
       customerPhone: invoiceData.customerPhone,
       customerAddress: invoiceData.customerAddress,
       currency: invoiceData.currency,
-      items: items.map((item) => ({
+      items: savableItems().map((item) => ({
         itemId: item.itemId,
         title: item.name,
         description: item.description || "",
@@ -828,7 +832,7 @@ export const useInvoiceForm = () => {
         customerPhone: invoiceData.customerPhone,
         customerAddress: invoiceData.customerAddress,
         currency: invoiceData.currency,
-        items: items.map((item) => ({
+        items: savableItems().map((item) => ({
           itemId: item.itemId,
           title: item.name,
           description: item.description || "",
