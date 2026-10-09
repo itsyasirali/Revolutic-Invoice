@@ -59,9 +59,12 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   style,
   className,
   footerStyle,
+  placeholderContext,
 }) => {
-  const { custom: customPlaceholders } = useCustomPlaceholders();
+  const { custom: ownCustomPlaceholders } = useCustomPlaceholders();
   const { user: profileUser } = useProfile();
+  // The customer portal has no business session, so it supplies these itself.
+  const customPlaceholders = placeholderContext?.custom ?? ownCustomPlaceholders;
   const isValidColor = (color: unknown): color is string => {
     if (!color || typeof color !== "string") return false;
     if (color === "#") return false;
@@ -336,8 +339,8 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   const placeholderValues = buildPlaceholderValues({
     scope: "invoice",
     invoice,
-    organizationName: profileUser?.companyName,
-    senderName: profileUser?.name,
+    organizationName: placeholderContext?.organizationName ?? profileUser?.companyName,
+    senderName: placeholderContext?.senderName ?? profileUser?.name,
     custom: customPlaceholders,
   });
   const resolvedNotes = replacePlaceholders(activeInvoice.notes, placeholderValues, {

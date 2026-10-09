@@ -1,4 +1,5 @@
 "use client";
+import { dropdownAnim, DROPDOWN_BASE } from "@/lib/dropdownAnim";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, MoreHorizontal, Plus } from "lucide-react";
@@ -147,8 +148,11 @@ export const SplitView: React.FC<SplitViewProps> = ({
                   <span className="truncate">{filterLabel}</span>
                   <ChevronDown className="h-4 w-4 shrink-0 text-primary" />
                 </button>
-                {filterOpen && (
-                  <div className="absolute left-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+                {(
+                  <div
+                    aria-hidden={!filterOpen}
+                    className={`absolute left-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg ${DROPDOWN_BASE} ${dropdownAnim(filterOpen)}`}
+                  >
                     {filter.options.map((o) => (
                       <button
                         key={o.value}
@@ -190,9 +194,8 @@ export const SplitView: React.FC<SplitViewProps> = ({
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                     <div
-                      className={`absolute right-0 top-full z-30 mt-1.5 w-44 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg ${
-                        menuOpen ? "block" : "hidden"
-                      }`}
+                      aria-hidden={!menuOpen}
+                      className={`absolute right-0 top-full z-30 mt-1.5 w-44 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg ${DROPDOWN_BASE} ${dropdownAnim(menuOpen)}`}
                     >
                       {menu(() => setMenuOpen(false))}
                     </div>

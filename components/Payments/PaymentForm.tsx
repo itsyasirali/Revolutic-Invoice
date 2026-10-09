@@ -36,7 +36,7 @@ const PaymentForm: React.FC = () => {
     selectCustomer,
     handleAmountReceivedChange,
     handlePayAllRemainingToggle,
-    handleAppliedAmountChange,
+    handleAppliedAmountChange,
     handleSaveDraft,
     handleSaveAndSend,
     customersLoading,
@@ -87,7 +87,7 @@ const PaymentForm: React.FC = () => {
                   </button>
 
                   {customerDropdownOpen && (
-                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-md shadow-xl max-h-80 overflow-y-auto dropdown-reveal">
                       <div className="sticky top-0 bg-gray-50/80 backdrop-blur-md border-b border-gray-100 p-3">
                         <Input
                           type="text"

@@ -3,6 +3,7 @@ import { FindOptionsWhere, Repository } from "typeorm";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { getAuthUserId, getAuthOrgId } from "@/lib/session";
+import { todayKey } from "@/lib/overdue";
 
 // Status repairs (settled-but-open invoices, newly overdue invoices) used to run
 // as two UPDATEs on every list request. They only need to run now and then, so
@@ -39,10 +40,20 @@ const reconcileInvoiceStatuses = async (
     .update(Invoice)
     .set({ status: "Overdue" })
     .where("organizationId = :organizationId", { organizationId })
-    .andWhere("dueDate < :now", { now: new Date() })
+    .andWhere("dueDate < :today", { today: todayKey() })
     .andWhere("LOWER(status) NOT IN (:...excluded)", {
       excluded: ["paid", "draft", "cancelled", "overdue", "written off"],
     })
+    .execute();
+
+  // Invoices wrongly flagged Overdue while still due today (or later) go back to open.
+  await invoiceRepository
+    .createQueryBuilder()
+    .update(Invoice)
+    .set({ status: () => `CASE WHEN "received" > 0 THEN 'Partially Paid' ELSE 'Sent' END` })
+    .where("organizationId = :organizationId", { organizationId })
+    .andWhere("LOWER(status) = 'overdue'")
+    .andWhere("dueDate >= :today", { today: todayKey() })
     .execute();
 };
 

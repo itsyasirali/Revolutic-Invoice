@@ -1,3 +1,4 @@
+import { isPastDue } from "@/lib/overdue";
 import { getDatabase } from "@/lib/database";
 import { Invoice } from "@/entities/Invoice";
 import { Payment } from "@/entities/Payment";
@@ -567,7 +568,7 @@ export const getDashboardData = async (
       if (
         st === "overdue" ||
         (inv.dueDate &&
-          new Date(inv.dueDate) < new Date() &&
+          isPastDue(inv.dueDate) &&
           st !== "paid" &&
           st !== "draft" &&
           st !== "cancelled" &&

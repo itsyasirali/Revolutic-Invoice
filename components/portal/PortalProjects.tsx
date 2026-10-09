@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { FolderKanban, Clock } from "lucide-react";
 import { usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
 import { formatDate } from "@/lib/format";
 import { formatDuration } from "@/types/timeEntry";
-import {
-  PageTitle,
-  PCard,
-  PTable,
-  Stat,
-  Status,
-  PageLoading,
-  ErrorNote,
-  primaryBtn,
-  dangerBtn,
-} from "./PortalUI";
+import { getNavState, setNavState } from "@/lib/clientNavState";
+import { statusVariant } from "@/lib/statusVariants";
+import { Table, StatusBadge, Tabs, Button } from "@/components/ui";
+import SplitView from "@/components/ui/SplitView";
+import DetailHeader from "@/components/ui/DetailHeader";
+import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
+import type { TableColumn } from "@/types/common";
+import { PageLoading, ErrorNote } from "./PortalUI";
 import PortalComments from "./PortalComments";
+import { TableList } from "./PortalDocuments";
 
 interface ProjectRow {
   id: number;
@@ -31,52 +30,86 @@ interface ProjectRow {
 }
 
 const hours = (h: number) => formatDuration(Math.round(h * 60));
+const bold = (v: React.ReactNode) => <span className="font-bold text-gray-900">{v}</span>;
+const muted = (v: React.ReactNode) => <span className="text-gray-600">{v}</span>;
+
+const PROJECT_STATUSES = ["All", "Active", "On Hold", "Completed"];
+
+const ProgressBar: React.FC<{ value: number | null }> = ({ value }) =>
+  value === null ? (
+    <span className="text-slate-400">—</span>
+  ) : (
+    <div className="flex items-center gap-2 min-w-[120px]">
+      <div className="h-1.5 flex-1 rounded-full bg-slate-200 overflow-hidden">
+        <div className="h-full bg-primary" style={{ width: `${value}%` }} />
+      </div>
+      <span className="text-xs text-slate-500 w-9 text-right">{value}%</span>
+    </div>
+  );
 
 export const PortalProjects: React.FC = () => {
+  const router = useRouter();
+  const selectedId = useParams<{ id?: string }>()?.id;
   const { data, error, loading } = usePortalQuery<{ projects: ProjectRow[] }>("/projects");
-  if (loading) return <PageLoading />;
-  if (error) return <ErrorNote message={error.message} />;
+  const [status, setStatus] = useState("All");
+  const rows = useMemo(
+    () => (data?.projects || []).filter((p) => status === "All" || p.status === status),
+    [data, status],
+  );
+
+  const open = (row: ProjectRow) => {
+    setNavState(`portal-project:${row.id}`, row);
+    router.push(`/portal/projects/${row.id}`);
+  };
+
+  if (!selectedId) {
+    return (
+      <TableList<ProjectRow>
+        title={(s) => (s === "All" ? "All Projects" : `${s} Projects`)}
+        statuses={PROJECT_STATUSES}
+        status={status}
+        onStatus={setStatus}
+        rows={rows}
+        loading={loading}
+        error={error}
+        empty="No projects yet"
+        onOpen={open}
+        columns={[
+          { key: "n", label: "PROJECT#", render: (p) => bold(p.projectNumber) },
+          { key: "name", label: "NAME", render: (p) => muted(p.name) },
+          { key: "s", label: "STATUS", render: (p) => <StatusBadge status={p.status} variant={statusVariant(p.status)} /> },
+          { key: "h", label: "HOURS", render: (p) => muted(hours(p.loggedHours)) },
+          { key: "p", label: "PROGRESS", render: (p) => <ProgressBar value={p.progress} /> },
+        ]}
+      />
+    );
+  }
+
   return (
-    <>
-      <PageTitle title="Projects" subtitle="Progress on the work being done for you." />
-      <PCard>
-        <PTable<ProjectRow>
-          rows={data?.projects || []}
-          getId={(p) => p.id}
-          href={(p) => `/portal/projects/${p.id}`}
-          empty="No projects yet."
-          columns={[
-            {
-              key: "n",
-              label: "Project",
-              render: (p) => (
-                <div>
-                  <p className="font-semibold text-slate-900">{p.name}</p>
-                  <p className="text-[12px] text-slate-500">{p.projectNumber}</p>
-                </div>
-              ),
-            },
-            { key: "s", label: "Status", render: (p) => <Status status={p.status} /> },
-            { key: "h", label: "Hours", render: (p) => hours(p.loggedHours) },
-            {
-              key: "p",
-              label: "Progress",
-              render: (p) =>
-                p.progress === null ? (
-                  <span className="text-slate-400">—</span>
-                ) : (
-                  <div className="flex items-center gap-2 min-w-[120px]">
-                    <div className="h-1.5 flex-1 rounded-full bg-slate-200 overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${p.progress}%` }} />
-                    </div>
-                    <span className="text-[12px] text-slate-500 w-9 text-right">{p.progress}%</span>
-                  </div>
-                ),
-            },
-          ]}
-        />
-      </PCard>
-    </>
+    <SplitView
+      filter={{
+        value: status,
+        options: PROJECT_STATUSES.map((s) => ({ value: s, label: s === "All" ? "All Projects" : `${s} Projects` })),
+        onChange: setStatus,
+      }}
+      rows={rows.map((p) => ({
+        id: p.id,
+        title: p.name,
+        subtitle: p.projectNumber,
+        right: p.status,
+      }))}
+      loading={loading}
+      selectedId={selectedId}
+      hideCheckbox
+      onOpen={(id) => {
+        const row = rows.find((r) => String(r.id) === String(id));
+        if (row) open(row);
+      }}
+      emptyText={error ? error.message : "No projects yet"}
+      detailKey={selectedId}
+    >
+      <PortalProjectView />
+    </SplitView>
   );
 };
 
@@ -108,17 +141,26 @@ interface ProjectDetail {
 type Tab = "overview" | "tasks" | "time" | "comments";
 
 export const PortalProjectView: React.FC = () => {
-  const id = useParams<{ id: string }>()?.id;
+  const id = useParams<{ id?: string }>()?.id;
+  const router = useRouter();
+  const [nav, setNav] = useState<ProjectRow>();
+  useEffect(() => {
+    setNav(id ? getNavState<ProjectRow>(`portal-project:${id}`) : undefined);
+  }, [id]);
   const { data, error, loading, refresh } = usePortalQuery<ProjectDetail>(id ? `/projects/${id}` : null);
   const [tab, setTab] = useState<Tab>("overview");
   const [selected, setSelected] = useState<number[]>([]);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
 
-  if (loading) return <PageLoading />;
-  if (error || !data) return <ErrorNote message={error?.message || "Project not found"} />;
-  const { project, totals, tasks, timeEntries, canApprove } = data;
-
+  const project = data?.project ?? nav;
+  if (!project) {
+    if (error) return <ErrorNote message={error.message || "Project not found"} />;
+    return loading || !error ? <PageLoading /> : null;
+  }
+  const full = data;
+  const timeEntries = full?.timeEntries || [];
+  const canApprove = !!full?.canApprove;
   const reviewable = timeEntries.filter((e) => e.billing === "Unbilled" && e.approvalStatus === "Pending");
   const toggle = (entryId: number) =>
     setSelected((s) => (s.includes(entryId) ? s.filter((x) => x !== entryId) : [...s, entryId]));
@@ -137,149 +179,134 @@ export const PortalProjectView: React.FC = () => {
     }
   };
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "overview", label: "Overview" },
-    { key: "tasks", label: "Tasks" },
-    { key: "time", label: "Time" },
-    { key: "comments", label: "Comments" },
+  const taskColumns: TableColumn<ProjectDetail["tasks"][number]>[] = [
+    {
+      key: "n",
+      label: "TASK",
+      render: (t) => (
+        <span className={t.status === "Completed" ? "text-slate-400 line-through" : "font-bold text-slate-900"}>{t.name}</span>
+      ),
+    },
+    { key: "l", label: "LOGGED", align: "right" as const, render: (t) => muted(hours(t.loggedHours)) },
+    { key: "b", label: "BILLED", align: "right" as const, render: (t) => muted(hours(t.billedHours)) },
+    { key: "u", label: "UNBILLED", align: "right" as const, render: (t) => muted(hours(t.unbilledHours)) },
+  ];
+
+  const timeColumns: TableColumn<ProjectDetail["timeEntries"][number]>[] = [
+    ...(canApprove
+      ? [
+          {
+            key: "sel",
+            label: "",
+            render: (e: ProjectDetail["timeEntries"][number]) =>
+              e.billing === "Unbilled" && e.approvalStatus === "Pending" ? (
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-primary cursor-pointer"
+                  checked={selected.includes(e.id)}
+                  onChange={() => toggle(e.id)}
+                />
+              ) : null,
+          },
+        ]
+      : []),
+    { key: "d", label: "DATE", render: (e) => muted(formatDate(e.date)) },
+    { key: "t", label: "TASK", render: (e) => muted(e.task || "—") },
+    { key: "x", label: "DESCRIPTION", render: (e) => muted(e.description || "") },
+    { key: "h", label: "HOURS", align: "right" as const, render: (e) => bold(formatDuration(e.duration)) },
+    { key: "b", label: "BILLING", render: (e) => <StatusBadge status={e.billing} variant={statusVariant(e.billing)} /> },
+    { key: "a", label: "APPROVAL", render: (e) => muted(e.billing === "Billed" ? "—" : e.approvalStatus) },
+  ];
+
+  const tabs = [
+    { label: "Overview", value: "overview" },
+    { label: "Tasks", value: "tasks", count: full ? full.tasks.length : undefined },
+    { label: "Time", value: "time", count: canApprove && reviewable.length ? reviewable.length : undefined },
+    { label: "Comments", value: "comments" },
   ];
 
   return (
-    <>
-      <PageTitle
-        back={{ href: "/portal/projects", label: "Back to projects" }}
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">
+      <DetailHeader
         title={project.name}
-        subtitle={`${project.projectNumber}${project.startDate ? ` · Started ${formatDate(project.startDate)}` : ""}`}
-        actions={<Status status={project.status} />}
+        subtitle={
+          <>
+            <span>{project.projectNumber}</span>
+            <StatusBadge status={project.status} variant={statusVariant(project.status)} />
+          </>
+        }
+        onClose={() => router.push("/portal/projects")}
+        actions={
+          tab === "time" && canApprove && selected.length > 0 ? (
+            <>
+              <Button size="sm" variant="danger" disabled={busy} onClick={() => review(selected, "reject")}>
+                Reject ({selected.length})
+              </Button>
+              <Button size="sm" variant="primary" disabled={busy} onClick={() => review(selected, "approve")}>
+                Approve ({selected.length})
+              </Button>
+            </>
+          ) : undefined
+        }
       />
 
-      <div className="flex gap-6 border-b border-slate-200 mb-5 overflow-x-auto">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`pb-3 text-[14px] font-medium whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
-              tab === t.key ? "border-primary text-primary font-semibold" : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            {t.label}
-            {t.key === "time" && reviewable.length > 0 && canApprove && (
-              <span className="ml-1.5 px-1.5 py-0.5 text-[11px] rounded-md bg-amber-100 text-amber-800">
-                {reviewable.length}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="border-b border-slate-200">
+        <Tabs tabs={tabs} activeTab={tab} onTabChange={(v) => setTab(v as Tab)} />
       </div>
 
+      {actionError && <ErrorNote message={actionError} />}
+
       {tab === "overview" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Stat label="Logged hours" value={hours(totals.loggedHours)} hint={project.budgetHours ? `of ${project.budgetHours}h budget` : undefined} />
-            <Stat label="Billed hours" value={hours(totals.billedHours)} tone="success" />
-            <Stat label="Unbilled hours" value={hours(totals.unbilledHours)} />
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Project Number">{project.projectNumber}</DetailRow>
+            <DetailRow label="Status">{project.status}</DetailRow>
+            <DetailRow label="Start Date">{formatDate(project.startDate)}</DetailRow>
+            <DetailRow label="End Date">{formatDate(project.endDate)}</DetailRow>
+            <DetailRow label="Budget Hours">{project.budgetHours ? `${project.budgetHours}h` : ""}</DetailRow>
+            <DetailRow label="Logged Hours">{full ? hours(full.totals.loggedHours) : hours(nav?.loggedHours ?? 0)}</DetailRow>
+            {full && <DetailRow label="Billed Hours">{hours(full.totals.billedHours)}</DetailRow>}
+            {full && <DetailRow label="Unbilled Hours">{hours(full.totals.unbilledHours)}</DetailRow>}
           </div>
-          <PCard title="About this project">
-            <dl className="grid sm:grid-cols-3 gap-4 text-[14px]">
-              <div>
-                <dt className="text-[12px] text-slate-500">Status</dt>
-                <dd className="font-semibold">{project.status}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] text-slate-500">Start date</dt>
-                <dd className="font-semibold">{formatDate(project.startDate) || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-[12px] text-slate-500">End date</dt>
-                <dd className="font-semibold">{formatDate(project.endDate) || "—"}</dd>
-              </div>
-            </dl>
-            {project.description && (
-              <p className="mt-4 text-[14px] text-slate-700 whitespace-pre-wrap">{project.description}</p>
-            )}
-          </PCard>
+          {full?.project.description && (
+            <DetailSection title="Description">
+              <p className="text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">{full.project.description}</p>
+            </DetailSection>
+          )}
         </div>
       )}
 
-      {tab === "tasks" && (
-        <PCard>
-          <PTable
-            rows={tasks}
-            getId={(t) => t.id}
-            empty="No tasks yet."
-            columns={[
-              {
-                key: "n",
-                label: "Task",
-                render: (t) => (
-                  <span className={t.status === "Completed" ? "text-slate-400 line-through" : "font-semibold text-slate-900"}>
-                    {t.name}
-                  </span>
-                ),
-              },
-              { key: "l", label: "Logged", align: "right", render: (t) => hours(t.loggedHours) },
-              { key: "b", label: "Billed", align: "right", render: (t) => hours(t.billedHours) },
-              { key: "u", label: "Unbilled", align: "right", render: (t) => hours(t.unbilledHours) },
-            ]}
+      {tab === "tasks" &&
+        (full ? (
+          <Table
+            columns={taskColumns}
+            data={full.tasks}
+            getRowId={(t) => t.id}
+            showCheckbox={false}
+            variant="default"
+            emptyMessage="No tasks yet"
+            emptyIcon={FolderKanban}
           />
-        </PCard>
-      )}
+        ) : (
+          <PageLoading />
+        ))}
 
-      {tab === "time" && (
-        <PCard
-          actions={
-            canApprove && selected.length > 0 ? (
-              <div className="flex gap-2">
-                <button className={dangerBtn} disabled={busy} onClick={() => review(selected, "reject")}>
-                  Reject ({selected.length})
-                </button>
-                <button className={primaryBtn} disabled={busy} onClick={() => review(selected, "approve")}>
-                  Approve ({selected.length})
-                </button>
-              </div>
-            ) : undefined
-          }
-          title="Time entries"
-        >
-          {actionError && <div className="mb-3"><ErrorNote message={actionError} /></div>}
-          <PTable
-            rows={timeEntries}
-            getId={(e) => e.id}
-            empty="No time has been logged yet."
-            columns={[
-              ...(canApprove
-                ? [
-                    {
-                      key: "sel",
-                      label: "",
-                      render: (e: ProjectDetail["timeEntries"][number]) =>
-                        e.billing === "Unbilled" && e.approvalStatus === "Pending" ? (
-                          <input
-                            type="checkbox"
-                            className="w-4 h-4 accent-primary cursor-pointer"
-                            checked={selected.includes(e.id)}
-                            onChange={() => toggle(e.id)}
-                          />
-                        ) : null,
-                    },
-                  ]
-                : []),
-              { key: "d", label: "Date", render: (e) => formatDate(e.date) },
-              { key: "t", label: "Task", render: (e) => e.task || "—" },
-              { key: "x", label: "Description", render: (e) => e.description || "" },
-              { key: "h", label: "Hours", align: "right", render: (e) => formatDuration(e.duration) },
-              { key: "b", label: "Billing", render: (e) => <Status status={e.billing} /> },
-              {
-                key: "a",
-                label: "Approval",
-                render: (e) => (e.billing === "Billed" ? "—" : e.approvalStatus),
-              },
-            ]}
+      {tab === "time" &&
+        (full ? (
+          <Table
+            columns={timeColumns}
+            data={timeEntries}
+            getRowId={(e) => e.id}
+            showCheckbox={false}
+            variant="default"
+            emptyMessage="No time has been logged yet"
+            emptyIcon={Clock}
           />
-        </PCard>
-      )}
+        ) : (
+          <PageLoading />
+        ))}
 
       {tab === "comments" && <PortalComments entityType="project" entityId={project.id} />}
-    </>
+    </div>
   );
 };

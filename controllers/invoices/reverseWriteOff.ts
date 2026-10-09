@@ -1,3 +1,4 @@
+import { isPastDue } from "@/lib/overdue";
 import { NextRequest, NextResponse } from "next/server";
 import { IsNull } from "typeorm";
 import { getDatabase } from "@/lib/database";
@@ -75,7 +76,7 @@ const reverseWriteOff = async (
     );
     const received = Number(invoice.received || 0);
     if (received <= 0) {
-      invoice.status = invoice.dueDate && new Date(invoice.dueDate) < new Date() ? "Overdue" : "Sent";
+      invoice.status = isPastDue(invoice.dueDate) ? "Overdue" : "Sent";
     } else if (received < total) {
       invoice.status = "Partially Paid";
     } else {

@@ -1,4 +1,5 @@
 "use client";
+import { dropdownAnim, DROPDOWN_BASE } from "@/lib/dropdownAnim";
 
 import React, {
   useState,
@@ -438,8 +439,11 @@ const Header = () => {
           </button>
 
           {/* Profile Dropdown */}
-          {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
+          {(
+            <div
+              aria-hidden={!isProfileOpen}
+              className={`absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 ${DROPDOWN_BASE} ${dropdownAnim(isProfileOpen)}`}
+            >
               <div className="px-4 py-2 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-800">
                   {displayName}

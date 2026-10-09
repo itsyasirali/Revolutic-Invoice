@@ -264,3 +264,18 @@ select:-webkit-autofill:active {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Top-to-bottom reveal for dropdowns that mount when opened */
+@keyframes dropdown-reveal {
+  from {
+    opacity: 0;
+    clip-path: inset(0 -24px 100% -24px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 -24px -24px -24px);
+  }
+}
+.dropdown-reveal {
+  animation: dropdown-reveal 300ms ease-in-out both;
+}

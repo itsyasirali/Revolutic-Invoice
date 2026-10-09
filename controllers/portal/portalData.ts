@@ -10,6 +10,9 @@ import { TimeEntry } from "@/entities/TimeEntry";
 import { PortalComment } from "@/entities/PortalComment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Customer } from "@/entities/Customer";
+import { Template } from "@/entities/Template";
+import { Organization } from "@/entities/Organization";
+import { loadCustomPlaceholders } from "@/lib/placeholders/server";
 import { PortalUser } from "@/entities/PortalUser";
 import { errorResponse, HttpError } from "@/lib/requestContext";
 import { queryRows } from "@/lib/services/sqlRows";
@@ -145,6 +148,7 @@ export const portalDashboard = withPortal("Failed to load dashboard", async (ctx
     recentInvoices: invoices.slice(0, 5).map((i) => ({
       id: i.id,
       invoiceNumber: i.invoiceNumber,
+      invoiceDate: i.invoiceDate,
       dueDate: i.dueDate,
       remaining: Number(i.remaining),
       total: Number(i.total),
@@ -181,9 +185,23 @@ export const portalInvoice = withPortal("Failed to load invoice", async (ctx, _r
       customerId: ctx.customerId,
       status: In(PORTAL_INVOICE_STATUSES),
     },
-    relations: ["items"],
+    relations: ["items", "customer", "template", "organization", "writeOffs"],
   });
   if (!invoice) throw new HttpError("Invoice not found", 404);
+
+  // The rendered preview needs a template: the invoice's own, else the organization's default.
+  if (!invoice.template) {
+    const templates = db.getRepository(Template);
+    invoice.template =
+      (await templates.findOne({ where: { organizationId: ctx.orgId, isDefault: true } })) ||
+      (await templates.findOne({ where: { organizationId: ctx.orgId } })) ||
+      (null as unknown as Template);
+  }
+  if (!invoice.organization) {
+    invoice.organization =
+      (await db.getRepository(Organization).findOne({ where: { id: ctx.orgId } })) ||
+      (null as unknown as Organization);
+  }
 
   const applied = await db.getRepository(PaymentAppliedInvoice).find({
     where: { invoiceId: invoice.id },
@@ -192,6 +210,7 @@ export const portalInvoice = withPortal("Failed to load invoice", async (ctx, _r
   await logPortalActivity(ctx, "invoice_viewed", "invoice", invoice.id, `Viewed invoice ${invoice.invoiceNumber}`);
   return NextResponse.json({
     invoice,
+    customPlaceholders: await loadCustomPlaceholders(ctx.orgId),
     payments: applied
       .filter((a) => a.payment?.organizationId === ctx.orgId && a.payment.status !== "Draft")
       .map((a) => ({

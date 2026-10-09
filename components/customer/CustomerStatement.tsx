@@ -68,7 +68,7 @@ export const RANGE_OPTIONS: { value: StatementRange; label: string }[] = [
 
 const MONTHS: Record<string, number> = { "1m": 1, "3m": 3, "6m": 6, "1y": 12 };
 
-const getRangeBounds = (
+export const getRangeBounds = (
   range: StatementRange,
   from: string,
   to: string,

@@ -1,9 +1,9 @@
-import { PortalPaymentView } from "@/components/portal/PortalDocuments";
+import { PortalPayments } from "@/components/portal/PortalDocuments";
 import { privateMeta } from "@/lib/pageMeta";
 
 export const metadata = privateMeta("Payment", "View this payment receipt.");
 
 
-const Page = () => <PortalPaymentView />;
+const Page = () => <PortalPayments />;
 
 export default Page;

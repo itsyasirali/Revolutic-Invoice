@@ -1,4 +1,5 @@
 "use client";
+import { dropdownAnim, DROPDOWN_BASE } from "@/lib/dropdownAnim";
 
 import React from "react";
 import { Search, X, ArrowRight } from "lucide-react";
@@ -70,9 +71,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       </div>
 
       {/* Floating Results Dropdown List */}
-      {isOpen && (
+      {(
         <div
-          className={`absolute left-0 top-full mt-1.5 ${dropdownWidth} max-w-[90vw] bg-white border border-slate-200/80 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150`}
+          aria-hidden={!isOpen}
+          className={`absolute left-0 top-full mt-1.5 ${dropdownWidth} max-w-[90vw] bg-white border border-slate-200/80 rounded-xl shadow-xl z-50 overflow-hidden ${DROPDOWN_BASE} ${dropdownAnim(isOpen)}`}
         >
           {/* Header Info */}
           <div className="px-3.5 py-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between text-[11px] font-medium text-slate-500">

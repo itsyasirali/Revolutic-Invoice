@@ -1,3 +1,4 @@
+import { isPastDue } from "@/lib/overdue";
 import { NextRequest, NextResponse } from "next/server";
 import { paymentEditable } from "@/lib/editLock";
 import { In } from "typeorm";
@@ -39,7 +40,7 @@ const refreshInvoice = (invoice: Invoice) => {
     invoice.status = "Partially Paid";
   } else if (["Paid", "Partially Paid"].includes(invoice.status)) {
     // Payments were taken back: the invoice is open again.
-    const overdue = invoice.dueDate && new Date(invoice.dueDate) < new Date();
+    const overdue = isPastDue(invoice.dueDate);
     invoice.status = overdue ? "Overdue" : "Sent";
   }
 };

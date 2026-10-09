@@ -1,25 +1,19 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
-import { Printer, Check, X } from "lucide-react";
+import { Check, X, ScrollText, DollarSign } from "lucide-react";
 import { usePortalMe, usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
 import { formatDate, formatMoney } from "@/lib/format";
-import {
-  PageTitle,
-  PCard,
-  PTable,
-  Money,
-  Status,
-  PageLoading,
-  ErrorNote,
-  FilterRow,
-  fieldClass,
-  primaryBtn,
-  outlineBtn,
-  dangerBtn,
-} from "./PortalUI";
+import { getNavState, setNavState } from "@/lib/clientNavState";
+import { Table, StatusBadge, Tabs, Button, PageHeader } from "@/components/ui";
+import SplitView from "@/components/ui/SplitView";
+import DetailHeader from "@/components/ui/DetailHeader";
+import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
+import { statusVariant } from "@/lib/statusVariants";
+import type { TableColumn } from "@/types/common";
+import { PageLoading, ErrorNote, TABLE_INSET } from "./PortalUI";
 import PortalComments from "./PortalComments";
 
 /* ------------------------------ shared bits ------------------------------ */
@@ -34,66 +28,178 @@ interface Line {
   amount: number | string;
 }
 
-const LinesTable: React.FC<{ lines: Line[]; currency: string }> = ({ lines, currency }) => (
-  <PTable<Line>
-    rows={lines}
-    getId={(l) => l.id}
-    empty="No line items."
-    columns={[
-      {
-        key: "item",
-        label: "Item",
-        render: (l) => (
-          <div>
-            <p className="font-semibold text-slate-900">{l.title || l.name}</p>
-            {l.description && <p className="text-[12px] text-slate-500 whitespace-pre-wrap">{l.description}</p>}
-          </div>
-        ),
-      },
-      { key: "qty", label: "Qty", align: "right", render: (l) => Number(l.quantity) },
-      { key: "rate", label: "Rate", align: "right", render: (l) => formatMoney(l.rate) },
-      {
-        key: "amount",
-        label: "Amount",
-        align: "right",
-        render: (l) => <Money amount={l.amount} currency={currency} className="font-semibold text-slate-900" />,
-      },
-    ]}
-  />
-);
+const DETAIL_WRAP = "space-y-6 px-2 sm:px-4 md:px-6 py-2";
 
-const Totals: React.FC<{ rows: { label: string; value: number; strong?: boolean; hide?: boolean }[]; currency: string }> = ({
-  rows,
-  currency,
-}) => (
-  <dl className="ml-auto w-full sm:w-72 mt-4 space-y-2 text-[14px]">
-    {rows
-      .filter((r) => !r.hide)
-      .map((r) => (
-        <div
-          key={r.label}
-          className={`flex justify-between ${r.strong ? "pt-2 border-t border-slate-200 text-[16px] font-bold text-slate-900" : "text-slate-600"}`}
-        >
-          <dt>{r.label}</dt>
-          <dd className="tabular-nums">
-            {formatMoney(r.value)} {currency}
-          </dd>
-        </div>
-      ))}
-  </dl>
-);
+const useRouteId = () => useParams<{ id?: string }>()?.id;
 
-const PrintButton: React.FC<{ label: string }> = ({ label }) => (
-  <button onClick={() => window.print()} className={outlineBtn}>
-    <Printer className="w-4 h-4" />
-    {label}
-  </button>
-);
-
-const useId = () => {
-  const params = useParams<{ id: string }>();
-  return params?.id;
+/** Navigation state is stored in the browser, so it is only readable after mount. */
+const useNavRecord = <T,>(key: string | null): T | undefined => {
+  const [record, setRecord] = useState<T>();
+  useEffect(() => {
+    setRecord(key ? getNavState<T>(key) : undefined);
+  }, [key]);
+  return record;
 };
+
+const LinesTable: React.FC<{ lines: Line[]; currency: string }> = ({ lines, currency }) => {
+  const columns: TableColumn<Line>[] = [
+    {
+      key: "item",
+      label: "ITEM DETAILS",
+      render: (l) => (
+        <div className="space-y-0.5">
+          <p className="font-bold text-slate-900 text-sm">{l.title || l.name || "Unnamed Item"}</p>
+          {l.description && <p className="text-xs text-slate-500 line-clamp-2">{l.description}</p>}
+        </div>
+      ),
+    },
+    {
+      key: "quantity",
+      label: "QTY",
+      align: "center" as const,
+      render: (l) => <span className="font-semibold text-slate-700">{Number(l.quantity)}</span>,
+    },
+    {
+      key: "rate",
+      label: "RATE",
+      align: "right" as const,
+      render: (l) => (
+        <span className="font-semibold text-slate-700">
+          {currency} {formatMoney(l.rate)}
+        </span>
+      ),
+    },
+    {
+      key: "amount",
+      label: "AMOUNT",
+      align: "right" as const,
+      render: (l) => (
+        <span className="font-bold text-slate-900">
+          {currency} {formatMoney(l.amount)}
+        </span>
+      ),
+    },
+  ];
+  return (
+    <Table
+      columns={columns}
+      data={lines}
+      getRowId={(l) => l.id}
+      showCheckbox={false}
+      variant="default"
+      emptyMessage="No line items."
+      emptyIcon={ScrollText}
+    />
+  );
+};
+
+const Totals: React.FC<{
+  rows: { label: string; value: number; strong?: boolean; hide?: boolean }[];
+  currency: string;
+}> = ({ rows, currency }) => (
+  <div className="flex justify-end pt-4">
+    <dl className="w-full sm:w-80 text-sm space-y-2">
+      {rows
+        .filter((r) => !r.hide)
+        .map((r) => (
+          <div
+            key={r.label}
+            className={`flex justify-between ${r.strong ? "border-t pt-2 text-base font-bold text-slate-900" : ""}`}
+          >
+            <dt className={r.strong ? "" : "text-slate-500"}>{r.label}</dt>
+            <dd>
+              {formatMoney(r.value)} {currency}
+            </dd>
+          </div>
+        ))}
+    </dl>
+  </div>
+);
+
+const Notes: React.FC<{ title: string; html: string }> = ({ title, html }) => (
+  <DetailSection title={title}>
+    <div
+      className="text-sm text-slate-900 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline whitespace-pre-wrap"
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
+    />
+  </DetailSection>
+);
+
+const Placeholder: React.FC<{ text: string }> = ({ text }) => (
+  <div className="flex h-full min-h-60 items-center justify-center px-6 text-sm text-slate-400">{text}</div>
+);
+
+const PRINT_MENU = [
+  { label: "Download PDF", onClick: () => window.print() },
+  { label: "Print", onClick: () => window.print() },
+];
+
+
+/** Full-width table list (same look as the main app's lists); opening a row switches to the split view. */
+export function TableList<T extends { id: number | string }>({
+  title,
+  statuses,
+  status,
+  onStatus,
+  columns,
+  rows,
+  loading,
+  error,
+  empty,
+  onOpen,
+}: {
+  title: (status: string) => string;
+  statuses?: string[];
+  status: string;
+  onStatus: (s: string) => void;
+  columns: TableColumn<T>[];
+  rows: T[];
+  loading: boolean;
+  error?: Error;
+  empty: string;
+  onOpen: (row: T) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="pb-8">
+      <PageHeader
+        title={title(status)}
+        dropdown={
+          statuses
+            ? {
+                options: statuses.map((s) => ({ label: title(s), value: s })),
+                value: status,
+                onChange: onStatus,
+                isOpen: open,
+                onToggle: () => setOpen(!open),
+              }
+            : undefined
+        }
+      />
+      <div className="mt-4">
+        {error ? (
+          <div className="px-2 sm:px-4 md:px-6">
+            <ErrorNote message={error.message} />
+          </div>
+        ) : (
+          <Table<T>
+            columns={columns}
+            data={rows}
+            loading={loading}
+            emptyMessage={empty}
+            getRowId={(r) => String(r.id)}
+            onRowClick={onOpen}
+            showCheckbox={false}
+            className={TABLE_INSET}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+const bold = (v: React.ReactNode) => <span className="font-bold text-gray-900">{v}</span>;
+const muted = (v: React.ReactNode) => <span className="text-gray-600">{v}</span>;
 
 /* -------------------------------- invoices -------------------------------- */
 
@@ -108,49 +214,73 @@ interface InvoiceRow {
   status: string;
 }
 
+const INVOICE_STATUSES = ["All", "Sent", "Partially Paid", "Paid", "Overdue", "Written Off"];
+
 export const PortalInvoices: React.FC = () => {
+  const router = useRouter();
+  const selectedId = useRouteId();
   const { data, error, loading } = usePortalQuery<{ invoices: InvoiceRow[] }>("/invoices");
-  const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const rows = useMemo(
-    () =>
-      (data?.invoices || []).filter(
-        (i) =>
-          (status === "All" || i.status === status) &&
-          (!search || i.invoiceNumber.toLowerCase().includes(search.toLowerCase())),
-      ),
-    [data, search, status],
+    () => (data?.invoices || []).filter((i) => status === "All" || i.status === status),
+    [data, status],
   );
-  if (loading) return <PageLoading />;
-  if (error) return <ErrorNote message={error.message} />;
+
+  const openInvoice = (row: InvoiceRow) => {
+    setNavState(`portal-invoice:${row.id}`, row);
+    router.push(`/portal/invoices/${row.id}`);
+  };
+
+  if (!selectedId) {
+    return (
+      <TableList<InvoiceRow>
+        title={(s) => (s === "All" ? "All Invoices" : `${s} Invoices`)}
+        statuses={INVOICE_STATUSES}
+        status={status}
+        onStatus={setStatus}
+        rows={rows}
+        loading={loading}
+        error={error}
+        empty="No invoices found"
+        onOpen={openInvoice}
+        columns={[
+          { key: "n", label: "INVOICE#", render: (i) => bold(i.invoiceNumber) },
+          { key: "d", label: "DATE", render: (i) => muted(formatDate(i.invoiceDate)) },
+          { key: "due", label: "DUE DATE", render: (i) => muted(formatDate(i.dueDate)) },
+          { key: "t", label: "AMOUNT", render: (i) => bold(`${formatMoney(i.total)} ${i.currency}`) },
+          { key: "r", label: "BALANCE", render: (i) => muted(`${formatMoney(i.remaining)} ${i.currency}`) },
+          { key: "s", label: "STATUS", render: (i) => <StatusBadge status={i.status} variant={statusVariant(i.status)} /> },
+        ]}
+      />
+    );
+  }
+
   return (
-    <>
-      <PageTitle title="Invoices" subtitle="Your invoices and their payment status." />
-      <PCard>
-        <FilterRow>
-          <input className={fieldClass} placeholder="Search invoices..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <select className={`${fieldClass} sm:w-48`} value={status} onChange={(e) => setStatus(e.target.value)}>
-            {["All", "Sent", "Partially Paid", "Paid", "Overdue", "Written Off"].map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </FilterRow>
-        <PTable<InvoiceRow>
-          rows={rows}
-          getId={(i) => i.id}
-          href={(i) => `/portal/invoices/${i.id}`}
-          empty="No invoices found."
-          columns={[
-            { key: "n", label: "Invoice", render: (i) => <span className="font-semibold text-slate-900">{i.invoiceNumber}</span> },
-            { key: "d", label: "Date", render: (i) => formatDate(i.invoiceDate) },
-            { key: "due", label: "Due date", render: (i) => formatDate(i.dueDate) },
-            { key: "t", label: "Amount", align: "right", render: (i) => <Money amount={i.total} currency={i.currency} /> },
-            { key: "r", label: "Balance", align: "right", render: (i) => <Money amount={i.remaining} currency={i.currency} className="font-semibold text-slate-900" /> },
-            { key: "s", label: "Status", render: (i) => <Status status={i.status} /> },
-          ]}
-        />
-      </PCard>
-    </>
+    <SplitView
+      filter={{
+        value: status,
+        options: INVOICE_STATUSES.map((s) => ({ value: s, label: s === "All" ? "All Invoices" : `${s} Invoices` })),
+        onChange: setStatus,
+      }}
+      rows={rows.map((i) => ({
+        id: i.id,
+        title: i.invoiceNumber,
+        subtitle: formatDate(i.invoiceDate),
+        right: `${formatMoney(i.total)} ${i.currency}`,
+      }))}
+      loading={loading}
+      selectedId={selectedId}
+      hideCheckbox
+      onOpen={(id) => {
+        const row = rows.find((r) => String(r.id) === String(id));
+        if (row) setNavState(`portal-invoice:${id}`, row);
+        router.push(`/portal/invoices/${id}`);
+      }}
+      emptyText={error ? error.message : "No invoices found"}
+      detailKey={selectedId}
+    >
+      {selectedId ? <PortalInvoiceView /> : <Placeholder text="Select an invoice to view its details" />}
+    </SplitView>
   );
 };
 
@@ -166,94 +296,133 @@ interface InvoiceDetail {
 }
 
 export const PortalInvoiceView: React.FC = () => {
-  const id = useId();
+  const id = useRouteId();
+  const router = useRouter();
   const { me } = usePortalMe();
+  const nav = useNavRecord<InvoiceRow>(id ? `portal-invoice:${id}` : null);
   const { data, error, loading } = usePortalQuery<InvoiceDetail>(id ? `/invoices/${id}` : null);
-  if (loading) return <PageLoading />;
-  if (error || !data) return <ErrorNote message={error?.message || "Invoice not found"} />;
-  const { invoice: inv, payments } = data;
+  const [tab, setTab] = useState<"overview" | "comments">("overview");
+
+  const inv = data?.invoice ?? nav;
+  if (!inv) {
+    if (error) return <ErrorNote message={error.message || "Invoice not found"} />;
+    return loading || !error ? <PageLoading /> : null;
+  }
+  const full = data?.invoice;
+  const payments = data?.payments || [];
   const unpaid = ["Sent", "Partially Paid", "Overdue"].includes(inv.status);
-  const discount = (Number(inv.subTotal) * (inv.discountPercent || 0)) / 100;
+  const subTotal = Number(full?.subTotal ?? inv.total);
+  const discount = full ? (Number(full.subTotal) * (full.discountPercent || 0)) / 100 : 0;
+  const received = Number(full?.received ?? 0);
+
+  const paymentColumns: TableColumn<InvoiceDetail["payments"][number]>[] = [
+    { key: "n", label: "PAYMENT", render: (p) => <span className="font-bold text-slate-900">#{p.paymentNumber ?? p.id}</span> },
+    { key: "d", label: "DATE", render: (p) => <span className="text-slate-600">{formatDate(p.date)}</span> },
+    { key: "m", label: "METHOD", render: (p) => <span className="text-slate-600">{p.mode}</span> },
+    {
+      key: "a",
+      label: "APPLIED",
+      align: "right" as const,
+      render: (p) => (
+        <span className="font-bold text-slate-900">
+          {inv.currency} {formatMoney(p.amount)}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <div id="pdf-print-area">
-      <PageTitle
-        back={{ href: "/portal/invoices", label: "Back to invoices" }}
-        title={`Invoice ${inv.invoiceNumber}`}
-        subtitle={`Issued ${formatDate(inv.invoiceDate)}${inv.dueDate ? ` · Due ${formatDate(inv.dueDate)}` : ""}`}
-        actions={
-          <>
-            <PrintButton label="Download PDF" />
-            <PrintButton label="Print" />
-          </>
-        }
+    <div id="pdf-print-area" className={DETAIL_WRAP}>
+      <DetailHeader
+        title={inv.invoiceNumber}
+        subtitle={<StatusBadge status={inv.status} variant={statusVariant(inv.status)} />}
+        onClose={() => router.push("/portal/invoices")}
+        menu={PRINT_MENU}
       />
 
-      <div className="space-y-4">
-        <PCard>
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <p className="text-[12px] uppercase tracking-wide text-slate-500">From</p>
-              <p className="text-[15px] font-semibold text-slate-900">{me?.organization.name}</p>
-              {me?.organization.email && <p className="text-[13px] text-slate-500">{me.organization.email}</p>}
-              <p className="mt-3 text-[12px] uppercase tracking-wide text-slate-500">Billed to</p>
-              <p className="text-[15px] font-semibold text-slate-900">{me?.customer.displayName}</p>
-            </div>
-            <div className="sm:text-right">
-              <Status status={inv.status} />
-              <p className="mt-3 text-[12px] uppercase tracking-wide text-slate-500">Amount due</p>
-              <p className="text-[30px] leading-9 font-bold text-slate-900 tabular-nums">
-                {formatMoney(inv.remaining)} <span className="text-[16px]">{inv.currency}</span>
-              </p>
-              {unpaid && (
-                <p className="text-[12px] text-slate-500 mt-1 print:hidden">
-                  Contact {me?.organization.name} to arrange payment.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <LinesTable lines={inv.items || []} currency={inv.currency} />
-            <Totals
-              currency={inv.currency}
-              rows={[
-                { label: "Subtotal", value: Number(inv.subTotal) },
-                { label: `Discount (${inv.discountPercent}%)`, value: -discount, hide: !inv.discountPercent },
-                { label: "Total", value: Number(inv.total), strong: true },
-                { label: "Paid", value: Number(inv.received), hide: !Number(inv.received) },
-                { label: "Balance due", value: Number(inv.remaining), strong: true, hide: !Number(inv.received) },
-              ]}
-            />
-          </div>
-
-          {inv.notes && (
-            <div className="mt-6 pt-4 border-t border-slate-100">
-              <p className="text-[12px] uppercase tracking-wide text-slate-500 mb-1">Notes</p>
-              <div className="text-[14px] text-slate-700 whitespace-pre-wrap [&_p]:m-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(inv.notes) }} />
-            </div>
-          )}
-        </PCard>
-
-        {payments.length > 0 && (
-          <PCard title="Payments received" className="print:hidden">
-            <PTable
-              rows={payments}
-              getId={(p) => p.id}
-              href={(p) => `/portal/payments/${p.id}`}
-              empty=""
-              columns={[
-                { key: "n", label: "Payment", render: (p) => `#${p.paymentNumber ?? p.id}` },
-                { key: "d", label: "Date", render: (p) => formatDate(p.date) },
-                { key: "m", label: "Method", render: (p) => p.mode },
-                { key: "a", label: "Applied", align: "right", render: (p) => <Money amount={p.amount} currency={inv.currency} /> },
-              ]}
-            />
-          </PCard>
-        )}
-
-        <PortalComments entityType="invoice" entityId={inv.id} />
+      <div className="border-b border-slate-200 print:hidden">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "overview" },
+            { label: "Comments", value: "comments" },
+          ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "overview" | "comments")}
+        />
       </div>
+
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Invoice Number">{inv.invoiceNumber}</DetailRow>
+            <DetailRow label="Status">{inv.status}</DetailRow>
+            <DetailRow label="From">{me?.organization.name}</DetailRow>
+            <DetailRow label="Billed To">{me?.customer.displayName}</DetailRow>
+            <DetailRow label="Issue Date">{formatDate(inv.invoiceDate)}</DetailRow>
+            <DetailRow label="Due Date">{formatDate(inv.dueDate)}</DetailRow>
+            <DetailRow label="Currency">{inv.currency}</DetailRow>
+            <DetailRow label="Amount Due">
+              <span className="font-semibold">
+                {formatMoney(inv.remaining)} {inv.currency}
+              </span>
+            </DetailRow>
+          </div>
+          {unpaid && (
+            <p className="mt-3 text-xs text-slate-500 print:hidden">
+              Contact {me?.organization.name} to arrange payment.
+            </p>
+          )}
+
+          <DetailSection title="Line Items">
+            {full ? (
+              <>
+                <LinesTable lines={full.items || []} currency={inv.currency} />
+                <Totals
+                  currency={inv.currency}
+                  rows={[
+                    { label: "Subtotal", value: subTotal },
+                    { label: `Discount (${full.discountPercent}%)`, value: -discount, hide: !full.discountPercent },
+                    { label: "Total", value: Number(inv.total), strong: true },
+                    { label: "Received", value: received, hide: !received },
+                    { label: "Balance Due", value: Number(inv.remaining), strong: true, hide: !received },
+                  ]}
+                />
+              </>
+            ) : (
+              <PageLoading />
+            )}
+          </DetailSection>
+
+          {full?.notes && <Notes title="Notes & Terms" html={full.notes} />}
+
+          {payments.length > 0 && (
+            <DetailSection title="Payments Received">
+              <Table
+                columns={paymentColumns}
+                data={payments}
+                getRowId={(p) => p.id}
+                showCheckbox={false}
+                variant="default"
+                emptyMessage="No payments"
+                emptyIcon={DollarSign}
+                onRowClick={(p) => {
+                  setNavState(`portal-payment:${p.id}`, {
+                    id: p.id,
+                    paymentNumber: p.paymentNumber,
+                    date: p.date,
+                    mode: p.mode,
+                    amount: p.amount,
+                    currency: inv.currency,
+                  });
+                  router.push(`/portal/payments/${p.id}`);
+                }}
+              />
+            </DetailSection>
+          )}
+        </div>
+      )}
+
+      {tab === "comments" && <PortalComments entityType="invoice" entityId={inv.id} />}
     </div>
   );
 };
@@ -270,48 +439,72 @@ interface QuoteRow {
   status: string;
 }
 
+const QUOTE_STATUSES = ["All", "Sent", "Viewed", "Accepted", "Declined", "Expired", "Converted"];
+
 export const PortalQuotes: React.FC = () => {
+  const router = useRouter();
+  const selectedId = useRouteId();
   const { data, error, loading } = usePortalQuery<{ quotes: QuoteRow[] }>("/quotes");
-  const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const rows = useMemo(
-    () =>
-      (data?.quotes || []).filter(
-        (q) =>
-          (status === "All" || q.status === status) &&
-          (!search || q.quoteNumber.toLowerCase().includes(search.toLowerCase())),
-      ),
-    [data, search, status],
+    () => (data?.quotes || []).filter((q) => status === "All" || q.status === status),
+    [data, status],
   );
-  if (loading) return <PageLoading />;
-  if (error) return <ErrorNote message={error.message} />;
+
+  const openQuote = (row: QuoteRow) => {
+    setNavState(`portal-quote:${row.id}`, row);
+    router.push(`/portal/quotes/${row.id}`);
+  };
+
+  if (!selectedId) {
+    return (
+      <TableList<QuoteRow>
+        title={(s) => (s === "All" ? "All Quotes" : `${s} Quotes`)}
+        statuses={QUOTE_STATUSES}
+        status={status}
+        onStatus={setStatus}
+        rows={rows}
+        loading={loading}
+        error={error}
+        empty="No quotes found"
+        onOpen={openQuote}
+        columns={[
+          { key: "n", label: "QUOTE#", render: (q) => bold(q.quoteNumber) },
+          { key: "d", label: "DATE", render: (q) => muted(formatDate(q.quoteDate)) },
+          { key: "e", label: "EXPIRY", render: (q) => muted(formatDate(q.expiryDate)) },
+          { key: "t", label: "AMOUNT", render: (q) => bold(`${formatMoney(q.total)} ${q.currency}`) },
+          { key: "s", label: "STATUS", render: (q) => <StatusBadge status={q.status} variant={statusVariant(q.status)} /> },
+        ]}
+      />
+    );
+  }
+
   return (
-    <>
-      <PageTitle title="Quotes" subtitle="Review and respond to quotes from your supplier." />
-      <PCard>
-        <FilterRow>
-          <input className={fieldClass} placeholder="Search quotes..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <select className={`${fieldClass} sm:w-48`} value={status} onChange={(e) => setStatus(e.target.value)}>
-            {["All", "Sent", "Viewed", "Accepted", "Declined", "Expired", "Converted"].map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </FilterRow>
-        <PTable<QuoteRow>
-          rows={rows}
-          getId={(q) => q.id}
-          href={(q) => `/portal/quotes/${q.id}`}
-          empty="No quotes found."
-          columns={[
-            { key: "n", label: "Quote", render: (q) => <span className="font-semibold text-slate-900">{q.quoteNumber}</span> },
-            { key: "d", label: "Date", render: (q) => formatDate(q.quoteDate) },
-            { key: "e", label: "Expiry", render: (q) => formatDate(q.expiryDate) },
-            { key: "t", label: "Amount", align: "right", render: (q) => <Money amount={q.total} currency={q.currency} className="font-semibold text-slate-900" /> },
-            { key: "s", label: "Status", render: (q) => <Status status={q.status} /> },
-          ]}
-        />
-      </PCard>
-    </>
+    <SplitView
+      filter={{
+        value: status,
+        options: QUOTE_STATUSES.map((s) => ({ value: s, label: s === "All" ? "All Quotes" : `${s} Quotes` })),
+        onChange: setStatus,
+      }}
+      rows={rows.map((q) => ({
+        id: q.id,
+        title: q.quoteNumber,
+        subtitle: formatDate(q.quoteDate),
+        right: `${formatMoney(q.total)} ${q.currency}`,
+      }))}
+      loading={loading}
+      selectedId={selectedId}
+      hideCheckbox
+      onOpen={(id) => {
+        const row = rows.find((r) => String(r.id) === String(id));
+        if (row) setNavState(`portal-quote:${id}`, row);
+        router.push(`/portal/quotes/${id}`);
+      }}
+      emptyText={error ? error.message : "No quotes found"}
+      detailKey={selectedId}
+    >
+      {selectedId ? <PortalQuoteView /> : <Placeholder text="Select a quote to view its details" />}
+    </SplitView>
   );
 };
 
@@ -331,17 +524,24 @@ interface QuoteDetail {
 }
 
 export const PortalQuoteView: React.FC = () => {
-  const id = useId();
+  const id = useRouteId();
+  const router = useRouter();
   const { me } = usePortalMe();
+  const nav = useNavRecord<QuoteRow>(id ? `portal-quote:${id}` : null);
   const { data, error, loading, refresh } = usePortalQuery<QuoteDetail>(id ? `/quotes/${id}` : null);
+  const [tab, setTab] = useState<"overview" | "comments">("overview");
   const [busy, setBusy] = useState<"" | "accept" | "decline">("");
   const [actionError, setActionError] = useState("");
 
-  if (loading) return <PageLoading />;
-  if (error || !data) return <ErrorNote message={error?.message || "Quote not found"} />;
-  const q = data.quote;
+  const q = data?.quote ?? nav;
+  if (!q) {
+    if (error) return <ErrorNote message={error.message || "Quote not found"} />;
+    return loading || !error ? <PageLoading /> : null;
+  }
+  const full = data?.quote;
   const expired = q.expiryDate ? new Date(q.expiryDate) < new Date() : false;
   const canRespond = ["Sent", "Viewed"].includes(q.status) && !expired;
+  const shownStatus = expired && ["Sent", "Viewed"].includes(q.status) ? "Expired" : q.status;
 
   const respond = async (action: "accept" | "decline") => {
     setBusy(action);
@@ -357,85 +557,87 @@ export const PortalQuoteView: React.FC = () => {
   };
 
   return (
-    <div id="pdf-print-area">
-      <PageTitle
-        back={{ href: "/portal/quotes", label: "Back to quotes" }}
-        title={`Quote ${q.quoteNumber}`}
-        subtitle={`${formatDate(q.quoteDate)}${q.expiryDate ? ` · Valid until ${formatDate(q.expiryDate)}` : ""}`}
+    <div id="pdf-print-area" className={DETAIL_WRAP}>
+      <DetailHeader
+        title={q.quoteNumber}
+        subtitle={<StatusBadge status={shownStatus} variant={statusVariant(shownStatus)} />}
+        onClose={() => router.push("/portal/quotes")}
+        menu={PRINT_MENU}
         actions={
-          <>
-            <PrintButton label="Download PDF" />
-            {canRespond && (
-              <>
-                <button className={dangerBtn} disabled={!!busy} onClick={() => respond("decline")}>
-                  <X className="w-4 h-4" />
-                  Decline
-                </button>
-                <button className={primaryBtn} disabled={!!busy} onClick={() => respond("accept")}>
-                  <Check className="w-4 h-4" />
-                  Accept
-                </button>
-              </>
-            )}
-          </>
+          canRespond ? (
+            <>
+              <Button size="sm" variant="danger" disabled={!!busy} onClick={() => respond("decline")} icon={<X className="w-4 h-4" />}>
+                Decline
+              </Button>
+              <Button size="sm" variant="primary" disabled={!!busy} onClick={() => respond("accept")} icon={<Check className="w-4 h-4" />}>
+                Accept
+              </Button>
+            </>
+          ) : undefined
         }
       />
-      {actionError && <div className="mb-4"><ErrorNote message={actionError} /></div>}
+      {actionError && <ErrorNote message={actionError} />}
 
-      <div className="space-y-4">
-        <PCard>
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <p className="text-[12px] uppercase tracking-wide text-slate-500">From</p>
-              <p className="text-[15px] font-semibold text-slate-900">{me?.organization.name}</p>
-              <p className="mt-3 text-[12px] uppercase tracking-wide text-slate-500">Prepared for</p>
-              <p className="text-[15px] font-semibold text-slate-900">{me?.customer.displayName}</p>
-              {q.referenceNumber && <p className="text-[13px] text-slate-500">Ref: {q.referenceNumber}</p>}
-            </div>
-            <div className="sm:text-right">
-              <Status status={expired && ["Sent", "Viewed"].includes(q.status) ? "Expired" : q.status} />
-              <p className="mt-3 text-[12px] uppercase tracking-wide text-slate-500">Total</p>
-              <p className="text-[30px] leading-9 font-bold text-slate-900 tabular-nums">
-                {formatMoney(q.total)} <span className="text-[16px]">{q.currency}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <LinesTable lines={q.items || []} currency={q.currency} />
-            <Totals
-              currency={q.currency}
-              rows={[
-                { label: "Subtotal", value: Number(q.subTotal) },
-                { label: `Discount (${q.discountPercent}%)`, value: -Number(q.discount), hide: !Number(q.discount) },
-                { label: "Tax", value: Number(q.tax), hide: !Number(q.tax) },
-                { label: "Shipping", value: Number(q.shipping), hide: !Number(q.shipping) },
-                { label: "Adjustment", value: Number(q.adjustment), hide: !Number(q.adjustment) },
-                { label: "Total", value: Number(q.total), strong: true },
-              ]}
-            />
-          </div>
-
-          {(q.notes || q.terms) && (
-            <div className="mt-6 pt-4 border-t border-slate-100 grid sm:grid-cols-2 gap-4">
-              {q.notes && (
-                <div>
-                  <p className="text-[12px] uppercase tracking-wide text-slate-500 mb-1">Notes</p>
-                  <div className="text-[14px] text-slate-700 whitespace-pre-wrap [&_p]:m-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(q.notes) }} />
-                </div>
-              )}
-              {q.terms && (
-                <div>
-                  <p className="text-[12px] uppercase tracking-wide text-slate-500 mb-1">Terms & conditions</p>
-                  <p className="text-[14px] text-slate-700 whitespace-pre-wrap">{q.terms}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </PCard>
-
-        <PortalComments entityType="quote" entityId={q.id} />
+      <div className="border-b border-slate-200 print:hidden">
+        <Tabs
+          tabs={[
+            { label: "Overview", value: "overview" },
+            { label: "Comments", value: "comments" },
+          ]}
+          activeTab={tab}
+          onTabChange={(v) => setTab(v as "overview" | "comments")}
+        />
       </div>
+
+      {tab === "overview" && (
+        <div>
+          <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+            <DetailRow label="Quote Number">{q.quoteNumber}</DetailRow>
+            <DetailRow label="Status">{shownStatus}</DetailRow>
+            <DetailRow label="From">{me?.organization.name}</DetailRow>
+            <DetailRow label="Prepared For">{me?.customer.displayName}</DetailRow>
+            <DetailRow label="Quote Date">{formatDate(q.quoteDate)}</DetailRow>
+            <DetailRow label="Valid Until">{formatDate(q.expiryDate)}</DetailRow>
+            <DetailRow label="Currency">{q.currency}</DetailRow>
+            {full?.referenceNumber && <DetailRow label="Reference">{full.referenceNumber}</DetailRow>}
+            <DetailRow label="Total">
+              <span className="font-semibold">
+                {formatMoney(q.total)} {q.currency}
+              </span>
+            </DetailRow>
+          </div>
+
+          <DetailSection title="Line Items">
+            {full ? (
+              <>
+                <LinesTable lines={full.items || []} currency={q.currency} />
+                <Totals
+                  currency={q.currency}
+                  rows={[
+                    { label: "Subtotal", value: Number(full.subTotal) },
+                    { label: `Discount (${full.discountPercent}%)`, value: -Number(full.discount), hide: !Number(full.discount) },
+                    { label: "Tax", value: Number(full.tax), hide: !Number(full.tax) },
+                    { label: "Shipping", value: Number(full.shipping), hide: !Number(full.shipping) },
+                    { label: "Adjustment", value: Number(full.adjustment), hide: !Number(full.adjustment) },
+                    { label: "Total", value: Number(full.total), strong: true },
+                  ]}
+                />
+              </>
+            ) : (
+              <PageLoading />
+            )}
+          </DetailSection>
+
+          {full?.notes && <Notes title="Notes" html={full.notes} />}
+          {full?.terms && (
+            <DetailSection title="Terms & Conditions">
+              <p className="text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">{full.terms}</p>
+            </DetailSection>
+          )}
+        </div>
+      )}
+
+      {tab === "comments" && <PortalComments entityType="quote" entityId={q.id} />}
     </div>
   );
 };
@@ -449,91 +651,149 @@ interface PaymentRow {
   mode: string;
   amount: number;
   currency: string;
-  invoices: string[];
+  invoices?: string[];
 }
 
 export const PortalPayments: React.FC = () => {
+  const router = useRouter();
+  const selectedId = useRouteId();
   const { data, error, loading } = usePortalQuery<{ payments: PaymentRow[] }>("/payments");
-  if (loading) return <PageLoading />;
-  if (error) return <ErrorNote message={error.message} />;
+  const rows = data?.payments || [];
+
+  const openPayment = (row: PaymentRow) => {
+    setNavState(`portal-payment:${row.id}`, row);
+    router.push(`/portal/payments/${row.id}`);
+  };
+
+  if (!selectedId) {
+    return (
+      <TableList<PaymentRow>
+        title={() => "All Payments"}
+        status="all"
+        onStatus={() => {}}
+        rows={rows}
+        loading={loading}
+        error={error}
+        empty="No payments found"
+        onOpen={openPayment}
+        columns={[
+          { key: "n", label: "PAYMENT#", render: (p) => bold(`#${p.paymentNumber ?? p.id}`) },
+          { key: "d", label: "DATE", render: (p) => muted(formatDate(p.date)) },
+          { key: "i", label: "INVOICES", render: (p) => muted((p.invoices || []).join(", ") || "—") },
+          { key: "m", label: "METHOD", render: (p) => muted(p.mode) },
+          { key: "a", label: "AMOUNT", render: (p) => bold(`${formatMoney(p.amount)} ${p.currency}`) },
+        ]}
+      />
+    );
+  }
+
   return (
-    <>
-      <PageTitle title="Payments" subtitle="Payments you have made." />
-      <PCard>
-        <PTable<PaymentRow>
-          rows={data?.payments || []}
-          getId={(p) => p.id}
-          href={(p) => `/portal/payments/${p.id}`}
-          empty="No payments found."
-          columns={[
-            { key: "n", label: "Payment", render: (p) => <span className="font-semibold text-slate-900">#{p.paymentNumber ?? p.id}</span> },
-            { key: "d", label: "Date", render: (p) => formatDate(p.date) },
-            { key: "i", label: "Invoices", render: (p) => p.invoices.join(", ") || "—" },
-            { key: "m", label: "Method", render: (p) => p.mode },
-            { key: "a", label: "Amount", align: "right", render: (p) => <Money amount={p.amount} currency={p.currency} className="font-semibold text-slate-900" /> },
-          ]}
-        />
-      </PCard>
-    </>
+    <SplitView
+      filter={{ value: "all", options: [{ value: "all", label: "All Payments" }], onChange: () => {} }}
+      rows={rows.map((p) => ({
+        id: p.id,
+        title: `Payment #${p.paymentNumber ?? p.id}`,
+        subtitle: `${formatDate(p.date)} · ${p.mode}`,
+        right: `${formatMoney(p.amount)} ${p.currency}`,
+      }))}
+      loading={loading}
+      selectedId={selectedId}
+      hideCheckbox
+      onOpen={(id) => {
+        const row = rows.find((r) => String(r.id) === String(id));
+        if (row) setNavState(`portal-payment:${id}`, row);
+        router.push(`/portal/payments/${id}`);
+      }}
+      emptyText={error ? error.message : "No payments found"}
+      detailKey={selectedId}
+    >
+      {selectedId ? <PortalPaymentView /> : <Placeholder text="Select a payment to view its details" />}
+    </SplitView>
   );
 };
 
 interface PaymentDetail {
-  payment: {
-    id: number;
-    paymentNumber?: number | null;
-    date: string;
-    mode: string;
+  payment: Omit<PaymentRow, "invoices"> & {
     referenceNo?: string | null;
-    amount: number;
-    currency: string;
     notes?: string | null;
     invoices: { id: number; invoiceNumber: string; amount: number }[];
   };
 }
 
 export const PortalPaymentView: React.FC = () => {
-  const id = useId();
+  const id = useRouteId();
+  const router = useRouter();
   const { me } = usePortalMe();
+  const nav = useNavRecord<PaymentRow>(id ? `portal-payment:${id}` : null);
   const { data, error, loading } = usePortalQuery<PaymentDetail>(id ? `/payments/${id}` : null);
-  if (loading) return <PageLoading />;
-  if (error || !data) return <ErrorNote message={error?.message || "Payment not found"} />;
-  const p = data.payment;
-  const field = (label: string, value: React.ReactNode) => (
-    <div className="py-3 flex justify-between gap-4 border-b border-slate-100 last:border-0 text-[14px]">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-semibold text-slate-900 text-right">{value || "—"}</dd>
-    </div>
-  );
+
+  const p = data?.payment ?? nav;
+  if (!p) {
+    if (error) return <ErrorNote message={error.message || "Payment not found"} />;
+    return loading || !error ? <PageLoading /> : null;
+  }
+  const full = data?.payment;
+
+  const appliedColumns: TableColumn<PaymentDetail["payment"]["invoices"][number]>[] = [
+    { key: "n", label: "INVOICE", render: (i) => <span className="font-bold text-slate-900">{i.invoiceNumber}</span> },
+    {
+      key: "a",
+      label: "APPLIED",
+      align: "right" as const,
+      render: (i) => (
+        <span className="font-bold text-slate-900">
+          {p.currency} {formatMoney(i.amount)}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <>
-      <PageTitle
-        back={{ href: "/portal/payments", label: "Back to payments" }}
+    <div id="pdf-print-area" className={DETAIL_WRAP}>
+      <DetailHeader
         title={`Payment #${p.paymentNumber ?? p.id}`}
-        subtitle={`Received ${formatDate(p.date)}`}
-        actions={
-          <>
-            <PrintButton label="Download receipt" />
-            <PrintButton label="Print" />
-          </>
-        }
+        subtitle={<span>Received {formatDate(p.date)}</span>}
+        onClose={() => router.push("/portal/payments")}
+        menu={[
+          { label: "Download Receipt", onClick: () => window.print() },
+          { label: "Print", onClick: () => window.print() },
+        ]}
       />
-      <PCard title={`Payment receipt · ${me?.organization.name || ""}`}>
-        <dl>
-          {field("Amount", <Money amount={p.amount} currency={p.currency} />)}
-          {field("Date", formatDate(p.date))}
-          {field("Method", p.mode)}
-          {field("Reference", p.referenceNo)}
-          {field("Received from", me?.customer.displayName)}
-          {field(
-            "Applied to",
-            p.invoices.length
-              ? p.invoices.map((i) => `${i.invoiceNumber} (${formatMoney(i.amount)})`).join(", ")
-              : "",
+
+      <div>
+        <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-2">
+          <DetailRow label="Payment Number">#{p.paymentNumber ?? p.id}</DetailRow>
+          <DetailRow label="Amount">
+            <span className="font-semibold">
+              {formatMoney(p.amount)} {p.currency}
+            </span>
+          </DetailRow>
+          <DetailRow label="Date">{formatDate(p.date)}</DetailRow>
+          <DetailRow label="Method">{p.mode}</DetailRow>
+          <DetailRow label="Reference">{full?.referenceNo}</DetailRow>
+          <DetailRow label="Received By">{me?.organization.name}</DetailRow>
+          <DetailRow label="Received From">{me?.customer.displayName}</DetailRow>
+        </div>
+
+        <DetailSection title="Applied To">
+          {full ? (
+            <Table
+              columns={appliedColumns}
+              data={full.invoices}
+              getRowId={(i) => i.id}
+              showCheckbox={false}
+              variant="default"
+              emptyMessage="Not applied to any invoice"
+              emptyIcon={ScrollText}
+              onRowClick={(i) => router.push(`/portal/invoices/${i.id}`)}
+            />
+          ) : (
+            <PageLoading />
           )}
-          {field("Notes", p.notes)}
-        </dl>
-      </PCard>
-    </>
+        </DetailSection>
+
+        {full?.notes && <Notes title="Notes" html={full.notes} />}
+      </div>
+    </div>
   );
 };

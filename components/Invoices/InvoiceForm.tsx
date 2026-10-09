@@ -375,18 +375,18 @@ const InvoiceForm = () => {
                         className="absolute right-3 top-[34px] w-4 h-4 text-gray-400 cursor-pointer hover:text-primary transition-colors"
                         onClick={openTemplateSelector}
                       />
+                      {!isEditMode && (
+                        <label className="absolute right-0 -top-0.5 flex h-4 items-center gap-1.5 text-xs leading-none text-gray-500 cursor-pointer select-none [&_div]:mt-0">
+                          <Checkbox
+                            checkboxSize="sm"
+                            checked={customNumbering}
+                            onChange={toggleCustomNumbering}
+                            disabled={!hasCustomer}
+                          />
+                          Use Custom
+                        </label>
+                      )}
                     </div>
-
-                    {!isEditMode && (
-                      <label className="flex items-center gap-2 -mt-2 text-xs text-gray-500 cursor-pointer select-none">
-                        <Checkbox
-                          checked={customNumbering}
-                          onChange={toggleCustomNumbering}
-                          disabled={!hasCustomer}
-                        />
-                        Use Custom
-                      </label>
-                    )}
 
                     <Select
                       label="Payment Terms"

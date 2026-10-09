@@ -216,12 +216,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                           handleSelect(option.value);
                         }
                       }}
-                      className={`px-3 py-2 text-sm rounded-md flex items-center justify-between cursor-pointer transition-colors ${
+                      className={`group px-3 py-2 text-sm rounded-md flex items-center justify-between cursor-pointer transition-colors ${
                         option.disabled
                           ? "opacity-50 cursor-not-allowed text-slate-400"
                           : isSelected
-                            ? "bg-primary text-white font-medium shadow-2xs"
-                            : "text-slate-700 hover:bg-slate-100 active:bg-slate-200"
+                            ? "text-slate-900 font-medium hover:bg-primary/20"
+                            : "text-slate-700 hover:bg-primary/20 hover:text-slate-900"
                       }`}
                     >
                       {hasDetails ? (
@@ -232,8 +232,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                             <div
                               className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                                 isSelected
-                                  ? "bg-white/20 text-white"
-                                  : "bg-primary/10 text-primary"
+                                  ? "bg-primary/10 text-primary"
+                                  : "bg-primary/10 text-primary group-hover:bg-white/60"
                               }`}
                             >
                               <option.icon className="w-4 h-4" />
@@ -244,7 +244,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                             <div
                               className={`truncate text-sm ${
                                 isSelected
-                                  ? "text-white font-semibold"
+                                  ? "text-slate-900 font-semibold"
                                   : "text-slate-900 font-medium"
                               }`}
                             >
@@ -254,8 +254,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                               <div
                                 className={`text-xs truncate mt-0.5 flex items-center gap-1.5 ${
                                   isSelected
-                                    ? "text-white/90"
-                                    : "text-slate-500"
+                                    ? "text-slate-500"
+                                    : "text-slate-500 group-hover:text-slate-700"
                                 }`}
                               >
                                 {option.subtitle || option.description}
@@ -268,7 +268,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                       )}
 
                       {isSelected && (
-                        <Check className="w-4 h-4 text-white shrink-0 ml-2" />
+                        <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
                       )}
                     </div>
                   );

@@ -1,4 +1,5 @@
 "use client";
+import { dropdownAnim, DROPDOWN_BASE } from "@/lib/dropdownAnim";
 
 import React from "react";
 import { ChevronDown } from "lucide-react";
@@ -37,13 +38,18 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                     <ChevronDown className="w-4 h-4 text-primary stroke-[2.5]" />
                   </button>
 
-                  {dropdown.isOpen && (
+                  {(
                     <>
+                      {dropdown.isOpen && (
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={dropdown.onToggle}
+                        />
+                      )}
                       <div
-                        className="fixed inset-0 z-10"
-                        onClick={dropdown.onToggle}
-                      />
-                      <div className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-md shadow-xl z-20">
+                        aria-hidden={!dropdown.isOpen}
+                        className={`absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-md shadow-xl z-20 ${DROPDOWN_BASE} ${dropdownAnim(dropdown.isOpen)}`}
+                      >
                         {dropdown.options.map((opt) => (
                           <button
                             key={opt.value}
