@@ -1,3 +1,4 @@
+import type { CustomPlaceholderLike } from "@/lib/placeholders/registry";
 export type PaperSize = "A4" | "A5" | "Letter";
 export type Orientation = "Portrait" | "Landscape";
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted";
@@ -796,5 +797,11 @@ export interface TemplatePreviewProps {
   style?: React.CSSProperties;
   className?: string;
   footerStyle?: React.CSSProperties;
+  /** Values for %Placeholders%; the customer portal has no business session, so it supplies them. */
+  placeholderContext?: {
+    custom?: CustomPlaceholderLike[];
+    organizationName?: string | null;
+    senderName?: string | null;
+  };
 }
 

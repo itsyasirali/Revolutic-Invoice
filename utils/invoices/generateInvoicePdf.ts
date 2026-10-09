@@ -214,9 +214,9 @@ export const generateInvoicePDF = (
             try {
               const cleanPath = trimmedLogo.replace(/^\/+/, "");
               const candidatePaths = [
-                path.join(process.cwd(), "public", cleanPath),
-                path.join(process.cwd(), cleanPath),
-                path.resolve(cleanPath),
+                path.join(/*turbopackIgnore: true*/ process.cwd(), "public", cleanPath),
+                path.join(/*turbopackIgnore: true*/ process.cwd(), cleanPath),
+                path.resolve(/*turbopackIgnore: true*/ cleanPath),
               ];
               for (const p of candidatePaths) {
                 if (fs.existsSync(p) && fs.statSync(p).isFile()) {
