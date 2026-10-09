@@ -8,6 +8,9 @@ import { Payment } from "@/entities/Payment";
 import { PaymentAppliedInvoice } from "@/entities/PaymentAppliedInvoice";
 import { Template } from "@/entities/Template";
 import { Project } from "@/entities/Project";
+import { Expense } from "@/entities/Expense";
+import { ExpenseCategory } from "@/entities/ExpenseCategory";
+import { calculateExpenseTotals, deriveExpenseStatus } from "@/utils/expenses/expenseCalculations";
 import { Quote } from "@/entities/Quote";
 import { QuoteItem } from "@/entities/QuoteItem";
 import { nextSequenceNumber } from "@/lib/numbering";
@@ -15,6 +18,7 @@ import { HttpError } from "@/lib/requestContext";
 import type {
   CustomerDraft,
   EntityKey,
+  ExpenseDraft,
   ImportDrafts,
   ImportIssue,
   ImportResult,
@@ -271,6 +275,118 @@ const importProjects = async (run: Run, drafts: ProjectDraft[]) => {
     );
     existing.push(saved);
     run.projectIdsByName.set(lower(name), saved.id);
+  }
+};
+
+const importExpenses = async (run: Run, drafts: ExpenseDraft[]) => {
+  const repo = run.m.getRepository(Expense);
+  run.statuses.expenses = drafts.map(() => "new");
+  const existing = await repo.find({ where: { organizationId: run.orgId } });
+  const projects = await run.m.getRepository(Project).find({ where: { organizationId: run.orgId } });
+  const categoryRepo = run.m.getRepository(ExpenseCategory);
+  const categoryIds = new Map<string, number>();
+  for (const c of await categoryRepo.find({ where: { organizationId: run.orgId } })) {
+    categoryIds.set(lower(c.name), c.id);
+  }
+  const dayKey = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
+
+  for (const [i, d] of drafts.entries()) {
+    const label = text(d.vendor) || text(d.description) || `Expense ${i + 1}`;
+    const date = toDate(d.expenseDate);
+    if (!date) {
+      fail(run, "expenses", i, `${label}: a valid expense date is required`);
+      continue;
+    }
+    const amount = toNum(d.amount);
+    const taxPercent = toNum(d.taxPercent);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      fail(run, "expenses", i, `${label}: amount must be a number greater than 0`);
+      continue;
+    }
+    if (!Number.isFinite(taxPercent) || taxPercent < 0) {
+      fail(run, "expenses", i, `${label}: tax % must be a number, 0 or more`);
+      continue;
+    }
+
+    let customerId: number | null = null;
+    if (text(d.customerName)) {
+      customerId = run.customerIdsByName.get(lower(d.customerName)) ?? null;
+      if (!customerId) {
+        fail(
+          run,
+          "expenses",
+          i,
+          `${label}: customer "${text(d.customerName)}" does not exist yet. Import Customers first, or correct the name.`,
+        );
+        continue;
+      }
+    }
+    let projectId: number | null = null;
+    if (text(d.projectName)) {
+      const project = projects.find(
+        (p) => lower(p.name) === lower(d.projectName) && (!customerId || p.customerId === customerId),
+      );
+      if (!project) {
+        fail(run, "expenses", i, `${label}: project "${text(d.projectName)}" does not exist yet. Import Projects first, or clear it.`);
+        continue;
+      }
+      projectId = project.id;
+      customerId = project.customerId;
+    }
+    const billable = lower(d.billable) === "yes";
+    if (billable && !customerId) {
+      fail(run, "expenses", i, `${label}: a customer is required for billable expenses`);
+      continue;
+    }
+
+    const reference = text(d.referenceNumber);
+    const vendor = text(d.vendor);
+    const duplicate = existing.find(
+      (e) =>
+        dayKey(new Date(e.expenseDate)) === dayKey(date) &&
+        round2(Number(e.amount)) === round2(amount) &&
+        lower(e.vendor) === lower(vendor) &&
+        lower(e.referenceNumber) === lower(reference),
+    );
+    if (duplicate) {
+      run.statuses.expenses![i] = "exists";
+      continue;
+    }
+
+    let categoryId: number | null = null;
+    const categoryName = text(d.categoryName);
+    if (categoryName) {
+      categoryId = categoryIds.get(lower(categoryName)) ?? null;
+      if (!categoryId) {
+        categoryId = (await categoryRepo.save(categoryRepo.create({ name: categoryName, organizationId: run.orgId }))).id;
+        categoryIds.set(lower(categoryName), categoryId);
+      }
+    }
+
+    const saved = await repo.save(
+      repo.create({
+        expenseNumber: await nextSequenceNumber(repo, "expenseNumber", run.orgId, "EXP"),
+        expenseDate: date,
+        vendor: vendor || undefined,
+        customerId,
+        projectId,
+        categoryId,
+        description: text(d.description) || undefined,
+        ...calculateExpenseTotals(amount, taxPercent),
+        currency: text(d.currency) || "PKR",
+        paymentMethod: text(d.paymentMethod) || undefined,
+        referenceNumber: reference || undefined,
+        billable,
+        invoiced: false,
+        invoiceId: null,
+        notes: text(d.notes) || undefined,
+        attachment: null,
+        status: deriveExpenseStatus(billable, false),
+        userId: run.userId,
+        organizationId: run.orgId,
+      } as Partial<Expense>),
+    );
+    existing.push(saved);
   }
 };
 
@@ -659,6 +775,7 @@ export const commitDrafts = async (
         await linkExistingLines(run);
       }
       if (drafts.projects) await importProjects(run, drafts.projects);
+      if (drafts.expenses) await importExpenses(run, drafts.expenses);
       if (drafts.quotes) await importQuotes(run, drafts.quotes);
       if (drafts.invoices) await importInvoices(run, drafts.invoices);
       if (drafts.payments) await importPayments(run, drafts.payments);

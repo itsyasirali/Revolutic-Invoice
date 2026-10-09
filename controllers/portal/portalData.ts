@@ -13,6 +13,8 @@ import { Customer } from "@/entities/Customer";
 import { Template } from "@/entities/Template";
 import { Organization } from "@/entities/Organization";
 import { loadCustomPlaceholders } from "@/lib/placeholders/server";
+import { buildPlaceholderValues } from "@/lib/placeholders/context";
+import { generateInvoicePDF } from "@/utils/invoices/generateInvoicePdf";
 import { PortalUser } from "@/entities/PortalUser";
 import { errorResponse, HttpError } from "@/lib/requestContext";
 import { queryRows } from "@/lib/services/sqlRows";
@@ -175,12 +177,12 @@ export const portalInvoices = withPortal("Failed to load invoices", async (ctx) 
   return NextResponse.json({ invoices });
 });
 
-export const portalInvoice = withPortal("Failed to load invoice", async (ctx, _req, p) => {
-  requirePermission(ctx, "canViewInvoices");
+/** The customer's invoice with its linked template (else the organization's default) and organization. */
+const loadPortalInvoice = async (ctx: PortalContext, id: number) => {
   const db = await getDatabase();
   const invoice = await db.getRepository(Invoice).findOne({
     where: {
-      id: await idOf(p),
+      id,
       organizationId: ctx.orgId,
       customerId: ctx.customerId,
       status: In(PORTAL_INVOICE_STATUSES),
@@ -202,6 +204,38 @@ export const portalInvoice = withPortal("Failed to load invoice", async (ctx, _r
       (await db.getRepository(Organization).findOne({ where: { id: ctx.orgId } })) ||
       (null as unknown as Organization);
   }
+  return invoice;
+};
+
+/** PDF of the invoice rendered with its own template, the same renderer used when the business emails it. */
+export const portalInvoicePdf = withPortal("Failed to generate invoice PDF", async (ctx, _req, p) => {
+  requirePermission(ctx, "canViewInvoices");
+  const invoice = await loadPortalInvoice(ctx, await idOf(p));
+  const placeholderValues = buildPlaceholderValues({
+    scope: "invoice",
+    invoice,
+    organization: invoice.organization,
+    organizationName: invoice.organization?.name,
+    custom: await loadCustomPlaceholders(ctx.orgId),
+  });
+  const pdf = await generateInvoicePDF(
+    invoice as unknown as Parameters<typeof generateInvoicePDF>[0],
+    placeholderValues,
+  );
+  const filename = `Invoice-${invoice.invoiceNumber}.pdf`.replace(/[^\w.\- ]+/g, "");
+  return new NextResponse(new Uint8Array(pdf), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+
+export const portalInvoice = withPortal("Failed to load invoice", async (ctx, _req, p) => {
+  requirePermission(ctx, "canViewInvoices");
+  const db = await getDatabase();
+  const invoice = await loadPortalInvoice(ctx, await idOf(p));
 
   const applied = await db.getRepository(PaymentAppliedInvoice).find({
     where: { invoiceId: invoice.id },

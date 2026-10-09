@@ -9,6 +9,7 @@ import {
   ConfirmDialog,
 } from "@/components/ui";
 import useExpenseList from "@/hooks/expenses/useExpenseList";
+import { useExpenseListMenu } from "@/hooks/common/listMenus";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
 import type { Expense, ExpenseListProps } from "@/types/expense";
@@ -17,6 +18,7 @@ const STATUS_OPTIONS = ["All", "Unbilled", "Invoiced", "Non-Billable"];
 
 const ExpenseList = ({ initialExpenses }: ExpenseListProps) => {
   const list = useExpenseList(initialExpenses);
+  const listMenu = useExpenseListMenu(list.expenses);
 
   const columns = [
     {
@@ -97,11 +99,12 @@ const ExpenseList = ({ initialExpenses }: ExpenseListProps) => {
           onToggle: () => setDropdownOpen(!dropdownOpen),
         }}
         actions={
-          <>
+          <div className="flex items-center gap-2">
             <Button onClick={list.handleNew} disabled={list.loading} variant="primary" size="sm">
               New Expense
             </Button>
-          </>
+            {listMenu.menu}
+          </div>
         }
         actionBar={
           selectedCount > 0 ? (
@@ -141,7 +144,7 @@ const ExpenseList = ({ initialExpenses }: ExpenseListProps) => {
       <div className="mt-4">
         <Table<Expense>
           columns={columns}
-          data={list.expenses}
+          data={listMenu.rows}
           selectedIds={list.selectedIds}
           onSelectAll={list.onSelectAll}
           onSelectRow={list.onSelectRow}

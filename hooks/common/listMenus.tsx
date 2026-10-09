@@ -244,5 +244,7 @@ export const useExpenseListMenu = (rows: Expense[]) =>
     sortFields: expenseSort,
     exportColumns: expenseExport,
     filename: "expenses",
+    importKind: "expenses",
+    importLabel: "Import Expenses",
     onRefresh: invalidateExpenses,
   });

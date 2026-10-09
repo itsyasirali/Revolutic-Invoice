@@ -3,11 +3,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
-import { Check, X, ScrollText, DollarSign } from "lucide-react";
+import { Check, X, ScrollText, DollarSign, Download } from "lucide-react";
 import { usePortalMe, usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
 import { formatDate, formatMoney } from "@/lib/format";
 import { getNavState, setNavState } from "@/lib/clientNavState";
-import { Table, StatusBadge, Tabs, Button, PageHeader } from "@/components/ui";
+import { Table, StatusBadge, Tabs, Button, PageHeader, toast } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
 import DetailHeader from "@/components/ui/DetailHeader";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
@@ -15,6 +15,7 @@ import { statusVariant } from "@/lib/statusVariants";
 import type { TableColumn } from "@/types/common";
 import { PageLoading, ErrorNote, TABLE_INSET } from "./PortalUI";
 import PortalComments from "./PortalComments";
+import { downloadPdf, type PdfDoc } from "./portalPdf";
 
 /* ------------------------------ shared bits ------------------------------ */
 
@@ -129,10 +130,56 @@ const Placeholder: React.FC<{ text: string }> = ({ text }) => (
   <div className="flex h-full min-h-60 items-center justify-center px-6 text-sm text-slate-400">{text}</div>
 );
 
-const PRINT_MENU = [
-  { label: "Download PDF", onClick: () => window.print() },
-  { label: "Print", onClick: () => window.print() },
-];
+/** Header button that builds the PDF and saves it; disabled until the full record has loaded. */
+const DownloadButton: React.FC<{ ready: boolean; build?: () => PdfDoc; run?: () => Promise<void> }> = ({ ready, build, run }) => {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="primary"
+      icon={<Download className="w-4 h-4" />}
+      loading={busy}
+      disabled={!ready || busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          if (run) await run();
+          else if (build) await downloadPdf(build());
+        } catch (err) {
+          toast.error(errorText(err, "Download failed"), "Error");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      Download
+    </Button>
+  );
+};
+
+const money = (n: unknown) => formatMoney(n);
+
+/** Fetches a file with the portal session and saves it under the given name. */
+const downloadFile = async (url: string, fallbackName: string) => {
+  const res = await fetch(url, { credentials: "same-origin" });
+  if (!res.ok) {
+    let message = "Download failed";
+    try {
+      message = (await res.json())?.message || message;
+    } catch {
+      /* not JSON */
+    }
+    throw new Error(message);
+  }
+  const blob = await res.blob();
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fallbackName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+};
 
 
 /** Full-width table list (same look as the main app's lists); opening a row switches to the split view. */
@@ -337,7 +384,12 @@ export const PortalInvoiceView: React.FC = () => {
         title={inv.invoiceNumber}
         subtitle={<StatusBadge status={inv.status} variant={statusVariant(inv.status)} />}
         onClose={() => router.push("/portal/invoices")}
-        menu={PRINT_MENU}
+        actions={
+          <DownloadButton
+            ready={!!full}
+            run={() => downloadFile(`/api/portal/invoices/${inv.id}/pdf`, `Invoice-${inv.invoiceNumber}.pdf`)}
+          />
+        }
       />
 
       <div className="border-b border-slate-200 print:hidden">
@@ -562,18 +614,54 @@ export const PortalQuoteView: React.FC = () => {
         title={q.quoteNumber}
         subtitle={<StatusBadge status={shownStatus} variant={statusVariant(shownStatus)} />}
         onClose={() => router.push("/portal/quotes")}
-        menu={PRINT_MENU}
         actions={
-          canRespond ? (
-            <>
-              <Button size="sm" variant="danger" disabled={!!busy} onClick={() => respond("decline")} icon={<X className="w-4 h-4" />}>
-                Decline
-              </Button>
-              <Button size="sm" variant="primary" disabled={!!busy} onClick={() => respond("accept")} icon={<Check className="w-4 h-4" />}>
-                Accept
-              </Button>
-            </>
-          ) : undefined
+          <>
+            <DownloadButton
+              ready={!!full}
+              build={() => ({
+                kind: "Quote",
+                number: q.quoteNumber,
+                status: shownStatus,
+                fromName: me?.organization.name || "",
+                fromEmail: me?.organization.email,
+                partyLabel: "Prepared For",
+                partyName: me?.customer.displayName || "",
+                meta: [
+                  ["Quote Date", formatDate(q.quoteDate)],
+                  ["Valid Until", formatDate(q.expiryDate)],
+                  ["Currency", q.currency],
+                  ["Reference", full?.referenceNumber || ""],
+                ],
+                headers: ["Item", "Qty", "Rate", "Amount"],
+                rows: (full?.items || []).map((l) => [
+                  [l.title || l.name || "Item", l.description].filter(Boolean).join(" - "),
+                  String(Number(l.quantity)),
+                  money(l.rate),
+                  money(l.amount),
+                ]),
+                totals: [
+                  { label: "Subtotal", value: money(full?.subTotal) },
+                  ...(Number(full?.discount) ? [{ label: `Discount (${full?.discountPercent}%)`, value: `-${money(full?.discount)}` }] : []),
+                  ...(Number(full?.tax) ? [{ label: "Tax", value: money(full?.tax) }] : []),
+                  ...(Number(full?.shipping) ? [{ label: "Shipping", value: money(full?.shipping) }] : []),
+                  ...(Number(full?.adjustment) ? [{ label: "Adjustment", value: money(full?.adjustment) }] : []),
+                  { label: "Total", value: `${money(q.total)} ${q.currency}`, strong: true },
+                ],
+                notes: [full?.notes, full?.terms].filter(Boolean).join("\n\n"),
+                notesTitle: "Notes & Terms",
+              })}
+            />
+            {canRespond && (
+              <>
+                <Button size="sm" variant="danger" disabled={!!busy} onClick={() => respond("decline")} icon={<X className="w-4 h-4" />}>
+                  Decline
+                </Button>
+                <Button size="sm" variant="primary" disabled={!!busy} onClick={() => respond("accept")} icon={<Check className="w-4 h-4" />}>
+                  Accept
+                </Button>
+              </>
+            )}
+          </>
         }
       />
       {actionError && <ErrorNote message={actionError} />}
@@ -754,10 +842,28 @@ export const PortalPaymentView: React.FC = () => {
         title={`Payment #${p.paymentNumber ?? p.id}`}
         subtitle={<span>Received {formatDate(p.date)}</span>}
         onClose={() => router.push("/portal/payments")}
-        menu={[
-          { label: "Download Receipt", onClick: () => window.print() },
-          { label: "Print", onClick: () => window.print() },
-        ]}
+        actions={
+          <DownloadButton
+            ready={!!full}
+            build={() => ({
+              kind: "Payment Receipt",
+              number: `#${p.paymentNumber ?? p.id}`,
+              fromName: me?.organization.name || "",
+              fromEmail: me?.organization.email,
+              partyLabel: "Received From",
+              partyName: me?.customer.displayName || "",
+              meta: [
+                ["Date", formatDate(p.date)],
+                ["Method", p.mode],
+                ["Reference", full?.referenceNo || ""],
+              ],
+              headers: ["Applied To Invoice", "Amount"],
+              rows: (full?.invoices || []).map((i) => [i.invoiceNumber, money(i.amount)]),
+              totals: [{ label: "Amount Received", value: `${money(p.amount)} ${p.currency}`, strong: true }],
+              notes: full?.notes,
+            })}
+          />
+        }
       />
 
       <div>

@@ -38,8 +38,8 @@ interface ListMenuProps {
 }
 
 const ITEM =
-  "group flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-700 cursor-pointer hover:bg-primary/20 hover:text-slate-900";
-const ICON = "h-4 w-4 shrink-0 text-primary";
+  "group flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-700 cursor-pointer hover:bg-primary hover:text-white";
+const ICON = "h-4 w-4 shrink-0 text-primary group-hover:text-white";
 
 const SubMenu: React.FC<{
   icon: React.ReactNode;
@@ -54,10 +54,10 @@ const SubMenu: React.FC<{
   return (
   <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
     {/* Hover opens the submenu; click still toggles it (touch screens). */}
-    <button type="button" className={`${ITEM} ${open ? "bg-primary/20 text-slate-900" : ""}`} onClick={onToggle}>
+    <button type="button" className={`${ITEM} ${open ? "bg-primary text-white [&_svg]:text-white" : ""}`} onClick={onToggle}>
       {icon}
       <span className="flex-1">{label}</span>
-      <ChevronRight className={`h-4 w-4 shrink-0 text-primary`} />
+      <ChevronRight className={`h-4 w-4 shrink-0 ${open ? "text-white" : "text-primary group-hover:text-white"}`} />
     </button>
     {/* Always mounted (only hidden) so the import file picker survives the menu closing. */}
     <div
@@ -115,7 +115,7 @@ export const ListMenu: React.FC<ListMenuProps> = ({ sort, importKind, importLabe
 
       <div
         aria-hidden={!open}
-        className={`absolute right-0 top-full z-30 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ${DROPDOWN_BASE} ${dropdownAnim(open)}`}
+        className={`absolute right-0 top-full z-30 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ${DROPDOWN_BASE} ${dropdownAnim(open, true)}`}
       >
         {sort && (
           <SubMenu icon={<ArrowUpDown className={ICON} />} label="Sort by" open={sub === "sort"} {...hover("sort")}>

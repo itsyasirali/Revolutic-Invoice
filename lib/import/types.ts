@@ -1,13 +1,14 @@
 // Draft records: the CSV rows mapped to plain, editable objects. They are shown
 // (and edited) in the import preview, then sent back and saved as-is.
 
-export type ImportKind = "contacts" | "items" | "projects" | "quotes" | "invoices" | "payments";
-export type EntityKey = "customers" | "items" | "projects" | "quotes" | "invoices" | "payments";
+export type ImportKind = "contacts" | "items" | "projects" | "expenses" | "quotes" | "invoices" | "payments";
+export type EntityKey = "customers" | "items" | "projects" | "expenses" | "quotes" | "invoices" | "payments";
 
 export const KIND_ENTITY: Record<ImportKind, EntityKey> = {
   contacts: "customers",
   items: "items",
   projects: "projects",
+  expenses: "expenses",
   quotes: "quotes",
   invoices: "invoices",
   payments: "payments",
@@ -49,6 +50,22 @@ export interface ProjectDraft {
   budgetHours: number;
   budgetAmount: number;
   currency: string;
+}
+
+export interface ExpenseDraft {
+  expenseDate: string;
+  vendor: string;
+  customerName: string;
+  projectName: string;
+  categoryName: string;
+  description: string;
+  amount: number;
+  taxPercent: number;
+  currency: string;
+  paymentMethod: string;
+  referenceNumber: string;
+  billable: string;
+  notes: string;
 }
 
 export interface QuoteLineDraft {
@@ -133,6 +150,7 @@ export interface ImportDrafts {
   customers?: CustomerDraft[];
   items?: ItemDraft[];
   projects?: ProjectDraft[];
+  expenses?: ExpenseDraft[];
   quotes?: QuoteDraft[];
   invoices?: InvoiceDraft[];
   payments?: PaymentDraft[];

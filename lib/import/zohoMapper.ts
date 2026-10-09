@@ -1,6 +1,7 @@
 import { parseCsvRecords, type CsvRow } from "@/lib/csv";
 import type {
   CustomerDraft,
+  ExpenseDraft,
   ImportDrafts,
   InvoiceDraft,
   ItemDraft,
@@ -15,6 +16,7 @@ export interface ImportFiles {
   contacts?: string;
   items?: string;
   projects?: string;
+  expenses?: string;
   quotes?: string;
   invoices?: string;
   payments?: string;
@@ -56,6 +58,9 @@ const HEADER_ALIASES: Record<string, string[]> = {
   "Quote Status": ["Status"],
   "Expiry Date": ["Valid Until", "Expiration Date"],
   "Project Name": ["Project"],
+  "Expense Account": ["Category", "Expense Category", "Account"],
+  "Vendor": ["Payee", "Merchant", "Supplier"],
+  "Tax Amount": ["Tax"],
   "Payment Number": ["Payment No", "Payment #", "Receipt Number"],
   "Mode": ["Payment Mode", "Payment Method", "Method"],
   "Reference Number": ["Reference", "Reference No", "Ref"],
@@ -233,6 +238,27 @@ const mapProject = (row: CsvRow): ProjectDraft => {
   };
 };
 
+const mapExpense = (row: CsvRow): ExpenseDraft => {
+  const amount = num(row["Amount"]) || num(row["Total"]);
+  const taxAmount = num(row["Tax Amount"]);
+  const taxPercent = num(row["Tax Percentage"]) || (amount > 0 && taxAmount > 0 ? round2((taxAmount / amount) * 100) : 0);
+  return {
+    expenseDate: str(row, "Expense Date") || str(row, "Date"),
+    vendor: str(row, "Vendor"),
+    customerName: str(row, "Customer Name"),
+    projectName: str(row, "Project Name"),
+    categoryName: str(row, "Expense Account"),
+    description: str(row, "Expense Description") || str(row, "Description"),
+    amount,
+    taxPercent,
+    currency: str(row, "Currency Code") || "PKR",
+    paymentMethod: str(row, "Paid Through") || str(row, "Mode"),
+    referenceNumber: str(row, "Reference Number"),
+    billable: ["yes", "true", "1", "billable"].includes(str(row, "Billable").toLowerCase()) ? "Yes" : "No",
+    notes: str(row, "Notes"),
+  };
+};
+
 const mapQuote = (lines: CsvRow[]): QuoteDraft => {
   const head = lines[0];
   const status = str(head, "Quote Status");
@@ -306,6 +332,11 @@ export const buildDrafts = (files: ImportFiles): ImportDrafts => {
   if (files.projects) {
     drafts.projects = parseCsv(files.projects).map(mapProject).filter((p) => p.name);
   }
+  if (files.expenses) {
+    drafts.expenses = parseCsv(files.expenses)
+      .map(mapExpense)
+      .filter((e) => e.amount > 0 || e.description || e.vendor);
+  }
   if (files.quotes) {
     drafts.quotes = groupBy(parseCsv(files.quotes), (r) => str(r, "Quote Number")).map(mapQuote);
   }
@@ -319,7 +350,7 @@ export const buildDrafts = (files: ImportFiles): ImportDrafts => {
     ).map(mapPayment);
   }
   const empty = (Object.keys(files) as (keyof ImportFiles)[]).filter((k) => {
-    const d = drafts[{ contacts: "customers", items: "items", projects: "projects", quotes: "quotes", invoices: "invoices", payments: "payments" }[k] as keyof ImportDrafts];
+    const d = drafts[{ contacts: "customers", items: "items", projects: "projects", expenses: "expenses", quotes: "quotes", invoices: "invoices", payments: "payments" }[k] as keyof ImportDrafts];
     return files[k] && (!d || d.length === 0);
   });
   if (empty.length > 0) {

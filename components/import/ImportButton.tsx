@@ -7,6 +7,7 @@ import axios from "@/lib/axios";
 import { Button, toast } from "@/components/ui";
 import {
   invalidateCustomers,
+  invalidateExpenses,
   invalidateInvoices,
   invalidateItems,
   invalidatePayments,
@@ -88,6 +89,25 @@ const SCHEMAS: Record<ImportKind, Schema> = {
       { key: "budgetAmount", label: "Budget amount", type: "number", w: 120 },
       { key: "currency", label: "Currency", w: 80 },
       { key: "description", label: "Description", w: 220 },
+    ],
+  },
+  expenses: {
+    label: "expenses",
+    refresh: invalidateExpenses,
+    cols: [
+      { key: "expenseDate", label: "Date", type: "date", w: 140 },
+      { key: "vendor", label: "Vendor", w: 150 },
+      { key: "categoryName", label: "Category", w: 150 },
+      { key: "customerName", label: "Customer", w: 150 },
+      { key: "projectName", label: "Project", w: 140 },
+      { key: "description", label: "Description", w: 220 },
+      { key: "amount", label: "Amount", type: "number", w: 100 },
+      { key: "taxPercent", label: "Tax %", type: "number", w: 80 },
+      { key: "currency", label: "Currency", w: 80 },
+      { key: "paymentMethod", label: "Paid through", w: 130 },
+      { key: "referenceNumber", label: "Reference", w: 120 },
+      { key: "billable", label: "Billable", type: "select", options: ["No", "Yes"], w: 90 },
+      { key: "notes", label: "Notes", w: 200 },
     ],
   },
   quotes: {
