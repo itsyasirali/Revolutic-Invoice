@@ -12,6 +12,7 @@ export type CustomerTab =
   | "overview"
   | "invoices"
   | "transactions"
+  | "statement"
   | "contacts"
   | "documents"
   | "quotes"
@@ -56,6 +57,12 @@ export const useCustomerDetailsView = () => {
       router.push(`/invoices/new?customerId=${customer.id}`);
     } else {
       router.push("/invoices/new");
+    }
+  }, [customer, router]);
+
+  const handleSendStatement = useCallback((query = "") => {
+    if (customer?.id) {
+      router.push(`/customers/${customer.id}/statement/email${query}`);
     }
   }, [customer, router]);
 
@@ -208,6 +215,7 @@ export const useCustomerDetailsView = () => {
         value: "transactions",
         count: customerTransactions.length,
       },
+      { label: "Statement", value: "statement" },
     ],
     [
       customerInvoices.length,
@@ -243,6 +251,7 @@ export const useCustomerDetailsView = () => {
     tabs,
     handleEdit,
     handleNewInvoice,
+    handleSendStatement,
     handleDelete,
     confirmDialog,
     confirmDelete,

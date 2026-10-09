@@ -167,8 +167,15 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         </select>
 
         {/* Floating Dropdown Popover (Image 2 style) */}
-        {isOpen && !disabled && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-md border border-slate-200 shadow-lg p-2 animate-in fade-in-50 zoom-in-95 duration-100">
+        {!disabled && (
+          <div
+            aria-hidden={!isOpen}
+            className={`absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-md border border-slate-200 shadow-lg p-2 transition-all duration-300 ease-in-out ${
+              isOpen
+                ? "opacity-100 visible [clip-path:inset(0_-24px_-24px_-24px)]"
+                : "opacity-0 invisible pointer-events-none [clip-path:inset(0_-24px_100%_-24px)]"
+            }`}
+          >
             {/* Top Search Input (Matches Image 2 blue-bordered search box) */}
             {searchable && (
               <div className="relative mb-2 flex items-center rounded-md border border-primary ring-1 ring-primary/20 px-2.5 py-1.5 bg-white">
@@ -185,7 +192,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             )}
 
             {/* Scrollable Options List */}
-            <div className="max-h-56 overflow-y-auto space-y-0.5 dropdown-scrollbar pr-0.5">
+            <div className="max-h-56 overflow-y-auto space-y-0.5 no-scrollbar">
               {filteredOptions.length === 0 ? (
                 <div className="py-4 text-center text-xs text-slate-400 font-medium">
                   No results found

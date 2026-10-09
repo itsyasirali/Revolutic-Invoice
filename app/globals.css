@@ -255,3 +255,12 @@ select:-webkit-autofill:active {
     width: 100%;
   }
 }
+
+/* Scrollable but without a visible scrollbar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

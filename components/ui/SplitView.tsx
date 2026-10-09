@@ -26,14 +26,17 @@ interface SplitViewProps {
   /** Id of the open record (from the URL). */
   selectedId?: string;
   onOpen: (id: string | number) => void;
-  onNew: () => void;
-  newLabel: string;
+  /** Omit for read-only lists (no "+" button). */
+  onNew?: () => void;
+  newLabel?: string;
+  /** Hides the row checkboxes (read-only lists). */
+  hideCheckbox?: boolean;
   /** Ready-made "..." menu (e.g. ListMenu); replaces `menu`. */
   moreMenu?: React.ReactNode;
   /** Items of the "..." menu. Always mounted, so import dialogs survive the menu closing. */
   menu?: (closeMenu: () => void) => React.ReactNode;
-  selectedIds: (string | number)[];
-  onSelectRow: (id: string, checked: boolean) => void;
+  selectedIds?: (string | number)[];
+  onSelectRow?: (id: string, checked: boolean) => void;
   /** Buttons shown instead of the header while rows are ticked. */
   bulk?: React.ReactNode;
   emptyText?: string;
@@ -71,11 +74,12 @@ export const SplitView: React.FC<SplitViewProps> = ({
   selectedId,
   onOpen,
   onNew,
-  newLabel,
+  newLabel = "New",
+  hideCheckbox = false,
   menu,
   moreMenu,
-  selectedIds,
-  onSelectRow,
+  selectedIds = [],
+  onSelectRow = () => {},
   bulk,
   emptyText = "No records found",
   children,
@@ -163,15 +167,17 @@ export const SplitView: React.FC<SplitViewProps> = ({
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  aria-label={newLabel}
-                  title={newLabel}
-                  onClick={onNew}
-                  className="flex h-8 w-9 items-center justify-center rounded-md bg-primary text-white hover:bg-primary/90 cursor-pointer"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
+                {onNew && (
+                  <button
+                    type="button"
+                    aria-label={newLabel}
+                    title={newLabel}
+                    onClick={onNew}
+                    className="flex h-8 w-9 items-center justify-center rounded-md bg-primary text-white hover:bg-primary/90 cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                )}
                 {moreMenu && <ListMenuSideContext.Provider value="right">{moreMenu}</ListMenuSideContext.Provider>}
                 {!moreMenu && menu && (
                   <div ref={menuRef} className="relative">
@@ -215,12 +221,14 @@ export const SplitView: React.FC<SplitViewProps> = ({
                     active ? "bg-slate-100" : "hover:bg-slate-50"
                   }`}
                 >
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={ticked.has(String(r.id))}
-                      onChange={(e) => onSelectRow(String(r.id), e.target.checked)}
-                    />
-                  </div>
+                  {!hideCheckbox && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={ticked.has(String(r.id))}
+                        onChange={(e) => onSelectRow(String(r.id), e.target.checked)}
+                      />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className={`truncate text-sm ${r.muted ? "text-slate-400" : "text-slate-800"}`}>{r.title}</div>
                     {r.subtitle && <div className="truncate text-xs text-slate-500">{r.subtitle}</div>}

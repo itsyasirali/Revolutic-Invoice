@@ -16,6 +16,8 @@ interface DetailHeaderProps {
   title: React.ReactNode;
   /** Small line under the title (status badge, number, customer...). */
   subtitle?: React.ReactNode;
+  /** Extra controls rendered just before the edit button. */
+  actions?: React.ReactNode;
   onEdit?: () => void;
   editDisabled?: boolean;
   editTitle?: string;
@@ -30,6 +32,7 @@ interface DetailHeaderProps {
 export const DetailHeader: React.FC<DetailHeaderProps> = ({
   title,
   subtitle,
+  actions,
   onEdit,
   editDisabled,
   editTitle = "Edit",
@@ -58,6 +61,8 @@ export const DetailHeader: React.FC<DetailHeaderProps> = ({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        {actions}
+
         {onEdit && (
           <button
             type="button"
@@ -81,8 +86,15 @@ export const DetailHeader: React.FC<DetailHeaderProps> = ({
               More
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
-            {open && (
-              <div className="absolute right-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+            {(
+              <div
+                aria-hidden={!open}
+                className={`absolute right-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg transition-all duration-300 ease-in-out ${
+                  open
+                    ? "opacity-100 visible [clip-path:inset(0_-24px_-24px_-24px)]"
+                    : "opacity-0 invisible pointer-events-none [clip-path:inset(0_-24px_100%_-24px)]"
+                }`}
+              >
                 {items.map((m) => (
                   <button
                     key={m.label}

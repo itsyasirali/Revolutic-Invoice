@@ -22,6 +22,8 @@ import CustomerRelatedTable, { type RelatedTab } from "./CustomerRelatedTable";
 import useCustomerDetailsView, {
   type CustomerTab,
 } from "@/hooks/customers/useCustomerDetailsView";
+import CustomerStatement, {
+  StatementRangePicker, useCustomerStatement } from "./CustomerStatement";
 import CustomerPortalCard from "@/components/portal/CustomerPortalCard";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { formatDate } from "@/lib/format";
@@ -55,9 +57,19 @@ const CustomerDetails: React.FC = () => {
     hideConfirmDialog,
     handleEdit,
     handleNewInvoice,
+    handleSendStatement,
     handleInvoiceClick,
     handleTransactionClick,
   } = useCustomerDetailsView();
+  const statement = useCustomerStatement({
+    customerName: customer?.displayName || customer?.companyName || "Customer",
+    customerId: customerIdDisplay,
+    customerRecordId: customer?.id ?? "",
+    currency,
+    address: billingAddressLines.join("\n"),
+    invoices: customerInvoices,
+    transactions: customerTransactions,
+  });
   useDocumentTitle(customer ? `${customer.displayName || customer.companyName || "Customer"} | Customer Details` : undefined);
 
   const invoiceColumns: TableColumn<UIInvoiceListItem>[] = [
@@ -250,11 +262,39 @@ const CustomerDetails: React.FC = () => {
       <DetailHeader
         title={customer.displayName || "Customer"}
         subtitle={<>Customer ID: {customerIdDisplay}</>}
+        actions={
+          activeTab === "statement" ? (
+            <>
+              <StatementRangePicker
+                range={statement.range}
+                from={statement.from}
+                to={statement.to}
+                onRange={statement.setRange}
+                onFrom={statement.setFrom}
+                onTo={statement.setTo}
+              />
+              <button
+                type="button"
+                onClick={statement.handleDownload}
+                disabled={statement.downloading}
+                className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-sm text-white hover:opacity-90 cursor-pointer disabled:opacity-60"
+              >
+                <Download className="h-4 w-4" />
+                {statement.downloading ? "Preparing..." : "Download Statement"}
+              </button>
+            </>
+          ) : null
+        }
         onEdit={handleEdit}
         editTitle="Edit customer"
         onClose={handleBackClick}
         menu={[
           { label: "New Invoice", onClick: handleNewInvoice },
+          {
+            label: "Send Statement",
+            hidden: activeTab !== "statement",
+            onClick: () => handleSendStatement(`?range=${statement.range}${statement.from ? `&from=${statement.from}` : ""}${statement.to ? `&to=${statement.to}` : ""}`),
+          },
           { label: "Delete", onClick: handleDelete, danger: true },
         ]}
       />
@@ -369,6 +409,14 @@ const CustomerDetails: React.FC = () => {
             activeTab === "expenses" ||
             activeTab === "timeTracking") && (
             <CustomerRelatedTable tab={activeTab as RelatedTab} related={related} />
+          )}
+
+          {activeTab === "statement" && (
+            <CustomerStatement
+              rows={statement.rows}
+              balance={statement.totals.balance}
+              currency={currency}
+            />
           )}
 
           {activeTab === "transactions" && (
