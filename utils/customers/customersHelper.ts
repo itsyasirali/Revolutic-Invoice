@@ -39,9 +39,8 @@ export const parseContactsFromBody = (
 };
 
 /**
- * Validates that at least one contact is present, that each contact has at
- * both an email and a phone number filled in, and validates email format
- * and phone format/length for each submitted contact.
+ * Validates that at least one contact is present, that each contact has an
+ * email, and validates email format and (optional) phone format/length.
  * Returns a human-readable error message for the first invalid contact, or
  * null if all contacts are valid.
  */
@@ -60,22 +59,20 @@ export const validateContacts = (contacts: Contact[]): string | null => {
     if (!contact) continue;
 
     const hasEmail = Boolean(contact.email && String(contact.email).trim());
-    const hasPhone = Boolean(contact.contact && String(contact.contact).trim());
+    const prefix = contacts.length > 1 ? `Contact ${i + 1} – ` : "";
     if (!hasEmail) {
-      return `Contact #${i + 1}: Email is required`;
-    }
-    if (!hasPhone) {
-      return `Contact #${i + 1}: Phone number is required`;
+      return `${prefix}Please enter an email address.`;
     }
 
     const emailError = validateEmail(contact.email);
     if (emailError) {
-      return `Contact #${i + 1}: ${emailError}`;
+      return `${prefix}${emailError}`;
     }
 
+    // Phone is optional, but must be valid when provided.
     const phoneError = validatePhone(contact.contact);
     if (phoneError) {
-      return `Contact #${i + 1}: ${phoneError}`;
+      return `${prefix}${phoneError}`;
     }
   }
   return null;

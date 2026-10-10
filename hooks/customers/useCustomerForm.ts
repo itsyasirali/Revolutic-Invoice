@@ -68,16 +68,15 @@ export const useCustomerForm = (initialCustomer?: Customer | null) => {
         }
         const contactError = (() => {
           if (parsedContacts.length === 0) {
-            return "At least one contact with an email and phone number is required";
+            return "Please add at least one contact with an email address.";
           }
           for (let i = 0; i < parsedContacts.length; i += 1) {
             const c = parsedContacts[i];
             if (!c) continue;
             if (!c.email || !c.email.trim()) {
-              return `Contact #${i + 1}: Email is required`;
-            }
-            if (!c.contact || !c.contact.trim()) {
-              return `Contact #${i + 1}: Phone number is required`;
+              const prefix =
+                parsedContacts.length > 1 ? `Contact ${i + 1} – ` : "";
+              return `${prefix}Please enter an email address.`;
             }
           }
           return null;

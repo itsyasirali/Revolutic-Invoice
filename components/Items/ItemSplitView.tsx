@@ -23,6 +23,7 @@ import DetailHeader from "@/components/ui/DetailHeader";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { setNavState } from "@/lib/clientNavState";
 import { formatDate, formatMoney } from "@/lib/format";
+import { useOrganization } from "@/context/OrganizationContext";
 import type { Item } from "@/types/item";
 
 type Tab = "Overview" | "Transactions" | "History";
@@ -116,6 +117,8 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
   const params = useParams<{ id?: string }>();
   const selectedId = params?.id;
   const router = useRouter();
+  const { organization } = useOrganization();
+  const orgCurrency = (organization?.currency || "PKR").toUpperCase().trim();
 
   const list = useItemList(initialItems);
   const listMenu = useItemListMenu(list.filteredItems);
@@ -208,7 +211,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
         rows={listMenu.rows.map((i) => ({
           id: i.id,
           title: i.name,
-          right: `PKR${formatMoney(i.sellingPrice)}`,
+          right: `${orgCurrency} ${formatMoney(i.sellingPrice)}`,
           muted: i.status === "inActive",
         }))}
         loading={list.loading}
@@ -291,7 +294,7 @@ const ItemSplitView: React.FC<{ initialItems?: Item[] }> = ({ initialItems }) =>
                   </div>
 
                   <DetailSection title="Sales Information">
-                    <DetailRow label="Selling Price">PKR{formatMoney(item.sellingPrice)}</DetailRow>
+                    <DetailRow label="Selling Price">{orgCurrency} {formatMoney(item.sellingPrice)}</DetailRow>
                     <DetailRow label="Sales Account">Sales</DetailRow>
                   </DetailSection>
 
