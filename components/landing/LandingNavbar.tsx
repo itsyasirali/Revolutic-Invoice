@@ -55,7 +55,7 @@ const LandingNavbar = () => {
                             <Button
                   variant="outline"
                   size="md"
-                  className="rounded-full text-slate-700! font-semibold bg-transparent! hover:bg-transparent! hover:text-slate-700! border-slate-300! hover:border-slate-300! active:border-black! focus:border-black! focus-visible:border-black! active:bg-transparent! focus:bg-transparent! focus:ring-0! focus:ring-offset-0! active:scale-100! shadow-none!"
+                  className="font-semibold hover:bg-transparent!"
                   asChild
                 >
                   <Link href={signInHref} prefetch={false}>Sign In</Link>
@@ -112,7 +112,7 @@ const LandingNavbar = () => {
                   variant="outline"
                   size="lg"
                   fullWidth
-                  className="rounded-xl text-slate-700! font-semibold bg-transparent! hover:bg-transparent! hover:text-slate-700! border-slate-300! hover:border-slate-300! active:border-black! focus:border-black! focus-visible:border-black! active:bg-transparent! focus:bg-transparent! focus:ring-0! focus:ring-offset-0! active:scale-100! shadow-none!"
+                  className="font-semibold hover:bg-transparent!"
                   asChild
                 >
                   <Link

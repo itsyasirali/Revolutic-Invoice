@@ -6,19 +6,19 @@ import { Spinner } from "./Spinner";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white hover:bg-primary/90 focus:ring-primary/40 shadow-sm border border-transparent",
+    "bg-primary text-white hover:bg-primary/90 shadow-sm border border-transparent",
   secondary:
-    "bg-primary text-white hover:bg-primary/90 focus:ring-secondary/40 shadow-sm border border-transparent",
+    "bg-primary text-white hover:bg-primary/90 shadow-sm border border-transparent",
   outline:
-    "bg-transparent text-slate-700 hover:bg-slate-100 border border-slate-300 focus:ring-slate-400",
+    "bg-transparent text-slate-700 hover:bg-slate-100 border border-slate-300",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100/80 focus:ring-slate-300 border border-transparent shadow-none",
+    "bg-transparent text-slate-700 hover:bg-slate-100/80 border border-transparent shadow-none",
   danger:
-    "bg-danger text-white hover:bg-danger/90 focus:ring-danger/40 shadow-sm border border-transparent",
+    "bg-danger text-white hover:bg-danger/90 shadow-sm border border-transparent",
   success:
-    "bg-success text-white hover:bg-success/90 focus:ring-success/40 shadow-sm border border-transparent",
+    "bg-success text-white hover:bg-success/90 shadow-sm border border-transparent",
   warning:
-    "bg-warning text-white hover:bg-warning/90 focus:ring-warning/40 shadow-sm border border-transparent",
+    "bg-warning text-white hover:bg-warning/90 shadow-sm border border-transparent",
   link: "bg-transparent text-primary hover:underline hover:text-primary/80 border-none p-0 shadow-none focus:ring-0 focus:outline-none",
 };
 
@@ -52,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const isLink = variant === "link";
     const baseClasses = isLink
       ? "inline-flex items-center justify-center font-sans tracking-wide transition-colors focus:outline-none cursor-pointer"
-      : "inline-flex items-center justify-center font-sans tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] cursor-pointer";
+      : "inline-flex items-center justify-center font-sans tracking-wide transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98] cursor-pointer";
     const borderRadiusClass = isLink ? "" : (rounded ? "rounded-md" : "rounded-sm");
     const widthClass = fullWidth ? "w-full" : "";
     const sizeStyle = isLink ? "" : sizeClasses[size];
