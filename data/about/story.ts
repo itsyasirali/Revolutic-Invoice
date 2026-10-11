@@ -1,11 +1,11 @@
 const aboutStory = {
   paragraphs: [
-    "It all started when our founder realized that people and businesses communicate completely differently. While chatting with friends on WhatsApp or iMessage is fast and personal, reaching out to a company often means waiting on hold or writing emails that take days to get answered.",
-    "Businesses are missing out because their setup forces customers into outdated channels, creating friction instead of conversation. It’s hard to build a relationship when you’re treating people like support tickets instead of humans.",
-    "That’s why we started this company. We wanted to give businesses the tools to communicate as easily as people do. Our platform integrates modern chat solutions to help you engage with your audience, solve problems faster, and build lasting loyalty.",
-    "From marketing campaigns to customer service, we provide an all-in-one platform that makes it simple to manage your conversations and reach your customers where they are."
+    "It all started when our founder saw how much time capable business owners lost to billing. Invoices built in spreadsheets, payments tracked on paper and clients chased by hand meant hours of admin every week and cash arriving later than it should.",
+    "Businesses are held back because their billing setup is slow and disconnected, creating friction instead of getting them paid. It is hard to grow when you spend your evenings reconciling payments instead of doing the work you love.",
+    "That is why we started InvoiceSmarty. We wanted to give businesses the tools to bill as professionally as the biggest companies. Our platform brings quotes, invoices, payments, expenses and reports together so you can get paid faster and stay in control.",
+    "From the first quote to the final payment, we provide an all-in-one platform that makes it simple to manage your billing and keep your customers informed."
   ],
-  quote: "We're changing the way businesses and individuals communicate with each other by giving them a better setup."
+  quote: "We're changing the way small businesses bill and get paid by making invoicing simple, fast and professional."
 };
 
 export default aboutStory;

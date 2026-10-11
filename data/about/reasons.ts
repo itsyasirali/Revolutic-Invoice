@@ -13,7 +13,7 @@ const reasons = [
   },
   {
     title: "Thousands of happy customers who trust our platform",
-    description: "Join the best companies building exceptional customer experiences.",
+    description: "Join growing businesses that send invoices and get paid faster with InvoiceSmarty.",
     icon: Target
   }
 ];

@@ -1,7 +1,7 @@
 const actionCards = [
   {
     tag: "Try For Free",
-    title: "Build your first intelligent agent in minutes. No coding required.",
+    title: "Create your first invoice in minutes. No accounting experience required.",
     buttonText: "Get Started Free",
     image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=600&q=80"
   },
@@ -13,7 +13,7 @@ const actionCards = [
   },
   {
     title: "Help Center",
-    description: "Explore our comprehensive documentation, integration guides, and API references to get the most out of AgentChat.",
+    description: "Explore our comprehensive documentation, guides and tutorials to get the most out of InvoiceSmarty.",
     buttonText: "View Documentation",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80"
   }

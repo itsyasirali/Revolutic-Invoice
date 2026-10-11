@@ -1,15 +1,15 @@
 const numbers = [
   {
-    value: "$ 18 million",
-    label: "Funding from renowned investors",
+    value: "2 min",
+    label: "Average time to send a first invoice",
   },
   {
     value: "10,000+",
     label: "Customers from over 40 industries",
   },
   {
-    value: "200mio+",
-    label: "Processed messages",
+    value: "1M+",
+    label: "Invoices created",
   },
 ];
 

@@ -4,7 +4,7 @@ export type BlogCategory =
   | "Best Practices"
   | "Industries"
   | "Product Updates"
-  | "WhatsApp API"
+  | "Payments"
   | "Tutorials";
 
 const blogCategories: BlogCategory[] = [
@@ -13,7 +13,7 @@ const blogCategories: BlogCategory[] = [
   "Best Practices",
   "Industries",
   "Product Updates",
-  "WhatsApp API",
+  "Payments",
   "Tutorials",
 ];
 

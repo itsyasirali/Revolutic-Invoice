@@ -36,9 +36,9 @@ const Article = ({ item }: ArticleProps) => {
                 {item.authorName}
               </h4>
               <p className="text-slate-600 font-medium">
-                Content Marketing Manager at Sellora. Passionate about
-                conversational commerce, customer experience, and helping
-                businesses scale their communication efficiently.
+                Writer at InvoiceSmarty. Passionate about invoicing,
+                cash flow, and helping businesses get paid faster with less
+                admin.
               </p>
             </div>
           </div>
