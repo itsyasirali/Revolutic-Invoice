@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useId, useRef, useState } from "react";
+import React, { useId } from "react";
 import { createPortal } from "react-dom";
 import { Trash2, Plus, X } from "lucide-react";
-import axios from "@/lib/axios";
-import { Button, toast } from "@/components/ui";
+import useImport from "@/hooks/import/useImport";
+import { Button } from "@/components/ui";
 import {
   invalidateCustomers,
   invalidateExpenses,
@@ -15,15 +15,10 @@ import {
   invalidateQuotes,
 } from "@/lib/swr";
 import { UNITS, unitOptions } from "@/data/units";
-import {
-  KIND_ENTITY,
-  type ImportDrafts,
-  type ImportIssue,
-  type ImportKind,
-  type RowStatus,
-} from "@/lib/import/types";
+import type { ImportKind } from "@/lib/import/types";
 
-type Row = Record<string, any>;
+export type ImportRow = Record<string, any>;
+type Row = ImportRow;
 
 interface Col {
   key: string;
@@ -35,7 +30,7 @@ interface Col {
   w: number;
 }
 
-interface Schema {
+export interface ImportSchema {
   label: string;
   cols: Col[];
   nested?: { key: string; label: string; cols: Col[]; blank: Row };
@@ -44,7 +39,7 @@ interface Schema {
 
 const INVOICE_STATUSES = ["Draft", "Sent", "Partially Paid", "Paid", "Overdue", "Cancelled", "Written Off"];
 
-const SCHEMAS: Record<ImportKind, Schema> = {
+const SCHEMAS: Record<ImportKind, ImportSchema> = {
   contacts: {
     label: "customers",
     refresh: invalidateCustomers,
@@ -250,9 +245,6 @@ const Field: React.FC<{ col: Col; value: unknown; onChange: (v: string) => void 
     />
   );
 
-const errorData = (err: unknown) =>
-  (err as { response?: { data?: { message?: string; errors?: ImportIssue[] } } }).response?.data;
-
 /**
  * Imports one CSV export into the list it sits on. The file is mapped to
  * editable records and shown in a preview; nothing is saved until the user
@@ -263,114 +255,12 @@ export const ImportButton: React.FC<{
   /** Render your own trigger (e.g. a menu item) instead of the default button. */
   renderTrigger?: (inputId: string, loading: boolean) => React.ReactNode;
 }> = ({ kind, renderTrigger }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const schema = SCHEMAS[kind];
-  const entity = KIND_ENTITY[kind];
-
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [fileName, setFileName] = useState("");
-  const [rows, setRows] = useState<Row[]>([]);
-  const [statuses, setStatuses] = useState<RowStatus[]>([]);
-  const [issues, setIssues] = useState<ImportIssue[]>([]);
-  const [warnings, setWarnings] = useState<string[]>([]);
-
-  const close = () => {
-    setOpen(false);
-    setRows([]);
-    setStatuses([]);
-    setIssues([]);
-    setWarnings([]);
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  const onFile = async (file: File | undefined) => {
-    if (!file) return;
-    setLoading(true);
-    try {
-      const form = new FormData();
-      form.append(kind, file);
-      form.append("dryRun", "true");
-      const { data } = await axios.post("/import", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setRows((data.drafts as ImportDrafts)[entity] ?? []);
-      setStatuses(data.statuses?.[entity] ?? []);
-      setIssues(data.errors ?? []);
-      setWarnings(data.warnings ?? []);
-      setFileName(file.name);
-      setOpen(true);
-    } catch (err) {
-      toast.error(errorData(err)?.message || "Could not read the file", "Error");
-      if (inputRef.current) inputRef.current.value = "";
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const confirm = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.post(
-        "/import",
-        { drafts: { [entity]: rows }, dryRun: false },
-        { headers: { "Content-Type": "application/json" } },
-      );
-      const list: RowStatus[] = data.statuses?.[entity] ?? [];
-      const created = list.filter((s) => s === "new").length;
-      const existed = list.filter((s) => s === "exists").length;
-      await schema.refresh();
-      toast.success(
-        `${created} ${schema.label} imported${existed ? `, ${existed} already existed` : ""}`,
-        "Import complete",
-      );
-      close();
-    } catch (err) {
-      const data = errorData(err);
-      if (data?.errors?.length) {
-        setIssues(data.errors);
-        setStatuses((prev) => {
-          const next = prev.map((s): RowStatus => (s === "error" ? "new" : s));
-          data.errors!.forEach((e) => (next[e.index] = "error"));
-          return next;
-        });
-        toast.error("Fix the highlighted problems, then confirm again", "Nothing was saved");
-      } else {
-        toast.error(data?.message || "Import failed", "Error");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Editing a record clears its own previous problem; the server re-validates on confirm.
-  const touch = (i: number) => {
-    setIssues((prev) => prev.filter((e) => e.index !== i));
-    setStatuses((prev) => prev.map((s, idx) => (idx === i && s === "error" ? "new" : s)));
-  };
-
-  const setCell = (i: number, key: string, value: string) => {
-    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [key]: value } : r)));
-    touch(i);
-  };
-
-  const mapNested = (i: number, fn: (list: Row[]) => Row[]) => {
-    const n = schema.nested!.key;
-    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [n]: fn(r[n] ?? []) } : r)));
-    touch(i);
-  };
-
-  const removeRow = (i: number) => {
-    setRows((prev) => prev.filter((_, idx) => idx !== i));
-    setStatuses((prev) => prev.filter((_, idx) => idx !== i));
-    setIssues((prev) =>
-      prev.filter((e) => e.index !== i).map((e) => (e.index > i ? { ...e, index: e.index - 1 } : e)),
-    );
-  };
-
-  const toSave = rows.filter((_, i) => statuses[i] !== "exists").length;
-  const existing = rows.length - toSave;
+  const {
+    inputRef, loading, open, fileName, rows, statuses, issues, warnings,
+    close, onFile, confirm, setCell, mapNested, removeRow, toSave, existing,
+  } = useImport(kind, schema);
   const colSpan = schema.cols.length + 2;
   const th =
     "sticky top-0 z-10 whitespace-nowrap border-b border-slate-200 bg-white px-1.5 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500";

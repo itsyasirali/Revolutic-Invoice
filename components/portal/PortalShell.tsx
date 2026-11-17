@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Home,
   FileText,
@@ -17,8 +17,7 @@ import {
   ChevronRight,
   type LucideIcon,
 } from "lucide-react";
-import { mutate } from "swr";
-import { portalSend, usePortalMe } from "@/lib/portalApi";
+import usePortalShell from "@/hooks/portal/usePortalShell";
 import { PageLoading } from "./PortalUI";
 
 interface NavItem {
@@ -32,16 +31,11 @@ interface NavItem {
 const SPLIT_ROUTES = ["/portal/invoices", "/portal/quotes", "/portal/payments", "/portal/projects"];
 
 const PortalShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const router = useRouter();
   const pathname = usePathname();
-  const { me, unauthorized, loading } = usePortalMe();
+  const { me, unauthorized, loading, signOut: doSignOut } = usePortalShell();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (unauthorized) router.replace("/portal/login");
-  }, [unauthorized, router]);
 
   // Same behaviour as the main sidebar: icons only on small screens.
   useEffect(() => {
@@ -81,12 +75,7 @@ const PortalShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const signOut = async () => {
     setIsProfileOpen(false);
-    try {
-      await portalSend("POST", "/auth/logout");
-    } finally {
-      await mutate(() => true, undefined, { revalidate: false });
-      router.replace("/portal/login");
-    }
+    await doSignOut();
   };
 
   const portalName = s.portalName || me.organization.name;

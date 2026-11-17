@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import pg from "pg";
 import { DataSource, type DataSourceOptions } from "typeorm";
 import { User } from "@/entities/User";
 import { Customer } from "@/entities/Customer";
@@ -102,12 +103,20 @@ const createDataSource = (): DataSource => {
 
   const common = {
     type: "postgres" as const,
+    // Use the pg driver explicitly: TypeORM builds a pg.Pool from `extra`.
+    driver: pg,
     entities: ENTITIES,
-    // Schema sync introspects every table over the network on each cold start, so it
-    // is opt-in: set DB_SYNCHRONIZE=true locally, keep it off in production.
-    synchronize: process.env.DB_SYNCHRONIZE === "true",
-    // Serverless instances each have their own pool: keep it small (DB_POOL_MAX to override).
-    extra: { max: poolMax, idleTimeoutMillis: 30000, connectionTimeoutMillis: 10000 },
+    // Always auto-create / update tables from the entities on startup.
+    synchronize: true,
+    // pg.Pool options. Serverless instances each have their own pool: keep it small.
+    extra: {
+      max: poolMax,
+      min: 0,
+      keepAlive: true,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      allowExitOnIdle: true,
+    },
   };
 
   const options: DataSourceOptions = connectionUrl

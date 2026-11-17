@@ -18,8 +18,9 @@ import {
 } from "@/components/ui";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import { useProjectFromList, addTask, updateTask, deleteTask, billProject } from "@/hooks/projects/useProject";
+import { useProjectFromList, updateTask, deleteTask } from "@/hooks/projects/useProject";
 import useProjectDelete from "@/hooks/projects/useProjectDelete";
+import useProjectDetailActions from "@/hooks/projects/useProjectDetailActions";
 import { statusVariant } from "@/lib/statusVariants";
 import { customerLabel, formatDate, formatMoney } from "@/lib/format";
 import { formatDuration, type TimeEntry } from "@/types/timeEntry";
@@ -90,8 +91,10 @@ const ProjectDetails: React.FC = () => {
   useDocumentTitle(data ? `${data.project.name} | Project Details` : undefined);
   const del = useProjectDelete();
   const [tab, setTab] = useState<Tab>("overview");
-  const [billing, setBilling] = useState(false);
-  const [taskName, setTaskName] = useState("");
+  const { billing, taskName, setTaskName, createInvoice, submitTask } = useProjectDetailActions(
+    data?.project.id,
+    refetch,
+  );
 
   if (loading && !data) {
     return (
@@ -120,22 +123,6 @@ const ProjectDetails: React.FC = () => {
   const fixedPending = fixed && !project.fixedInvoiceId ? Number(project.fixedAmount) : 0;
   const unbilledTotal = unbilledTime + unbilledExpenses + fixedPending;
   const budgetUsed = (stats?.invoicedTimeAmount || 0) + (stats?.unbilledTimeAmount || 0) + (stats?.expenseTotal || 0);
-
-  const createInvoice = async () => {
-    setBilling(true);
-    const invoice = await billProject(project.id);
-    setBilling(false);
-    if (invoice) router.push(`/invoices/${invoice.id}`);
-    else await refetch();
-  };
-
-  const submitTask = async () => {
-    if (!taskName.trim()) return;
-    if (await addTask(project.id, taskName.trim())) {
-      setTaskName("");
-      await refetch();
-    }
-  };
 
   const tabs = [
     { label: "Overview", value: "overview" },

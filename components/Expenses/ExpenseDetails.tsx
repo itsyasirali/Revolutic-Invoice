@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
-import axios from "@/lib/axios";
+import useConvertToInvoice from "@/hooks/common/useConvertToInvoice";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import {
@@ -11,7 +11,6 @@ import {
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
-  toast,
   Tabs,
 } from "@/components/ui";
 import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
@@ -34,7 +33,12 @@ const ExpenseDetails: React.FC = () => {
     singleField: "expense",
   });
   useDocumentTitle(expense ? `${expense.expenseNumber} | Expense Details` : undefined);
-  const [converting, setConverting] = useState(false);
+  const { converting, convert: convertExpense } = useConvertToInvoice({
+    endpoint: "/expenses/invoice",
+    bodyKey: "expenseIds",
+    invalidate: invalidateExpensesAndInvoices,
+    successMessage: "Invoice created from this expense",
+  });
   const [tab, setTab] = useState<"overview" | "activity">("overview");
 
   const del = useBatchDelete({
@@ -65,21 +69,7 @@ const ExpenseDetails: React.FC = () => {
 
   const canConvert = expense.billable && !expense.invoiced;
 
-  const convert = async () => {
-    setConverting(true);
-    try {
-      const res = await axios.post("/expenses/invoice", { expenseIds: [expense.id] });
-      await invalidateExpensesAndInvoices();
-      await refetch();
-      toast.success("Invoice created from this expense", "Invoice Created");
-      router.push(`/invoices/${res.data.invoice.id}`);
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to create invoice", "Error");
-    } finally {
-      setConverting(false);
-    }
-  };
+  const convert = () => convertExpense(expense.id, refetch);
 
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">

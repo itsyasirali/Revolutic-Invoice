@@ -188,6 +188,18 @@ export const useTemplateFormView = (): UseTemplateFormViewReturn => {
     };
   }, [templateForm.formData.orientation, templateForm.formData.paperSize]);
 
+  const [nameError, setNameError] = useState("");
+
+  const handleSaveClick = () => {
+    if (!templateForm.formData.templateName.trim()) {
+      setNameError("Template name is required");
+      templateForm.handleSubmit(false); // shows the "required field missing" modal
+      return;
+    }
+    setNameError("");
+    templateForm.handleSubmit(false);
+  };
+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const isSectionOpen = useCallback(
@@ -248,6 +260,9 @@ export const useTemplateFormView = (): UseTemplateFormViewReturn => {
 
   return {
     ...templateForm,
+    nameError,
+    setNameError,
+    handleSaveClick,
     activeNav,
     setActiveNav,
     fileInputRef,

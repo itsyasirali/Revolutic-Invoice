@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { BarChart3, Clock, MinusCircle, ScrollText, Wallet } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -54,20 +55,56 @@ const Panel = ({
   </section>
 );
 
+const STAT_STYLES = {
+  blue: { bg: "from-blue-500 to-blue-600", spark: "#1AA3FF" },
+  cyan: { bg: "from-cyan-500 to-cyan-600", spark: "#06B6D4" },
+  amber: { bg: "from-amber-500 to-amber-600", spark: "#F59E0B" },
+  rose: { bg: "from-rose-500 to-rose-600", spark: "#EF4444" },
+  green: { bg: "from-emerald-500 to-emerald-600", spark: "#10B981" },
+} as const;
+
+const statStyleFor = (label: string, tone: string) => {
+  if (/expense|overdue/i.test(label) || tone.includes("red")) return { icon: MinusCircle, ...STAT_STYLES.rose };
+  if (/payment|received|paid|collection|profit/i.test(label) || tone.includes("emerald")) return { icon: Wallet, ...STAT_STYLES.green };
+  if (/hour|time|unbilled|outstanding|pending/i.test(label) || tone.includes("amber")) return { icon: Clock, ...STAT_STYLES.amber };
+  if (/categor|count|invoices$/i.test(label)) return { icon: BarChart3, ...STAT_STYLES.cyan };
+  return { icon: ScrollText, ...STAT_STYLES.blue };
+};
+
 const Stat = ({
   label,
   value,
   tone = "text-slate-900",
+  caption,
 }: {
   label: string;
   value: string;
   tone?: string;
-}) => (
-  <div className="bg-white rounded-md p-4 border border-slate-200/80 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
-    <p className="text-xs font-medium text-slate-500">{label}</p>
-    <p className={`mt-1 text-xl font-bold tracking-tight ${tone}`}>{value}</p>
-  </div>
-);
+  caption?: string;
+}) => {
+  const { icon: Icon, bg, spark } = statStyleFor(label, tone);
+  return (
+    <div className="rounded-md p-5 border border-slate-200/70 bg-white flex flex-col justify-between">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className={`w-12 h-12 rounded-md bg-gradient-to-br ${bg} text-white flex items-center justify-center shrink-0`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="space-y-1 text-right min-w-0">
+          <span className="text-xs font-semibold text-slate-500 block">{label}</span>
+          <h3 className={`text-2xl font-extrabold tracking-tight break-words ${tone}`}>{value}</h3>
+        </div>
+      </div>
+      <div className="flex items-center justify-between mt-4 pt-1">
+        <span className="text-slate-400 text-[11px]">{caption ?? "Selected period"}</span>
+        <div className="flex items-end gap-1 h-7">
+          {["40%", "70%", "50%", "90%", "65%"].map((h, i) => (
+            <div key={i} style={{ height: h, backgroundColor: spark }} className="w-1 rounded-t-sm" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Empty = ({ message }: { message: string }) => (
   <p className="py-10 text-center text-sm text-slate-400">{message}</p>
@@ -206,12 +243,12 @@ const ReportsView = ({ data, ranges }: ReportsViewProps) => {
         }
       />
 
-      <div className="px-2 sm:px-4 md:px-6 space-y-5">
+      <div className="px-2 sm:px-4 md:px-6 pt-5 space-y-6">
         <Tabs tabs={TABS} activeTab={tab} onTabChange={setTab} />
 
         {tab === "overview" && (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-3">
               <Stat label="Invoiced" value={money(summary.invoiced)} />
               <Stat label="Payments Received" value={money(summary.received)} tone="text-emerald-600" />
               <Stat label="Expenses" value={money(summary.expenses)} tone="text-red-500" />
@@ -236,7 +273,7 @@ const ReportsView = ({ data, ranges }: ReportsViewProps) => {
 
         {tab === "sales" && (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-3">
               <Stat label="Invoiced" value={money(summary.invoiced)} />
               <Stat label="Invoices" value={String(summary.invoiceCount)} />
               <Stat label="Fully Paid" value={String(summary.paidCount)} />
@@ -263,7 +300,7 @@ const ReportsView = ({ data, ranges }: ReportsViewProps) => {
 
         {tab === "receivables" && (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3">
               <Stat label="Total Outstanding" value={money(summary.outstanding)} />
               <Stat label="Overdue" value={money(summary.overdue)} tone="text-red-500" />
             </div>
@@ -311,7 +348,7 @@ const ReportsView = ({ data, ranges }: ReportsViewProps) => {
 
         {tab === "expenses" && (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3">
               <Stat label="Total Expenses" value={money(summary.expenses)} tone="text-red-500" />
               <Stat label="Categories" value={String(data.expenseCategories.length)} />
             </div>
@@ -340,7 +377,7 @@ const ReportsView = ({ data, ranges }: ReportsViewProps) => {
 
         {tab === "time" && (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-3">
               <Stat label="Hours Tracked" value={String(data.time.totalHours)} />
               <Stat label="Billable Hours" value={String(data.time.billableHours)} />
               <Stat label="Billable Share" value={`${billablePct}%`} />

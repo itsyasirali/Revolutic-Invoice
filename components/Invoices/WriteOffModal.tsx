@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Ban, X } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui";
+import useWriteOffForm from "@/hooks/invoices/useWriteOffForm";
 
 type WriteOffModalProps = {
   isOpen: boolean;
@@ -25,39 +26,15 @@ export const WriteOffModal: React.FC<WriteOffModalProps> = ({
   onConfirm,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [amount, setAmount] = useState(String(remainingAmount));
-  const [reason, setReason] = useState("");
-  const [error, setError] = useState("");
+  const { amount, setAmount, reason, setReason, error, handleConfirm } = useWriteOffForm(
+    isOpen,
+    remainingAmount,
+    onConfirm,
+  );
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (isOpen) {
-      setAmount(String(remainingAmount));
-      setReason("");
-      setError("");
-    }
-  }, [isOpen, remainingAmount]);
-
   if (!isOpen || !mounted) return null;
-
-  const handleConfirm = () => {
-    const numericAmount = Number(Number(amount).toFixed(2));
-    if (!numericAmount || numericAmount <= 0) {
-      setError("Enter a valid amount greater than 0");
-      return;
-    }
-    if (numericAmount - remainingAmount > 0.005) {
-      setError(`Amount cannot exceed the remaining balance (${remainingAmount})`);
-      return;
-    }
-    if (!reason.trim()) {
-      setError("A reason is required to write off this invoice");
-      return;
-    }
-    setError("");
-    onConfirm(numericAmount, reason.trim());
-  };
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-start justify-center px-4 overflow-y-auto">

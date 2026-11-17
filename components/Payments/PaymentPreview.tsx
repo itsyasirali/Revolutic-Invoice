@@ -3,10 +3,9 @@
 import React, { useState } from "react";
 import { paymentEditable } from "@/lib/editLock";
 import { Send, Edit, Download, Settings } from "lucide-react";
-import { Button, PageHeader, ConfirmDialog, StatusBadge, toast } from "@/components/ui";
+import { Button, PageHeader, ConfirmDialog, StatusBadge } from "@/components/ui";
 import DetailHeader from "@/components/ui/DetailHeader";
-import axios from "@/lib/axios";
-import { invalidatePayments } from "@/lib/swr";
+import useDeletePayment from "@/hooks/payments/useDeletePayment";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
 import PaymentTemplateSelector from "./PaymentTemplateSelector";
 import TemplatePreview from "@/components/Templates/TemplatePreview";
@@ -19,7 +18,7 @@ import usePaymentPreview from "@/hooks/payments/usePaymentPreview";
 const PaymentPreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const { deleting, deletePayment: removePayment } = useDeletePayment();
   const {
     payment,
     templatesLoading,
@@ -47,19 +46,7 @@ const PaymentPreview: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
   }
 
   const deletePayment = async () => {
-    setDeleting(true);
-    try {
-      await axios.delete(`/payments/${payment.id}`);
-      await invalidatePayments();
-      toast.success("Payment deleted successfully", "Deleted");
-      setConfirmDelete(false);
-      router.push("/payments");
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to delete payment", "Error");
-    } finally {
-      setDeleting(false);
-    }
+    if (await removePayment(payment.id)) setConfirmDelete(false);
   };
 
   return (

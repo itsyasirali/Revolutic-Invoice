@@ -528,6 +528,9 @@ export interface UseTemplateFormViewReturn extends UseTemplateFormReturn {
   isSectionOpen: (key: string, isSelected?: boolean) => boolean;
   toggleSection: (key: string, isSelected?: boolean) => void;
   handlePreviewSelection: (elementId: string) => void;
+  nameError: string;
+  setNameError: (message: string) => void;
+  handleSaveClick: () => void;
 }
 
 export interface TemplateCardMenuItem {

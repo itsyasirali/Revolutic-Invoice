@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Settings, X, Info, Mail, Tag } from "lucide-react";
 import CustomerAvatar from "@/components/ui/CustomerAvatar";
@@ -52,6 +52,9 @@ const InvoiceForm = () => {
     customNumbering,
     toggleCustomNumbering,
     previewInvoiceNumber,
+    missingFields,
+    setMissingFields,
+    guardedSave,
   } = useInvoiceForm();
 
   const hasCustomer = !!invoiceData.customerId;
@@ -182,23 +185,6 @@ const InvoiceForm = () => {
     }
 
     return opts;
-  };
-
-  // Required fields that are still empty; shown in a top modal instead of silently disabling Save.
-  const [missingFields, setMissingFields] = useState<string[]>([]);
-  const guardedSave = (save: () => void | Promise<void>) => {
-    const missing: string[] = [];
-    if (!invoiceData.customerId) missing.push("Customer");
-    if (!items.some((item) => item.name && item.name.trim() !== "")) {
-      missing.push("At least one item (with a name)");
-    }
-    if (!invoiceData.invoiceDate) missing.push("Invoice date");
-    if (!invoiceData.dueDate) missing.push("Due date");
-    if (missing.length > 0) {
-      setMissingFields(missing);
-      return;
-    }
-    return save();
   };
 
   if (isEditMode && invoiceLoading) {

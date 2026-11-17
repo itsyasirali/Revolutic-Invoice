@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useItemListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import useItemTransactions from "@/hooks/items/useItemTransactions";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import SplitView from "@/components/ui/SplitView";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
@@ -18,7 +18,6 @@ import {
 import useItemList from "@/hooks/items/useItemList";
 import useDeleteItems from "@/hooks/items/useItemsDelete";
 import useUpdateItemStatus from "@/hooks/items/useItemUpdateStatus";
-import { swrFetcher } from "@/lib/swr";
 import DetailHeader from "@/components/ui/DetailHeader";
 import { DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import { setNavState } from "@/lib/clientNavState";
@@ -35,26 +34,8 @@ const FILTERS = [
   { value: "inActive", label: "Inactive Items" },
 ];
 
-interface Transaction {
-  key: string;
-  type: "Invoice" | "Quote";
-  id: number;
-  number: string;
-  date: string;
-  status: string;
-  currency: string;
-  customer: string;
-  quantity: number;
-  rate: number;
-  amount: number;
-}
-
 const Transactions: React.FC<{ itemId: number }> = ({ itemId }) => {
-  const { data, isLoading } = useSWR<{ transactions: Transaction[] }>(
-    `/items/${itemId}/transactions`,
-    swrFetcher,
-    { revalidateOnFocus: false },
-  );
+  const { rows, isLoading } = useItemTransactions(itemId);
 
   if (isLoading) {
     return (
@@ -63,7 +44,6 @@ const Transactions: React.FC<{ itemId: number }> = ({ itemId }) => {
       </div>
     );
   }
-  const rows = data?.transactions ?? [];
   if (rows.length === 0) {
     return <p className="py-16 text-center text-sm text-slate-500">This item is not used in any invoice or quote yet.</p>;
   }

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React from "react";
+import useRevenueChart, { REVENUE_PERIODS } from "@/hooks/dashboard/useRevenueChart";
 import {
   BarChart,
   Bar,
@@ -23,13 +24,6 @@ const formatAxisValue = (value: number): string => {
   }
   return num.toLocaleString();
 };
-
-const PERIODS = [
-  { label: "1M", months: 1 },
-  { label: "3M", months: 3 },
-  { label: "6M", months: 6 },
-  { label: "12M", months: 12 },
-] as const;
 
 const CustomTooltip = ({ active, payload, label, currency = "Rs" }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
@@ -66,17 +60,10 @@ const RevenueOverviewChart = ({
   weeklyData = [],
   currency = "Rs",
 }: RevenueOverviewChartProps) => {
-  const [activePeriod, setActivePeriod] = useState<number>(6);
-
-  const isWeekly = activePeriod === 1;
-
-  const visibleData = useMemo(() => {
-    if (isWeekly) return weeklyData;
-    return data.slice(Math.max(data.length - activePeriod, 0));
-  }, [data, weeklyData, activePeriod, isWeekly]);
-
-  const periodLabel =
-    PERIODS.find((p) => p.months === activePeriod)?.label || "6M";
+  const { activePeriod, setActivePeriod, isWeekly, visibleData, periodLabel } = useRevenueChart(
+    data,
+    weeklyData,
+  );
 
   return (
     <div className="bg-white rounded-md p-5 border border-slate-200/80 shadow-[0_2px_12px_rgb(0,0,0,0.03)] flex flex-col justify-between h-full">
@@ -87,7 +74,7 @@ const RevenueOverviewChart = ({
             Revenue Overview
           </h2>
           <p className="text-xs text-slate-400">
-            Total Income vs Expenses (
+            Income vs Expenses (
             {isWeekly ? "This Month by Week" : `Last ${periodLabel}`})
           </p>
         </div>
@@ -107,7 +94,7 @@ const RevenueOverviewChart = ({
 
           {/* Period Filter */}
           <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-200/70">
-            {PERIODS.map((period) => (
+            {REVENUE_PERIODS.map((period) => (
               <button
                 key={period.label}
                 type="button"

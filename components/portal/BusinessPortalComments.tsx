@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import useSWR from "swr";
-import axios from "@/lib/axios";
-import { swrFetcher } from "@/lib/swr";
-import { Button, Checkbox, toast } from "@/components/ui";
+import { useBusinessPortalComments } from "@/hooks/portal/usePortalComments";
+import { Button, Checkbox } from "@/components/ui";
 import CommentBody from "./CommentBody";
-import type { PortalComment } from "@/types/portal";
 
 const TOOLS = [
   { command: "bold", label: "B", title: "Bold", className: "font-bold" },
@@ -22,15 +19,10 @@ const BusinessPortalComments: React.FC<{ entityType: "invoice" | "quote" | "proj
   entityType,
   entityId,
 }) => {
-  const key = `/portal-admin/comments?entityType=${entityType}&entityId=${entityId}`;
-  const { data, mutate } = useSWR<{ comments: PortalComment[] }>(key, swrFetcher, {
-    revalidateOnFocus: false,
-  });
+  const { comments, visible, setVisible, busy, post } = useBusinessPortalComments(entityType, entityId);
+  // UI-only state: the rich-text editor element and whether it is empty.
   const editorRef = useRef<HTMLDivElement>(null);
   const [empty, setEmpty] = useState(true);
-  const [visible, setVisible] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const comments = data?.comments || [];
 
   const refreshEmpty = () => setEmpty(!(editorRef.current?.textContent || "").trim());
 
@@ -43,22 +35,9 @@ const BusinessPortalComments: React.FC<{ entityType: "invoice" | "quote" | "proj
   const send = async () => {
     const editor = editorRef.current;
     if (!editor || !(editor.textContent || "").trim()) return;
-    setBusy(true);
-    try {
-      await axios.post("/portal-admin/comments", {
-        entityType,
-        entityId,
-        message: editor.innerHTML,
-        visibleToCustomer: visible,
-      });
+    if (await post(editor.innerHTML)) {
       editor.innerHTML = "";
       setEmpty(true);
-      await mutate();
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to add comment", "Error");
-    } finally {
-      setBusy(false);
     }
   };
 

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { portalGet, portalSend, errorText } from "@/lib/portalApi";
+import { usePortalLogin, usePortalAccept, usePortalForgotPassword, usePortalResetPassword } from "@/hooks/portal/usePortalAuth";
 import { Eye, EyeOff, FileText, CreditCard, ClipboardCheck, FolderKanban, FileDown, MessageSquare } from "lucide-react";
 import AuthLayout, { type AuthPanelContent } from "@/components/auth/AuthLayout";
 import { Button, Input } from "@/components/ui";
@@ -80,25 +79,7 @@ const PasswordInput: React.FC<{
 };
 
 export const PortalLogin: React.FC = () => {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBusy(true);
-    setError("");
-    try {
-      await portalSend("POST", "/auth/login", { email, password });
-      router.replace("/portal");
-    } catch (err) {
-      setError(errorText(err, "Failed to sign in"));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { email, setEmail, password, setPassword, error, busy, submit } = usePortalLogin();
 
   return (
     <AuthFrame title="Sign in" subtitle="to access your customer portal">
@@ -132,44 +113,7 @@ export const PortalLogin: React.FC = () => {
 };
 
 export const PortalAccept: React.FC = () => {
-  const router = useRouter();
-  const token = useSearchParams()?.get("token") || "";
-  const [info, setInfo] = useState<{ email: string; name?: string | null; portalName?: string } | null>(null);
-  const [invalid, setInvalid] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!token) {
-      setInvalid("This invitation link is missing its token.");
-      return;
-    }
-    portalGet(`/auth/invite?token=${encodeURIComponent(token)}`)
-      .then((d) => {
-        setInfo(d);
-        setName(d.name || "");
-      })
-      .catch((err) => setInvalid(errorText(err, "This invitation link is invalid or has expired.")));
-  }, [token]);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (password.length < 8) return setError("Password must be at least 8 characters");
-    if (password !== confirm) return setError("Passwords do not match");
-    setBusy(true);
-    try {
-      await portalSend("POST", "/auth/accept", { token, password, name });
-      router.replace("/portal");
-    } catch (err) {
-      setError(errorText(err, "Failed to create your account"));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { info, invalid, name, setName, password, setPassword, confirm, setConfirm, error, busy, submit } = usePortalAccept();
 
   if (invalid) {
     return (
@@ -222,24 +166,7 @@ const BackToSignIn: React.FC = () => (
 
 /** Step 1: ask for a reset link. The answer is the same whether or not the email has an account. */
 export const PortalForgotPassword: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBusy(true);
-    setError("");
-    try {
-      await portalSend("POST", "/auth/forgot", { email });
-      setSent(true);
-    } catch (err) {
-      setError(errorText(err, "Failed to send the reset link"));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { email, setEmail, error, busy, sent, setSent, submit } = usePortalForgotPassword();
 
   if (sent) {
     return (
@@ -289,40 +216,7 @@ export const PortalForgotPassword: React.FC = () => {
 
 /** Step 2: the emailed link. Checks the token, then sets the new password and signs the customer in. */
 export const PortalResetPassword: React.FC = () => {
-  const router = useRouter();
-  const token = useSearchParams()?.get("token") || "";
-  const [email, setEmail] = useState<string | null>(null);
-  const [invalid, setInvalid] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!token) {
-      setInvalid("This reset link is missing its token.");
-      return;
-    }
-    portalGet(`/auth/invite?token=${encodeURIComponent(token)}`)
-      .then((d) => setEmail(d.email))
-      .catch(() => setInvalid("This reset link is invalid or has expired."));
-  }, [token]);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (password.length < 8) return setError("Password must be at least 8 characters");
-    if (password !== confirm) return setError("Passwords do not match");
-    setBusy(true);
-    try {
-      await portalSend("POST", "/auth/accept", { token, password });
-      router.replace("/portal");
-    } catch (err) {
-      setError(errorText(err, "Failed to reset your password"));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { email, invalid, password, setPassword, confirm, setConfirm, error, busy, submit } = usePortalResetPassword();
 
   if (invalid) {
     return (

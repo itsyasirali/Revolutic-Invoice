@@ -18,10 +18,9 @@ import {
 } from "@/components/ui";
 import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
-import { runQuoteAction } from "@/hooks/quotes/useQuote";
+import useQuoteDetailActions, { type QuoteAction } from "@/hooks/quotes/useQuoteDetailActions";
 import useRecordFromList from "@/hooks/common/useRecordFromList";
 import type { Quote } from "@/types/quote";
-import { createProjectFromQuote } from "@/hooks/projects/useProject";
 import useBatchDelete from "@/hooks/common/useBatchDelete";
 import { SWR_KEYS, invalidateQuotes } from "@/lib/swr";
 import { statusVariant } from "@/lib/statusVariants";
@@ -38,7 +37,7 @@ const QuoteDetails: React.FC = () => {
     singleField: "quote",
   });
   useDocumentTitle(quote ? `${quote.quoteNumber} | Quote Details` : undefined);
-  const [acting, setActing] = useState(false);
+  const { acting, act: runAction, makeProject: createProject } = useQuoteDetailActions(refetch);
   const [tab, setTab] = useState<"quote" | "comments" | "activity">("quote");
 
   const del = useBatchDelete({
@@ -77,21 +76,8 @@ const QuoteDetails: React.FC = () => {
     ["Sent", "Viewed", "Accepted", "Converted"].includes(status) && !quote.projectId;
   const contact = quote.customer?.contacts?.[0];
 
-  const act = async (action: "accept" | "decline" | "viewed" | "clone" | "convert") => {
-    setActing(true);
-    const data = await runQuoteAction(quote.id, action);
-    setActing(false);
-    if (!data) return;
-    if (action === "convert" && data.invoice) router.push(`/invoices/${data.invoice.id}`);
-    else await refetch();
-  };
-
-  const makeProject = async () => {
-    setActing(true);
-    const project = await createProjectFromQuote(quote.id);
-    setActing(false);
-    if (project) router.push(`/projects/${project.id}`);
-  };
+  const act = (action: QuoteAction) => runAction(quote.id, action);
+  const makeProject = () => createProject(quote.id);
 
   return (
     <div className="space-y-6 px-2 sm:px-4 md:px-6 py-2">

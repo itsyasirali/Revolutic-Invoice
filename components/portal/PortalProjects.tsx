@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FolderKanban, Clock } from "lucide-react";
-import { usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
+import { usePortalProjectList, usePortalProjectDetail } from "@/hooks/portal/usePortalProjects";
 import { formatDate } from "@/lib/format";
 import { formatDuration } from "@/types/timeEntry";
-import { getNavState, setNavState } from "@/lib/clientNavState";
+import { setNavState } from "@/lib/clientNavState";
 import { statusVariant } from "@/lib/statusVariants";
 import { Table, StatusBadge, Tabs, Button } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
@@ -17,7 +17,7 @@ import { PageLoading, ErrorNote } from "./PortalUI";
 import PortalComments from "./PortalComments";
 import { TableList } from "./PortalDocuments";
 
-interface ProjectRow {
+export interface ProjectRow {
   id: number;
   projectNumber: string;
   name: string;
@@ -50,12 +50,7 @@ const ProgressBar: React.FC<{ value: number | null }> = ({ value }) =>
 export const PortalProjects: React.FC = () => {
   const router = useRouter();
   const selectedId = useParams<{ id?: string }>()?.id;
-  const { data, error, loading } = usePortalQuery<{ projects: ProjectRow[] }>("/projects");
-  const [status, setStatus] = useState("All");
-  const rows = useMemo(
-    () => (data?.projects || []).filter((p) => status === "All" || p.status === status),
-    [data, status],
-  );
+  const { error, loading, status, setStatus, rows } = usePortalProjectList();
 
   const open = (row: ProjectRow) => {
     setNavState(`portal-project:${row.id}`, row);
@@ -113,7 +108,7 @@ export const PortalProjects: React.FC = () => {
   );
 };
 
-interface ProjectDetail {
+export interface ProjectDetail {
   project: {
     id: number;
     projectNumber: string;
@@ -141,17 +136,10 @@ interface ProjectDetail {
 type Tab = "overview" | "tasks" | "time" | "comments";
 
 export const PortalProjectView: React.FC = () => {
-  const id = useParams<{ id?: string }>()?.id;
   const router = useRouter();
-  const [nav, setNav] = useState<ProjectRow>();
-  useEffect(() => {
-    setNav(id ? getNavState<ProjectRow>(`portal-project:${id}`) : undefined);
-  }, [id]);
-  const { data, error, loading, refresh } = usePortalQuery<ProjectDetail>(id ? `/projects/${id}` : null);
+  const { nav, data, error, loading, selected, busy, actionError, toggle, review } =
+    usePortalProjectDetail();
   const [tab, setTab] = useState<Tab>("overview");
-  const [selected, setSelected] = useState<number[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [actionError, setActionError] = useState("");
 
   const project = data?.project ?? nav;
   if (!project) {
@@ -162,23 +150,6 @@ export const PortalProjectView: React.FC = () => {
   const timeEntries = full?.timeEntries || [];
   const canApprove = !!full?.canApprove;
   const reviewable = timeEntries.filter((e) => e.billing === "Unbilled" && e.approvalStatus === "Pending");
-  const toggle = (entryId: number) =>
-    setSelected((s) => (s.includes(entryId) ? s.filter((x) => x !== entryId) : [...s, entryId]));
-
-  const review = async (ids: number[], action: "approve" | "reject") => {
-    setBusy(true);
-    setActionError("");
-    try {
-      await portalSend("POST", "/time", { ids, action });
-      setSelected([]);
-      await refresh();
-    } catch (err) {
-      setActionError(errorText(err, "Failed to update time entries"));
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const taskColumns: TableColumn<ProjectDetail["tasks"][number]>[] = [
     {
       key: "n",

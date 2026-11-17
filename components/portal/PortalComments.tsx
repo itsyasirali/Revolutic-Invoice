@@ -1,38 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import { usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
+import React from "react";
+import { usePortalCommentThread } from "@/hooks/portal/usePortalComments";
 import { PCard, ErrorNote, fieldClass, primaryBtn } from "./PortalUI";
 import CommentBody from "./CommentBody";
-import type { PortalComment } from "@/types/portal";
 
 /** Customer-side conversation thread on an invoice, quote or project. */
 const PortalComments: React.FC<{ entityType: "invoice" | "quote" | "project"; entityId: number }> = ({
   entityType,
   entityId,
 }) => {
-  const { data, refresh } = usePortalQuery<{ comments: PortalComment[]; canComment: boolean }>(
-    `/comments?entityType=${entityType}&entityId=${entityId}`,
-  );
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-    setBusy(true);
-    setError("");
-    try {
-      await portalSend("POST", "/comments", { entityType, entityId, message });
-      setMessage("");
-      await refresh();
-    } catch (err) {
-      setError(errorText(err, "Failed to send comment"));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { data, message, setMessage, error, busy, send } = usePortalCommentThread(entityType, entityId);
 
   return (
     <PCard title="Comments" className="print:hidden">

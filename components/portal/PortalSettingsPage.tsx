@@ -1,25 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import useSWR from "swr";
-import axios from "@/lib/axios";
-import { swrFetcher } from "@/lib/swr";
-import { Button, Input, Checkbox, PageHeader, LoadingSpinner, StatusBadge, toast } from "@/components/ui";
+import React from "react";
+import usePortalSettings, { type PortalActivityRow } from "@/hooks/portal/usePortalSettings";
+import { Button, Input, Checkbox, PageHeader, LoadingSpinner, StatusBadge } from "@/components/ui";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { formatDate } from "@/lib/format";
-import { DEFAULT_PORTAL_SETTINGS, type PortalSettings } from "@/types/portal";
-
-interface ActivityRow {
-  id: number;
-  type: string;
-  title?: string | null;
-  customerId: number;
-  customerName?: string;
-  entityType?: string | null;
-  entityId?: number | null;
-  readAt?: string | null;
-  createdAt: string;
-}
+import { type PortalSettings } from "@/types/portal";
 
 const PERMISSIONS: { key: keyof PortalSettings; label: string }[] = [
   { key: "canViewInvoices", label: "Customers can view invoices and statements" },
@@ -42,7 +28,7 @@ const NOTIFICATIONS: { key: keyof PortalSettings["notify"]; label: string }[] = 
   { key: "profileUpdated", label: "Customer updated their profile" },
 ];
 
-const href = (a: ActivityRow) =>
+const href = (a: PortalActivityRow) =>
   a.entityType === "invoice" && a.entityId
     ? `/invoices/${a.entityId}`
     : a.entityType === "quote" && a.entityId
@@ -54,16 +40,7 @@ const href = (a: ActivityRow) =>
           : null;
 
 const PortalSettingsPage: React.FC = () => {
-  const { data, isLoading } = useSWR<{ settings: PortalSettings }>("/portal-admin/settings", swrFetcher, {
-    revalidateOnFocus: false,
-  });
-  const activity = useSWR<{ activities: ActivityRow[]; unread: number }>("/portal-admin/activity", swrFetcher);
-  const [form, setForm] = useState<PortalSettings>(DEFAULT_PORTAL_SETTINGS);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (data?.settings) setForm(data.settings);
-  }, [data]);
+  const { isLoading, form, set, saving, save, activity, markRead } = usePortalSettings();
 
   if (isLoading) {
     return (
@@ -72,27 +49,6 @@ const PortalSettingsPage: React.FC = () => {
       </div>
     );
   }
-
-  const set = <K extends keyof PortalSettings>(key: K, value: PortalSettings[K]) =>
-    setForm((f) => ({ ...f, [key]: value }));
-
-  const save = async () => {
-    setSaving(true);
-    try {
-      await axios.put("/portal-admin/settings", form);
-      toast.success("Portal settings saved", "Saved");
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to save settings", "Error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const markRead = async () => {
-    await axios.post("/portal-admin/activity");
-    await activity.mutate();
-  };
 
   const section = "bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-4";
   const portalUrl = typeof window !== "undefined" ? `${window.location.origin}/portal/login` : "/portal/login";
@@ -108,7 +64,7 @@ const PortalSettingsPage: React.FC = () => {
         }
       />
 
-      <div className="px-2 sm:px-4 md:px-6 mt-4 space-y-6 max-w-4xl">
+      <div className="px-2 sm:px-4 md:px-6 mt-4 space-y-6">
         <div className={section}>
           <h2 className="text-base font-bold text-slate-900">General</h2>
           <Checkbox

@@ -925,7 +925,27 @@ export const useInvoiceForm = () => {
     return displayName.includes(searchLower) || email.includes(searchLower);
   });
 
+  // Required fields that are still empty; shown in a top modal instead of silently disabling Save.
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const guardedSave = (save: () => void | Promise<void>) => {
+    const missing: string[] = [];
+    if (!invoiceData.customerId) missing.push("Customer");
+    if (!items.some((item) => item.name && item.name.trim() !== "")) {
+      missing.push("At least one item (with a name)");
+    }
+    if (!invoiceData.invoiceDate) missing.push("Invoice date");
+    if (!invoiceData.dueDate) missing.push("Due date");
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      return;
+    }
+    return save();
+  };
+
   return {
+    missingFields,
+    setMissingFields,
+    guardedSave,
     isEditMode,
     items,
     invoiceData,

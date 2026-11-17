@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Upload, GripVertical, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Checkbox, Tooltip, AlertModal } from "@/components/ui";
 import TemplatePreview from "./TemplatePreview";
@@ -13,7 +13,6 @@ const TemplateForm: React.FC = () => {
   const {
     formData,
     handleChange,
-    handleSubmit,
     loading,
     alert,
     dismissAlert,
@@ -42,19 +41,10 @@ const TemplateForm: React.FC = () => {
     isSectionOpen,
     toggleSection,
     handlePreviewSelection,
+    nameError,
+    setNameError,
+    handleSaveClick,
   } = useTemplateFormView();
-
-  const [nameError, setNameError] = useState("");
-
-  const handleSaveClick = () => {
-    if (!formData.templateName.trim()) {
-      setNameError("Template name is required");
-      handleSubmit(false); // shows the "required field missing" modal
-      return;
-    }
-    setNameError("");
-    handleSubmit(false);
-  };
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">

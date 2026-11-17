@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { Check, X, ScrollText, DollarSign, Download } from "lucide-react";
-import { usePortalMe, usePortalQuery, portalSend, errorText } from "@/lib/portalApi";
+import { usePortalMe, usePortalQuery, errorText } from "@/lib/portalApi";
+import { useRouteId, useNavRecord, usePortalInvoiceList, usePortalQuoteList, usePortalQuoteResponse } from "@/hooks/portal/usePortalDocuments";
 import { formatDate, formatMoney } from "@/lib/format";
-import { getNavState, setNavState } from "@/lib/clientNavState";
+import { setNavState } from "@/lib/clientNavState";
 import { Table, StatusBadge, Tabs, Button, PageHeader, toast } from "@/components/ui";
 import SplitView from "@/components/ui/SplitView";
 import DetailHeader from "@/components/ui/DetailHeader";
@@ -30,17 +31,6 @@ interface Line {
 }
 
 const DETAIL_WRAP = "space-y-6 px-2 sm:px-4 md:px-6 py-2";
-
-const useRouteId = () => useParams<{ id?: string }>()?.id;
-
-/** Navigation state is stored in the browser, so it is only readable after mount. */
-const useNavRecord = <T,>(key: string | null): T | undefined => {
-  const [record, setRecord] = useState<T>();
-  useEffect(() => {
-    setRecord(key ? getNavState<T>(key) : undefined);
-  }, [key]);
-  return record;
-};
 
 const LinesTable: React.FC<{ lines: Line[]; currency: string }> = ({ lines, currency }) => {
   const columns: TableColumn<Line>[] = [
@@ -250,7 +240,7 @@ const muted = (v: React.ReactNode) => <span className="text-gray-600">{v}</span>
 
 /* -------------------------------- invoices -------------------------------- */
 
-interface InvoiceRow {
+export interface InvoiceRow {
   id: number;
   invoiceNumber: string;
   invoiceDate: string;
@@ -266,12 +256,7 @@ const INVOICE_STATUSES = ["All", "Sent", "Partially Paid", "Paid", "Overdue", "W
 export const PortalInvoices: React.FC = () => {
   const router = useRouter();
   const selectedId = useRouteId();
-  const { data, error, loading } = usePortalQuery<{ invoices: InvoiceRow[] }>("/invoices");
-  const [status, setStatus] = useState("All");
-  const rows = useMemo(
-    () => (data?.invoices || []).filter((i) => status === "All" || i.status === status),
-    [data, status],
-  );
+  const { error, loading, status, setStatus, rows } = usePortalInvoiceList();
 
   const openInvoice = (row: InvoiceRow) => {
     setNavState(`portal-invoice:${row.id}`, row);
@@ -481,7 +466,7 @@ export const PortalInvoiceView: React.FC = () => {
 
 /* --------------------------------- quotes --------------------------------- */
 
-interface QuoteRow {
+export interface QuoteRow {
   id: number;
   quoteNumber: string;
   quoteDate: string;
@@ -496,12 +481,7 @@ const QUOTE_STATUSES = ["All", "Sent", "Viewed", "Accepted", "Declined", "Expire
 export const PortalQuotes: React.FC = () => {
   const router = useRouter();
   const selectedId = useRouteId();
-  const { data, error, loading } = usePortalQuery<{ quotes: QuoteRow[] }>("/quotes");
-  const [status, setStatus] = useState("All");
-  const rows = useMemo(
-    () => (data?.quotes || []).filter((q) => status === "All" || q.status === status),
-    [data, status],
-  );
+  const { error, loading, status, setStatus, rows } = usePortalQuoteList();
 
   const openQuote = (row: QuoteRow) => {
     setNavState(`portal-quote:${row.id}`, row);
@@ -582,8 +562,7 @@ export const PortalQuoteView: React.FC = () => {
   const nav = useNavRecord<QuoteRow>(id ? `portal-quote:${id}` : null);
   const { data, error, loading, refresh } = usePortalQuery<QuoteDetail>(id ? `/quotes/${id}` : null);
   const [tab, setTab] = useState<"overview" | "comments">("overview");
-  const [busy, setBusy] = useState<"" | "accept" | "decline">("");
-  const [actionError, setActionError] = useState("");
+  const { busy, actionError, respond: respondTo } = usePortalQuoteResponse(refresh);
 
   const q = data?.quote ?? nav;
   if (!q) {
@@ -595,18 +574,7 @@ export const PortalQuoteView: React.FC = () => {
   const canRespond = ["Sent", "Viewed"].includes(q.status) && !expired;
   const shownStatus = expired && ["Sent", "Viewed"].includes(q.status) ? "Expired" : q.status;
 
-  const respond = async (action: "accept" | "decline") => {
-    setBusy(action);
-    setActionError("");
-    try {
-      await portalSend("POST", `/quotes/${q.id}/${action}`);
-      await refresh();
-    } catch (err) {
-      setActionError(errorText(err, "Failed to update quote"));
-    } finally {
-      setBusy("");
-    }
-  };
+  const respond = (action: "accept" | "decline") => respondTo(q.id, action);
 
   return (
     <div id="pdf-print-area" className={DETAIL_WRAP}>

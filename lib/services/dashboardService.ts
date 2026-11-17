@@ -448,6 +448,22 @@ export const getDashboardData = async (
       },
     };
 
+    // Income = money actually received (recorded payments), not invoiced totals.
+    const sumPaymentsReceived = (from: Date, to: Date) =>
+      (payments || []).reduce((sum, p) => {
+        const d = new Date(p.paymentDate || p.createdAt);
+        if (isNaN(d.getTime()) || d < from || d > to) return sum;
+        return (
+          sum +
+          convertToOrgCurrency(
+            Number(p.amountReceived || 0),
+            p.currency || orgCurrency,
+            orgCurrency,
+            rates,
+          )
+        );
+      }, 0);
+
     // Dynamic Last 12 Calendar Months Revenue Overview (client filters to 1/3/6/12)
     const revenueOverview: RevenuePoint[] = [];
     for (let i = 11; i >= 0; i--) {
@@ -456,19 +472,10 @@ export const getDashboardData = async (
       const mIdx = d.getMonth();
       const mYr = d.getFullYear();
 
-      let monthSales = 0;
-      invoices.forEach((inv) => {
-        if (String(inv.status ?? "").toLowerCase() === "draft") return;
-        const invDate = new Date(inv.invoiceDate || inv.createdAt);
-        if (!isNaN(invDate.getTime()) && invDate.getMonth() === mIdx && invDate.getFullYear() === mYr) {
-          monthSales += convertToOrgCurrency(
-            Number(inv.total || 0),
-            inv.currency || orgCurrency,
-            orgCurrency,
-            rates,
-          );
-        }
-      });
+      const monthSales = sumPaymentsReceived(
+        new Date(mYr, mIdx, 1),
+        new Date(mYr, mIdx + 1, 0, 23, 59, 59, 999),
+      );
 
       revenueOverview.push({
         month: mName,
@@ -505,19 +512,10 @@ export const getDashboardData = async (
         ),
       );
 
-      let weekSales = 0;
-      invoices.forEach((inv) => {
-        if (String(inv.status ?? "").toLowerCase() === "draft") return;
-        const invDate = new Date(inv.invoiceDate || inv.createdAt);
-        if (!isNaN(invDate.getTime()) && invDate >= weekStart && invDate <= weekEnd) {
-          weekSales += convertToOrgCurrency(
-            Number(inv.total || 0),
-            inv.currency || orgCurrency,
-            orgCurrency,
-            rates,
-          );
-        }
-      });
+      const weekSales = sumPaymentsReceived(
+        weekStart,
+        new Date(weekEnd.getFullYear(), weekEnd.getMonth(), weekEnd.getDate(), 23, 59, 59, 999),
+      );
 
       revenueOverviewWeekly.push({
         month: `Week ${idx + 1}`,

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
-import axios from "@/lib/axios";
+import useConvertToInvoice from "@/hooks/common/useConvertToInvoice";
 import { FileQuestion } from "lucide-react";
 import { OrgLink as Link } from "@/components/organization/OrgLink";
 import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
@@ -12,7 +12,6 @@ import {
   ConfirmDialog,
   LoadingSpinner,
   EmptyState,
-  toast,
 } from "@/components/ui";
 import { InfoCard, InfoField, ActivityList } from "@/components/ui/DetailParts";
 import DetailHeader from "@/components/ui/DetailHeader";
@@ -33,7 +32,12 @@ const TimeEntryDetails: React.FC = () => {
     singleField: "timeEntry",
   });
   useDocumentTitle(entry ? `${entry.entryNumber} | Time Entry Details` : undefined);
-  const [converting, setConverting] = useState(false);
+  const { converting, convert: convertEntry } = useConvertToInvoice({
+    endpoint: "/time-tracking/invoice",
+    bodyKey: "timeEntryIds",
+    invalidate: invalidateTimeEntriesAndInvoices,
+    successMessage: "Invoice created from this time entry",
+  });
 
   const del = useBatchDelete({
     endpoint: "/time-tracking/batch-delete",
@@ -61,21 +65,7 @@ const TimeEntryDetails: React.FC = () => {
     );
   }
 
-  const convert = async () => {
-    setConverting(true);
-    try {
-      const res = await axios.post("/time-tracking/invoice", { timeEntryIds: [entry.id] });
-      await invalidateTimeEntriesAndInvoices();
-      await refetch();
-      toast.success("Invoice created from this time entry", "Invoice Created");
-      router.push(`/invoices/${res.data.invoice.id}`);
-    } catch (err) {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      toast.error(msg || "Failed to create invoice", "Error");
-    } finally {
-      setConverting(false);
-    }
-  };
+  const convert = () => convertEntry(entry.id, refetch);
 
   const currency = entry.customer?.currency || "";
 
