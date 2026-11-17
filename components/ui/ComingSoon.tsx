@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ComingSoonProps } from '@/types/common';
 
-export const ComingSoon: React.FC<ComingSoonProps> = ({ title }) => {
+const ComingSoon: React.FC<ComingSoonProps> = ({ title }) => {
     return (
         <div className="flex-1 min-h-[calc(100vh-64px)] flex items-center justify-center bg-white p-6">
             <div className="text-center space-y-2">

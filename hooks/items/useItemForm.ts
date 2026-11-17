@@ -24,7 +24,7 @@ type AlertState = {
   message: string;
 };
 
-export const useItemForm = (initialData?: ItemFormData | null) => {
+const useItemForm = (initialData?: ItemFormData | null) => {
   const [itemType, setItemType] = useState<ItemType>(
     initialData?.type || "Goods",
   );

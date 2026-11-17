@@ -3,7 +3,7 @@
 import React from "react";
 import type { IconButtonProps } from "@/types/common";
 
-export const IconButton: React.FC<IconButtonProps> = ({
+const IconButton: React.FC<IconButtonProps> = ({
   icon: Icon,
   variant = "ghost",
   size = "md",

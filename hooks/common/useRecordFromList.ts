@@ -9,7 +9,7 @@ import { swrFetcher } from "@/lib/swr";
  * Only when the record isn't in the loaded list (e.g. created a moment ago in
  * another tab) does it fall back to fetching that single record.
  */
-export const useRecordFromList = <T extends { id: number | string }>({
+const useRecordFromList = <T extends { id: number | string }>({
   id,
   listKey,
   collection,

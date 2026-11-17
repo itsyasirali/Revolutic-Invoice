@@ -3,7 +3,7 @@
 import React from "react";
 import usePortalSettings, { type PortalActivityRow } from "@/hooks/portal/usePortalSettings";
 import { Button, Input, Checkbox, PageHeader, LoadingSpinner, StatusBadge } from "@/components/ui";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
+import Link from "@/components/organization/OrgLink";
 import { formatDate } from "@/lib/format";
 import { type PortalSettings } from "@/types/portal";
 

@@ -3,7 +3,7 @@ import { getSafeHex } from "@/utils/templates/colorUtils";
 import type { ColorInputProps } from "@/types/template";
 import { Input } from "@/components/ui";
 
-export const ColorInput: React.FC<ColorInputProps> = ({
+const ColorInput: React.FC<ColorInputProps> = ({
   label,
   value,
   onChange,

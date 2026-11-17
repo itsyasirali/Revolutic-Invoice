@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X, PlusCircle, ChevronUp, Star } from "lucide-react";
 import { Input, Select, LoadingSpinner } from "@/components/ui";
-import { useOrganizationSetup } from "@/hooks/organization/useOrganizationSetup";
+import useOrganizationSetup from "@/hooks/organization/useOrganizationSetup";
 import {
   INDUSTRIES,
   LOCATIONS,
@@ -13,7 +13,7 @@ import {
   TIMEZONES,
 } from "@/data/organizationSetupData";
 
-export const OrganizationSetup: React.FC = () => {
+const OrganizationSetup: React.FC = () => {
   const {
     organizationName,
     setOrganizationName,

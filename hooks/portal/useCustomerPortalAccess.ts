@@ -16,7 +16,7 @@ export interface PortalUserRow {
 }
 
 /** Customer Portal access for one customer: invite contacts, copy links, remove access. */
-export const useCustomerPortalAccess = (customerId: number, contactEmails: string[]) => {
+const useCustomerPortalAccess = (customerId: number, contactEmails: string[]) => {
   const key = `/customers/${customerId}/portal`;
   const { data, mutate } = useSWR<{ users: PortalUserRow[] }>(key, swrFetcher, {
     revalidateOnFocus: false,

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
+import useOrgRouter from "@/hooks/organization/useOrgRouter";
 import { addTask, billProject } from "@/hooks/projects/useProject";
 
 /** Billing and quick-add-task actions on the project details page. */
-export const useProjectDetailActions = (projectId: number | undefined, refetch: () => Promise<unknown> | void) => {
+const useProjectDetailActions = (projectId: number | undefined, refetch: () => Promise<unknown> | void) => {
   const router = useOrgRouter();
   const [billing, setBilling] = useState(false);
   const [taskName, setTaskName] = useState("");

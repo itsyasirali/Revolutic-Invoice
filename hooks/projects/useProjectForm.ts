@@ -3,11 +3,11 @@
 import { useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import axios from "@/lib/axios";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import { invalidateProjects } from "@/lib/swr";
 import { toast } from "@/components/ui";
 import useCustomerOptions from "@/hooks/common/useCustomerOptions";
-import { useProject } from "./useProject";
+import useProject from "./useProject";
 import type { BillingMethod } from "@/types/project";
 
 const useProjectForm = () => {

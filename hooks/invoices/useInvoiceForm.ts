@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { invoiceEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { toast } from "@/components/ui";
 import { useParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import useCustomerData from "@/hooks/customers/useCustomers";
 import useItemsData from "@/hooks/items/useItems";
 import useCreateInvoice from "./useCreateInvoice";
@@ -24,7 +24,7 @@ import axios from "@/lib/axios";
 
 const DEFAULT_INVOICE_NOTES = "<p>Thanks for your business.</p>";
 
-export const useInvoiceForm = () => {
+const useInvoiceForm = () => {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;

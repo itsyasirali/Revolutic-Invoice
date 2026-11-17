@@ -5,7 +5,7 @@ import type {
   PaymentTransaction,
 } from "@/types/customer";
 
-export const useCustomerFinancials = (
+const useCustomerFinancials = (
   customer: Customer | null | undefined,
 ) => {
   const financials = useMemo(

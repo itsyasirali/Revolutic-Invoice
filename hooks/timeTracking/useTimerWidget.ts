@@ -16,7 +16,7 @@ const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.ge
  * State and saving for the Start / Pause / Stop timer. Stopping saves a TimeEntry
  * through the normal API; the server recomputes duration and amount.
  */
-export const useTimerWidget = (
+const useTimerWidget = (
   fixedProjectId?: string | number,
   onSaved?: () => void | Promise<void>,
 ) => {

@@ -6,7 +6,7 @@ import { sanitizeHtml } from "@/lib/sanitizeHtml";
 const looksLikeHtml = (m: string) => /<\/?[a-z][^>]*>/i.test(m);
 
 /** Shows a comment's text: formatted HTML (sanitized) or plain text with line breaks kept. */
-export const CommentBody: React.FC<{ message: string; className?: string }> = ({ message, className = "" }) =>
+const CommentBody: React.FC<{ message: string; className?: string }> = ({ message, className = "" }) =>
   looksLikeHtml(message) ? (
     <div
       className={`[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline ${className}`}

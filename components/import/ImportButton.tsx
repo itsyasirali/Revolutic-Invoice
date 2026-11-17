@@ -250,7 +250,7 @@ const Field: React.FC<{ col: Col; value: unknown; onChange: (v: string) => void 
  * editable records and shown in a preview; nothing is saved until the user
  * confirms, and the edited records are what get saved.
  */
-export const ImportButton: React.FC<{
+const ImportButton: React.FC<{
   kind: ImportKind;
   /** Render your own trigger (e.g. a menu item) instead of the default button. */
   renderTrigger?: (inputId: string, loading: boolean) => React.ReactNode;

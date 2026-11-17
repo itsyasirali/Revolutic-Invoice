@@ -9,7 +9,7 @@ export type PortalMessage = { type: "ok" | "error"; text: string } | null;
 
 const MESSAGE_MS = 5000;
 
-export const usePortalProfile = () => {
+const usePortalProfile = () => {
   const { me, loading, refresh } = usePortalMe();
   const [name, setName] = useState("");
   const [companyName, setCompanyName] = useState("");

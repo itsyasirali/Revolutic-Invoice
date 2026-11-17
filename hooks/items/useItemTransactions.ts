@@ -18,7 +18,7 @@ export interface ItemTransaction {
 }
 
 /** Invoices and quotes that use one item. */
-export const useItemTransactions = (itemId: number) => {
+const useItemTransactions = (itemId: number) => {
   const { data, isLoading } = useSWR<{ transactions: ItemTransaction[] }>(
     `/items/${itemId}/transactions`,
     swrFetcher,

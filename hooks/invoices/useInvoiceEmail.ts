@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
 import { invalidateInvoices } from "@/lib/swr";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import { getNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
 
@@ -19,7 +19,7 @@ export interface EmailData {
   attachPDF: boolean;
 }
 
-export const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
+const useInvoiceEmail = (invoiceId: string, initialData?: any) => {
   const router = useRouter();
   // The contact picked on the form/preview arrives as ?to=, so no lookup is needed here.
   const selectedTo = useSearchParams().get("to");

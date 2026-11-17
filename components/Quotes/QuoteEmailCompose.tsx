@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Send, X, Plus, Check, Download } from "lucide-react";
 import { Button, PageHeader } from "@/components/ui";
 import EmailContentFields from "@/components/ui/EmailContentFields";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import useQuoteEmail from "@/hooks/quotes/useQuoteEmail";
 
 type Field = "to" | "cc" | "bcc";

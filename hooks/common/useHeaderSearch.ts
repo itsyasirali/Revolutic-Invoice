@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { Users, Package, FileText, DollarSign, Layout } from "lucide-react";
 import axios from "@/lib/axios";
-import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
+import useOrgRouter from "@/hooks/organization/useOrgRouter";
 import { setNavState } from "@/lib/clientNavState";
 import type { SearchResultItem } from "@/types/common";
 
@@ -68,7 +68,7 @@ const getSearchConfig = (routePath: string) => {
 };
 
 /** Context-aware global search: picks the entity from the route and queries the API. */
-export const useHeaderSearch = () => {
+const useHeaderSearch = () => {
   const pathname = usePathname();
   const router = useOrgRouter();
   // Strip the leading /{orgSlug} segment before matching against the routePath prefixes above

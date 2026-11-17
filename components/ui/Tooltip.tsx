@@ -13,7 +13,7 @@ interface TooltipProps {
  * Minimal, dependency-free, accessible tooltip. Wraps its child (typically
  * an icon) and shows a small text bubble on hover or keyboard focus.
  */
-export const Tooltip: React.FC<TooltipProps> = ({
+const Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
   className = "",

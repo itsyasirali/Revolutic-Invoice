@@ -29,7 +29,7 @@ interface DetailHeaderProps {
  * Header of a record's detail pane: title on the left; pencil (edit), "More"
  * dropdown and close on the right. Shared by every module's detail page.
  */
-export const DetailHeader: React.FC<DetailHeaderProps> = ({
+const DetailHeader: React.FC<DetailHeaderProps> = ({
   title,
   subtitle,
   actions,

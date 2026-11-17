@@ -19,7 +19,7 @@ export interface UseProfileReturn {
   refetch: () => Promise<void>;
 }
 
-export const useProfile = (): UseProfileReturn => {
+const useProfile = (): UseProfileReturn => {
   const { user, loading, error, refetchProfile } = useAuth();
 
   return {

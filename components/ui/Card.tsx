@@ -21,7 +21,7 @@ const paddingClasses = {
   xl: "p-10",
 };
 
-export const Card: React.FC<CardProps> & {
+const Card: React.FC<CardProps> & {
   Header: React.FC<{ children: React.ReactNode; className?: string }>;
   Body: React.FC<{ children: React.ReactNode; className?: string }>;
   Footer: React.FC<{ children: React.ReactNode; className?: string }>;

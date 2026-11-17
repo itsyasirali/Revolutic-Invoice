@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import type { Item, UseItemActionsProps } from "@/types/item";
 import { setNavState } from "@/lib/clientNavState";
 

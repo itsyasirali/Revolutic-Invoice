@@ -9,7 +9,7 @@ import useItemActions from "./useItemActions";
 
 import type { Item } from "@/types/item";
 
-export const useItemList = (initialItems?: Item[]) => {
+const useItemList = (initialItems?: Item[]) => {
   const { items, loading, refetch } = useItemsData(initialItems);
   const {
     updateStatus,

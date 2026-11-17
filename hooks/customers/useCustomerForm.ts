@@ -4,10 +4,10 @@ import { useState, useCallback } from "react";
 import axios from "@/lib/axios";
 import { invalidateCustomers } from "@/lib/swr";
 import type { Customer, MaybeFile } from "@/types/customer";
-import { useAlert } from "./useAlert";
+import useAlert from "./useAlert";
 import { toast } from "@/components/ui";
 
-export const useCustomerForm = (initialCustomer?: Customer | null) => {
+const useCustomerForm = (initialCustomer?: Customer | null) => {
   const [customerType, setCustomerType] = useState<string>(() => {
     return initialCustomer?.customerType || "Business";
   });

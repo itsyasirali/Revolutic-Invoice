@@ -11,7 +11,7 @@ export interface CustomPlaceholderRow extends CustomPlaceholderLike {
 
 export const PLACEHOLDERS_KEY = "/placeholders";
 
-export const useCustomPlaceholders = () => {
+const useCustomPlaceholders = () => {
   const { data, isLoading, mutate } = useSWR<CustomPlaceholderRow[]>(
     PLACEHOLDERS_KEY,
     swrFetcher,

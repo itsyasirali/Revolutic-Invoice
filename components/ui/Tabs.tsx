@@ -3,7 +3,7 @@
 import React from "react";
 import type { TabsProps } from "@/types/common";
 
-export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
+const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
   return (
     <div className="flex gap-6 border-b border-slate-200 -mb-px overflow-x-auto hide-scrollbar">
       {tabs.map((tab) => (

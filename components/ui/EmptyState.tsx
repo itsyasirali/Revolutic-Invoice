@@ -4,7 +4,7 @@ import React from "react";
 import type { EmptyStateProps } from "@/types/common";
 import Button from "./Button";
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+const EmptyState: React.FC<EmptyStateProps> = ({
   icon: Icon,
   title,
   message,

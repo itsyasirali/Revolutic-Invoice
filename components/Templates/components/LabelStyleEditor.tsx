@@ -3,7 +3,7 @@ import ColorInput from "./ColorInput";
 import type { LabelStyleProps } from "@/types/template";
 import { Input } from "@/components/ui";
 
-export const LabelStyleEditor: React.FC<LabelStyleProps> = ({
+const LabelStyleEditor: React.FC<LabelStyleProps> = ({
   label,
   textValue,
   textColor = "#1f2937",

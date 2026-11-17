@@ -16,7 +16,7 @@ type OrgLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> &
  * with the current organization slug (see hooks/organization/useOrgRouter.ts
  * for the matching router wrapper).
  */
-export const OrgLink = React.forwardRef<HTMLAnchorElement, OrgLinkProps>(
+const OrgLink = React.forwardRef<HTMLAnchorElement, OrgLinkProps>(
   ({ href, ...props }, ref) => {
     const params = useParams<{ orgSlug?: string }>();
     const { organization } = useOrganization();

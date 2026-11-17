@@ -34,7 +34,7 @@ const progressColors: Record<ToastType, string> = {
   info: "bg-primary",
 };
 
-export const ToastContainer: React.FC = () => {
+const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useToastContainer();
 
   if (toasts.length === 0) return null;

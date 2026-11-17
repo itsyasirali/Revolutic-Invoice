@@ -11,7 +11,7 @@ export const REVENUE_PERIODS = [
 ] as const;
 
 /** Period filter for the revenue chart: 1M shows weekly points, others the last N months. */
-export const useRevenueChart = (data: RevenuePoint[], weeklyData: RevenuePoint[] = []) => {
+const useRevenueChart = (data: RevenuePoint[], weeklyData: RevenuePoint[] = []) => {
   const [activePeriod, setActivePeriod] = useState<number>(6);
   const isWeekly = activePeriod === 1;
 

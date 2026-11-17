@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { OrgLink } from "@/components/organization/OrgLink";
+import OrgLink from "@/components/organization/OrgLink";
 import {
   Braces,
   Home,
@@ -65,7 +65,7 @@ const MENU_ITEMS = [
   { icon: Braces, label: "Placeholders", path: "/settings/placeholders" },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar: React.FC<SidebarProps> = ({
   onMenuClick,
   isCollapsed,
   onToggle,

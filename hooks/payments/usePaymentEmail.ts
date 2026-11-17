@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import { getNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
 
@@ -17,7 +17,7 @@ export interface EmailData {
   attachPDF: boolean;
 }
 
-export const usePaymentEmail = (paymentId: string, initialData?: any) => {
+const usePaymentEmail = (paymentId: string, initialData?: any) => {
   const router = useRouter();
   const { user } = useProfile();
 

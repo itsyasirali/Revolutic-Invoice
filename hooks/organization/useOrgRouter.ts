@@ -14,7 +14,7 @@ type NavigateOptions = Parameters<ReturnType<typeof useRouter>["push"]>[1];
  * from an unconfirmed org-mismatch page stays inside the URL's own org
  * until the user actually confirms the switch.
  */
-export const useOrgRouter = () => {
+const useOrgRouter = () => {
   const router = useRouter();
   const params = useParams<{ orgSlug?: string }>();
   const { organization } = useOrganization();

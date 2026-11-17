@@ -16,7 +16,7 @@ type WriteOffModalProps = {
   onConfirm: (amount: number, reason: string) => void;
 };
 
-export const WriteOffModal: React.FC<WriteOffModalProps> = ({
+const WriteOffModal: React.FC<WriteOffModalProps> = ({
   isOpen,
   invoiceLabel,
   remainingAmount,

@@ -9,7 +9,7 @@ interface UseLogoutReturn {
   error: string | null;
 }
 
-export const useLogout = (): UseLogoutReturn => {
+const useLogout = (): UseLogoutReturn => {
   const { logout: doLogout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

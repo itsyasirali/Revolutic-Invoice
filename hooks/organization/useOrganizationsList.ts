@@ -8,7 +8,7 @@ import { toast } from "@/components/ui";
 import { setOrgSwitching } from "@/lib/orgSwitchGuard";
 import type { OrganizationData } from "@/types/organization";
 
-export const useOrganizationsList = () => {
+const useOrganizationsList = () => {
   const router = useRouter();
   const {
     organization,

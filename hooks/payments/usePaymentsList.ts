@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import usePaymentsData from "./usePayments";
 import type { Payment, UsePaymentsListReturn } from "@/types/payment";
 import { toast } from "@/components/ui";

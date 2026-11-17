@@ -80,7 +80,7 @@ const Waves = () => (
 );
 
 /** Two-column sign-in layout: a dark brand panel (large screens) and the form. */
-export const AuthLayout = ({ children, content = DEFAULT_CONTENT }: { children: React.ReactNode; content?: AuthPanelContent }) => (
+const AuthLayout = ({ children, content = DEFAULT_CONTENT }: { children: React.ReactNode; content?: AuthPanelContent }) => (
   <div className="min-h-screen w-full grid lg:grid-cols-[5fr_6fr] 2xl:grid-cols-[1fr_1fr] bg-slate-50 font-sans">
     <aside className="relative hidden overflow-hidden bg-gradient-to-br from-[#0c86d9] via-[#0a69b0] to-[#064270] p-10 xl:p-14 2xl:p-20 text-white lg:flex lg:flex-col lg:justify-between lg:gap-6">
       <Logo onDark />

@@ -2,7 +2,7 @@
 
 import React, { forwardRef } from "react";
 import type { ButtonProps, ButtonVariant, ButtonSize } from "@/types/common";
-import { Spinner } from "./Spinner";
+import Spinner from "./Spinner";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
@@ -30,7 +30,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   xl: "px-6 py-3.5 text-lg gap-2.5 font-semibold",
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = "primary",

@@ -11,7 +11,7 @@ const swapOrgSlug = (pathname: string, slug: string) =>
   pathname.replace(/^\/[^/]+/, `/${slug}`);
 
 /** Keeps the /{orgSlug} URL in sync with the user's active organization. */
-export const useOrgSlugGuard = () => {
+const useOrgSlugGuard = () => {
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const pathname = usePathname();
   const router = useRouter();

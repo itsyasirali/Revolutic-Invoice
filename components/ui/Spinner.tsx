@@ -15,7 +15,7 @@ const colorMap = {
   current: "border-current/30 border-t-current",
 };
 
-export const Spinner: React.FC<LoadingSpinnerProps> = ({
+const Spinner: React.FC<LoadingSpinnerProps> = ({
   size = "md",
   color = "current",
   className = "",

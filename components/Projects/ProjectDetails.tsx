@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import { FileQuestion, Plus, Trash2, FileText, Receipt, Timer } from "lucide-react";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import Link from "@/components/organization/OrgLink";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import {
   Button,
   Input,

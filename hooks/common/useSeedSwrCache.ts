@@ -12,7 +12,7 @@ import { useSWRConfig } from "swr";
  * Runs again whenever the server hands the page a new list (e.g. after
  * router.refresh()).
  */
-export const useSeedSwrCache = (key: string | null, data: unknown) => {
+const useSeedSwrCache = (key: string | null, data: unknown) => {
   const { mutate } = useSWRConfig();
   // `data` is usually a fresh wrapper object each render ({ payments: [...] });
   // the list inside it keeps its identity until the server sends a new one.

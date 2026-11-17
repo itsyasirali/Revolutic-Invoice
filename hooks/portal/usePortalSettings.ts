@@ -19,7 +19,7 @@ export interface PortalActivityRow {
   createdAt: string;
 }
 
-export const usePortalSettings = () => {
+const usePortalSettings = () => {
   const { data, isLoading } = useSWR<{ settings: PortalSettings }>("/portal-admin/settings", swrFetcher, {
     revalidateOnFocus: false,
   });

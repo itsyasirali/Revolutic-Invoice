@@ -3,7 +3,7 @@
 import React from "react";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import { buildPlaceholderValues } from "@/lib/placeholders/context";
 import { replacePlaceholders } from "@/lib/placeholders/replace";
 import type {

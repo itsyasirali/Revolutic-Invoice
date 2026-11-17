@@ -7,7 +7,7 @@ import { toast } from "@/components/ui";
 import type { Quote } from "@/types/quote";
 
 /** Single quote (detail / edit / preview / email pages). */
-export const useQuote = (id?: string) => {
+const useQuote = (id?: string) => {
   const { data, error, isLoading, mutate } = useSWR<{ quote: Quote }>(
     id ? `${SWR_KEYS.quotes}/${id}` : null,
     swrFetcher,

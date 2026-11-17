@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import type { Contact, UseContactsReturn } from "@/types/customer";
 
-export const useContacts = (initialContacts: Contact[] = []): UseContactsReturn => {
+const useContacts = (initialContacts: Contact[] = []): UseContactsReturn => {
   const [contacts, setContacts] = useState<Contact[]>([
     { firstName: "", lastName: "", email: "", contact: "" },
   ]);

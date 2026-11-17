@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card } from "./Card";
+import Card from "./Card";
 
 export interface SummaryCardItem {
   label: string;
@@ -10,7 +10,7 @@ export interface SummaryCardItem {
 }
 
 /** Row of KPI cards built on the shared Card component. */
-export const SummaryCards: React.FC<{ items: SummaryCardItem[] }> = ({ items }) => (
+const SummaryCards: React.FC<{ items: SummaryCardItem[] }> = ({ items }) => (
   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-2 sm:px-4 md:px-6">
     {items.map((item) => (
       <Card key={item.label} padding="sm">

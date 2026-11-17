@@ -12,7 +12,7 @@ import type { Statement, Row } from "@/components/portal/PortalStatements";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-export const usePortalStatements = () => {
+const usePortalStatements = () => {
   const { me } = usePortalMe();
   const [range, setRange] = useState<StatementRange>("thisMonth");
   const [customFrom, setCustomFrom] = useState("");

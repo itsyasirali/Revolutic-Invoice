@@ -68,7 +68,7 @@ export const MENU_ITEM_CLASS =
  * Master-detail layout: a compact record list on the left (filter dropdown,
  * "+" and "..." actions, checkbox rows) and the open record on the right.
  */
-export const SplitView: React.FC<SplitViewProps> = ({
+const SplitView: React.FC<SplitViewProps> = ({
   filter,
   rows,
   loading,

@@ -9,7 +9,7 @@ import BusinessInsightsCards from "./BusinessInsightsCards";
 import getDashboardData from "@/lib/services/dashboardService";
 import { getServerSessionUser } from "@/lib/session";
 
-export const DashboardMain = async () => {
+const DashboardMain = async () => {
   const user = await getServerSessionUser();
   const userId = user?.id ? Number(user.id) : 1;
   const orgId = user?.organizationId ? Number(user.organizationId) : undefined;

@@ -4,10 +4,10 @@ import { useState } from "react";
 import axios from "@/lib/axios";
 import { toast } from "@/components/ui";
 import { invalidatePayments } from "@/lib/swr";
-import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
+import useOrgRouter from "@/hooks/organization/useOrgRouter";
 
 /** Deletes one payment and returns to the payments list. */
-export const useDeletePayment = () => {
+const useDeletePayment = () => {
   const router = useOrgRouter();
   const [deleting, setDeleting] = useState(false);
 

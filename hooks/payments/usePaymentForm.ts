@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { paymentEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { useParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import axios from "@/lib/axios";
 import { invalidatePayments } from "@/lib/swr";
 import useCustomers from "@/hooks/customers/useCustomers";
@@ -16,7 +16,7 @@ import type {
 import { getNavState, clearNavState } from "@/lib/clientNavState";
 import { toast } from "@/components/ui";
 
-export const usePaymentForm = (): UsePaymentFormReturn => {
+const usePaymentForm = (): UsePaymentFormReturn => {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();

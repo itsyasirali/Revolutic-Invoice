@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 import type { CollapsibleSectionProps } from "@/types/template";
 import useCollapsibleSection from "@/hooks/templates/useCollapsibleSection";
 
-export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   children,
   defaultOpen = false,

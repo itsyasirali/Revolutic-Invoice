@@ -3,7 +3,7 @@
 import { useState } from "react";
 import axios from "@/lib/axios";
 import { toast } from "@/components/ui";
-import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
+import useOrgRouter from "@/hooks/organization/useOrgRouter";
 
 interface Options {
   endpoint: string;
@@ -13,7 +13,7 @@ interface Options {
 }
 
 /** Turns one record (expense, time entry, ...) into an invoice, then opens the invoice. */
-export const useConvertToInvoice = ({ endpoint, bodyKey, invalidate, successMessage }: Options) => {
+const useConvertToInvoice = ({ endpoint, bodyKey, invalidate, successMessage }: Options) => {
   const router = useOrgRouter();
   const [converting, setConverting] = useState(false);
 

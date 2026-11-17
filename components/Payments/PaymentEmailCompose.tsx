@@ -6,7 +6,7 @@ import { Send, X, Plus, Check, Download } from "lucide-react";
 import usePaymentEmail from "@/hooks/payments/usePaymentEmail";
 import { Button, PageHeader } from "@/components/ui";
 import EmailContentFields from "@/components/ui/EmailContentFields";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 
 const PaymentEmailCompose: React.FC = () => {
   const params = useParams();

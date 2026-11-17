@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { Mail, Phone, Info, X } from "lucide-react";
 import type { ContactsSectionProps, Contact } from "@/types/customer";
-import { useContacts } from "@/hooks/customers/useContacts";
+import useContacts from "@/hooks/customers/useContacts";
 import { Input, Button, Tooltip } from "@/components/ui";
 import { validateEmail, validatePhone, sanitizePhoneInput } from "@/lib/validation/contact";
 

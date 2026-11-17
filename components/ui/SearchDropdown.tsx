@@ -5,10 +5,10 @@ import React from "react";
 import { Search, X, ArrowRight } from "lucide-react";
 import type { SearchDropdownProps } from "@/types/common";
 import useSearchDropdown from "@/hooks/common/useSearchDropdown";
-import { Badge } from "./Badge";
-import { LoadingSpinner } from "./LoadingSpinner";
+import Badge from "./Badge";
+import LoadingSpinner from "./LoadingSpinner";
 
-export const SearchDropdown: React.FC<SearchDropdownProps> = ({
+const SearchDropdown: React.FC<SearchDropdownProps> = ({
   placeholder = "Search...",
   value,
   onChange,

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CurrencyDisplayProps } from '@/types/common';
 
-export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
+const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
     amount,
     currency = 'PKR',
     className = '',

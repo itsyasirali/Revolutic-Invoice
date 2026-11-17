@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "@/components/ui";
 import useCustomerDetailsView from "@/hooks/customers/useCustomerDetailsView";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import { useCustomerStatement, type StatementRange } from "@/components/customer/CustomerStatement";
 
 export type StatementEmailField = "to" | "cc" | "bcc";
@@ -12,7 +12,7 @@ const MAX_PER_FIELD = 3;
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
 /** Compose and send a customer statement by email. */
-export const useCustomerStatementEmail = () => {
+const useCustomerStatementEmail = () => {
   const router = useRouter();
   const search = useSearchParams();
   const initialRange = {

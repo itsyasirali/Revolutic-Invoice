@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useOrgRouter } from "@/hooks/organization/useOrgRouter";
+import useOrgRouter from "@/hooks/organization/useOrgRouter";
 import { runQuoteAction } from "@/hooks/quotes/useQuote";
 import { createProjectFromQuote } from "@/hooks/projects/useProject";
 
 export type QuoteAction = "accept" | "decline" | "viewed" | "clone" | "convert";
 
 /** Status actions and "create project" on the quote details page. */
-export const useQuoteDetailActions = (refetch: () => Promise<unknown> | void) => {
+const useQuoteDetailActions = (refetch: () => Promise<unknown> | void) => {
   const router = useOrgRouter();
   const [acting, setActing] = useState(false);
 

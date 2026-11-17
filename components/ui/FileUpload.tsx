@@ -21,7 +21,7 @@ const formatSize = (bytes: number) =>
  * Drop area for a single file. The real <input type="file" name={name}> stays
  * in the DOM, so it submits with the surrounding form (FormData) as usual.
  */
-export const FileUpload: React.FC<FileUploadProps> = ({
+const FileUpload: React.FC<FileUploadProps> = ({
   name,
   label,
   accept,

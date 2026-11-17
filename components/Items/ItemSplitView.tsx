@@ -5,9 +5,9 @@ import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useItemListMenu } from "@/hooks/common/listMenus";
 import { useParams } from "next/navigation";
 import useItemTransactions from "@/hooks/items/useItemTransactions";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
+import Link from "@/components/organization/OrgLink";
 import SplitView from "@/components/ui/SplitView";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import {
   AlertModal,
   Button,

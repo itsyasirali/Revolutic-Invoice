@@ -2,13 +2,13 @@
 
 import { useCallback, useMemo } from "react";
 import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import { buildPlaceholderValues } from "@/lib/placeholders/context";
 import { replacePlaceholders } from "@/lib/placeholders/replace";
 import type { PlaceholderScope } from "@/lib/placeholders/registry";
 
 /** Resolves %Placeholders% in text for an invoice or payment record on the client. */
-export const usePlaceholderResolver = (scope: PlaceholderScope, record: any) => {
+const usePlaceholderResolver = (scope: PlaceholderScope, record: any) => {
   const { custom } = useCustomPlaceholders();
   const { user } = useProfile();
 

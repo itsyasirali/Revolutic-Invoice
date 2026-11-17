@@ -3,11 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, X } from "lucide-react";
-import { OrgLink } from "@/components/organization/OrgLink";
+import OrgLink from "@/components/organization/OrgLink";
 import { IconButton, LoadingSpinner } from "@/components/ui";
 import useNotifications, { formatTimeAgo } from "@/hooks/notifications/useNotifications";
 
-export const NotificationsDrawer: React.FC = () => {
+const NotificationsDrawer: React.FC = () => {
   const { items, unreadCount, loading, markAllRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);

@@ -17,7 +17,7 @@ import {
   getOrganizationTheme,
 } from "@/types/organization";
 
-export const OrganizationsList: React.FC = () => {
+const OrganizationsList: React.FC = () => {
   const {
     organization,
     organizations,

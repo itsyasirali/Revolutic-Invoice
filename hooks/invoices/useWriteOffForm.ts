@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** Form state and validation for writing off an invoice's remaining balance. */
-export const useWriteOffForm = (
+const useWriteOffForm = (
   isOpen: boolean,
   remainingAmount: number,
   onConfirm: (amount: number, reason: string) => void,

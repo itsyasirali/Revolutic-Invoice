@@ -4,7 +4,7 @@ import React from 'react';
 import ConfirmDialog from './ConfirmDialog';
 import type { AlertModalProps } from '@/types/common';
 
-export const AlertModal: React.FC<AlertModalProps> = ({
+const AlertModal: React.FC<AlertModalProps> = ({
     isOpen,
     type,
     message,

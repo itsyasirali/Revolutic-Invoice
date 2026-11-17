@@ -11,7 +11,7 @@ import type { TimeEntry } from "@/types/timeEntry";
  * Quotes, expenses and time entries of one customer. Reads the same cached,
  * organization-scoped lists as the module pages and filters by customer.
  */
-export const useCustomerRelatedRecords = (customerId?: number | string | null) => {
+const useCustomerRelatedRecords = (customerId?: number | string | null) => {
   const id = customerId ? Number(customerId) : null;
   const quotes = useRecords<Quote>(SWR_KEYS.quotes, "quotes");
   const expenses = useRecords<Expense>(SWR_KEYS.expenses, "expenses");

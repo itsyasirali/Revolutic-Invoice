@@ -5,8 +5,8 @@ import useDocumentTitle from "@/hooks/common/useDocumentTitle";
 import { useParams } from "next/navigation";
 import useConvertToInvoice from "@/hooks/common/useConvertToInvoice";
 import { FileQuestion } from "lucide-react";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import Link from "@/components/organization/OrgLink";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import {
   StatusBadge,
   ConfirmDialog,

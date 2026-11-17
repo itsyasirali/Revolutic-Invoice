@@ -3,7 +3,7 @@
 import React from "react";
 import { FileText, Receipt, Timer } from "lucide-react";
 import { Table, StatusBadge } from "@/components/ui";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import type { CustomerRelatedRecords } from "@/hooks/customers/useCustomerRelatedRecords";
 import { statusVariant } from "@/lib/statusVariants";
 import { formatDate, formatMoney } from "@/lib/format";

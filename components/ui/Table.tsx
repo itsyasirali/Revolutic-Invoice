@@ -47,7 +47,7 @@ const variantTableClasses: Record<
   },
 };
 
-export const Table = <T,>({
+const Table = <T,>({
   columns,
   data = [],
   selectedIds = [],

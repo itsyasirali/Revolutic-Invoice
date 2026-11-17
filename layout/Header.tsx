@@ -7,15 +7,15 @@ import React, {
   useEffect,
   Suspense,
 } from "react";
-import { OrgLink } from "@/components/organization/OrgLink";
+import OrgLink from "@/components/organization/OrgLink";
 import {
   ChevronDown,
   User as UserIcon,
   Settings,
   LogOut,
 } from "lucide-react";
-import { useProfile } from "@/hooks/auth/useProfile";
-import { useLogout } from "@/hooks/auth/useLogout";
+import useProfile from "@/hooks/auth/useProfile";
+import useLogout from "@/hooks/auth/useLogout";
 import OrganizationSwitcher from "@/components/organization/OrganizationSwitcher";
 import NotificationsDrawer from "@/components/notifications/NotificationsDrawer";
 import { SearchDropdown, LoadingSpinner } from "@/components/ui";

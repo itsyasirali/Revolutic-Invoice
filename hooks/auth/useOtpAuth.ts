@@ -8,7 +8,7 @@ interface UseOtpAuthOptions {
   onLoginSuccess?: () => void;
 }
 
-export const useOtpAuth = ({ onLoginSuccess }: UseOtpAuthOptions = {}) => {
+const useOtpAuth = ({ onLoginSuccess }: UseOtpAuthOptions = {}) => {
   const { refetchProfile } = useAuth();
 
   const [otpMode, setOtpMode] = useState(false);

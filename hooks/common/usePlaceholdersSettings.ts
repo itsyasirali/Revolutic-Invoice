@@ -6,7 +6,7 @@ import { toast } from "@/components/ui";
 import useCustomPlaceholders from "@/hooks/common/useCustomPlaceholders";
 import { PLACEHOLDER_DEFS, validateCustomKey } from "@/lib/placeholders/registry";
 
-export const usePlaceholdersSettings = () => {
+const usePlaceholdersSettings = () => {
   const { custom, mutate } = useCustomPlaceholders();
   const [key, setKey] = useState("");
   const [label, setLabel] = useState("");

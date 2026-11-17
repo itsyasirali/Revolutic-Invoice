@@ -5,7 +5,7 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import type { PageHeaderProps } from "@/types/common";
 
-export const PageHeader: React.FC<PageHeaderProps> = ({
+const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
   actions,

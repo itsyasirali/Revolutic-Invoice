@@ -12,7 +12,7 @@ const SUFFIX = "InvoiceSmarty";
  * Re-checked after every render, because Next re-applies the route's own title
  * after router.refresh().
  */
-export const useDocumentTitle = (title?: string | null) => {
+const useDocumentTitle = (title?: string | null) => {
   useEffect(() => {
     if (!title) return;
     const full = `${title} | ${SUFFIX}`;

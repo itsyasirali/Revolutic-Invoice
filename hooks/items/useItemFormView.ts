@@ -2,12 +2,12 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
-import { useItemForm as useDomainItemForm } from "./useItemForm";
+import useRouter from "@/hooks/organization/useOrgRouter";
+import useDomainItemForm from "./useItemForm";
 import type { ItemFormData } from "@/types/item";
 import { getNavState, clearNavState } from "@/lib/clientNavState";
 
-export const useItemFormView = () => {
+const useItemFormView = () => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const id = params?.id;

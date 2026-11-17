@@ -3,12 +3,12 @@
 import { useState, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import { invalidateExpenses, invalidateExpenseCategories } from "@/lib/swr";
 import { toast } from "@/components/ui";
 import useCustomerOptions from "@/hooks/common/useCustomerOptions";
 import useProjectOptions from "@/hooks/common/useProjectOptions";
-import { useExpense, useExpenseCategories } from "./useExpense";
+import useExpense, { useExpenseCategories } from "./useExpense";
 
 type AlertState = { show: boolean; type: "success" | "error" | "warning" | "info"; message: string };
 

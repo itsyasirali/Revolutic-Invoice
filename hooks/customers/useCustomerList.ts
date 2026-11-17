@@ -8,7 +8,7 @@ import useCustomerActions from "./useCustomerActions";
 
 import type { Customer } from "@/types/customer";
 
-export const useCustomerList = (initialCustomers?: Customer[]) => {
+const useCustomerList = (initialCustomers?: Customer[]) => {
   const {
     loading,
     refetch,

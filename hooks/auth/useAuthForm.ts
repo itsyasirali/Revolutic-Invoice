@@ -10,7 +10,7 @@ interface UseAuthFormOptions {
   initialMode?: "login" | "signup";
 }
 
-export const useAuthForm = ({
+const useAuthForm = ({
   onLoginSuccess,
   initialMode = "login",
 }: UseAuthFormOptions = {}) => {

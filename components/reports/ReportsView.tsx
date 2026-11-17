@@ -13,8 +13,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Tabs } from "@/components/ui/Tabs";
+import PageHeader from "@/components/ui/PageHeader";
+import Tabs from "@/components/ui/Tabs";
 import { formatDate } from "@/lib/format";
 import type { ReportRange, ReportRangeOption, ReportsData } from "@/types/reports";
 

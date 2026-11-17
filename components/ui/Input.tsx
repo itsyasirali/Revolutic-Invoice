@@ -21,7 +21,7 @@ const sizeClasses: Record<InputSize, string> = {
   lg: "h-12 text-base",
 };
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       variant = "default",

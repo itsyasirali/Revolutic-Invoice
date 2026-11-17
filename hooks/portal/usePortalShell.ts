@@ -6,7 +6,7 @@ import { mutate } from "swr";
 import { portalSend, usePortalMe } from "@/lib/portalApi";
 
 /** Portal session: redirects to login when signed out and exposes sign-out. */
-export const usePortalShell = () => {
+const usePortalShell = () => {
   const router = useRouter();
   const { me, unauthorized, loading } = usePortalMe();
 

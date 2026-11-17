@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import type { AlertState } from "@/types/customer";
 
-export const useAlert = () => {
+const useAlert = () => {
   const [alert, setAlert] = useState<AlertState>({
     show: false,
     type: "info",

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { validatePassword } from "@/lib/validation/password";
 
-export const useResetPasswordForm = (token: string | null, email: string | null) => {
+const useResetPasswordForm = (token: string | null, email: string | null) => {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

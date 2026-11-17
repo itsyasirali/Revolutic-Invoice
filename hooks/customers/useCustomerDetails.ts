@@ -7,7 +7,7 @@ import type { Customer } from "@/types/customer";
 import { getNavState } from "@/lib/clientNavState";
 import { swrFetcher } from "@/lib/swr";
 
-export const useCustomerDetails = () => {
+const useCustomerDetails = () => {
   const params = useParams<{ id?: string }>();
   const id = params?.id;
 

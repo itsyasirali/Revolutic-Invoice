@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import type { TemplateListItem } from "@/types/template";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useUpdateInvoice from "./useUpdateInvoice";
@@ -11,7 +11,7 @@ import { getNavState, setNavState } from "@/lib/clientNavState";
 import axios from "@/lib/axios";
 import { downloadPdfFromElement } from "@/utils/invoices/downloadPdfFromElement";
 
-export const useInvoicePreview = () => {
+const useInvoicePreview = () => {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();

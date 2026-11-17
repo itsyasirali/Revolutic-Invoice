@@ -6,7 +6,7 @@ import { AlertTriangle, Info, CheckCircle, X } from "lucide-react";
 import type { ConfirmDialogProps } from "@/types/common";
 import Button from "./Button";
 
-export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,
   title,
   message,

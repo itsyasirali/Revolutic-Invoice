@@ -17,7 +17,7 @@ import {
 import { MAX_ORGANIZATIONS_PER_USER } from "@/types/organization";
 import type { UseOrganizationSetupReturn } from "@/types/organization";
 
-export const useOrganizationSetup = (): UseOrganizationSetupReturn => {
+const useOrganizationSetup = (): UseOrganizationSetupReturn => {
   const router = useRouter();
   const { user, refetchProfile } = useAuth();
   const {

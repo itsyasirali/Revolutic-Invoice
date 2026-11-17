@@ -5,7 +5,7 @@ import { swrFetcher, SWR_KEYS } from "@/lib/swr";
 import type { Expense, ExpenseCategory } from "@/types/expense";
 
 /** Single expense (detail/edit pages). Fresh data only, always org-scoped on the server. */
-export const useExpense = (id?: string) => {
+const useExpense = (id?: string) => {
   const { data, error, isLoading, mutate } = useSWR<{ expense: Expense }>(
     id ? `${SWR_KEYS.expenses}/${id}` : null,
     swrFetcher,

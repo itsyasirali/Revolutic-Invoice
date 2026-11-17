@@ -3,14 +3,14 @@
 import React from "react";
 import { invoiceEditable } from "@/lib/editLock";
 import useDocumentTitle from "@/hooks/common/useDocumentTitle";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
+import Link from "@/components/organization/OrgLink";
 import {
   ScrollText,
   RotateCcw,
 } from "lucide-react";
 import { Table, StatusBadge, Button, ConfirmDialog, Tabs } from "@/components/ui";
 import { ActivityList, DetailRow, DetailSection } from "@/components/ui/DetailParts";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
 import useCloneInvoice from "@/hooks/invoices/useCloneInvoice";
 import WriteOffModal from "./WriteOffModal";

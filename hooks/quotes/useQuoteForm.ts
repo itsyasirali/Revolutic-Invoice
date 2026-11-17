@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { quoteEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import { invalidateQuotes } from "@/lib/swr";
 import { toast } from "@/components/ui";
 import useCustomerOptions from "@/hooks/common/useCustomerOptions";
@@ -12,7 +12,7 @@ import useItemsData from "@/hooks/items/useItems";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import { calculateQuoteTotals } from "@/utils/quotes/quoteCalculations";
 import { toDateInput } from "@/lib/format";
-import { useQuote } from "./useQuote";
+import useQuote from "./useQuote";
 import type { QuoteItem } from "@/types/quote";
 
 export interface FormLine {

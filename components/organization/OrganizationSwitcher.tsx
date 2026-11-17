@@ -7,7 +7,7 @@ import useOrganizationSwitcher from "@/hooks/organization/useOrganizationSwitche
 import { ConfirmDialog, LoadingSpinner, toast } from "@/components/ui";
 import { getOrganizationTheme } from "@/types/organization";
 
-export const OrganizationSwitcher: React.FC = () => {
+const OrganizationSwitcher: React.FC = () => {
   const {
     organization,
     organizations,

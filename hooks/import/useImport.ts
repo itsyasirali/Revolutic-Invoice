@@ -19,7 +19,7 @@ const errorData = (err: unknown) =>
  * Review-then-save CSV import: reads the file (dry run), holds the editable
  * records and statuses, and saves only when confirmed.
  */
-export const useImport = (kind: ImportKind, schema: Schema) => {
+const useImport = (kind: ImportKind, schema: Schema) => {
   const entity = KIND_ENTITY[kind];
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);

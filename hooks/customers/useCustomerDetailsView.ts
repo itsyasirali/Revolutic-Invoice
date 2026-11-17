@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import useDeleteCustomer from "./useCustomerDelete";
-import { useCustomerDetails } from "./useCustomerDetails";
-import { useCustomerFinancials } from "./useCustomerFinancials";
-import { useCustomerRelatedRecords } from "./useCustomerRelatedRecords";
+import useCustomerDetails from "./useCustomerDetails";
+import useCustomerFinancials from "./useCustomerFinancials";
+import useCustomerRelatedRecords from "./useCustomerRelatedRecords";
 import { getDownloadUrl, getFileNameFromUrl } from "@/lib/fileUrl";
 
 export type CustomerTab =
@@ -19,7 +19,7 @@ export type CustomerTab =
   | "expenses"
   | "timeTracking";
 
-export const useCustomerDetailsView = () => {
+const useCustomerDetailsView = () => {
   const router = useRouter();
   const {
     deleteCustomers,

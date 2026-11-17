@@ -3,7 +3,7 @@
 import { useState } from "react";
 import axios from "@/lib/axios";
 
-export const useForgotPasswordForm = () => {
+const useForgotPasswordForm = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

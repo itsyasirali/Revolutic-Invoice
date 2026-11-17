@@ -6,7 +6,7 @@ import { Send, Edit, Download, Settings } from "lucide-react";
 import { Button, PageHeader, ConfirmDialog, StatusBadge } from "@/components/ui";
 import DetailHeader from "@/components/ui/DetailHeader";
 import useDeletePayment from "@/hooks/payments/useDeletePayment";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import PaymentTemplateSelector from "./PaymentTemplateSelector";
 import TemplatePreview from "@/components/Templates/TemplatePreview";
 import usePaymentPreview from "@/hooks/payments/usePaymentPreview";

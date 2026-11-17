@@ -132,7 +132,7 @@ const ELEMENT_TO_PARENT_SECTION: Record<string, string> = {
   "bank-account": "bank-accounts",
 };
 
-export const useTemplateFormView = (): UseTemplateFormViewReturn => {
+const useTemplateFormView = (): UseTemplateFormViewReturn => {
   const params = useParams();
   const id = params?.id as string;
 

@@ -152,7 +152,7 @@ const buildEmptyDashboardData = (currencySymbol: string): DashboardData => ({
   ],
 });
 
-export const getDashboardData = async (
+const getDashboardData = async (
   userId: number,
   orgId?: number | null,
 ): Promise<DashboardData> => {

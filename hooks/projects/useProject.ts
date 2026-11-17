@@ -15,7 +15,7 @@ import { toast } from "@/components/ui";
 import type { Project, ProjectDetailData } from "@/types/project";
 
 /** Single project with tasks, time, expenses, quote and invoices. */
-export const useProject = (id?: string) => {
+const useProject = (id?: string) => {
   const { data, error, isLoading, mutate } = useSWR<ProjectDetailData>(
     id ? `${SWR_KEYS.projects}/${id}` : null,
     swrFetcher,

@@ -15,7 +15,7 @@ const colorMap = {
   current: "bg-current",
 };
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = "md",
   color = "primary",
   className = "",

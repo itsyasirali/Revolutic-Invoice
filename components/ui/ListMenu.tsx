@@ -74,7 +74,7 @@ const SubMenu: React.FC<{
 /**
  * "..." menu of a list screen: Sort by, Import, Export and Refresh List.
  */
-export const ListMenu: React.FC<ListMenuProps> = ({ sort, importKind, importLabel, onExport, onRefresh }) => {
+const ListMenu: React.FC<ListMenuProps> = ({ sort, importKind, importLabel, onExport, onRefresh }) => {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState<"sort" | "import" | "export" | null>(null);
   const ref = useRef<HTMLDivElement>(null);

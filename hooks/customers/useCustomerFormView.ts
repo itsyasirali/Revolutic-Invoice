@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
-import { useCustomerDetails } from "./useCustomerDetails";
-import { useCustomerForm as useDomainCustomerForm } from "./useCustomerForm";
+import useRouter from "@/hooks/organization/useOrgRouter";
+import useCustomerDetails from "./useCustomerDetails";
+import useDomainCustomerForm from "./useCustomerForm";
 
-export const useCustomerFormView = () => {
+const useCustomerFormView = () => {
   const router = useRouter();
   const { customer, loading: fetchingCustomer } = useCustomerDetails();
 

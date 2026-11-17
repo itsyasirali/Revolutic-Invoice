@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import useTemplatesList from "@/hooks/templates/useTemplatesList";
 import useQuote from "@/hooks/quotes/useQuote";
 import { downloadPdfFromElement } from "@/utils/invoices/downloadPdfFromElement";
@@ -10,7 +10,7 @@ import { quoteToInvoiceDocument } from "@/utils/quotes/quoteInvoiceAdapter";
 import type { Quote as QuoteEntity } from "@/entities/Quote";
 
 /** Quote preview: resolves the template, builds the document and handles ?download=1. */
-export const useQuotePreview = () => {
+const useQuotePreview = () => {
   const params = useParams<{ id: string }>();
   const id = params?.id;
   const router = useRouter();

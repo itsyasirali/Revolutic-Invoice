@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Input } from "./Input";
-import { Select } from "./Select";
-import { Button } from "./Button";
+import Input from "./Input";
+import Select from "./Select";
+import Button from "./Button";
 import type { SelectOption } from "@/types/common";
 
 export interface FilterField {
@@ -31,7 +31,7 @@ interface FilterBarProps {
 }
 
 /** Search + filter row shared by Expenses, Time Tracking and Quotes. */
-export const FilterBar: React.FC<FilterBarProps> = ({
+const FilterBar: React.FC<FilterBarProps> = ({
   search,
   onSearchChange,
   searchPlaceholder = "Search",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import type { Payment } from "@/types/payment";
 import usePaymentActions from "./usePaymentActions";
 import useTemplates from "./useTemplates";

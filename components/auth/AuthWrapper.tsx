@@ -83,7 +83,7 @@ const AuthContent = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-export const AuthWrapper = ({ children, initialUser }: AuthWrapperProps) => {
+const AuthWrapper = ({ children, initialUser }: AuthWrapperProps) => {
   return (
     <AuthProvider initialUser={initialUser}>
       <OrganizationProvider>

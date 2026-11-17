@@ -16,7 +16,7 @@ const iconSizes = {
     lg: 'w-4 h-4',
 };
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     (
         {
             label,

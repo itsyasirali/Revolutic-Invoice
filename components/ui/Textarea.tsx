@@ -19,7 +19,7 @@ const resizeClasses = {
   both: "resize",
 };
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       variant = "default",

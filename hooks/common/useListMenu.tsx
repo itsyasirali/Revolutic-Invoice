@@ -40,7 +40,7 @@ const compare = (a: string | number | null | undefined, b: string | number | nul
  * most fields are encrypted in the database), CSV export of what is shown, and
  * a list refresh. Returns the rows to display and the menu element to render.
  */
-export const useListMenu = <T,>({
+const useListMenu = <T,>({
   rows,
   sortFields,
   exportColumns,

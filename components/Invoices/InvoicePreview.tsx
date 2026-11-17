@@ -12,7 +12,7 @@ import {
 } from "@/components/ui";
 import DetailHeader from "@/components/ui/DetailHeader";
 import WriteOffModal from "./WriteOffModal";
-import { useOrgRouter as useRouter } from "@/hooks/organization/useOrgRouter";
+import useRouter from "@/hooks/organization/useOrgRouter";
 import useDeleteInvoices from "@/hooks/invoices/useDeleteInvoices";
 import useCloneInvoice from "@/hooks/invoices/useCloneInvoice";
 import TemplatePreviewComponent from "@/components/Templates/TemplatePreview";

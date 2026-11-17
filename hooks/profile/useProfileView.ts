@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useProfile } from "@/hooks/auth/useProfile";
+import useProfile from "@/hooks/auth/useProfile";
 import axios from "@/lib/axios";
 import { validatePassword } from "@/lib/validation/password";
 import { isValidEmail } from "@/lib/validation/email";
@@ -33,7 +33,7 @@ export interface ProfileAlertState {
   message: string;
 }
 
-export const useProfileView = () => {
+const useProfileView = () => {
   const { user, loading: fetchLoading, refetch } = useProfile();
   const [activeTab, setActiveTab] = useState<TabType>("personal");
   const [saving, setSaving] = useState(false);

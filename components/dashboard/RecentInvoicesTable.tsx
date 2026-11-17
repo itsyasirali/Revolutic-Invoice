@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { OrgLink as Link } from "@/components/organization/OrgLink";
+import Link from "@/components/organization/OrgLink";
 import { ScrollText, ArrowRight, Plus } from "lucide-react";
 import type { DashboardInvoice, RecentInvoicesTableProps } from "@/types/dashboard";
 import { getCurrencySymbol } from "@/data/countries/countries";

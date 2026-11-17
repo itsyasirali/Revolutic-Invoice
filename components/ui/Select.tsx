@@ -20,7 +20,7 @@ const sizeClasses: Record<SelectSize, string> = {
   lg: "h-12 text-base",
 };
 
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
       variant = "default",
