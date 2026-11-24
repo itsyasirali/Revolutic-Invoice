@@ -156,7 +156,7 @@ const DEFAULT_FORM_DATA: TemplateFormData = {
   headerBackgroundColor: "",
   headerHeight: 0,
   showHeader: true,
-  footerText: "Powered by Revolutic — Smart Invoicing",
+  footerText: "Powered by InvoiceSmarty — Smart Invoicing",
   footerAlignment: "center",
   footerFontSize: 9,
   footerFontWeight: "normal",

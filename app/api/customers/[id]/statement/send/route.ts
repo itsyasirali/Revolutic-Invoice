@@ -87,7 +87,7 @@ export const POST = async (
       <p style="margin:0;font-weight:600;color:#111827;">${esc(balanceLine)}</p>
     </div>
     <div style="padding:20px;border-top:1px solid #e5e7eb;text-align:center;background-color:#f9fafb;">
-      <p style="margin:0;font-size:12px;color:#6b7280;">Powered by <span style="color:#f97316;font-weight:600;">Revolutic</span></p>
+      <p style="margin:0;font-size:12px;color:#6b7280;">Powered by <span style="color:#f97316;font-weight:600;">InvoiceSmarty</span></p>
     </div>
   </div>
 </body></html>`;
@@ -99,7 +99,7 @@ export const POST = async (
       ...(cc?.length > 0 && { cc: cc.join(", ") }),
       ...(bcc?.length > 0 && { bcc: bcc.join(", ") }),
       subject: emailSubject,
-      text: `Statement of Account\n\n${customMessage}\n\n${balanceLine}\n\nPowered by Revolutic`,
+      text: `Statement of Account\n\n${customMessage}\n\n${balanceLine}\n\nPowered by InvoiceSmarty`,
       html,
       attachments: [
         {

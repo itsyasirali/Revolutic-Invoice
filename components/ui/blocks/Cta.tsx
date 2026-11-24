@@ -33,7 +33,7 @@ const Cta = () => {
             </h2>
             <p className="text-slate-300 text-lg font-medium leading-relaxed">
               Create professional invoices, automate client billing, and track payments
-              effortlessly with Revolutic Invoice.
+              effortlessly with InvoiceSmarty.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-2">

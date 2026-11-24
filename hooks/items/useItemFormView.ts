@@ -11,12 +11,6 @@ const useItemFormView = () => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const id = params?.id;
-
-  // React Router's <Link state> / navigate(path, { state }) has no App
-  // Router equivalent — the edit page (/items/edit/[id]) originally read
-  // the item straight from location.state; here it's read from the same
-  // sessionStorage-backed nav state that useItemActions writes to under
-  // the `item:${id}` key.
   const [item, setItem] = useState<ItemFormData | null>(() =>
     id
       ? (getNavState<ItemFormData>(`item:${id}`) ?? null)

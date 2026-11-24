@@ -5,7 +5,7 @@ import { useEffect } from "react";
 const SUFFIX = "InvoiceSmarty";
 
 /**
- * Sets the browser tab title once a record is loaded, e.g. "Revolutic | Customer
+ * Sets the browser tab title once a record is loaded, e.g. "InvoiceSmarty | Customer
  * Details | InvoiceSmarty". The static page title from the route's metadata shows
  * until then. Needs no request: detail pages already have the record.
  *

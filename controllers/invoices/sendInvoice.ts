@@ -182,7 +182,7 @@ const sendInvoice = async (
     </div>
     <div style="padding: 20px; border-top: 1px solid #e5e7eb; text-align: center; background-color: #f9fafb;">
       <p style="margin: 0; font-size: 12px; color: #6b7280;">
-        Powered by <span style="color: #f97316; font-weight: 600;">Revolutic</span>
+        Powered by <span style="color: #f97316; font-weight: 600;">InvoiceSmarty</span>
       </p>
     </div>
   </div>
@@ -203,7 +203,7 @@ const sendInvoice = async (
     // Plain-text alternative to the HTML body. Emails with only an HTML
     // part (no text/plain alternative) are a common spam filter signal, so
     // always include one derived from the customer-facing message.
-    const emailText = `Invoice #${invoiceNumber}\n\n${customMessage}\n\nPowered by Revolutic`;
+    const emailText = `Invoice #${invoiceNumber}\n\n${customMessage}\n\nPowered by InvoiceSmarty`;
 
     // Send email
     const mailOptions = {

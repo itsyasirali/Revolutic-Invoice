@@ -95,7 +95,7 @@ export class Template {
   @Column({ default: true }) showLogo!: boolean;
 
   // Branding
-  @Column({ default: "revolutic" }) brandName!: string;
+  @Column({ default: "InvoiceSmarty" }) brandName!: string;
   @Column({ default: "digital innovation leadership" }) tagline!: string;
 
   // Border & Spacing

@@ -36,7 +36,7 @@ export const createMailTransporter = (): Transporter => {
  * pass it through.
  */
 export const getMailFromName = (organizationName?: string | null): string =>
-  organizationName?.trim() || process.env.MAIL_FROM_NAME || "Revolutic";
+  organizationName?.trim() || process.env.MAIL_FROM_NAME || "InvoiceSmarty";
 
 export const getMailFromAddress = (): string =>
   process.env.MAIL_FROM_ADDRESS || (process.env.MAIL_USERNAME as string);

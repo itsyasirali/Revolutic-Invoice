@@ -114,7 +114,7 @@ const sendQuote = async (
       <div style="font-size: 14px; color: #4b5563; line-height: 1.8; white-space: pre-wrap;">${formattedMessage}</div>
     </div>
     <div style="padding: 20px; border-top: 1px solid #e5e7eb; text-align: center; background-color: #f9fafb;">
-      <p style="margin: 0; font-size: 12px; color: #6b7280;">Powered by <span style="color: #f97316; font-weight: 600;">Revolutic</span></p>
+      <p style="margin: 0; font-size: 12px; color: #6b7280;">Powered by <span style="color: #f97316; font-weight: 600;">InvoiceSmarty</span></p>
     </div>
   </div>
 </body>
@@ -127,7 +127,7 @@ const sendQuote = async (
       ...(cc && cc.length > 0 && { cc: cc.join(", ") }),
       ...(bcc && bcc.length > 0 && { bcc: bcc.join(", ") }),
       subject: emailSubject,
-      text: `Quote #${quote.quoteNumber}\n\n${customMessage}\n\nPowered by Revolutic`,
+      text: `Quote #${quote.quoteNumber}\n\n${customMessage}\n\nPowered by InvoiceSmarty`,
       html: emailHtml,
       attachments: pdfBuffer
         ? [

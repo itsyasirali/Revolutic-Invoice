@@ -55,7 +55,7 @@ const Header = () => {
         user?.name ||
         "Ahmad Shahzad"
       : "Ahmad Shahzad";
-  const userEmail = user?.email || "ahmadshahzad@revolutic.net";
+  const userEmail = user?.email || "you@invoicesmarty.com";
   const userInitials =
     displayName
       .split(" ")
