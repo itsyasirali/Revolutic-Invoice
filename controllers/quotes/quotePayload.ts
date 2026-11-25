@@ -12,6 +12,7 @@ export interface QuoteBody {
   expiryDate?: string | null;
   currency?: string;
   referenceNumber?: string;
+  quoteNumber?: string;
   items?: QuoteItemInput[];
   discountPercent?: number | string;
   shipping?: number | string;

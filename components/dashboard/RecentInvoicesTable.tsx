@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "@/components/organization/OrgLink";
-import { ScrollText, ArrowRight, Plus } from "lucide-react";
+import { ScrollText, ArrowRight } from "lucide-react";
 import type { DashboardInvoice, RecentInvoicesTableProps } from "@/types/dashboard";
 import { getCurrencySymbol } from "@/data/countries/countries";
 
@@ -63,13 +63,6 @@ const RecentInvoicesTable = ({ invoices }: RecentInvoicesTableProps) => {
             Create your first invoice to begin tracking your billing and
             revenue.
           </p>
-          <Link
-            href="/invoices/new"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-blue-600 transition-colors shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Invoice</span>
-          </Link>
         </div>
       ) : (
         <div className="overflow-x-auto">

@@ -36,8 +36,25 @@ const createQuote = async (req: NextRequest) => {
 
     const repo = db.getRepository(Quote);
     const { items, ...totals } = calc;
+
+    // A custom quote number can be supplied by the client; otherwise fall
+    // back to the general auto-incrementing organization-wide sequence.
+    const requestedQuoteNumber = String(body.quoteNumber || "").trim();
+    let quoteNumber: string;
+    if (requestedQuoteNumber) {
+      const duplicate = await repo.findOne({
+        where: { organizationId: orgId, quoteNumber: requestedQuoteNumber },
+      });
+      if (duplicate) {
+        throw new HttpError(`Quote number "${requestedQuoteNumber}" is already in use`, 409);
+      }
+      quoteNumber = requestedQuoteNumber;
+    } else {
+      quoteNumber = await nextSequenceNumber(repo, "quoteNumber", orgId, "QUO");
+    }
+
     const quote = repo.create({
-      quoteNumber: await nextSequenceNumber(repo, "quoteNumber", orgId, "QUO"),
+      quoteNumber,
       customerId: Number(body.customerId),
       templateId,
       quoteDate,

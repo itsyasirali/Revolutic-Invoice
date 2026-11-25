@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { quoteEditable, LOCKED_MESSAGE } from "@/lib/editLock";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "@/lib/axios";
@@ -70,6 +70,8 @@ const useQuoteForm = () => {
   }, [quote?.status]);
 
   const [customerId, setCustomerId] = useState("");
+  const [customNumbering, setCustomNumbering] = useState(false);
+  const [quoteNumber, setQuoteNumber] = useState("");
   const [templateId, setTemplateId] = useState("");
   const [currency, setCurrency] = useState("");
   const [lines, setLines] = useState<FormLine[]>([newLine()]);
@@ -108,6 +110,13 @@ const useQuoteForm = () => {
     [catalog],
   );
 
+  const toggleCustomNumbering = useCallback(() => {
+    setCustomNumbering((prev) => {
+      if (prev) setQuoteNumber("");
+      return !prev;
+    });
+  }, []);
+
   const templateOptions = useMemo(
     () => templates.map((t) => ({ label: t.name + (t.isDefault ? " (default)" : ""), value: String(t.id) })),
     [templates],
@@ -139,6 +148,18 @@ const useQuoteForm = () => {
   const removeLine = (key: string) =>
     setLines((prev) => (prev.length > 1 ? prev.filter((l) => l.key !== key) : prev));
 
+  // Shipping only applies when at least one line is goods (or a manual line with
+  // no catalog item). Quotes made up solely of Service items have nothing to ship.
+  const showShipping = useMemo(
+    () =>
+      lines.some((l) => {
+        const item = l.itemId ? catalog.find((i) => String(i.id) === l.itemId) : undefined;
+        return !item || item.type !== "Service";
+      }),
+    [lines, catalog],
+  );
+  const effectiveShipping = showShipping ? shipping : "0";
+
   // Preview only; the server recalculates everything on save.
   const totals = useMemo(
     () =>
@@ -151,16 +172,17 @@ const useQuoteForm = () => {
           tax: l.tax,
         })),
         discountPercent,
-        shipping,
+        shipping: effectiveShipping,
         adjustment,
       }),
-    [lines, discountPercent, shipping, adjustment],
+    [lines, discountPercent, effectiveShipping, adjustment],
   );
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const form = new FormData(e.currentTarget);
+  const [sendingAfterSave, setSendingAfterSave] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const saveQuote = useCallback(
+    async (form: FormData, andSend: boolean) => {
       if (!customerId) {
         setAlert({ show: true, type: "error", message: "Please select a customer." });
         return;
@@ -172,6 +194,7 @@ const useQuoteForm = () => {
         expiryDate: String(form.get("expiryDate") || "") || null,
         currency: currency || "PKR",
         referenceNumber: String(form.get("referenceNumber") || ""),
+        ...(customNumbering && quoteNumber.trim() ? { quoteNumber: quoteNumber.trim() } : {}),
         items: lines.map((l) => ({
           itemId: l.itemId ? Number(l.itemId) : null,
           name: l.name,
@@ -182,13 +205,14 @@ const useQuoteForm = () => {
           tax: Number(l.tax) || 0,
         })),
         discountPercent: Number(discountPercent) || 0,
-        shipping: Number(shipping) || 0,
+        shipping: showShipping ? Number(shipping) || 0 : 0,
         adjustment: Number(adjustment) || 0,
         notes: String(form.get("notes") || ""),
         terms: String(form.get("terms") || ""),
       };
 
       setSaving(true);
+      if (andSend) setSendingAfterSave(true);
       setAlert({ show: false, type: "error", message: "" });
       try {
         const res = id
@@ -200,7 +224,8 @@ const useQuoteForm = () => {
           id ? "Quote Updated" : "Quote Created",
         );
         router.refresh();
-        router.push(`/quotes/${res.data.quote.id}`);
+        const savedId = res.data.quote.id;
+        router.push(andSend ? `/quotes/${savedId}/email` : `/quotes/${savedId}`);
       } catch (err) {
         const er = err as { response?: { data?: { message?: string } }; message?: string };
         setAlert({
@@ -210,10 +235,39 @@ const useQuoteForm = () => {
         });
       } finally {
         setSaving(false);
+        setSendingAfterSave(false);
       }
     },
-    [id, customerId, templateId, currency, lines, discountPercent, shipping, adjustment, router],
+    [
+      id,
+      customerId,
+      customNumbering,
+      quoteNumber,
+      templateId,
+      currency,
+      lines,
+      discountPercent,
+      shipping,
+      showShipping,
+      adjustment,
+      router,
+    ],
   );
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      await saveQuote(new FormData(e.currentTarget), false);
+    },
+    [saveQuote],
+  );
+
+  const handleSaveAndSend = useCallback(async () => {
+    if (!formRef.current) return;
+    // Not a submit button, so trigger the browser's own required-field check first.
+    if (!formRef.current.reportValidity()) return;
+    await saveQuote(new FormData(formRef.current), true);
+  }, [saveQuote]);
 
   return {
     isEdit: !!id,
@@ -222,20 +276,26 @@ const useQuoteForm = () => {
     loading: quoteLoading,
     saving,
     customerOptions,
+    selectedCustomer: customers.find((c) => String(c.id) === customerId),
     customerId, setCustomerId,
+    customNumbering, toggleCustomNumbering,
+    quoteNumber, setQuoteNumber,
     templateOptions, templateId, setTemplateId,
     currency, setCurrency,
     itemOptions,
     lines, updateLine, pickItem, addLine, removeLine,
     discountPercent, setDiscountPercent,
-    shipping, setShipping,
+    shipping, setShipping, showShipping,
     adjustment, setAdjustment,
     totals,
     defaultQuoteDate: isClone ? "" : toDateInput(quote?.quoteDate),
     defaultExpiryDate: !isClone && quote?.expiryDate ? toDateInput(quote.expiryDate) : "",
     alert,
     dismissAlert: () => setAlert({ show: false, type: "error", message: "" }),
+    formRef,
     handleSubmit,
+    handleSaveAndSend,
+    sendingAfterSave,
     handleCancel: () => router.push(id ? `/quotes/${id}` : "/quotes"),
   };
 };
