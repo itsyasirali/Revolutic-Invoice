@@ -113,7 +113,7 @@ const createDataSource = (): DataSource => {
       max: poolMax,
       min: 0,
       keepAlive: true,
-      idleTimeoutMillis: 30000,
+      idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 10000,
       allowExitOnIdle: true,
     },
